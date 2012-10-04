@@ -18,14 +18,16 @@ SOURCES += main.cpp\
     proxy/proxythread.cpp \
     init/proxyinitializer.cpp \
     init/initializer.cpp \
-    helpers/messagehelper.cpp
+    helpers/messagehelper.cpp \
+    proxy/proxyrequest.cpp
 
 HEADERS  += view/mainwindow.h \
         proxy/proxyserver.h \
     proxy/proxythread.h \
     init/proxyinitializer.h \
     init/initializer.h \
-    helpers/messagehelper.h
+    helpers/messagehelper.h \
+    proxy/proxyrequest.h
 
 FORMS    += view/mainwindow.ui
 

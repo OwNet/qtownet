@@ -5,6 +5,8 @@
 
 class ProxyServer : public QTcpServer
 {
+    Q_OBJECT
+
 public:
     ProxyServer(QObject *parent = 0);
 
@@ -14,6 +16,10 @@ public:
 
 protected:
     void incomingConnection(int handle);
+
+private slots:
+    void readClient();
+    void discardClient();
 };
 
 #endif // PROXYSERVER_H
