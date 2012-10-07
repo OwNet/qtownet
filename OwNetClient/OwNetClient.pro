@@ -15,19 +15,23 @@ TEMPLATE = app
 SOURCES += main.cpp\
         view/mainwindow.cpp \
         proxy/proxyserver.cpp \
-    proxy/proxythread.cpp \
     init/proxyinitializer.cpp \
     init/initializer.cpp \
     helpers/messagehelper.cpp \
-    proxy/proxyrequest.cpp
+    proxy/proxyrequest.cpp \
+    proxy/proxyhandler.cpp \
+    proxy/input/proxyinputobject.cpp \
+    proxy/input/proxywebinputobject.cpp
 
 HEADERS  += view/mainwindow.h \
         proxy/proxyserver.h \
-    proxy/proxythread.h \
     init/proxyinitializer.h \
     init/initializer.h \
     helpers/messagehelper.h \
-    proxy/proxyrequest.h
+    proxy/proxyrequest.h \
+    proxy/proxyhandler.h \
+    proxy/input/proxyinputobject.h \
+    proxy/input/proxywebinputobject.h
 
 FORMS    += view/mainwindow.ui
 

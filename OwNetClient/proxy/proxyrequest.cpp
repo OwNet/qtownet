@@ -7,8 +7,7 @@
 
 ProxyRequest::ProxyRequest(QTcpSocket *socket)
     : m_socket(socket)
-{
-}
+{}
 
 bool ProxyRequest::readFromSocket()
 {
