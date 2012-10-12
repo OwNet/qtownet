@@ -21,7 +21,8 @@ SOURCES += main.cpp\
     proxy/proxyrequest.cpp \
     proxy/proxyhandler.cpp \
     proxy/input/proxyinputobject.cpp \
-    proxy/input/proxywebinputobject.cpp
+    proxy/input/proxywebinputobject.cpp \
+    helpers/listofstringpairs.cpp
 
 HEADERS  += view/mainwindow.h \
         proxy/proxyserver.h \
@@ -31,8 +32,9 @@ HEADERS  += view/mainwindow.h \
     proxy/proxyrequest.h \
     proxy/proxyhandler.h \
     proxy/input/proxyinputobject.h \
-    proxy/input/proxywebinputobject.h
+    proxy/input/proxywebinputobject.h \
+    helpers/listofstringpairs.h
 
 FORMS    += view/mainwindow.ui
 
-INCLUDEPATH += proxy init helpers view
+INCLUDEPATH += proxy init helpers view proxy/input

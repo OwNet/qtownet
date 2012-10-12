@@ -2,6 +2,7 @@
 
 #include "messagehelper.h"
 #include "proxyrequest.h"
+#include "proxywebinputobject.h"
 
 #include <QRegExp>
 #include <QWidget>
@@ -59,42 +60,31 @@ void ProxyHandler::readRequest()
     ProxyRequest * request = new ProxyRequest(m_socket);
 
     request->readFromSocket();
-    QNetworkAccessManager *manager = new QNetworkAccessManager(this);
-    QNetworkReply *reply = NULL;
 
-    MessageHelper::debug(request->networkRequest().url().toString());
+    ProxyInputObject *inputObject = new ProxyWebInputObject(request, this);
+    connect(inputObject, SIGNAL(finished()), this, SLOT(downloadFinished()));
+    connect(inputObject, SIGNAL(readyRead(QIODevice*,ProxyInputObject*)), this, SLOT(readReply(QIODevice*,ProxyInputObject*)));
 
-    if (request->requestType() == ProxyRequest::GET)
-        reply = manager->get(request->networkRequest());
-    if (reply == NULL) {
-        finishHandlingRequest();
-        return;
-    }
-
-    connect(reply, SIGNAL(finished()), this, SLOT(downloadFinished()));
-    connect(reply, SIGNAL(readyRead()), this, SLOT(readReply()));
-    connect(reply, SIGNAL(error(QNetworkReply::NetworkError)), this, SLOT(error(QNetworkReply::NetworkError)));
+    inputObject->readRequest();
 }
 
-void ProxyHandler::readReply()
+void ProxyHandler::readReply(QIODevice *ioDevice, ProxyInputObject *inputObject)
 {
     if (m_socket == NULL || !m_socket->isOpen())
         return;
-
-    QNetworkReply *reply = qobject_cast<QNetworkReply*>(sender());
 
     if (!m_writtenToSocket) {
         m_writtenToSocket = true;
 
         QTextStream os(m_socket);
         os.setAutoDetectUnicode(true);
-        QList<QNetworkReply::RawHeaderPair> headers = reply->rawHeaderPairs();
 
         os << "HTTP/1.0 "
-           << reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toString()
+           << inputObject->httpStatusCode()
            << " "
-           << reply->attribute(QNetworkRequest::HttpReasonPhraseAttribute).toString()
+           << inputObject->httpStatusDescription()
            << "\r\n";
+        ListOfStringPairs headers = inputObject->responseHeaders();
         for (int i = 0; i < headers.count(); ++i) {
             os << headers.at(i).first << ": " << headers.at(i).second << "\r\n";
         }
@@ -110,7 +100,7 @@ void ProxyHandler::readReply()
 
 //        }
     }
-    m_socket->write(reply->readAll());
+    m_socket->write(ioDevice->readAll());
 }
 
 void ProxyHandler::error(QNetworkReply::NetworkError)

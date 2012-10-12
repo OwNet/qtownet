@@ -6,6 +6,7 @@
 #include <QNetworkReply>
 
 class QSemaphore;
+class ProxyInputObject;
 
 class ProxyHandler : public QObject
 {
@@ -39,7 +40,7 @@ public slots:
 
 private slots:
     void readRequest();
-    void readReply();
+    void readReply(QIODevice *ioDevice, ProxyInputObject *inputObject);
     void error(QNetworkReply::NetworkError);
     void downloadFinished();
     void handleRequest();

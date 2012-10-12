@@ -1,6 +1,6 @@
 #include "proxyinputobject.h"
 
-ProxyInputObject::ProxyInputObject(QObject *parent) :
-    QObject(parent)
+ProxyInputObject::ProxyInputObject(ProxyRequest *request, QObject *parent) :
+    m_request(request), QObject(parent), m_readHeaders(false)
 {
 }
