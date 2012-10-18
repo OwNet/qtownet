@@ -1,5 +1,6 @@
 #include "proxyinitializer.h"
 #include "messagehelper.h"
+#include "proxyrequest.h"
 
 #include <QNetworkInterface>
 

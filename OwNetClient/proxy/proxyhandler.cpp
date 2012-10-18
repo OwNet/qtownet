@@ -3,6 +3,7 @@
 #include "messagehelper.h"
 #include "proxyrequest.h"
 #include "proxywebinputobject.h"
+#include "proxystaticinputobject.h"
 
 #include <QRegExp>
 #include <QWidget>
@@ -60,8 +61,14 @@ void ProxyHandler::readRequest()
     ProxyRequest * request = new ProxyRequest(m_socket);
 
     request->readFromSocket();
+    request->requestContentType();
+    QString url = request->url();
 
-    ProxyInputObject *inputObject = new ProxyWebInputObject(request, this);
+    ProxyInputObject *inputObject = NULL;
+    if (request->url().startsWith("http://static.ownet"))
+        inputObject = new ProxyStaticInputObject(request, this);
+    else
+        inputObject = new ProxyWebInputObject(request, this);
     connect(inputObject, SIGNAL(finished()), this, SLOT(downloadFinished()));
     connect(inputObject, SIGNAL(readyRead(QIODevice*,ProxyInputObject*)), this, SLOT(readReply(QIODevice*,ProxyInputObject*)));
 

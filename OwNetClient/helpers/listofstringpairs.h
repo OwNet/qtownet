@@ -9,6 +9,8 @@ class ListOfStringPairs : public QList< QPair<QString, QString> >
 {
 public:
     ListOfStringPairs();
+
+    void insert(const QString &, const QString &);
 };
 
 #endif // LISTOFSTRINGPAIRS_H

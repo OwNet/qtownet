@@ -15,7 +15,7 @@ void ProxyWebInputObject::readRequest()
     QNetworkAccessManager *manager = new QNetworkAccessManager(this);
     QNetworkReply *reply = NULL;
 
-    MessageHelper::debug(m_request->networkRequest().url().toString());
+    MessageHelper::debug(m_request->url());
 
     if (m_request->requestType() == ProxyRequest::GET)
         reply = manager->get(m_request->networkRequest());
@@ -40,10 +40,8 @@ void ProxyWebInputObject::readReply()
         m_httpStatusDescription = reply->attribute(QNetworkRequest::HttpReasonPhraseAttribute).toString();
 
         QList<QNetworkReply::RawHeaderPair> headers = reply->rawHeaderPairs();
-        for (int i = 0; i < headers.count(); ++i) {
-            QPair<QString, QString> pair(headers.at(i).first, headers.at(i).second);
-            m_responseHeaders.append(pair);
-        }
+        for (int i = 0; i < headers.count(); ++i)
+            m_responseHeaders.insert(headers.at(i).first, headers.at(i).second);
     }
     emit readyRead(reply, this);
 }
