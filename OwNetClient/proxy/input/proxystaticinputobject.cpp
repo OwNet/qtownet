@@ -14,8 +14,6 @@ ProxyStaticInputObject::ProxyStaticInputObject(ProxyRequest *request, QObject *p
 
 void ProxyStaticInputObject::readRequest()
 {
-    MessageHelper::debug(m_request->url());
-
     QFile *file = new QFile(QString("OwNetClient/static/%1").arg(m_request->relativeUrl()));
 
     if (file->exists()) {

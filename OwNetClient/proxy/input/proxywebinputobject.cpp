@@ -6,7 +6,7 @@
 #include <QNetworkReply>
 
 ProxyWebInputObject::ProxyWebInputObject(ProxyRequest *request, QObject *parent)
-    : ProxyInputObject(request, parent)
+    : ProxyInputObject(request, parent), m_readHeaders(false)
 {
 }
 
@@ -14,11 +14,15 @@ void ProxyWebInputObject::readRequest()
 {
     QNetworkAccessManager *manager = new QNetworkAccessManager(this);
     QNetworkReply *reply = NULL;
-
-    MessageHelper::debug(m_request->url());
+    QNetworkRequest request;
+    request.setUrl(QUrl(m_request->url()));
+    for (int i = 0; i < m_request->requestHeaders().count(); ++i)
+        request.setRawHeader(m_request->requestHeaders().at(i).first.toLatin1(),
+                             m_request->requestHeaders().at(i).second.toLatin1());
+    request.setRawHeader("X-Proxied-By", "OwNet");
 
     if (m_request->requestType() == ProxyRequest::GET)
-        reply = manager->get(m_request->networkRequest());
+        reply = manager->get(request);
     if (reply == NULL) {
         emit finished();
         return;
@@ -51,10 +55,12 @@ void ProxyWebInputObject::error(QNetworkReply::NetworkError)
     QNetworkReply *reply = qobject_cast<QNetworkReply*>(sender());
     MessageHelper::debug(reply->errorString());
 
+    disconnect(this);
     emit finished();
 }
 
 void ProxyWebInputObject::downloadFinished()
 {
+    disconnect(this);
     emit finished();
 }

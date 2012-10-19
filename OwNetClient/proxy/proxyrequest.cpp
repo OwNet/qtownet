@@ -6,9 +6,11 @@
 #include <QTcpSocket>
 #include <QRegExp>
 
-ProxyRequest::ProxyRequest(QTcpSocket *socket)
-    : m_socket(socket)
-{}
+ProxyRequest::ProxyRequest(QTcpSocket *socket, QObject *parent)
+    : QObject(parent), m_socket(socket)
+{
+    m_url = "http://dsaldfsal.ownet/asfas";
+}
 
 bool ProxyRequest::readFromSocket()
 {
@@ -19,7 +21,7 @@ bool ProxyRequest::readFromSocket()
             QStringList tuple = readLine.split(QRegExp("[ \r\n][ \r\n]*"));
             if (tuple.count() > 1) {
                 m_requestMethod = tuple.first().toLower();
-                m_networkRequest.setUrl(QUrl(tuple.at(1)));
+                m_url = tuple.at(1);
             } else {
                 return false;
             }
@@ -31,10 +33,12 @@ bool ProxyRequest::readFromSocket()
             QString value = tokens.at(1);
             value.remove(QRegExp("[\r\n][\r\n]*"));
 
-            m_networkRequest.setRawHeader(key.toLatin1(), value.toLatin1());
+            m_requestHeaders.insert(key, value);
         }
     }
-    m_networkRequest.setRawHeader("X-Proxied-By", "OwNet");
+
+    analyzeUrl();
+
     return true;
 }
 
@@ -51,21 +55,6 @@ ProxyRequest::RequestType ProxyRequest::requestType()
     return UNKNOWN;
 }
 
-const QString ProxyRequest::relativeUrl()
-{
-    QStringList split = m_networkRequest.url().toString().split("//").last().split("/");
-    if (split.count() > 1) {
-        split.takeFirst();
-        return split.join("/");
-    }
-    return "";
-}
-
-const QString ProxyRequest::url()
-{
-    return m_networkRequest.url().toString();
-}
-
 const QString ProxyRequest::requestContentType()
 {
     QString ext = urlExtension();
@@ -76,10 +65,33 @@ const QString ProxyRequest::requestContentType()
 
 const QString ProxyRequest::urlExtension()
 {
-    QStringList parts = url().split("?").first().split(".");
+    QStringList parts = m_url.split("?").first().split(".");
     if (parts.count() > 1)
         return parts.last();
     return "";
+}
+
+void ProxyRequest::analyzeUrl()
+{
+    QStringList httpSplit = m_url.split("//");
+    httpSplit.takeFirst();
+    QString url = httpSplit.join("//");
+    QStringList split = url.split("/");
+    QString fullDomain = split.takeFirst();
+    QStringList domainSplit = fullDomain.split(".");
+    if (domainSplit.first() == "www")
+        domainSplit.takeFirst();
+
+    if (domainSplit.count() > 0) {
+        m_domain = domainSplit.takeLast();
+        m_subDomain = domainSplit.join(".");
+    }
+
+    if (split.count() > 0) {
+        m_relativeUrl = split.join("/");
+    } else {
+        m_relativeUrl = "";
+    }
 }
 
 QMap<QString, QString> ProxyRequest::m_contentTypes = initContentTypes();

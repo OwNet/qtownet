@@ -30,7 +30,8 @@ SOURCES += main.cpp\
     helpers/qjson/parserrunnable.cpp \
     helpers/qjson/qobjecthelper.cpp \
     helpers/qjson/serializer.cpp \
-    helpers/qjson/serializerrunnable.cpp
+    helpers/qjson/serializerrunnable.cpp \
+    bus/requestbus.cpp
 
 HEADERS  += view/mainwindow.h \
         proxy/proxyserver.h \
@@ -55,8 +56,9 @@ HEADERS  += view/mainwindow.h \
     helpers/qjson/qobjecthelper.h \
     helpers/qjson/serializer.h \
     helpers/qjson/serializerrunnable.h \
-    helpers/qjson/stack.hh
+    helpers/qjson/stack.hh \
+    bus/requestbus.h
 
 FORMS    += view/mainwindow.ui
 
-INCLUDEPATH += proxy init helpers view proxy/input
+INCLUDEPATH += proxy init helpers view proxy/input bus

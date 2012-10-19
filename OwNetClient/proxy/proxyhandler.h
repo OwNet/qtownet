@@ -7,10 +7,16 @@
 
 class QSemaphore;
 class ProxyInputObject;
+class ProxyRequest;
+class QTimer;
 
 class ProxyHandler : public QObject
 {
     Q_OBJECT
+
+    enum {
+        TIMEOUT = 30000
+    };
 
 public:
     ProxyHandler(QObject *parent = NULL);
@@ -22,10 +28,12 @@ signals:
 private:
     void finishHandlingRequest();
 
-    QTcpSocket * m_socket;
-    QSemaphore * m_openSemaphore;
+    QTcpSocket *m_socket;
+    QSemaphore *m_openSemaphore;
+    ProxyRequest *m_request;
     int m_socketDescriptor;
     bool m_writtenToSocket;
+    QTimer *m_timeoutTimer;
 
 signals:
     void finished();
@@ -44,6 +52,7 @@ private slots:
     void error(QNetworkReply::NetworkError);
     void downloadFinished();
     void handleRequest();
+    void requestTimeout();
 };
 
 #endif // PROXYTHREAD_H

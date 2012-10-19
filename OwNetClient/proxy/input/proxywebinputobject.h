@@ -23,6 +23,7 @@ private slots:
     void downloadFinished();
 
 private:
+    bool m_readHeaders;
     QString m_httpStatusCode;
     QString m_httpStatusDescription;
 };

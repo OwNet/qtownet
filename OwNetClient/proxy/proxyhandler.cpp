@@ -4,16 +4,21 @@
 #include "proxyrequest.h"
 #include "proxywebinputobject.h"
 #include "proxystaticinputobject.h"
+#include "requestbus.h"
 
 #include <QRegExp>
 #include <QWidget>
 #include <QDateTime>
 #include <QNetworkAccessManager>
 #include <QSemaphore>
+#include <QTimer>
 
 ProxyHandler::ProxyHandler(QObject *parent)
-    : QObject(parent), m_writtenToSocket(false)
+    : QObject(parent), m_request(NULL), m_writtenToSocket(false)
 {
+    m_timeoutTimer = new QTimer(this);
+    connect(m_timeoutTimer, SIGNAL(timeout()), this, SLOT(requestTimeout()));
+
     m_openSemaphore = new QSemaphore(1);
     connect(this, SIGNAL(start()), this, SLOT(handleRequest()));
 }
@@ -35,40 +40,54 @@ void ProxyHandler::handleRequest()
     m_socket->setSocketDescriptor(m_socketDescriptor);
     m_writtenToSocket = false;
 
+    m_timeoutTimer->start(TIMEOUT);
+
     connect(m_socket, SIGNAL(readyRead()), this, SLOT(readRequest()));
+}
+
+void ProxyHandler::requestTimeout()
+{
+    finishHandlingRequest();
 }
 
 void ProxyHandler::finishHandlingRequest()
 {
-    if (m_socket != NULL) {
+    m_timeoutTimer->stop();
+    if (m_socket) {
         if (m_socket->isOpen()) {
             disconnect(m_socket, SIGNAL(readyRead()), this, SLOT(readRequest()));
             m_socket->close();
         }
 
-        if (m_socket->state() == QTcpSocket::UnconnectedState) {
-            delete m_socket;
-            m_socket = NULL;
-        }
+        m_socket->deleteLater();
+        m_request->deleteLater();
+        m_socket = NULL;
+        m_request = NULL;
 
         m_openSemaphore->release();
-        requestFinished(this);
+        emit requestFinished(this);
     }
 }
 
 void ProxyHandler::readRequest()
 {
-    ProxyRequest * request = new ProxyRequest(m_socket);
+    m_request = new ProxyRequest(m_socket, this);
 
-    request->readFromSocket();
-    request->requestContentType();
-    QString url = request->url();
+    if (!m_request->readFromSocket()) {
+        MessageHelper::debug("Failed to read from socket.");
+        finish();
+        return;
+    }
 
     ProxyInputObject *inputObject = NULL;
-    if (request->url().startsWith("http://static.ownet"))
-        inputObject = new ProxyStaticInputObject(request, this);
+
+    if (m_request->isStaticResourceRequest())
+        inputObject = new ProxyStaticInputObject(m_request, m_request);
+    else if (m_request->isLocalRequest())
+        inputObject = new RequestBus(m_request, m_request);
     else
-        inputObject = new ProxyWebInputObject(request, this);
+        inputObject = new ProxyWebInputObject(m_request, m_request);
+
     connect(inputObject, SIGNAL(finished()), this, SLOT(downloadFinished()));
     connect(inputObject, SIGNAL(readyRead(QIODevice*,ProxyInputObject*)), this, SLOT(readReply(QIODevice*,ProxyInputObject*)));
 
@@ -77,6 +96,7 @@ void ProxyHandler::readRequest()
 
 void ProxyHandler::readReply(QIODevice *ioDevice, ProxyInputObject *inputObject)
 {
+    m_timeoutTimer->stop();
     if (m_socket == NULL || !m_socket->isOpen())
         return;
 
@@ -108,6 +128,8 @@ void ProxyHandler::readReply(QIODevice *ioDevice, ProxyInputObject *inputObject)
 //        }
     }
     m_socket->write(ioDevice->readAll());
+
+    m_timeoutTimer->start(TIMEOUT);
 }
 
 void ProxyHandler::error(QNetworkReply::NetworkError)
@@ -124,6 +146,7 @@ void ProxyHandler::downloadFinished()
 
 void ProxyHandler::finish()
 {
+    MessageHelper::debug("2");
     finishHandlingRequest();
     emit finished();
 }

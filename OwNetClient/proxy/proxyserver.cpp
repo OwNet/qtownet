@@ -14,12 +14,13 @@ ProxyHandler * ProxyServer::initializeProxyHandler()
     connect(this, SIGNAL(askAllHandlersToFinish()), handler, SLOT(finish()));
 
     QThread *t = new QThread();
+    t->start();
+    t->moveToThread(t);
     handler->moveToThread(t);
 
     connect(handler, SIGNAL(finished()), t, SLOT(quit()));
     connect(t, SIGNAL(finished()), t, SLOT(deleteLater()));
     connect(handler, SIGNAL(requestFinished(ProxyHandler *)), this, SLOT(proxyRequestFinished(ProxyHandler *)));
-    t->start();
 
     return handler;
 }
@@ -29,8 +30,9 @@ void ProxyServer::incomingConnection(int handle)
     ProxyHandler * handler = NULL;
 
     m_freeHandlersMutex.lock();
-    if (!m_freeHandlers.isEmpty())
+    if (!m_freeHandlers.isEmpty()) {
         handler = m_freeHandlers.dequeue();
+    }
     m_freeHandlersMutex.unlock();
 
     if (handler == NULL) {

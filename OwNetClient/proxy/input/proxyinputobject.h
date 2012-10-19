@@ -28,7 +28,6 @@ signals:
 public slots:
 
 protected:
-    bool m_readHeaders;
     ProxyRequest *m_request;
     ListOfStringPairs m_responseHeaders;
 };
