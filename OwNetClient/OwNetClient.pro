@@ -23,7 +23,14 @@ SOURCES += main.cpp\
     proxy/input/proxyinputobject.cpp \
     proxy/input/proxywebinputobject.cpp \
     helpers/listofstringpairs.cpp \
-    proxy/input/proxystaticinputobject.cpp
+    proxy/input/proxystaticinputobject.cpp \
+    helpers/qjson/json_parser.cc \
+    helpers/qjson/json_scanner.cpp \
+    helpers/qjson/parser.cpp \
+    helpers/qjson/parserrunnable.cpp \
+    helpers/qjson/qobjecthelper.cpp \
+    helpers/qjson/serializer.cpp \
+    helpers/qjson/serializerrunnable.cpp
 
 HEADERS  += view/mainwindow.h \
         proxy/proxyserver.h \
@@ -35,7 +42,20 @@ HEADERS  += view/mainwindow.h \
     proxy/input/proxyinputobject.h \
     proxy/input/proxywebinputobject.h \
     helpers/listofstringpairs.h \
-    proxy/input/proxystaticinputobject.h
+    proxy/input/proxystaticinputobject.h \
+    helpers/qjson/json_parser.hh \
+    helpers/qjson/json_scanner.h \
+    helpers/qjson/location.hh \
+    helpers/qjson/parser_p.h \
+    helpers/qjson/parser.h \
+    helpers/qjson/parserrunnable.h \
+    helpers/qjson/position.hh \
+    helpers/qjson/qjson_debug.h \
+    helpers/qjson/qjson_export.h \
+    helpers/qjson/qobjecthelper.h \
+    helpers/qjson/serializer.h \
+    helpers/qjson/serializerrunnable.h \
+    helpers/qjson/stack.hh
 
 FORMS    += view/mainwindow.ui
 
