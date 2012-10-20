@@ -10,7 +10,7 @@ ProxyInitializer::ProxyInitializer()
 
 void ProxyInitializer::init()
 {
-    if (!m_proxyServer.listen(QHostAddress::Any, ProxyServer::PORT)) {
+    if (!m_proxyServer.listen(QHostAddress::Any, ProxyServer::Port)) {
         MessageHelper::error(QObject::tr("Failed to start server"),
                                 QObject::tr("Unable to start the server: %1.")
                                 .arg(m_proxyServer.errorString()));

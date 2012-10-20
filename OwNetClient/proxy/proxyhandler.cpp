@@ -40,7 +40,7 @@ void ProxyHandler::handleRequest()
     m_socket->setSocketDescriptor(m_socketDescriptor);
     m_writtenToSocket = false;
 
-    m_timeoutTimer->start(TIMEOUT);
+    m_timeoutTimer->start(Timeout);
 
     connect(m_socket, SIGNAL(readyRead()), this, SLOT(readRequest()));
 }
@@ -129,7 +129,7 @@ void ProxyHandler::readReply(QIODevice *ioDevice, ProxyInputObject *inputObject)
     }
     m_socket->write(ioDevice->readAll());
 
-    m_timeoutTimer->start(TIMEOUT);
+    m_timeoutTimer->start(Timeout);
 }
 
 void ProxyHandler::error(QNetworkReply::NetworkError)

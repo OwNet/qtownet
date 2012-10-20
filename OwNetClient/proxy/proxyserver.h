@@ -15,9 +15,9 @@ public:
     ProxyServer(QObject *parent = 0);
 
     enum {
-        PORT = 8081,
-        INITIAL_NUM_PROXY_HANDLERS = 5,
-        MAX_NUM_PROXY_HANDLERS = 15
+        Port = 8081,
+        InitialNumberOfProxyHandlers = 5,
+        MaxNumberOfProxyHandlers = 15
     };
 
 protected:

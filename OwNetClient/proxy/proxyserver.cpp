@@ -4,7 +4,7 @@
 ProxyServer::ProxyServer(QObject *parent)
     : QTcpServer(parent)
 {
-    for (int i = 0; i < INITIAL_NUM_PROXY_HANDLERS; ++i)
+    for (int i = 0; i < InitialNumberOfProxyHandlers; ++i)
         m_freeHandlers.enqueue(initializeProxyHandler());
 }
 
@@ -47,7 +47,7 @@ void ProxyServer::proxyRequestFinished(ProxyHandler * handler) {
     bool enqueued = false;
 
     m_freeHandlersMutex.lock();
-    if (m_freeHandlers.count() < MAX_NUM_PROXY_HANDLERS) {
+    if (m_freeHandlers.count() < MaxNumberOfProxyHandlers) {
         m_freeHandlers.enqueue(handler);
         enqueued = true;
     }
