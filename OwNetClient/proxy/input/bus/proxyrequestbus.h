@@ -6,12 +6,12 @@
 class ProxyRequest;
 class QIODevice;
 
-class RequestBus : public ProxyInputObject
+class ProxyRequestBus : public ProxyInputObject
 {
     Q_OBJECT
 
 public:
-    RequestBus(ProxyRequest *request, QObject *parent = 0);
+    ProxyRequestBus(ProxyRequest *request, QObject *parent = 0);
 
     void readRequest();
 

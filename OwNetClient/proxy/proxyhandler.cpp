@@ -4,7 +4,7 @@
 #include "proxyrequest.h"
 #include "proxywebinputobject.h"
 #include "proxystaticinputobject.h"
-#include "requestbus.h"
+#include "proxyrequestbus.h"
 
 #include <QRegExp>
 #include <QWidget>
@@ -84,7 +84,7 @@ void ProxyHandler::readRequest()
     if (m_request->isStaticResourceRequest())
         inputObject = new ProxyStaticInputObject(m_request, m_request);
     else if (m_request->isLocalRequest())
-        inputObject = new RequestBus(m_request, m_request);
+        inputObject = new ProxyRequestBus(m_request, m_request);
     else
         inputObject = new ProxyWebInputObject(m_request, m_request);
 

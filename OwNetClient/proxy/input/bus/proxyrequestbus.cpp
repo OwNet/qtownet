@@ -1,4 +1,4 @@
-#include "requestbus.h"
+#include "proxyrequestbus.h"
 
 #include "proxyrequest.h"
 #include "qjson/serializer.h"
@@ -6,13 +6,13 @@
 #include <QBuffer>
 #include <QVariantList>
 
-RequestBus::RequestBus(ProxyRequest *request, QObject *parent)
+ProxyRequestBus::ProxyRequestBus(ProxyRequest *request, QObject *parent)
     : ProxyInputObject(request, parent), m_request(request)
 {
     m_responseHeaders.insert("Content-type", m_request->requestContentType());
 }
 
-void RequestBus::readRequest()
+void ProxyRequestBus::readRequest()
 {
     QVariantList people;
 
