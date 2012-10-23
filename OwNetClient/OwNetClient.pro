@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += core gui network
+QT       += core gui network sql
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -31,7 +31,8 @@ SOURCES += main.cpp\
     helpers/qjson/qobjecthelper.cpp \
     helpers/qjson/serializer.cpp \
     helpers/qjson/serializerrunnable.cpp \
-    proxy/input/bus/proxyrequestbus.cpp
+    proxy/input/bus/proxyrequestbus.cpp \
+    init/databaseinitializer.cpp
 
 HEADERS  += view/mainwindow.h \
         proxy/proxyserver.h \
@@ -57,7 +58,8 @@ HEADERS  += view/mainwindow.h \
     helpers/qjson/serializer.h \
     helpers/qjson/serializerrunnable.h \
     helpers/qjson/stack.hh \
-    proxy/input/bus/proxyrequestbus.h
+    proxy/input/bus/proxyrequestbus.h \
+    init/databaseinitializer.h
 
 FORMS    += view/mainwindow.ui
 

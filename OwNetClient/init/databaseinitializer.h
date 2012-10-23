@@ -1,0 +1,17 @@
+#ifndef DATABASEINITIALIZER_H
+#define DATABASEINITIALIZER_H
+
+#include <QObject>
+#include <QSqlDatabase>
+#include <QSqlError>
+#include <QFile>
+
+class DatabaseInitializer
+{
+public:
+    DatabaseInitializer();
+
+    void init();
+};
+
+#endif // DATABASEINITIALIZER_H
