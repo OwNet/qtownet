@@ -21,8 +21,6 @@
 #ifndef PARSERRUNNABLE_H
 #define PARSERRUNNABLE_H
 
-#include "qjson_export.h"
-
 #include <QtCore/QObject>
 #include <QtCore/QRunnable>
 

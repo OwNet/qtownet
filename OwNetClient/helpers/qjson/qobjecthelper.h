@@ -21,8 +21,6 @@
 #ifndef QOBJECTHELPER_H
 #define QOBJECTHELPER_H
 
-#include "qjson_export.h"
-
 #include <QtCore/QLatin1String>
 #include <QtCore/QStringList>
 #include <QtCore/QVariantMap>

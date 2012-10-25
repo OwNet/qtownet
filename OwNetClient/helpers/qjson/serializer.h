@@ -21,7 +21,7 @@
 #ifndef QJSON_SERIALIZER_H
 #define QJSON_SERIALIZER_H
 
-#include "qjson_export.h"
+#include <QByteArray>
 
 class QIODevice;
 class QString;
