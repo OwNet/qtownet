@@ -34,7 +34,7 @@ namespace QJson {
   /**
   * @brief Convenience class for converting JSON data to QVariant objects using a dedicated thread
   */
-  class QJSON_EXPORT SerializerRunnable  : public QObject, public QRunnable
+  class SerializerRunnable  : public QObject, public QRunnable
   {
     Q_OBJECT
     public:

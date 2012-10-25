@@ -52,7 +52,6 @@ HEADERS  += view/mainwindow.h \
     helpers/qjson/parserrunnable.h \
     helpers/qjson/position.hh \
     helpers/qjson/qjson_debug.h \
-    helpers/qjson/qjson_export.h \
     helpers/qjson/qobjecthelper.h \
     helpers/qjson/serializer.h \
     helpers/qjson/serializerrunnable.h \

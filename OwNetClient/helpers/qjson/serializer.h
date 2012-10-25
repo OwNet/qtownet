@@ -34,7 +34,7 @@ namespace QJson {
   * QVariant objects are converted to a string containing the JSON data.
   * If QVariant object is empty or not valid a <em>null</em> json object is returned.
   */
-  class QJSON_EXPORT Serializer {
+  class Serializer {
   public:
     Serializer();
     ~Serializer();
