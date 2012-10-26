@@ -9,7 +9,7 @@
 ProxyRequestBus::ProxyRequestBus(ProxyRequest *request, QObject *parent)
     : ProxyInputObject(request, parent), m_request(request)
 {
-    m_responseHeaders.insert("Content-type", m_request->requestContentType());
+    addHeader("Content-type", m_request->requestContentType());
 }
 
 void ProxyRequestBus::readRequest()

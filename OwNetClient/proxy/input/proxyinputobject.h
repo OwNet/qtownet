@@ -19,6 +19,8 @@ public:
     virtual const QString httpStatusCode() = 0;
     virtual const QString httpStatusDescription() = 0;
 
+    const QString &contentType() { return m_contentType; }
+
     const ListOfStringPairs &responseHeaders() { return m_responseHeaders; }
 
 signals:
@@ -28,7 +30,12 @@ signals:
 public slots:
 
 protected:
+    void addHeader(const QString &key, const QString &value);
+
+    QString m_contentType;
     ProxyRequest *m_request;
+
+private:
     ListOfStringPairs m_responseHeaders;
 };
 
