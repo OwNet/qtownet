@@ -14,7 +14,7 @@
 #include <QTimer>
 
 ProxyHandler::ProxyHandler(QObject *parent)
-    : QObject(parent), m_request(NULL), m_writtenToSocket(false)
+    : QObject(parent), m_request(NULL), m_writtenToSocket(false), m_foundBody(false)
 {
     m_timeoutTimer = new QTimer(this);
     connect(m_timeoutTimer, SIGNAL(timeout()), this, SLOT(requestTimeout()));
@@ -63,6 +63,7 @@ void ProxyHandler::finishHandlingRequest()
         m_request->deleteLater();
         m_socket = NULL;
         m_request = NULL;
+        m_foundBody = false;
 
         m_openSemaphore->release();
         emit requestFinished(this);
@@ -103,9 +104,11 @@ void ProxyHandler::readReply(QIODevice *ioDevice, ProxyInputObject *inputObject)
     if (!m_writtenToSocket) {
         m_writtenToSocket = true;
 
-        QTextStream os(m_socket);
-        os.setAutoDetectUnicode(true);
+        MessageHelper::debug(m_request->url());
+        MessageHelper::debug(inputObject->contentType());
 
+        QTextStream os(m_socket);
+        os.setAutoDetectUnicode(false);
         os << "HTTP/1.0 "
            << inputObject->httpStatusCode()
            << " "
@@ -117,17 +120,25 @@ void ProxyHandler::readReply(QIODevice *ioDevice, ProxyInputObject *inputObject)
         }
         os << "\r\n";
         os.flush();
-//        if (reply->header(QNetworkRequest::ContentTypeHeader).toString().toLower().contains("text/html")) {
-//            while (reply->canReadLine())
-//            {
-//                QString line = reply->readLine();
-//                MessageHelper::debug(line);
-//                m_socket->write(line.toLatin1());
-//            }
-
-//        }
     }
-    m_socket->write(ioDevice->readAll());
+
+    if (!m_foundBody && inputObject->contentType().toLower().contains("text/html")) {
+        while (ioDevice->canReadLine()) {
+            QByteArray lineBytes = ioDevice->readLine();
+            QString line = QString::fromLatin1(lineBytes);
+            if (line.contains("<body")) {
+                m_socket->write(QString("<script type=\"text/javascript\" src=\"http://ownet.tym.sk/script.js\"></script>")
+                                .toLatin1());
+                m_foundBody = true;
+            }
+            m_socket->write(lineBytes);
+        }
+    }
+    else {
+        m_foundBody = true;
+        m_socket->write(ioDevice->readAll());
+    }
+
 
     m_timeoutTimer->start(Timeout);
 }
