@@ -6,53 +6,51 @@
 #include <QNetworkReply>
 
 class QSemaphore;
+class QTimer;
 class ProxyInputObject;
 class ProxyRequest;
-class QTimer;
+class ProxyDownloads;
+class ProxySocketOutputWriter;
 
 class ProxyHandler : public QObject
 {
     Q_OBJECT
 
     enum {
-        Timeout = 30000
+        Timeout = 60000
     };
 
 public:
     ProxyHandler(QObject *parent = NULL);
     ~ProxyHandler();
 
+    void setDescriptorAndStart(int handle);
+    void triggerFinish();
+
 signals:
     void error(QTcpSocket::SocketError socketError);
+    void finished();
+    void requestFinished(ProxyHandler *);
+    void start();
+    void finish();
+
+private slots:
+    void error(QNetworkReply::NetworkError);
+    void handleRequest();
+    void requestTimeout();
+    void restartTimeout();
+    void downloadFinished();
+    void finishHandling();
 
 private:
     void finishHandlingRequest();
 
-    QTcpSocket *m_socket;
-    QSemaphore *m_openSemaphore;
-    ProxyRequest *m_request;
     int m_socketDescriptor;
     bool m_writtenToSocket;
+
+    ProxySocketOutputWriter *m_socketOutputWriter;
+    QSemaphore *m_openSemaphore;
     QTimer *m_timeoutTimer;
-
-signals:
-    void finished();
-    void requestFinished(ProxyHandler *);
-    void start();
-
-public:
-    void setDescriptorAndStart(int handle);
-
-public slots:
-    void finish();
-
-private slots:
-    void readRequest();
-    void readReply(QIODevice *ioDevice, ProxyInputObject *inputObject);
-    void error(QNetworkReply::NetworkError);
-    void downloadFinished();
-    void handleRequest();
-    void requestTimeout();
 };
 
 #endif // PROXYTHREAD_H

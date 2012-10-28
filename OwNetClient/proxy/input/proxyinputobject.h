@@ -22,7 +22,7 @@ public:
     const ListOfStringPairs &responseHeaders() { return m_responseHeaders; }
 
 signals:
-    void readyRead(QIODevice *ioDevice, ProxyInputObject *inputObject);
+    void readyRead(QIODevice *ioDevice);
     void finished();
     
 public slots:

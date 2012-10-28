@@ -31,7 +31,7 @@ void ProxyRequestBus::readRequest()
 
     QBuffer buffer(&json);
     buffer.open(QIODevice::ReadOnly);
-    emit readyRead(&buffer, this);
+    emit readyRead(&buffer);
 
     emit finished();
 }

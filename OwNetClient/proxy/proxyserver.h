@@ -7,6 +7,8 @@
 
 #include "proxyhandler.h"
 
+class ProxyDownloads;
+
 class ProxyServer : public QTcpServer
 {
     Q_OBJECT

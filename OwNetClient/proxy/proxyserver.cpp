@@ -1,6 +1,8 @@
 #include "proxyserver.h"
 #include "messagehelper.h"
 
+#include "proxydownloads.h"
+
 ProxyServer::ProxyServer(QObject *parent)
     : QTcpServer(parent)
 {
@@ -11,7 +13,7 @@ ProxyServer::ProxyServer(QObject *parent)
 ProxyHandler * ProxyServer::initializeProxyHandler()
 {
     ProxyHandler *handler = new ProxyHandler();
-    connect(this, SIGNAL(askAllHandlersToFinish()), handler, SLOT(finish()));
+    connect(this, SIGNAL(askAllHandlersToFinish()), handler, SLOT(finishHandling()));
 
     QThread *t = new QThread();
     t->start();
@@ -30,15 +32,12 @@ void ProxyServer::incomingConnection(int handle)
     ProxyHandler * handler = NULL;
 
     m_freeHandlersMutex.lock();
-    if (!m_freeHandlers.isEmpty()) {
+    if (!m_freeHandlers.isEmpty())
         handler = m_freeHandlers.dequeue();
-    }
     m_freeHandlersMutex.unlock();
 
-    if (handler == NULL) {
+    if (handler == NULL)
         handler = initializeProxyHandler();
-        MessageHelper::debug("No thread left");
-    }
 
     handler->setDescriptorAndStart(handle);
 }
@@ -54,8 +53,7 @@ void ProxyServer::proxyRequestFinished(ProxyHandler * handler) {
     m_freeHandlersMutex.unlock();
 
     if (!enqueued) {
-        MessageHelper::debug(QString("+++++ Deleting thread %1").arg(m_freeHandlers.count()));
-        handler->finish();
+        handler->triggerFinish();
         delete handler;
     }
 }

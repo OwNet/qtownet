@@ -18,7 +18,7 @@ void ProxyStaticInputObject::readRequest()
 
     if (file->exists()) {
         if (file->open(QIODevice::ReadOnly))
-            emit readyRead(file, this);
+            emit readyRead(file);
 
         file->close();
     } else {
