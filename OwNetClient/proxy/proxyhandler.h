@@ -46,7 +46,6 @@ private:
     void finishHandlingRequest();
 
     int m_socketDescriptor;
-    bool m_writtenToSocket;
 
     ProxySocketOutputWriter *m_socketOutputWriter;
     QSemaphore *m_openSemaphore;

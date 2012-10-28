@@ -29,6 +29,7 @@ protected:
 private:
     int m_socketDescriptor;
     bool m_writtenToSocket;
+    bool m_foundBody;
     QTcpSocket *m_socket;
 };
 

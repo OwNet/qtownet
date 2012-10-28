@@ -17,7 +17,7 @@
 #include <QTimer>
 
 ProxyHandler::ProxyHandler(QObject *parent)
-    : QObject(parent), m_writtenToSocket(false)
+    : QObject(parent)
 {
     m_openSemaphore = new QSemaphore(1);
     connect(this, SIGNAL(start()), this, SLOT(handleRequest()));

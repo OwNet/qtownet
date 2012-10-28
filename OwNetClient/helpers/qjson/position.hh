@@ -134,7 +134,7 @@ namespace yy
   operator<< (std::ostream& ostr, const position& pos)
   {
     if (pos.filename)
-      ostr << *pos.filename << ':';
+      ostr << pos.filename->c_str() << ':';
     return ostr << pos.line << '.' << pos.column;
   }
 

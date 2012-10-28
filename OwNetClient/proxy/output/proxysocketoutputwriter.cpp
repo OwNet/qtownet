@@ -8,7 +8,7 @@
 #include <QTcpSocket>
 
 ProxySocketOutputWriter::ProxySocketOutputWriter(int socketDescriptor, QObject *parent) :
-    ProxyOutputWriter(parent), m_socketDescriptor(socketDescriptor), m_writtenToSocket(false), m_socket(NULL)
+    ProxyOutputWriter(parent), m_socketDescriptor(socketDescriptor), m_writtenToSocket(false), m_foundBody(false), m_socket(NULL)
 {
 }
 
@@ -71,7 +71,7 @@ void ProxySocketOutputWriter::read(QIODevice *ioDevice)
         m_writtenToSocket = true;
 
         QTextStream os(m_socket);
-        os.setAutoDetectUnicode(true);
+        os.setAutoDetectUnicode(false);
 
         os << "HTTP/1.0 "
            << m_proxyDownload->inputObject()->httpStatusCode()
@@ -84,16 +84,22 @@ void ProxySocketOutputWriter::read(QIODevice *ioDevice)
         }
         os << "\r\n";
         os.flush();
-//        if (reply->header(QNetworkRequest::ContentTypeHeader).toString().toLower().contains("text/html")) {
-//            while (reply->canReadLine())
-//            {
-//                QString line = reply->readLine();
-//                MessageHelper::debug(line);
-//                m_socket->write(line.toLatin1());
-//            }
-
-//        }
     }
 
-    m_socket->write(ioDevice->readAll());
+    if (!m_foundBody && m_proxyDownload->inputObject()->contentType().toLower().contains("text/html")) {
+        while (ioDevice->canReadLine()) {
+            QByteArray lineBytes = ioDevice->readLine();
+            QString line = QString::fromLatin1(lineBytes);
+            if (line.contains("<body")) {
+                m_socket->write(QString("<script type=\"text/javascript\" src=\"http://ownet.tym.sk/script.js\"></script>")
+                                .toLatin1());
+                m_foundBody = true;
+            }
+            m_socket->write(lineBytes);
+        }
+    }
+    else {
+        m_foundBody = true;
+        m_socket->write(ioDevice->readAll());
+    }
 }

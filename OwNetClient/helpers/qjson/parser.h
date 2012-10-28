@@ -21,7 +21,7 @@
 #ifndef QJSON_PARSER_H
 #define QJSON_PARSER_H
 
-#include "qjson_export.h"
+#include <QByteArray>
 
 class QIODevice;
 class QVariant;
@@ -33,7 +33,7 @@ namespace QJson {
   /**
   * @brief Main class used to convert JSON data to QVariant objects
   */
-  class QJSON_EXPORT Parser
+  class Parser
   {
     public:
       Parser();
