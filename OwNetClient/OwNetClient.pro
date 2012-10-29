@@ -35,7 +35,8 @@ SOURCES += main.cpp\
     proxy/downloads/proxydownloads.cpp \
     proxy/downloads/proxydownload.cpp \
     proxy/output/proxyoutputwriter.cpp \
-    proxy/output/proxysocketoutputwriter.cpp
+    proxy/output/proxysocketoutputwriter.cpp \
+    helpers/applicationdatastorage.cpp
 
 HEADERS  += view/mainwindow.h \
         proxy/proxyserver.h \
@@ -64,7 +65,8 @@ HEADERS  += view/mainwindow.h \
     proxy/downloads/proxydownloads.h \
     proxy/downloads/proxydownload.h \
     proxy/output/proxyoutputwriter.h \
-    proxy/output/proxysocketoutputwriter.h
+    proxy/output/proxysocketoutputwriter.h \
+    helpers/applicationdatastorage.h
 
 FORMS    += view/mainwindow.ui
 

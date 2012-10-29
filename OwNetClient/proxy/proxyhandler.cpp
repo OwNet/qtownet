@@ -63,8 +63,10 @@ void ProxyHandler::requestTimeout()
 
 void ProxyHandler::restartTimeout()
 {
-    m_timeoutTimer->stop();
-    m_timeoutTimer->start();
+    if (m_timeoutTimer) {
+        m_timeoutTimer->stop();
+        m_timeoutTimer->start();
+    }
 }
 
 void ProxyHandler::finishHandlingRequest()

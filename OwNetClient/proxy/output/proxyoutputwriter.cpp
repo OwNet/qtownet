@@ -29,8 +29,7 @@ void ProxyOutputWriter::close()
 {
     m_proxyDownload->deregisterReader(m_downloadReaderId);
 
-    disconnect(m_proxyDownload, SIGNAL(downloadFinished()), this, SLOT(downloadFinished()));
-    disconnect(m_proxyDownload, SIGNAL(bytePartAvailable()), this, SLOT(readAvailableParts()));
+    disconnect(m_proxyDownload);
 }
 
 void ProxyOutputWriter::registerDownload()
