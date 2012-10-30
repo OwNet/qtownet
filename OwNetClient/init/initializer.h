@@ -2,6 +2,7 @@
 #define INITIALIZER_H
 
 #include "proxyinitializer.h"
+#include "moduleinitializer.h"
 
 class Initializer
 {
@@ -12,6 +13,7 @@ public:
 
 private:
     ProxyInitializer m_proxyInitializer;
+    ModuleInitializer m_moduleInitializer;
 };
 
 #endif // INITIALIZER_H

@@ -6,6 +6,8 @@
 #include <QBuffer>
 #include <QVariantList>
 
+QMap<QString, IModule*> *ProxyRequestBus::m_routes = new QMap<QString, IModule*>();
+
 ProxyRequestBus::ProxyRequestBus(ProxyRequest *request, QObject *parent)
     : ProxyInputObject(request, parent), m_request(request)
 {
@@ -14,7 +16,8 @@ ProxyRequestBus::ProxyRequestBus(ProxyRequest *request, QObject *parent)
 
 void ProxyRequestBus::readRequest()
 {
-    QVariantList people;
+    // json howTo
+   /* QVariantList people;
 
     QVariantMap bob;
     bob.insert("Name", "Bob");
@@ -30,8 +33,34 @@ void ProxyRequestBus::readRequest()
     QByteArray json = serializer.serialize(people);
 
     QBuffer buffer(&json);
+    */
+
+    // returning processed request
+    QBuffer buffer( m_routes->value(m_request->subDomain())->processRequest(this,m_request));
+
     buffer.open(QIODevice::ReadOnly);
     emit readyRead(&buffer, this);
 
     emit finished();
+}
+
+/**
+ * @brief ProxyRequestBus::callModule Function for modules,
+ *                         they call it when they need to communicate with other modules
+ * @param req
+ * @return processedRequest from module in byte array
+ */
+QByteArray* ProxyRequestBus::callModule( ProxyRequest *req)
+{
+
+    // need to find only first part of url (module url)
+
+
+    return m_routes->value(req->subDomain())->processRequest(this,req);
+}
+
+void ProxyRequestBus::registerModule(IModule *newModule, QString url)
+{
+    m_routes->insert(url, newModule);
+
 }

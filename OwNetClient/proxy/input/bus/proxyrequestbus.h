@@ -2,13 +2,17 @@
 #define REQUESTBUS_H
 
 #include "proxyinputobject.h"
+#include "imodule.h"
+#include "ibus.h"
+#include <QByteArray>
 
 class ProxyRequest;
 class QIODevice;
 
-class ProxyRequestBus : public ProxyInputObject
+class ProxyRequestBus : public ProxyInputObject, public IBus
 {
     Q_OBJECT
+
 
 public:
     ProxyRequestBus(ProxyRequest *request, QObject *parent = 0);
@@ -18,8 +22,15 @@ public:
     const QString httpStatusCode() { return QString::number(200); }
     const QString httpStatusDescription() { return "OK"; }
 
+
+    QByteArray* callModule(ProxyRequest *req);
+
+    static void registerModule(IModule *newModule, QString url);
+
 private:
     ProxyRequest *m_request;
+
+    static QMap<QString ,IModule*> *m_routes;
 };
 
 #endif // REQUESTBUS_H

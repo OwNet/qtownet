@@ -21,6 +21,7 @@ public:
         UNKNOWN
     };
 
+    const QString &subDomain(){ return m_subDomain;}
     ProxyRequest(QTcpSocket *socket, QObject *parent = 0);
 
     bool readFromSocket();
