@@ -35,13 +35,33 @@ void ProxyRequestBus::readRequest()
     QBuffer buffer(&json);
     */
 
-    // returning processed request
-    QBuffer buffer( m_routes->value(m_request->subDomain())->processRequest(this,m_request));
+    // checks if module exists
+    if( m_routes->contains(m_request->subDomain())){
 
-    buffer.open(QIODevice::ReadOnly);
-    emit readyRead(&buffer, this);
+        // returning processed request
+          QBuffer buffer( m_routes->value(m_request->subDomain())->processRequest(this,m_request));
+          buffer.open(QIODevice::ReadOnly);
+          emit readyRead(&buffer, this);
 
-    emit finished();
+          emit finished();
+    }
+    else{
+        // ak chyba modifikovat po dohodnuti s matusom
+        QVariantMap status;
+        status.insert("Status", "FAILED");
+
+        QJson::Serializer serializer;
+        QByteArray json = serializer.serialize(status);
+
+        QBuffer buffer2(&json);
+        buffer2.open(QIODevice::ReadOnly);
+        emit readyRead(&buffer2, this);
+
+        emit finished();
+    }
+
+
+
 }
 
 /**
