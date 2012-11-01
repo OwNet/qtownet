@@ -18,6 +18,6 @@ QByteArray* TestModule::processRequest(IBus *bus, ProxyRequest *req)
 
     // if you need to call another module call bus.callModule( ProxyRequest req)
 
-    return new QByteArray("{ OK : 'OK'}");
+    return new QByteArray("{ Status : 'OK'}\n");
 
 }
