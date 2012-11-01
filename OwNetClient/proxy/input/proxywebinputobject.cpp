@@ -47,7 +47,7 @@ void ProxyWebInputObject::readReply()
         for (int i = 0; i < headers.count(); ++i)
             addHeader(headers.at(i).first, headers.at(i).second);
     }
-    emit readyRead(reply, this);
+    emit readyRead(reply, this, false);
 }
 
 void ProxyWebInputObject::error(QNetworkReply::NetworkError)

@@ -18,13 +18,12 @@ void ProxyStaticInputObject::readRequest()
 
     if (file->exists()) {
         if (file->open(QIODevice::ReadOnly))
-            emit readyRead(file, this);
+            emit readyRead(file, this, true);
 
         file->close();
     } else {
         MessageHelper::debug(QString("404 NOT FOUND static/%1").arg(m_request->relativeUrl()));
     }
 
-    emit finished();
     delete file;
 }
