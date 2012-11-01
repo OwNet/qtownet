@@ -32,7 +32,12 @@ SOURCES += main.cpp\
     helpers/qjson/serializer.cpp \
     helpers/qjson/serializerrunnable.cpp \
     proxy/input/bus/proxyrequestbus.cpp \
-    init/databaseinitializer.cpp
+    modules/testmodule.cpp \
+    modules/imodule.cpp \
+    init/moduleinitializer.cpp \
+    modules/ibus.cpp \
+    init/databaseinitializer.cpp \
+    modules/databasemodule.cpp
 
 HEADERS  += view/mainwindow.h \
         proxy/proxyserver.h \
@@ -53,14 +58,18 @@ HEADERS  += view/mainwindow.h \
     helpers/qjson/parserrunnable.h \
     helpers/qjson/position.hh \
     helpers/qjson/qjson_debug.h \
-    helpers/qjson/qjson_export.h \
     helpers/qjson/qobjecthelper.h \
     helpers/qjson/serializer.h \
     helpers/qjson/serializerrunnable.h \
     helpers/qjson/stack.hh \
     proxy/input/bus/proxyrequestbus.h \
-    init/databaseinitializer.h
+    modules/testmodule.h \
+    modules/imodule.h \
+    init/moduleinitializer.h \
+    modules/ibus.h \
+    init/databaseinitializer.h \
+    modules/databasemodule.h
 
 FORMS    += view/mainwindow.ui
 
-INCLUDEPATH += proxy init helpers view proxy/input proxy/input/bus
+INCLUDEPATH += proxy init helpers view proxy/input proxy/input/bus modules

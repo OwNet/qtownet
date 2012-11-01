@@ -9,7 +9,7 @@
 ProxyStaticInputObject::ProxyStaticInputObject(ProxyRequest *request, QObject *parent)
     : ProxyInputObject(request, parent)
 {
-    m_responseHeaders.insert("Content-type", m_request->requestContentType());
+    addHeader("Content-type", m_request->requestContentType());
 }
 
 void ProxyStaticInputObject::readRequest()

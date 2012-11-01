@@ -9,7 +9,6 @@
 ProxyRequest::ProxyRequest(QTcpSocket *socket, QObject *parent)
     : QObject(parent), m_socket(socket)
 {
-    m_url = "http://dsaldfsal.ownet/asfas";
 }
 
 bool ProxyRequest::readFromSocket()
@@ -33,7 +32,11 @@ bool ProxyRequest::readFromSocket()
             QString value = tokens.at(1);
             value.remove(QRegExp("[\r\n][\r\n]*"));
 
-            m_requestHeaders.insert(key, value);
+            if (!key.toLower().contains("accept-encoding") || !value.contains("gzip")) {
+                m_requestHeaders.insert(key, value);
+            } else {
+                m_requestHeaders.insert("Accept-encoding", "*");
+            }
         }
     }
 

@@ -45,7 +45,7 @@ void ProxyWebInputObject::readReply()
 
         QList<QNetworkReply::RawHeaderPair> headers = reply->rawHeaderPairs();
         for (int i = 0; i < headers.count(); ++i)
-            m_responseHeaders.insert(headers.at(i).first, headers.at(i).second);
+            addHeader(headers.at(i).first, headers.at(i).second);
     }
     emit readyRead(reply, this);
 }
