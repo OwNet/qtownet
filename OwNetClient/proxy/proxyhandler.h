@@ -49,7 +49,7 @@ public slots:
 
 private slots:
     void readRequest();
-    void readReply(QIODevice *ioDevice, ProxyInputObject *inputObject);
+    void readReply(QIODevice *ioDevice, ProxyInputObject *inputObject, bool close);
     void error(QNetworkReply::NetworkError);
     void downloadFinished();
     void handleRequest();

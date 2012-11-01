@@ -53,6 +53,7 @@ void ProxyHandler::requestTimeout()
 void ProxyHandler::finishHandlingRequest()
 {
     m_timeoutTimer->stop();
+
     if (m_socket) {
         if (m_socket->isOpen()) {
             disconnect(m_socket, SIGNAL(readyRead()), this, SLOT(readRequest()));
@@ -90,12 +91,12 @@ void ProxyHandler::readRequest()
         inputObject = new ProxyWebInputObject(m_request, m_request);
 
     connect(inputObject, SIGNAL(finished()), this, SLOT(downloadFinished()));
-    connect(inputObject, SIGNAL(readyRead(QIODevice*,ProxyInputObject*)), this, SLOT(readReply(QIODevice*,ProxyInputObject*)));
+    connect(inputObject, SIGNAL(readyRead(QIODevice*,ProxyInputObject*,bool)), this, SLOT(readReply(QIODevice*,ProxyInputObject*,bool)));
 
     inputObject->readRequest();
 }
 
-void ProxyHandler::readReply(QIODevice *ioDevice, ProxyInputObject *inputObject)
+void ProxyHandler::readReply(QIODevice *ioDevice, ProxyInputObject *inputObject, bool close)
 {
     m_timeoutTimer->stop();
     if (m_socket == NULL || !m_socket->isOpen())
@@ -137,6 +138,8 @@ void ProxyHandler::readReply(QIODevice *ioDevice, ProxyInputObject *inputObject)
     else {
         m_foundBody = true;
         m_socket->write(ioDevice->readAll());
+        if (close)
+            m_socket->close();
     }
 
 

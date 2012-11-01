@@ -17,7 +17,7 @@ ProxyRequestBus::ProxyRequestBus(ProxyRequest *request, QObject *parent)
 void ProxyRequestBus::readRequest()
 {
     // json howTo
-   /* QVariantList people;
+/*    QVariantList people;
 
     QVariantMap bob;
     bob.insert("Name", "Bob");
@@ -33,19 +33,18 @@ void ProxyRequestBus::readRequest()
     QByteArray json = serializer.serialize(people);
 
     QBuffer buffer(&json);
-    */
-
+    buffer.open(QIODevice::ReadOnly);
+    emit readyRead(&buffer, this);
+    return;
+*/
     // checks if module exists
-    if( m_routes->contains(m_request->subDomain())){
-
+    if( m_routes->contains(m_request->subDomain())) {
         // returning processed request
-          QBuffer buffer( m_routes->value(m_request->subDomain())->processRequest(this,m_request));
-          buffer.open(QIODevice::ReadOnly);
-          emit readyRead(&buffer, this);
-
-          emit finished();
+        QBuffer buffer( m_routes->value(m_request->subDomain())->processRequest(this,m_request));
+        buffer.open(QIODevice::ReadOnly);
+        emit readyRead(&buffer, this, true);
     }
-    else{
+    else {
         // ak chyba modifikovat po dohodnuti s matusom
         QVariantMap status;
         status.insert("Status", "FAILED");
@@ -55,13 +54,8 @@ void ProxyRequestBus::readRequest()
 
         QBuffer buffer2(&json);
         buffer2.open(QIODevice::ReadOnly);
-        emit readyRead(&buffer2, this);
-
-        emit finished();
+        emit readyRead(&buffer2, this, true);
     }
-
-
-
 }
 
 /**
