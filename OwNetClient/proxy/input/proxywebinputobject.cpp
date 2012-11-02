@@ -4,6 +4,7 @@
 
 #include <QNetworkAccessManager>
 #include <QNetworkReply>
+#include <QTcpSocket>
 
 ProxyWebInputObject::ProxyWebInputObject(ProxyRequest *request, QObject *parent)
     : ProxyInputObject(request, parent), m_readHeaders(false)
@@ -12,7 +13,7 @@ ProxyWebInputObject::ProxyWebInputObject(ProxyRequest *request, QObject *parent)
 
 void ProxyWebInputObject::readRequest()
 {
-    QNetworkAccessManager *manager = new QNetworkAccessManager(this);
+    QNetworkAccessManager *manager = new QNetworkAccessManager(m_request->socket());
     QNetworkReply *reply = NULL;
     QNetworkRequest request;
     request.setUrl(QUrl(m_request->url()));
@@ -47,7 +48,7 @@ void ProxyWebInputObject::readReply()
         for (int i = 0; i < headers.count(); ++i)
             addHeader(headers.at(i).first, headers.at(i).second);
     }
-    emit readyRead(reply, this, false);
+    emit readyRead(reply);
 }
 
 void ProxyWebInputObject::error(QNetworkReply::NetworkError)

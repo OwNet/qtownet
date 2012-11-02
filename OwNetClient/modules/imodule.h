@@ -3,7 +3,6 @@
 
 #include <QObject>
 #include <QString>
-#include <QByteArray>
 #include "ibus.h"
 
 
@@ -15,8 +14,7 @@ class IModule : public QObject
     Q_OBJECT
 public:
     explicit IModule(QObject *parent = 0);
-    const QString &url(){ return m_url;}
-    void setUrl(QString url){ m_url = url;}
+    const QString &url() { return m_url;}
 
     /**
      * @brief processRequest Virtual function for Processing request from proxy/
@@ -24,9 +22,11 @@ public:
      * @param bus
      * @param req
      * @return  response Bytes
-      */
-
+     */
     virtual QByteArray* processRequest(IBus *bus, ProxyRequest *req) = 0;
+
+protected:
+    void setUrl(QString url) { m_url = url;}
     
 signals:
     

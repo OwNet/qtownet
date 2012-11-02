@@ -16,8 +16,6 @@ public:
      * @return response byte array
      */
     virtual QByteArray* callModule(ProxyRequest *req) = 0;
-
-    
 };
 
 #endif // IBUS_H

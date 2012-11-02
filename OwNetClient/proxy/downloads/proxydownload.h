@@ -10,20 +10,27 @@
 
 class ProxyInputObject;
 class ProxyRequest;
+class ProxyHandler;
 class QIODevice;
 
 class ProxyDownload : public QObject
 {
     Q_OBJECT
 public:
-    ProxyDownload(ProxyRequest *request, QObject *parent = 0);
+    ProxyDownload(ProxyRequest *request, ProxyHandler *handler, QObject *parent = 0);
 
     ProxyInputObject *inputObject() { return m_inputObject; }
 
     int registerReader();
     void deregisterReader(int readerId);
+    int countRegisteredReaders();
+    int hashCode() { return m_hashCode; }
+
     bool shareDownload() { return m_shareDownload; }
+    bool reuseBuffers() { return m_reuseBuffers; }
     void startDownload();
+
+    void close();
 
     QIODevice *bytePart(int readerId);
     
@@ -39,6 +46,7 @@ private slots:
     
 private:
     ProxyInputObject *m_inputObject;
+    ProxyHandler *m_proxyHandler;
 
     QMutex m_bytePartsMutex;
     QList<QByteArray *> m_byteParts;
@@ -47,8 +55,11 @@ private:
     QMutex m_readersMutex;
     QMap<int, int> m_readers;
     int m_nextReaderId;
+    int m_hashCode;
+    int m_proxyHandlerDependentObjectId;
 
     bool m_shareDownload;
+    bool m_reuseBuffers;
 };
 
 #endif // PROXYDOWNLOAD_H

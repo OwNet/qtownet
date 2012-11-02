@@ -37,7 +37,12 @@ SOURCES += main.cpp\
     init/moduleinitializer.cpp \
     modules/ibus.cpp \
     init/databaseinitializer.cpp \
-    modules/databasemodule.cpp
+    modules/databasemodule.cpp \
+    proxy/downloads/proxydownloads.cpp \
+    proxy/downloads/proxydownload.cpp \
+    proxy/output/proxyoutputwriter.cpp \
+    proxy/output/proxysocketoutputwriter.cpp \
+    helpers/applicationdatastorage.cpp
 
 HEADERS  += view/mainwindow.h \
         proxy/proxyserver.h \
@@ -68,8 +73,20 @@ HEADERS  += view/mainwindow.h \
     init/moduleinitializer.h \
     modules/ibus.h \
     init/databaseinitializer.h \
-    modules/databasemodule.h
+    modules/databasemodule.h \
+    proxy/downloads/proxydownloads.h \
+    proxy/downloads/proxydownload.h \
+    proxy/output/proxyoutputwriter.h \
+    proxy/output/proxysocketoutputwriter.h \
+    helpers/applicationdatastorage.h
 
 FORMS    += view/mainwindow.ui
 
-INCLUDEPATH += proxy init helpers view proxy/input proxy/input/bus modules
+INCLUDEPATH += proxy \
+    init \
+    helpers \
+    view \
+    proxy/input \
+    proxy/input/bus \
+    proxy/downloads \
+    proxy/output modules

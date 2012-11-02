@@ -12,10 +12,8 @@ class ProxyWebInputObject : public ProxyInputObject
 public:
     ProxyWebInputObject(ProxyRequest *request, QObject *parent = 0);
 
+protected:
     void readRequest();
-
-    const QString httpStatusCode() { return m_httpStatusCode; }
-    const QString httpStatusDescription() { return m_httpStatusDescription; }
 
 private slots:
     void readReply();
@@ -24,8 +22,6 @@ private slots:
 
 private:
     bool m_readHeaders;
-    QString m_httpStatusCode;
-    QString m_httpStatusDescription;
 };
 
 #endif // PROXYWEBINPUTOBJECT_H

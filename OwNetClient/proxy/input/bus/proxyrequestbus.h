@@ -17,15 +17,15 @@ class ProxyRequestBus : public ProxyInputObject, public IBus
 public:
     ProxyRequestBus(ProxyRequest *request, QObject *parent = 0);
 
-    void readRequest();
-
     const QString httpStatusCode() { return QString::number(200); }
     const QString httpStatusDescription() { return "OK"; }
-
 
     QByteArray* callModule(ProxyRequest *req);
 
     static void registerModule(IModule *newModule, QString url);
+
+protected:
+    void readRequest();
 
 private:
     ProxyRequest *m_request;

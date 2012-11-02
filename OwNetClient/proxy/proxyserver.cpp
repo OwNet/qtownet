@@ -1,17 +1,31 @@
 #include "proxyserver.h"
 #include "messagehelper.h"
 
+#include "proxydownloads.h"
+
 ProxyServer::ProxyServer(QObject *parent)
-    : QTcpServer(parent)
+    : QTcpServer(parent), m_lastHandlerId(0)
 {
     for (int i = 0; i < InitialNumberOfProxyHandlers; ++i)
-        m_freeHandlers.enqueue(initializeProxyHandler());
+        m_freeHandlerIds.enqueue(initializeProxyHandler()->handlerId());
+}
+
+void ProxyServer::disposeHandlerIfNecessary(ProxyHandler *handler)
+{
+    m_freeHandlersMutex.lock();
+    if (m_freeHandlerIds.count() > MaxNumberOfProxyHandlers) {
+        if (!handler->isActive())
+           disposeHandler(handler);
+    }
+    m_freeHandlersMutex.unlock();
 }
 
 ProxyHandler * ProxyServer::initializeProxyHandler()
 {
-    ProxyHandler *handler = new ProxyHandler();
-    connect(this, SIGNAL(askAllHandlersToFinish()), handler, SLOT(finish()));
+    ProxyHandler *handler = new ProxyHandler(m_lastHandlerId++);
+    m_handlersMap.insert(handler->handlerId(), handler);
+    connect(this, SIGNAL(askAllHandlersToFinish()), handler, SLOT(finishHandling()));
+    connect(handler, SIGNAL(canBeDisposed(ProxyHandler*)), this, SLOT(disposeHandlerIfNecessary(ProxyHandler*)));
 
     QThread *t = new QThread();
     t->start();
@@ -25,37 +39,39 @@ ProxyHandler * ProxyServer::initializeProxyHandler()
     return handler;
 }
 
+void ProxyServer::disposeHandler(ProxyHandler *handler)
+{
+    m_handlersMap.remove(handler->handlerId());
+    handler->triggerFinish();
+    delete handler;
+}
+
 void ProxyServer::incomingConnection(int handle)
 {
     ProxyHandler * handler = NULL;
 
     m_freeHandlersMutex.lock();
-    if (!m_freeHandlers.isEmpty()) {
-        handler = m_freeHandlers.dequeue();
+    while (!handler && !m_freeHandlerIds.isEmpty()) {
+        int handlerId = m_freeHandlerIds.dequeue();
+        if (m_handlersMap.contains(handlerId))
+            handler = m_handlersMap.value(handlerId);
     }
     m_freeHandlersMutex.unlock();
 
-    if (handler == NULL) {
+    if (!handler)
         handler = initializeProxyHandler();
-        MessageHelper::debug("No thread left");
-    }
 
     handler->setDescriptorAndStart(handle);
 }
 
-void ProxyServer::proxyRequestFinished(ProxyHandler * handler) {
-    bool enqueued = false;
-
+void ProxyServer::proxyRequestFinished(ProxyHandler *handler) {
     m_freeHandlersMutex.lock();
-    if (m_freeHandlers.count() < MaxNumberOfProxyHandlers) {
-        m_freeHandlers.enqueue(handler);
-        enqueued = true;
-    }
-    m_freeHandlersMutex.unlock();
 
-    if (!enqueued) {
-        MessageHelper::debug(QString("+++++ Deleting thread %1").arg(m_freeHandlers.count()));
-        handler->finish();
-        delete handler;
+    if (m_freeHandlerIds.count() > MaxNumberOfProxyHandlers && !handler->hasDependentObjects()) {
+        disposeHandler(handler);
+    } else {
+        m_freeHandlerIds.enqueue(handler->handlerId());
     }
+
+    m_freeHandlersMutex.unlock();
 }

@@ -6,11 +6,9 @@
 #include "testmodule.h"
 #include "databasemodule.h"
 
-
 ModuleInitializer::ModuleInitializer(QObject *parent) :
     QObject(parent)
 {
-
 }
 
 void ModuleInitializer::init()
@@ -21,8 +19,7 @@ void ModuleInitializer::init()
     moduleList.append(new TestModule());
     moduleList.append(new DatabaseModule());
 
-    for(int i=0; i < moduleList.count(); i++){
-        ProxyRequestBus::registerModule(moduleList.at(i), moduleList.at(i)->url() );
+    for (int i = 0; i < moduleList.count(); i++) {
+        ProxyRequestBus::registerModule(moduleList.at(i), moduleList.at(i)->url());
    }
-
 }

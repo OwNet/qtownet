@@ -11,7 +11,7 @@ class DatabaseModule : public IModule
 public:
     explicit DatabaseModule(QObject *parent = NULL);
 
-   QByteArray* processRequest(IBus *bus, ProxyRequest *req);
+   QByteArray *processRequest(IBus *bus, ProxyRequest *req);
 
 signals:
 

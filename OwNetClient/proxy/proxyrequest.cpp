@@ -7,7 +7,7 @@
 #include <QRegExp>
 
 ProxyRequest::ProxyRequest(QTcpSocket *socket, QObject *parent)
-    : QObject(parent), m_socket(socket)
+    : QObject(parent), m_socket(socket), m_hashCode(-1)
 {
 }
 
@@ -76,6 +76,8 @@ const QString ProxyRequest::urlExtension()
 
 void ProxyRequest::analyzeUrl()
 {
+    m_hashCode = qHash(m_url);
+
     QStringList httpSplit = m_url.split("//");
     httpSplit.takeFirst();
     QString url = httpSplit.join("//");

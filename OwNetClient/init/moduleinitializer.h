@@ -6,6 +6,7 @@
 class ModuleInitializer : public QObject
 {
     Q_OBJECT
+
 public:
     explicit ModuleInitializer(QObject *parent = 0);
     void init();
