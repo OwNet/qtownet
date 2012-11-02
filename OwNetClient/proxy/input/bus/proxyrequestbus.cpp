@@ -9,6 +9,9 @@
 ProxyRequestBus::ProxyRequestBus(ProxyRequest *request, QObject *parent)
     : ProxyInputObject(request, parent), m_request(request)
 {
+    m_httpStatusCode = QString::number(200);
+    m_httpStatusDescription = "OK";
+
     addHeader("Content-type", m_request->requestContentType());
 }
 
@@ -27,11 +30,11 @@ void ProxyRequestBus::readRequest()
     people << bob << alice;
 
     QJson::Serializer serializer;
-    QByteArray json = serializer.serialize(people);
+    QByteArray *json = new QByteArray(serializer.serialize(people));
 
-    QBuffer buffer(&json);
-    buffer.open(QIODevice::ReadOnly);
-    emit readyRead(&buffer);
+    QBuffer *buffer = new QBuffer(json);
+    buffer->open(QIODevice::ReadOnly);
+    emit readyRead(buffer);
 
     emit finished();
 }

@@ -31,10 +31,12 @@ public:
     const QString requestContentType();
     const QString relativeUrl() { return m_relativeUrl; }
 
-    int hashCode() { return m_hashCode; }
+    int &hashCode() { return m_hashCode; }
 
     bool isLocalRequest() { return m_domain == "ownet"; }
     bool isStaticResourceRequest() { return m_domain == "ownet" && m_subDomain == "static"; }
+
+    QTcpSocket *socket() { return m_socket; }
 
 private:
     const QString urlExtension();

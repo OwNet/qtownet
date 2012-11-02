@@ -4,21 +4,16 @@
 #include "proxyrequest.h"
 #include "messagehelper.h"
 #include "proxyinputobject.h"
+#include "proxyhandler.h"
+#include "applicationdatastorage.h"
 
 #include <QTcpSocket>
 #include <QFile>
 #include <QSemaphore>
 
-ProxySocketOutputWriter::ProxySocketOutputWriter(int socketDescriptor, QObject *parent) :
-    ProxyOutputWriter(parent), m_socketDescriptor(socketDescriptor), m_writtenToSocket(false), m_foundBody(false), m_socket(NULL)
+ProxySocketOutputWriter::ProxySocketOutputWriter(int socketDescriptor, ProxyHandler *proxyHandler) :
+    ProxyOutputWriter(proxyHandler), m_socketDescriptor(socketDescriptor), m_writtenToSocket(false), m_foundBody(false), m_socket(NULL)
 {
-    m_outputSemaphore = new QSemaphore(1);
-}
-
-ProxySocketOutputWriter::~ProxySocketOutputWriter()
-{
-    //m_socket->deleteLater();
-    delete m_outputSemaphore;
 }
 
 /**
@@ -26,7 +21,7 @@ ProxySocketOutputWriter::~ProxySocketOutputWriter()
  */
 void ProxySocketOutputWriter::startDownload()
 {
-    m_socket = new QTcpSocket(this->parent());
+    m_socket = new QTcpSocket(this);
     connect(m_socket, SIGNAL(readyRead()), this, SLOT(readRequest()));
     m_socket->setSocketDescriptor(m_socketDescriptor);
 }
@@ -44,7 +39,7 @@ void ProxySocketOutputWriter::finish()
  */
 void ProxySocketOutputWriter::readRequest()
 {
-    ProxyRequest *request = new ProxyRequest(m_socket, this);
+    ProxyRequest *request = new ProxyRequest(m_socket, m_proxyHandler);
 
     if (!request->readFromSocket()) {
         MessageHelper::debug("Failed to read from socket.");
@@ -55,10 +50,11 @@ void ProxySocketOutputWriter::readRequest()
     createDownload(request);
 }
 
+/**
+ * @brief Close socket and end download.
+ */
 void ProxySocketOutputWriter::close()
 {
-    m_outputSemaphore->acquire();
-
     if (m_socket) {
         if (m_socket->isOpen()) {
             m_socket->close();
@@ -68,14 +64,14 @@ void ProxySocketOutputWriter::close()
 
         emit finished();
     }
-
-    m_outputSemaphore->release();
 }
 
+/**
+ * @brief Read data from a stream and write to socket.
+ * @param ioDevice Stream of bytes
+ */
 void ProxySocketOutputWriter::read(QIODevice *ioDevice)
 {
-    m_outputSemaphore->acquire();
-
     if (!m_socket || !m_socket->isOpen() || !ioDevice)
         return;
 
@@ -98,13 +94,13 @@ void ProxySocketOutputWriter::read(QIODevice *ioDevice)
         os.flush();
     }
 
-    if (!m_foundBody && m_proxyDownload->inputObject()->contentType().toLower().contains("text/html")) {
-        while (ioDevice->canReadLine()) {
+   if (!m_foundBody && m_proxyDownload->inputObject()->contentType().toLower().contains("text/html")) {
+        while (!ioDevice->atEnd()) {
             QByteArray lineBytes = ioDevice->readLine();
             QString line = QString::fromLatin1(lineBytes);
             if (line.contains("<body")) {
-                m_socket->write(QString("<script type=\"text/javascript\" src=\"http://ownet.tym.sk/script.js\"></script>")
-                                .toLatin1());
+                //m_socket->write(QString("<script type=\"text/javascript\" src=\"http://ownet.tym.sk/script.js\"></script>")
+                //                .toLatin1());
                 m_foundBody = true;
             }
             m_socket->write(lineBytes);
@@ -114,6 +110,8 @@ void ProxySocketOutputWriter::read(QIODevice *ioDevice)
         m_foundBody = true;
         m_socket->write(ioDevice->readAll());
     }
-
-    m_outputSemaphore->release();
+    if (!m_proxyDownload->reuseBuffers()) {
+        ioDevice->close();
+        delete ioDevice;
+    }
 }

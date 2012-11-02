@@ -11,8 +11,7 @@ class ProxySocketOutputWriter : public ProxyOutputWriter
     Q_OBJECT
 
 public:
-    ProxySocketOutputWriter(int socketDescriptor, QObject *parent = 0);
-    ~ProxySocketOutputWriter();
+    ProxySocketOutputWriter(int socketDescriptor, ProxyHandler *proxyHandler);
 
     enum {
         BufferSize = 8192
@@ -37,7 +36,6 @@ private:
     bool m_writtenToSocket;
     bool m_foundBody;
     QTcpSocket *m_socket;
-    QSemaphore *m_outputSemaphore;
 };
 
 #endif // PROXYSOCKETOUTPUTWRITER_H

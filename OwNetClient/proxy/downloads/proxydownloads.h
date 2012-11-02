@@ -6,6 +6,7 @@
 
 class ProxyDownload;
 class ProxyRequest;
+class ProxyHandler;
 
 class ProxyDownloads
 {
@@ -22,7 +23,8 @@ public:
         return m_instance;
     }
 
-    ProxyDownload *proxyDownload(ProxyRequest *request);
+    ProxyDownload *proxyDownload(ProxyRequest *request, ProxyHandler *handler, int &downloadReaderId);
+    void deregisterDownloadReader(ProxyDownload *proxyDownload, int readerId);
 
 private:
     ProxyDownloads() {}

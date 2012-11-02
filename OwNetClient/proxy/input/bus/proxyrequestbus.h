@@ -13,10 +13,11 @@ class ProxyRequestBus : public ProxyInputObject
 public:
     ProxyRequestBus(ProxyRequest *request, QObject *parent = 0);
 
-    void readRequest();
-
     const QString httpStatusCode() { return QString::number(200); }
     const QString httpStatusDescription() { return "OK"; }
+
+protected:
+    void readRequest();
 
 private:
     ProxyRequest *m_request;

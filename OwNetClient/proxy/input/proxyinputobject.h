@@ -15,9 +15,10 @@ class ProxyInputObject : public QObject
 public:
     ProxyInputObject(ProxyRequest *request, QObject *parent = 0);
 
-    virtual void readRequest() = 0;
-    virtual const QString httpStatusCode() = 0;
-    virtual const QString httpStatusDescription() = 0;
+    void startDownload();
+
+    const QString &httpStatusCode() { return m_httpStatusCode; }
+    const QString &httpStatusDescription() { return m_httpStatusDescription; }
 
     const QString &contentType() { return m_contentType; }
 
@@ -31,9 +32,13 @@ public slots:
 
 protected:
     void addHeader(const QString &key, const QString &value);
+    virtual void readRequest() = 0;
 
-    QString m_contentType;
     ProxyRequest *m_request;
+    QString m_contentType;
+    QString m_httpStatusCode;
+    QString m_httpStatusDescription;
+    bool m_downloadStarted;
 
 private:
     ListOfStringPairs m_responseHeaders;

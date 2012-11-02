@@ -11,6 +11,9 @@
 ProxyStaticInputObject::ProxyStaticInputObject(ProxyRequest *request, QObject *parent)
     : ProxyInputObject(request, parent)
 {
+    m_httpStatusCode = QString::number(200);
+    m_httpStatusDescription = "OK";
+
     addHeader("Content-type", m_request->requestContentType());
 }
 
