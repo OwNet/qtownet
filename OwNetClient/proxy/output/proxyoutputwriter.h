@@ -18,7 +18,7 @@ class ProxyOutputWriter : public QObject
 {
     Q_OBJECT
 public:
-    explicit ProxyOutputWriter(ProxyHandler *proxyHandler);
+    explicit ProxyOutputWriter(ProxyHandler *proxyHandler, QObject *parent = NULL);
 
     virtual void finish() = 0;
 
@@ -38,6 +38,8 @@ private slots:
     void downloadFinished();
 
 protected:
+    void connectProxyDownload();
+
     ProxyHandler *m_proxyHandler;
     ProxyDownloads *m_proxyDownloads;
     int m_downloadReaderId;

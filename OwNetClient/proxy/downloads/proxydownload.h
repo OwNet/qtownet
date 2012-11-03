@@ -45,6 +45,8 @@ private slots:
     void inputObjectFinished();
     
 private:
+    ProxyInputObject *webInputObject(ProxyRequest *request);
+
     ProxyInputObject *m_inputObject;
     ProxyHandler *m_proxyHandler;
 

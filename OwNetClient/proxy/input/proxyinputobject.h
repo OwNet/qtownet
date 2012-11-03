@@ -19,10 +19,9 @@ public:
 
     const QString &httpStatusCode() { return m_httpStatusCode; }
     const QString &httpStatusDescription() { return m_httpStatusDescription; }
-
     const QString &contentType() { return m_contentType; }
-
-    const ListOfStringPairs &responseHeaders() { return m_responseHeaders; }
+    ListOfStringPairs &responseHeaders() { return m_responseHeaders; }
+    ProxyRequest *request() { return m_request; }
 
 signals:
     void readyRead(QIODevice *ioDevice);
@@ -39,8 +38,6 @@ protected:
     QString m_httpStatusCode;
     QString m_httpStatusDescription;
     bool m_downloadStarted;
-
-private:
     ListOfStringPairs m_responseHeaders;
 };
 

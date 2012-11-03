@@ -2,9 +2,11 @@
 
 #include "proxywebinputobject.h"
 #include "proxystaticinputobject.h"
+#include "proxycacheinputobject.h"
 #include "proxyrequestbus.h"
 #include "proxyrequest.h"
 #include "proxyhandler.h"
+#include "proxycacheoutputwriter.h"
 
 #include <QBuffer>
 #include <QDebug>
@@ -20,10 +22,11 @@ ProxyDownload::ProxyDownload(ProxyRequest *request, ProxyHandler *handler, QObje
     } else if (request->isLocalRequest()) {
         m_inputObject = new ProxyRequestBus(request, this);
     } else {
-        m_inputObject = new ProxyWebInputObject(request, this);
-        m_shareDownload = true;
-        //m_reuseBuffers = true;
+        m_inputObject = webInputObject(request);
     }
+
+    if (m_shareDownload)
+        new ProxyCacheOutputWriter(this, m_proxyHandler, this);
 
     connect(m_inputObject, SIGNAL(finished()), this, SLOT(inputObjectFinished()));
     connect(m_inputObject, SIGNAL(readyRead(QIODevice*)), this, SLOT(readReply(QIODevice*)));
@@ -115,4 +118,15 @@ void ProxyDownload::readReply(QIODevice *ioDevice)
 void ProxyDownload::inputObjectFinished()
 {
     emit downloadFinished();
+}
+
+ProxyInputObject *ProxyDownload::webInputObject(ProxyRequest *request)
+{
+    ProxyCacheInputObject *cacheInputObject = new ProxyCacheInputObject(request, this);
+    if (cacheInputObject->exists())
+        return cacheInputObject;
+
+    m_shareDownload = true;
+    //m_reuseBuffers = true;
+    return new ProxyWebInputObject(request, this);
 }

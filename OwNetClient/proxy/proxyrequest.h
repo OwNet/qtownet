@@ -26,7 +26,7 @@ public:
 
     bool readFromSocket();
     ProxyRequest::RequestType requestType();
-    const ListOfStringPairs &requestHeaders() { return m_requestHeaders; }
+    ListOfStringPairs &requestHeaders() { return m_requestHeaders; }
 
     const QString url() { return m_url; }
     const QString requestContentType();

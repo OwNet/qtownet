@@ -5,8 +5,8 @@
 #include "proxyrequest.h"
 #include "proxyhandler.h"
 
-ProxyOutputWriter::ProxyOutputWriter(ProxyHandler *proxyHandler) :
-    QObject(proxyHandler), m_proxyHandler(proxyHandler), m_proxyDownload(NULL), m_downloadReaderId(-1), m_lastPartRead(0)
+ProxyOutputWriter::ProxyOutputWriter(ProxyHandler *proxyHandler, QObject *parent) :
+    QObject(parent), m_proxyHandler(proxyHandler), m_proxyDownload(NULL), m_downloadReaderId(-1), m_lastPartRead(0)
 {
     m_proxyDownloads = ProxyDownloads::instance();
 }
@@ -14,11 +14,7 @@ ProxyOutputWriter::ProxyOutputWriter(ProxyHandler *proxyHandler) :
 void ProxyOutputWriter::createDownload(ProxyRequest *request)
 {
     m_proxyDownload = m_proxyDownloads->proxyDownload(request, m_proxyHandler, m_downloadReaderId);
-    //m_proxyDownload = new ProxyDownload(request, m_proxyHandler, m_proxyHandler);
-    //m_downloadReaderId = m_proxyDownload->registerReader();
-
-    connect(m_proxyDownload, SIGNAL(downloadFinished()), this, SLOT(downloadFinished()), Qt::QueuedConnection);
-    connect(m_proxyDownload, SIGNAL(bytePartAvailable()), this, SLOT(readAvailableParts()), Qt::QueuedConnection);
+    connectProxyDownload();
 
     m_proxyDownload->startDownload();
 }
@@ -52,4 +48,10 @@ void ProxyOutputWriter::downloadFinished()
 {
     readAvailableParts();
     close();
+}
+
+void ProxyOutputWriter::connectProxyDownload()
+{
+    connect(m_proxyDownload, SIGNAL(downloadFinished()), this, SLOT(downloadFinished()), Qt::QueuedConnection);
+    connect(m_proxyDownload, SIGNAL(bytePartAvailable()), this, SLOT(readAvailableParts()), Qt::QueuedConnection);
 }
