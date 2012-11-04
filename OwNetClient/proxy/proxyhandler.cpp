@@ -15,6 +15,7 @@
 #include <QNetworkAccessManager>
 #include <QSemaphore>
 #include <QTimer>
+#include <QApplication>
 
 ProxyHandler::ProxyHandler(int handlerId, QObject *parent)
     : QObject(parent), m_handlerId(handlerId), m_isActive(false), m_timeoutTimer(NULL)
@@ -104,6 +105,7 @@ void ProxyHandler::finishHandlingRequest()
     }
 
     if (m_socketOutputWriter) {
+        qApp->processEvents();
         m_socketOutputWriter->deleteLater();
         m_socketOutputWriter = NULL;
 
