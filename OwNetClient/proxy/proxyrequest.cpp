@@ -93,10 +93,34 @@ void ProxyRequest::analyzeUrl()
     }
 
     if (split.count() > 0) {
-        m_relativeUrl = split.join("/");
+       QStringList params = split.join("/").split("?");
+       m_relativeUrl = params.takeFirst();
+       split = m_relativeUrl.split("/");
+       m_module = split.takeFirst();
+       if (split.count() > 0){
+           QString idOrAction = split.first();
+           bool ok;
+           int id = idOrAction.toInt(&ok);
+           if(ok){
+               m_id = id;
+               split.takeFirst();
+           }
+           if (split.count())
+               m_action = split.join("/");
+       }
+       if (params.count() > 0){
+           params = params.join("?").split("&");
+           for (int i = 0; i < params.count(); i++){
+               QStringList paramsKeyValue = params.at(i).split("=");
+               QString key = paramsKeyValue.first();
+               QString value = paramsKeyValue.last();
+               m_parameters.insert(key, value);
+           }
+       }
     } else {
         m_relativeUrl = "";
     }
+
 }
 
 QMap<QString, QString> ProxyRequest::m_contentTypes = initContentTypes();
