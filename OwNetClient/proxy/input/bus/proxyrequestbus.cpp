@@ -17,6 +17,12 @@ ProxyRequestBus::ProxyRequestBus(ProxyRequest *request, QObject *parent)
     addHeader("Content-type", m_request->requestContentType());
 }
 
+void ProxyRequestBus::setHttpStatus( int code, QString description )
+{
+    m_httpStatusCode = QString::number(code);
+    m_httpStatusDescription = description;
+}
+
 void ProxyRequestBus::readRequest()
 {
     // checks if module exists
