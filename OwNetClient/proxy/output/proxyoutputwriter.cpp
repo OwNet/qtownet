@@ -4,13 +4,28 @@
 #include "proxydownloads.h"
 #include "proxyrequest.h"
 #include "proxyhandler.h"
+#include "proxydownloadpart.h"
 
 ProxyOutputWriter::ProxyOutputWriter(ProxyHandler *proxyHandler, QObject *parent) :
-    QObject(parent), m_proxyHandler(proxyHandler), m_proxyDownload(NULL), m_downloadReaderId(-1), m_lastPartRead(0)
+    QObject(parent), m_proxyHandler(proxyHandler), m_proxyDownload(NULL), m_downloadReaderId(-1), m_lastPartRead(0), m_closed(false)
 {
     m_proxyDownloads = ProxyDownloads::instance();
 }
 
+/**
+ * @brief Force finish downloading request, triggered from outside.
+ */
+void ProxyOutputWriter::finish()
+{
+    m_readingMutex.lock();
+    close();
+    m_readingMutex.unlock();
+}
+
+/**
+ * @brief Create ProxyDownload object and connect its signals.
+ * @param request Request to download
+ */
 void ProxyOutputWriter::createDownload(ProxyRequest *request)
 {
     m_proxyDownload = m_proxyDownloads->proxyDownload(request, m_proxyHandler, m_downloadReaderId);
@@ -19,39 +34,65 @@ void ProxyOutputWriter::createDownload(ProxyRequest *request)
     m_proxyDownload->startDownload();
 }
 
+/**
+ * @brief Deregister as a ProxyDownload reader and disconnect from all ProxyDownload signals.
+ */
 void ProxyOutputWriter::close()
 {
+    virtualClose();
+
     if (m_proxyDownload) {
         m_proxyDownloads->deregisterDownloadReader(m_proxyDownload, m_downloadReaderId);
-        //m_proxyDownload->deregisterReader(m_downloadReaderId);
 
         disconnect(m_proxyDownload);
     }
 }
 
+/**
+ * @brief Read all byte parts available in the ProxyDownload.
+ * Checks if download finished and closes the output writer if it did.
+ */
 void ProxyOutputWriter::readAvailableParts()
 {
     m_readingMutex.lock();
-    QIODevice *ioDevice = NULL;
+    if (m_closed)
+        return;
+    bool downloadFinished = false;
+    bool callClose = false;
+
+    ProxyDownloadPart *downloadPart = NULL;
     do {
-        ioDevice = m_proxyDownload->bytePart(m_downloadReaderId);
-        if (ioDevice) {
-            read(ioDevice);
+        downloadPart = m_proxyDownload->downloadPart(m_downloadReaderId);
+        if (downloadPart) {
+            if (downloadPart->isError())
+                error();
+
+            if (downloadPart->isLast()) {
+                downloadFinished = true;
+                break;
+            } else {
+                read(downloadPart->stream());
+            }
         }
-    } while (ioDevice);
+    } while (downloadPart);
+
+    if (downloadFinished) {
+        m_closed = true;
+        callClose = true;
+    }
+
     m_readingMutex.unlock();
 
-    emit iAmActive();
-}
-
-void ProxyOutputWriter::downloadFinished()
-{
-    readAvailableParts();
-    close();
+    if (callClose) {
+        close();
+        emit finished();
+    } else {
+        emit iAmActive();
+    }
 }
 
 void ProxyOutputWriter::connectProxyDownload()
 {
-    connect(m_proxyDownload, SIGNAL(downloadFinished()), this, SLOT(downloadFinished()), Qt::QueuedConnection);
+    connect(m_proxyDownload, SIGNAL(downloadFinished()), this, SLOT(readAvailableParts()), Qt::QueuedConnection);
     connect(m_proxyDownload, SIGNAL(bytePartAvailable()), this, SLOT(readAvailableParts()), Qt::QueuedConnection);
 }

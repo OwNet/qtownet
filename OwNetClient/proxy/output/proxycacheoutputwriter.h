@@ -14,12 +14,11 @@ public:
         MaxFileSize = 524288 // 0.5 MB
     };
 
-    void finish();
-
 protected:
-    void close();
+    void virtualClose();
     void read(QIODevice *ioDevice);
     bool save();
+    void error();
 
 private:
     void createCacheFile();
@@ -28,6 +27,7 @@ private:
     ProxyRequest *m_request;
     long m_partSizeWritten;
     int m_numParts;
+    bool m_failed;
 };
 
 #endif // PROXYCACHEOUTPUTWRITER_H

@@ -13,7 +13,7 @@
 #include <QDateTime>
 
 ProxyCacheOutputWriter::ProxyCacheOutputWriter(ProxyDownload *download, ProxyHandler *proxyHandler, QObject *parent)
-    : ProxyOutputWriter(proxyHandler, parent), m_partSizeWritten(0), m_numParts(0)
+    : ProxyOutputWriter(proxyHandler, parent), m_partSizeWritten(0), m_numParts(0), m_failed(false)
 {
     m_proxyDownload = download;
     m_request = m_proxyDownload->inputObject()->request();
@@ -22,18 +22,13 @@ ProxyCacheOutputWriter::ProxyCacheOutputWriter(ProxyDownload *download, ProxyHan
     m_downloadReaderId = m_proxyDownload->registerReader();
 }
 
-void ProxyCacheOutputWriter::finish()
-{
-    close();
-}
-
-void ProxyCacheOutputWriter::close()
+void ProxyCacheOutputWriter::virtualClose()
 {
     if (m_cacheFile)
         m_cacheFile->close();
 
-    save();
-    ProxyOutputWriter::close();
+    if (!m_failed)
+        save();
 }
 
 void ProxyCacheOutputWriter::read(QIODevice *ioDevice)
@@ -88,10 +83,26 @@ bool ProxyCacheOutputWriter::save()
     return true;
 }
 
+void ProxyCacheOutputWriter::error()
+{
+    m_failed = true;
+    if (m_cacheFile)
+        m_cacheFile->close();
+    m_cacheFile = NULL;
+
+    CacheFolder cacheFolder;
+    for (int i = 0; i < m_numParts; ++i) {
+        QFile *file = cacheFolder.cacheFile(m_request, i);
+        if (file->exists())
+            file->remove();
+        delete file;
+    }
+}
+
 void ProxyCacheOutputWriter::createCacheFile()
 {
     CacheFolder cacheFolder;
-    m_cacheFile = cacheFolder.cacheFile(m_request, m_numParts);
+    m_cacheFile = cacheFolder.cacheFile(m_request, m_numParts, this);
     m_cacheFile->open(QIODevice::WriteOnly);
     m_numParts++;
     m_partSizeWritten = 0;

@@ -33,7 +33,7 @@ ProxyCacheInputObject::ProxyCacheInputObject(ProxyRequest *request, QObject *par
 void ProxyCacheInputObject::readRequest()
 {
     if (!exists()) {
-        emit finished();
+        emit failed();
         return;
     }
 

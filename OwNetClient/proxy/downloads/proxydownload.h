@@ -4,7 +4,6 @@
 #include <QObject>
 #include <QMutex>
 #include <QMap>
-#include <QQueue>
 
 #include "listofstringpairs.h"
 
@@ -12,7 +11,12 @@ class ProxyInputObject;
 class ProxyRequest;
 class ProxyHandler;
 class QIODevice;
+class ProxyDownloadPart;
 
+/**
+ * @brief Used as an intermediary between the input source (web, cache, disk) and the output writer (socket, cache)
+ * Input is always one, can have multiple output readers.
+ */
 class ProxyDownload : public QObject
 {
     Q_OBJECT
@@ -27,12 +31,11 @@ public:
     int hashCode() { return m_hashCode; }
 
     bool shareDownload() { return m_shareDownload; }
-    bool reuseBuffers() { return m_reuseBuffers; }
     void startDownload();
 
     void close();
 
-    QIODevice *bytePart(int readerId);
+    ProxyDownloadPart *downloadPart(int readerId);
     
 signals:
     void bytePartAvailable();
@@ -43,6 +46,7 @@ public slots:
 private slots:
     void readReply(QIODevice *ioDevice);
     void inputObjectFinished();
+    void inputObjectError();
     
 private:
     ProxyInputObject *webInputObject(ProxyRequest *request);
@@ -50,9 +54,8 @@ private:
     ProxyInputObject *m_inputObject;
     ProxyHandler *m_proxyHandler;
 
-    QMutex m_bytePartsMutex;
-    QList<QByteArray *> m_byteParts;
-    QQueue<QIODevice *> m_availableStreamsQueue;
+    QMutex m_downloadPartsMutex;
+    QList<ProxyDownloadPart *> m_downloadParts;
 
     QMutex m_readersMutex;
     QMap<int, int> m_readers;
@@ -61,7 +64,6 @@ private:
     int m_proxyHandlerDependentObjectId;
 
     bool m_shareDownload;
-    bool m_reuseBuffers;
 };
 
 #endif // PROXYDOWNLOAD_H

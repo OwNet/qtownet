@@ -18,7 +18,7 @@ class ProxyHandler : public QObject
     Q_OBJECT
 
     enum {
-        Timeout = 60000
+        Timeout = 30000 // 0.5 min
     };
 
 public:

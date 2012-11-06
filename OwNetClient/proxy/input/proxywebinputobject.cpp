@@ -16,7 +16,7 @@ void ProxyWebInputObject::readRequest()
     QNetworkAccessManager *manager = new QNetworkAccessManager(m_request->socket());
     QNetworkReply *reply = NULL;
     QNetworkRequest request;
-    request.setUrl(QUrl(m_request->url()));
+    request.setUrl(QUrl::fromEncoded(m_request->url().toUtf8()));
     for (int i = 0; i < m_request->requestHeaders().count(); ++i)
         request.setRawHeader(m_request->requestHeaders().at(i).first.toLatin1(),
                              m_request->requestHeaders().at(i).second.toLatin1());
@@ -57,7 +57,7 @@ void ProxyWebInputObject::error(QNetworkReply::NetworkError)
     MessageHelper::debug(reply->errorString());
 
     disconnect(this);
-    emit finished();
+    emit failed();
 }
 
 void ProxyWebInputObject::downloadFinished()

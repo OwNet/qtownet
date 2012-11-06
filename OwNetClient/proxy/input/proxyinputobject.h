@@ -8,6 +8,9 @@
 class ProxyRequest;
 class QIODevice;
 
+/**
+ * @brief Input source that downloads the given request and returns data to the ProxyDownload object.
+ */
 class ProxyInputObject : public QObject
 {
     Q_OBJECT
@@ -26,7 +29,8 @@ public:
 signals:
     void readyRead(QIODevice *ioDevice);
     void finished();
-    
+    void failed();
+
 public slots:
 
 protected:
