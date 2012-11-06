@@ -3,8 +3,16 @@
 #include "messagehelper.h"
 
 ProxyInputObject::ProxyInputObject(ProxyRequest *request, QObject *parent) :
-    QObject(parent), m_request(request)
+    QObject(parent), m_request(request), m_downloadStarted(false)
 {
+}
+
+void ProxyInputObject::startDownload()
+{
+    if (!m_downloadStarted) {
+        m_downloadStarted = true;
+        readRequest();
+    }
 }
 
 

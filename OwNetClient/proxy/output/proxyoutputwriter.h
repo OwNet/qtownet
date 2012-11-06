@@ -9,6 +9,7 @@ class ProxyDownload;
 class ProxyInputObject;
 class ProxyDownloads;
 class QIODevice;
+class ProxyHandler;
 
 /**
  * @brief Reads data from ProxyDownload and outputs it to a custom source
@@ -17,13 +18,12 @@ class ProxyOutputWriter : public QObject
 {
     Q_OBJECT
 public:
-    explicit ProxyOutputWriter(QObject *parent = 0);
+    explicit ProxyOutputWriter(ProxyHandler *proxyHandler);
 
     virtual void finish() = 0;
 
 protected:
     void createDownload(ProxyRequest *request);
-    void registerDownload(ProxyDownload *download);
 
     virtual void close();
     virtual void read(QIODevice *ioDevice) = 0;
@@ -36,10 +36,9 @@ signals:
 private slots:
     void readAvailableParts();
     void downloadFinished();
-    
-private:
-    void registerDownload();
 
+protected:
+    ProxyHandler *m_proxyHandler;
     ProxyDownloads *m_proxyDownloads;
     int m_downloadReaderId;
 

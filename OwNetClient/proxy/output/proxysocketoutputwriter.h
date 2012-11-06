@@ -2,6 +2,7 @@
 #define PROXYSOCKETOUTPUTWRITER_H
 
 class QTcpSocket;
+class QSemaphore;
 
 #include "proxyoutputwriter.h"
 
@@ -10,7 +11,11 @@ class ProxySocketOutputWriter : public ProxyOutputWriter
     Q_OBJECT
 
 public:
-    ProxySocketOutputWriter(int socketDescriptor, QObject *parent = 0);
+    ProxySocketOutputWriter(int socketDescriptor, ProxyHandler *proxyHandler);
+
+    enum {
+        BufferSize = 8192
+    };
 
     void startDownload();
     void finish();

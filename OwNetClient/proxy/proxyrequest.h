@@ -21,6 +21,7 @@ public:
         UNKNOWN
     };
 
+    const QString &subDomain(){ return m_subDomain;}
     ProxyRequest(QTcpSocket *socket, QObject *parent = 0);
 
     bool readFromSocket();
@@ -35,10 +36,12 @@ public:
     const int &id() { return m_id; }
     const QMap<QString, QString> &parameters() { return m_parameters; }
 
-    int hashCode() { return m_hashCode; }
+    int &hashCode() { return m_hashCode; }
 
     bool isLocalRequest() { return m_domain == "ownet"; }
     bool isStaticResourceRequest() { return m_domain == "ownet" && m_subDomain == "static"; }
+
+    QTcpSocket *socket() { return m_socket; }
 
 private:
     const QString urlExtension();

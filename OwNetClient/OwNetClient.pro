@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += core gui network
+QT       += core gui network sql qtestlib
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -32,10 +32,17 @@ SOURCES += main.cpp\
     helpers/qjson/serializer.cpp \
     helpers/qjson/serializerrunnable.cpp \
     proxy/input/bus/proxyrequestbus.cpp \
+    modules/testmodule.cpp \
+    modules/imodule.cpp \
+    init/moduleinitializer.cpp \
+    modules/ibus.cpp \
+    init/databaseinitializer.cpp \
+    modules/databasemodule.cpp \
     proxy/downloads/proxydownloads.cpp \
     proxy/downloads/proxydownload.cpp \
     proxy/output/proxyoutputwriter.cpp \
-    proxy/output/proxysocketoutputwriter.cpp
+    proxy/output/proxysocketoutputwriter.cpp \
+    helpers/applicationdatastorage.cpp
 
 HEADERS  += view/mainwindow.h \
         proxy/proxyserver.h \
@@ -61,11 +68,25 @@ HEADERS  += view/mainwindow.h \
     helpers/qjson/serializerrunnable.h \
     helpers/qjson/stack.hh \
     proxy/input/bus/proxyrequestbus.h \
+    modules/testmodule.h \
+    modules/imodule.h \
+    init/moduleinitializer.h \
+    modules/ibus.h \
+    init/databaseinitializer.h \
+    modules/databasemodule.h \
     proxy/downloads/proxydownloads.h \
     proxy/downloads/proxydownload.h \
     proxy/output/proxyoutputwriter.h \
-    proxy/output/proxysocketoutputwriter.h
+    proxy/output/proxysocketoutputwriter.h \
+    helpers/applicationdatastorage.h
 
 FORMS    += view/mainwindow.ui
 
-INCLUDEPATH += proxy init helpers view proxy/input proxy/input/bus proxy/downloads proxy/output
+INCLUDEPATH += proxy \
+    init \
+    helpers \
+    view \
+    proxy/input \
+    proxy/input/bus \
+    proxy/downloads \
+    proxy/output modules

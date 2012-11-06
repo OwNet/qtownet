@@ -4,20 +4,25 @@
 #include "proxystaticinputobject.h"
 #include "proxyrequestbus.h"
 #include "proxyrequest.h"
+#include "proxyhandler.h"
 
 #include <QBuffer>
 #include <QDebug>
 
-ProxyDownload::ProxyDownload(ProxyRequest *request, QObject *parent) :
-    QObject(parent), m_inputObject(NULL), m_nextReaderId(1), m_shareDownload(false)
+ProxyDownload::ProxyDownload(ProxyRequest *request, ProxyHandler *handler, QObject *parent) :
+    QObject(parent), m_inputObject(NULL), m_proxyHandler(handler), m_nextReaderId(1), m_shareDownload(false), m_reuseBuffers(true)
 {
+    m_hashCode = request->hashCode();
+    m_proxyHandlerDependentObjectId = m_proxyHandler->registerDependentObject();
+
     if (request->isStaticResourceRequest()) {
         m_inputObject = new ProxyStaticInputObject(request, this);
     } else if (request->isLocalRequest()) {
         m_inputObject = new ProxyRequestBus(request, this);
     } else {
         m_inputObject = new ProxyWebInputObject(request, this);
-        //m_shareDownload = true;
+        m_shareDownload = true;
+        //m_reuseBuffers = true;
     }
 
     connect(m_inputObject, SIGNAL(finished()), this, SLOT(inputObjectFinished()));
@@ -44,9 +49,21 @@ void ProxyDownload::deregisterReader(int readerId)
     m_readersMutex.unlock();
 }
 
+int ProxyDownload::countRegisteredReaders()
+{
+    QMutexLocker mutexLocker(&m_readersMutex);
+
+    return m_readers.count();
+}
+
 void ProxyDownload::startDownload()
 {
-    m_inputObject->readRequest();
+    m_inputObject->startDownload();
+}
+
+void ProxyDownload::close()
+{
+    m_proxyHandler->deregisterDependentObject(m_proxyHandlerDependentObjectId);
 }
 
 QIODevice *ProxyDownload::bytePart(int readerId)
@@ -70,7 +87,7 @@ QIODevice *ProxyDownload::bytePart(int readerId)
         if (!bytes)
             return NULL;
 
-        QBuffer *buffer = new QBuffer(bytes, this);
+        QBuffer *buffer = new QBuffer(bytes);
         buffer->open(QIODevice::ReadOnly);
 
         return buffer;
