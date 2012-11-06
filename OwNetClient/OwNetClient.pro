@@ -49,7 +49,9 @@ SOURCES += main.cpp\
     proxy/downloads/proxydownloadpart.cpp \
     proxy/downloads/proxybytedownloadpart.cpp \
     proxy/downloads/proxystreamdownloadpart.cpp \
-    proxy/downloads/proxylastdownloadpart.cpp
+    proxy/downloads/proxylastdownloadpart.cpp \
+    modules/prefetching/prefetchingmodule.cpp \
+    modules/prefetching/loggedpage.cpp
 
 HEADERS  += view/mainwindow.h \
         proxy/proxyserver.h \
@@ -92,7 +94,10 @@ HEADERS  += view/mainwindow.h \
     proxy/downloads/proxydownloadpart.h \
     proxy/downloads/proxybytedownloadpart.h \
     proxy/downloads/proxystreamdownloadpart.h \
-    proxy/downloads/proxylastdownloadpart.h
+    proxy/downloads/proxylastdownloadpart.h \
+    modules/prefetching/prefetchingmodule.h \
+    modules/prefetching/loggedpage.h
+
 
 FORMS    += view/mainwindow.ui
 

@@ -90,8 +90,8 @@ void ProxySocketOutputWriter::read(QIODevice *ioDevice)
             QByteArray lineBytes = ioDevice->readLine();
             QString line = QString::fromLatin1(lineBytes);
             if (line.contains("<body")) {
-                //m_socket->write(QString("<script type=\"text/javascript\" src=\"http://ownet.tym.sk/script.js\"></script>")
-                //                .toLatin1());
+                m_socket->write(QString("<script type=\"text/javascript\" src=\"http://static.ownet/inject.js\"></script>")
+                                .toLatin1());
                 m_foundBody = true;
             }
             m_socket->write(lineBytes);
