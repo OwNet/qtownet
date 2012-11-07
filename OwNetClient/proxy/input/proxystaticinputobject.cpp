@@ -21,8 +21,7 @@ void ProxyStaticInputObject::readRequest()
 {
     ApplicationDataStorage appDataStorage;
     QDir dir = appDataStorage.appDataDirectory();
-    QFile *file = new QFile(dir.absoluteFilePath(QString("static/%1")
-                                                 .arg(m_request->relativeUrl())));
+    QFile *file = new QFile(dir.absoluteFilePath(m_request->staticResourcePath()));
 
     if (file->exists()) {
         if (file->open(QIODevice::ReadOnly))

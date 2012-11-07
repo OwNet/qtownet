@@ -70,6 +70,27 @@ const QString ProxyRequest::requestContentType()
     return "application/octet-stream";
 }
 
+/**
+ * @brief Returns path to the requested static file.
+ * @return Path to the requested static file
+ */
+const QString ProxyRequest::staticResourcePath()
+{
+    if (isStaticResourceRequest()) {
+        if (m_subDomain == "static") {
+            return "static/" + m_relativeUrl;
+        } else {
+            return m_relativeUrl;
+        }
+    }
+    return "";
+}
+
+bool ProxyRequest::isStaticResourceRequest()
+{
+    return m_domain == "ownet" && (m_subDomain == "static" || m_module == "static");
+}
+
 const QString ProxyRequest::urlExtension()
 {
     QStringList parts = m_url.split("?").first().split(".");

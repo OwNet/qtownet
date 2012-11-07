@@ -37,11 +37,12 @@ public:
     const int &id() { return m_id; }
     const QMap<QString, QString> &parameters() { return m_parameters; }
     QByteArray &requestBody() { return m_requestBody; }
+    const QString staticResourcePath();
 
     int &hashCode() { return m_hashCode; }
 
     bool isLocalRequest() { return m_domain == "ownet"; }
-    bool isStaticResourceRequest() { return m_domain == "ownet" && m_subDomain == "static"; }
+    bool isStaticResourceRequest();
 
     QTcpSocket *socket() { return m_socket; }
 
