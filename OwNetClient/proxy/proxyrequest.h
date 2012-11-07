@@ -36,7 +36,7 @@ public:
     const QString &module() { return m_module; }
     const int &id() { return m_id; }
     const QMap<QString, QString> &parameters() { return m_parameters; }
-    const QByteArray &requestBody() { return m_requestBody; }
+    QByteArray &requestBody() { return m_requestBody; }
 
     int &hashCode() { return m_hashCode; }
 

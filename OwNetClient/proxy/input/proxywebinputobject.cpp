@@ -5,6 +5,7 @@
 #include <QNetworkAccessManager>
 #include <QNetworkReply>
 #include <QTcpSocket>
+#include <QBuffer>
 
 ProxyWebInputObject::ProxyWebInputObject(ProxyRequest *request, QObject *parent)
     : ProxyInputObject(request, parent), m_readHeaders(false)
@@ -22,8 +23,21 @@ void ProxyWebInputObject::readRequest()
                              m_request->requestHeaders().at(i).second.toLatin1());
     request.setRawHeader("X-Proxied-By", "OwNet");
 
-    if (m_request->requestType() == ProxyRequest::GET)
+    switch (m_request->requestType()) {
+    case ProxyRequest::GET:
         reply = manager->get(request);
+        break;
+    case ProxyRequest::POST:
+        reply = manager->post(request, new QBuffer(&m_request->requestBody()));
+        break;
+    case ProxyRequest::PUT:
+        reply = manager->put(request, new QBuffer(&m_request->requestBody()));
+        break;
+    case ProxyRequest::DELETE:
+        reply = manager->deleteResource(request);
+        break;
+    }
+
     if (reply == NULL) {
         emit finished();
         return;
