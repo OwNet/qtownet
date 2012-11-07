@@ -18,33 +18,36 @@ class ProxyOutputWriter : public QObject
 {
     Q_OBJECT
 public:
-    explicit ProxyOutputWriter(ProxyHandler *proxyHandler);
+    explicit ProxyOutputWriter(ProxyHandler *proxyHandler, QObject *parent = NULL);
 
-    virtual void finish() = 0;
-
-protected:
-    void createDownload(ProxyRequest *request);
-
-    virtual void close();
-    virtual void read(QIODevice *ioDevice) = 0;
-
-    ProxyDownload *m_proxyDownload;
+    void finish();
 
 signals:
     void iAmActive();
+    void finished();
     
 private slots:
     void readAvailableParts();
-    void downloadFinished();
 
 protected:
+    void connectProxyDownload();
+    void createDownload(ProxyRequest *request);
+
+    virtual void virtualClose() = 0;
+    virtual void read(QIODevice *ioDevice) = 0;
+    virtual void error() = 0;
+
     ProxyHandler *m_proxyHandler;
+    ProxyDownload *m_proxyDownload;
     ProxyDownloads *m_proxyDownloads;
     int m_downloadReaderId;
 
-    QMutex m_readingMutex;
+private:
+    void close();
 
+    QMutex m_readingMutex;
     int m_lastPartRead;
+    bool m_closed;
 };
 
 #endif // PROXYOUTPUTWRITER_H

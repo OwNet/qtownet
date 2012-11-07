@@ -7,6 +7,13 @@
 
 ProxyDownloads *ProxyDownloads::m_instance = 0;
 
+/**
+ * @brief Creates a new ProxyDownload, or returns an active one if available.
+ * @param request Request to retrieve a download by
+ * @param handler ProxyHandler parent class
+ * @param downloadReaderId Reference to reader ID varibale to set
+ * @return ProxyDownload object
+ */
 ProxyDownload *ProxyDownloads::proxyDownload(ProxyRequest *request, ProxyHandler *handler, int &downloadReaderId)
 {
     ProxyDownload *download = NULL;
@@ -27,6 +34,11 @@ ProxyDownload *ProxyDownloads::proxyDownload(ProxyRequest *request, ProxyHandler
     return download;
 }
 
+/**
+ * @brief Deregisters reader from an active download. Disposes the download if no readers left.
+ * @param proxyDownload Download to deregister from
+ * @param readerId ID of the reader
+ */
 void ProxyDownloads::deregisterDownloadReader(ProxyDownload *proxyDownload, int readerId)
 {
     proxyDownload->deregisterReader(readerId);
@@ -39,6 +51,8 @@ void ProxyDownloads::deregisterDownloadReader(ProxyDownload *proxyDownload, int 
     }
     m_openDownloadsMutex.unlock();
 
-    if (close)
+    if (close) {
         proxyDownload->close();
+        delete proxyDownload;
+    }
 }

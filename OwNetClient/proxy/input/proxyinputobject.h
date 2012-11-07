@@ -8,6 +8,9 @@
 class ProxyRequest;
 class QIODevice;
 
+/**
+ * @brief Input source that downloads the given request and returns data to the ProxyDownload object.
+ */
 class ProxyInputObject : public QObject
 {
     Q_OBJECT
@@ -19,15 +22,15 @@ public:
 
     const QString &httpStatusCode() { return m_httpStatusCode; }
     const QString &httpStatusDescription() { return m_httpStatusDescription; }
-
     const QString &contentType() { return m_contentType; }
-
-    const ListOfStringPairs &responseHeaders() { return m_responseHeaders; }
+    ListOfStringPairs &responseHeaders() { return m_responseHeaders; }
+    ProxyRequest *request() { return m_request; }
 
 signals:
     void readyRead(QIODevice *ioDevice);
     void finished();
-    
+    void failed();
+
 public slots:
 
 protected:
@@ -39,8 +42,6 @@ protected:
     QString m_httpStatusCode;
     QString m_httpStatusDescription;
     bool m_downloadStarted;
-
-private:
     ListOfStringPairs m_responseHeaders;
 };
 

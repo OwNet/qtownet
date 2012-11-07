@@ -17,7 +17,7 @@ QByteArray* TestModule::processRequest(IBus *bus, ProxyRequest *req)
     // own body of processing request
 
     // if you need to call another module call bus.callModule( ProxyRequest req)
-
+    bus->setHttpStatus(409, "Conflict");
     return new QByteArray("{\"Status\":\"OK\"}");
 
 }

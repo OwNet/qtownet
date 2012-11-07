@@ -25,17 +25,21 @@ bool ProxyRequest::readFromSocket()
                 return false;
             }
         } else {
-            QStringList tokens = readLine.split(":");
-            if (tokens.count() < 2)
-                continue;
-            QString key = tokens.first();
-            QString value = tokens.at(1);
-            value.remove(QRegExp("[\r\n][\r\n]*"));
-
-            if (!key.toLower().contains("accept-encoding") || !value.contains("gzip")) {
-                m_requestHeaders.insert(key, value);
+            if (readLine == "\r\n") {
+                m_requestBody = m_socket->readAll();
             } else {
-                m_requestHeaders.insert("Accept-encoding", "*");
+                QStringList tokens = readLine.split(":");
+                if (tokens.count() < 2)
+                    continue;
+                QString key = tokens.first();
+                QString value = tokens.at(1);
+                value.remove(QRegExp("[\r\n][\r\n]*"));
+
+                if (!key.toLower().contains("accept-encoding") || !value.contains("gzip")) {
+                    m_requestHeaders.insert(key, value);
+                } else {
+                    m_requestHeaders.insert("Accept-encoding", "*");
+                }
             }
         }
     }

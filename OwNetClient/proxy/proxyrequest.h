@@ -5,6 +5,7 @@
 
 #include <QNetworkRequest>
 #include <QMap>
+#include <QByteArray>
 
 class QTcpSocket;
 
@@ -26,7 +27,7 @@ public:
 
     bool readFromSocket();
     ProxyRequest::RequestType requestType();
-    const ListOfStringPairs &requestHeaders() { return m_requestHeaders; }
+    ListOfStringPairs &requestHeaders() { return m_requestHeaders; }
 
     const QString &url() { return m_url; }
     const QString requestContentType();
@@ -35,6 +36,7 @@ public:
     const QString &module() { return m_module; }
     const int &id() { return m_id; }
     const QMap<QString, QString> &parameters() { return m_parameters; }
+    QByteArray &requestBody() { return m_requestBody; }
 
     int &hashCode() { return m_hashCode; }
 
@@ -57,6 +59,7 @@ private:
     QString m_action;
     int m_id;
     QMap<QString, QString> m_parameters;
+    QByteArray m_requestBody;
 
     QTcpSocket *m_socket;
     static QMap<QString, QString> m_contentTypes;

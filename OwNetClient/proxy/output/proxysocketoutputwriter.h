@@ -18,18 +18,15 @@ public:
     };
 
     void startDownload();
-    void finish();
 
 private slots:
     void readRequest();
 
-signals:
-    void finished();
-
 protected:
-    void close();
+    void virtualClose();
     void read(QIODevice *ioDevice);
     void readReply(QIODevice *ioDevice, ProxyInputObject *inputObject);
+    void error() {}
 
 private:
     int m_socketDescriptor;

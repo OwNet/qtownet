@@ -11,7 +11,7 @@
 #include <QSemaphore>
 
 ProxySocketOutputWriter::ProxySocketOutputWriter(int socketDescriptor, ProxyHandler *proxyHandler) :
-    ProxyOutputWriter(proxyHandler), m_socketDescriptor(socketDescriptor), m_writtenToSocket(false), m_foundBody(false), m_socket(NULL)
+    ProxyOutputWriter(proxyHandler, proxyHandler), m_socketDescriptor(socketDescriptor), m_writtenToSocket(false), m_foundBody(false), m_socket(NULL)
 {
 }
 
@@ -26,14 +26,6 @@ void ProxySocketOutputWriter::startDownload()
 }
 
 /**
- * @brief Force finish downloading request, triggered from outside.
- */
-void ProxySocketOutputWriter::finish()
-{
-    close();
-}
-
-/**
  * @brief Triggered when socket is ready to be read.
  */
 void ProxySocketOutputWriter::readRequest()
@@ -45,6 +37,7 @@ void ProxySocketOutputWriter::readRequest()
         finish();
         return;
     }
+    MessageHelper::debug(request->url());
 
     createDownload(request);
 }
@@ -52,16 +45,15 @@ void ProxySocketOutputWriter::readRequest()
 /**
  * @brief Close socket and end download.
  */
-void ProxySocketOutputWriter::close()
+void ProxySocketOutputWriter::virtualClose()
 {
     if (m_socket) {
         if (m_socket->isOpen()) {
-            m_socket->close();
+            m_socket->flush();
+            m_socket->disconnectFromHost();
+            if (m_socket->state() != QAbstractSocket::UnconnectedState)
+                m_socket->waitForDisconnected();
         }
-
-        ProxyOutputWriter::close();
-
-        emit finished();
     }
 }
 
@@ -108,10 +100,5 @@ void ProxySocketOutputWriter::read(QIODevice *ioDevice)
     else {
         m_foundBody = true;
         m_socket->write(ioDevice->readAll());
-    }
-
-    if (!m_proxyDownload->reuseBuffers()) {
-        ioDevice->close();
-        delete ioDevice;
     }
 }

@@ -8,6 +8,10 @@ class ProxyDownload;
 class ProxyRequest;
 class ProxyHandler;
 
+/**
+ * @brief Contains a list of all active downloads. Creates a new download or reuses an active one on request.
+ * Singleton.
+ */
 class ProxyDownloads
 {
 public:

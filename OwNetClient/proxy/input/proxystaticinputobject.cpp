@@ -22,14 +22,15 @@ void ProxyStaticInputObject::readRequest()
     ApplicationDataStorage appDataStorage;
     QDir dir = appDataStorage.appDataDirectory();
     QFile *file = new QFile(dir.absoluteFilePath(QString("static/%1")
-                                                 .arg(m_request->relativeUrl())), this);
+                                                 .arg(m_request->relativeUrl())));
 
     if (file->exists()) {
         if (file->open(QIODevice::ReadOnly))
             emit readyRead(file);
+
+        emit finished();
     } else {
         MessageHelper::debug(QString("404 NOT FOUND static/%1").arg(m_request->relativeUrl()));
+        emit failed();
     }
-
-    emit finished();
 }
