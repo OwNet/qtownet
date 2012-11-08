@@ -22,32 +22,34 @@ public:
         UNKNOWN
     };
 
-    const QString &subDomain(){ return m_subDomain;}
     ProxyRequest(QTcpSocket *socket, QObject *parent = 0);
 
     bool readFromSocket();
     ProxyRequest::RequestType requestType();
     ListOfStringPairs &requestHeaders() { return m_requestHeaders; }
 
-    const QString &url() { return m_url; }
-    const QString requestContentType();
-    const QString &relativeUrl() { return m_relativeUrl; }
-    const QString &action() { return m_action; }
-    const QString &module() { return m_module; }
-    const int &id() { return m_id; }
-    const QMap<QString, QString> &parameters() { return m_parameters; }
+    QString url() const { return m_url; }
+    QString requestContentType() const;
+    QString relativeUrl() const { return m_relativeUrl; }
+    QString action() const { return m_action; }
+    QString module() const { return isLocalRequest() ? m_module : QString(); }
+    QString subDomain() const { return m_subDomain; }
+
+    int id() const { return m_id; }
+    QMap<QString, QString> parameters() const { return m_parameters; }
     QByteArray &requestBody() { return m_requestBody; }
-    const QString staticResourcePath();
+    QString staticResourcePath() const;
 
-    int &hashCode() { return m_hashCode; }
+    int hashCode() const { return m_hashCode; }
 
-    bool isLocalRequest() { return m_domain == "ownet"; }
-    bool isStaticResourceRequest();
+    bool isLocalRequest() const { return m_domain == "ownet"; }
+    bool isStaticResourceRequest() const;
+    bool isApiRequst() const { return m_isApiRequest; }
 
     QTcpSocket *socket() { return m_socket; }
 
 private:
-    const QString urlExtension();
+    QString urlExtension() const;
     void analyzeUrl();
     static QMap<QString, QString> initContentTypes();
 
@@ -61,6 +63,7 @@ private:
     int m_id;
     QMap<QString, QString> m_parameters;
     QByteArray m_requestBody;
+    bool m_isApiRequest;
 
     QTcpSocket *m_socket;
     static QMap<QString, QString> m_contentTypes;

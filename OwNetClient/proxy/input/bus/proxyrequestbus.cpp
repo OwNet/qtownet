@@ -28,7 +28,7 @@ void ProxyRequestBus::readRequest()
     // checks if module exists
     if( m_routes->contains(m_request->module())) {
         // returning processed request
-        QBuffer *buffer = new QBuffer(m_routes->value(m_request->module())->processRequest(this,m_request));
+        QBuffer *buffer = new QBuffer(m_routes->value(m_request->module())->processRequest(this, m_request));
         buffer->open(QIODevice::ReadOnly);
         emit readyRead(buffer);
     }

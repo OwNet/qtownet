@@ -36,6 +36,8 @@ void ProxyWebInputObject::readRequest()
     case ProxyRequest::DELETE:
         reply = manager->deleteResource(request);
         break;
+    case ProxyRequest::UNKNOWN:
+        break;
     }
 
     if (reply == NULL) {
