@@ -119,25 +119,28 @@ void ProxyRequest::analyzeUrl()
     if (split.count() > 0) {
         QStringList params = split.join("/").split("?");
         m_relativeUrl = params.takeFirst();
-        split = m_relativeUrl.split("/");
 
-        if (split.first() == "api") {
-            split.takeFirst();
-            m_isApiRequest = true;
+        if (isLocalRequest()) {
+            split = m_relativeUrl.split("/");
 
-            if (split.count()) {
-                m_module = split.takeFirst();
+            if (split.first() == "api") {
+                split.takeFirst();
+                m_isApiRequest = true;
 
                 if (split.count()) {
-                    QString idOrAction = split.first();
-                    bool ok;
-                    int id = idOrAction.toInt(&ok);
-                    if (ok) {
-                        m_id = id;
-                        split.takeFirst();
+                    m_module = split.takeFirst();
+
+                    if (split.count()) {
+                        QString idOrAction = split.first();
+                        bool ok;
+                        int id = idOrAction.toInt(&ok);
+                        if (ok) {
+                            m_id = id;
+                            split.takeFirst();
+                        }
+                        if (split.count())
+                            m_action = split.join("/");
                     }
-                    if (split.count())
-                        m_action = split.join("/");
                 }
             }
         }
