@@ -7,7 +7,7 @@
 #include <QRegExp>
 
 ProxyRequest::ProxyRequest(QTcpSocket *socket, QObject *parent)
-    : QObject(parent), m_socket(socket), m_hashCode(-1)
+    : QObject(parent), m_socket(socket), m_hashCode(-1), m_isApiRequest(false)
 {
 }
 
@@ -25,17 +25,21 @@ bool ProxyRequest::readFromSocket()
                 return false;
             }
         } else {
-            QStringList tokens = readLine.split(":");
-            if (tokens.count() < 2)
-                continue;
-            QString key = tokens.first();
-            QString value = tokens.at(1);
-            value.remove(QRegExp("[\r\n][\r\n]*"));
-
-            if (!key.toLower().contains("accept-encoding") || !value.contains("gzip")) {
-                m_requestHeaders.insert(key, value);
+            if (readLine == "\r\n") {
+                m_requestBody = m_socket->readAll();
             } else {
-                m_requestHeaders.insert("Accept-encoding", "*");
+                QStringList tokens = readLine.split(":");
+                if (tokens.count() < 2)
+                    continue;
+                QString key = tokens.first();
+                QString value = tokens.at(1);
+                value.remove(QRegExp("[\r\n][\r\n]*"));
+
+                if (!key.toLower().contains("accept-encoding") || !value.contains("gzip")) {
+                    m_requestHeaders.insert(key, value);
+                } else {
+                    m_requestHeaders.insert("Accept-encoding", "*");
+                }
             }
         }
     }
@@ -58,7 +62,7 @@ ProxyRequest::RequestType ProxyRequest::requestType()
     return UNKNOWN;
 }
 
-const QString ProxyRequest::requestContentType()
+QString ProxyRequest::requestContentType() const
 {
     QString ext = urlExtension();
     if (ProxyRequest::m_contentTypes.contains(ext))
@@ -66,7 +70,27 @@ const QString ProxyRequest::requestContentType()
     return "application/octet-stream";
 }
 
-const QString ProxyRequest::urlExtension()
+/**
+ * @brief Returns path to the requested static file.
+ * @return Path to the requested static file
+ */
+QString ProxyRequest::staticResourcePath() const
+{
+    if (isStaticResourceRequest())
+        if (!subDomain().isEmpty())
+            return QString ("static/%1/%2").arg(subDomain()).arg(relativeUrl());
+
+        return QString("static/%1").arg(relativeUrl());
+
+    return "";
+}
+
+bool ProxyRequest::isStaticResourceRequest() const
+{
+    return isLocalRequest() && !isApiRequst();
+}
+
+QString ProxyRequest::urlExtension() const
 {
     QStringList parts = m_url.split("?").first().split(".");
     if (parts.count() > 1)
@@ -93,30 +117,42 @@ void ProxyRequest::analyzeUrl()
     }
 
     if (split.count() > 0) {
-       QStringList params = split.join("/").split("?");
-       m_relativeUrl = params.takeFirst();
-       split = m_relativeUrl.split("/");
-       m_module = split.takeFirst();
-       if (split.count() > 0){
-           QString idOrAction = split.first();
-           bool ok;
-           int id = idOrAction.toInt(&ok);
-           if(ok){
-               m_id = id;
-               split.takeFirst();
-           }
-           if (split.count())
-               m_action = split.join("/");
-       }
-       if (params.count() > 0){
-           params = params.join("?").split("&");
-           for (int i = 0; i < params.count(); i++){
-               QStringList paramsKeyValue = params.at(i).split("=");
-               QString key = paramsKeyValue.first();
-               QString value = paramsKeyValue.last();
-               m_parameters.insert(key, value);
-           }
-       }
+        QStringList params = split.join("/").split("?");
+        m_relativeUrl = params.takeFirst();
+
+        if (isLocalRequest()) {
+            split = m_relativeUrl.split("/");
+
+            if (split.first() == "api") {
+                split.takeFirst();
+                m_isApiRequest = true;
+
+                if (split.count()) {
+                    m_module = split.takeFirst();
+
+                    if (split.count()) {
+                        QString idOrAction = split.first();
+                        bool ok;
+                        int id = idOrAction.toInt(&ok);
+                        if (ok) {
+                            m_id = id;
+                            split.takeFirst();
+                        }
+                        if (split.count())
+                            m_action = split.join("/");
+                    }
+                }
+            }
+        }
+        if (params.count() > 0){
+            params = params.join("?").split("&");
+            for (int i = 0; i < params.count(); i++){
+                QStringList paramsKeyValue = params.at(i).split("=");
+                QString key = paramsKeyValue.first();
+                QString value = paramsKeyValue.last();
+                m_parameters.insert(key, value);
+            }
+        }
     } else {
         m_relativeUrl = "";
     }

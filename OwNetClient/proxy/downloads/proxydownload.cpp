@@ -169,9 +169,11 @@ void ProxyDownload::inputObjectError()
  */
 ProxyInputObject *ProxyDownload::webInputObject(ProxyRequest *request)
 {
-    ProxyCacheInputObject *cacheInputObject = new ProxyCacheInputObject(request, this);
-    if (cacheInputObject->exists())
-        return cacheInputObject;
+    if (request->requestType() == ProxyRequest::GET) {
+        ProxyCacheInputObject *cacheInputObject = new ProxyCacheInputObject(request, this);
+        if (cacheInputObject->exists())
+            return cacheInputObject;
+    }
 
     m_shareDownload = true;
     return new ProxyWebInputObject(request, this);

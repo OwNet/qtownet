@@ -17,12 +17,18 @@ ProxyRequestBus::ProxyRequestBus(ProxyRequest *request, QObject *parent)
     addHeader("Content-type", m_request->requestContentType());
 }
 
+void ProxyRequestBus::setHttpStatus( int code, QString description )
+{
+    m_httpStatusCode = QString::number(code);
+    m_httpStatusDescription = description;
+}
+
 void ProxyRequestBus::readRequest()
 {
     // checks if module exists
-    if( m_routes->contains(m_request->subDomain())) {
+    if( m_routes->contains(m_request->module())) {
         // returning processed request
-        QBuffer *buffer = new QBuffer(m_routes->value(m_request->subDomain())->processRequest(this,m_request));
+        QBuffer *buffer = new QBuffer(m_routes->value(m_request->module())->processRequest(this, m_request));
         buffer->open(QIODevice::ReadOnly);
         emit readyRead(buffer);
     }
@@ -51,7 +57,7 @@ QByteArray* ProxyRequestBus::callModule( ProxyRequest *req)
 {
     // need to find only first part of url (module url)
 
-    return m_routes->value(req->subDomain())->processRequest(this,req);
+    return m_routes->value(req->module())->processRequest(this,req);
 }
 
 void ProxyRequestBus::registerModule(IModule *newModule, QString url)

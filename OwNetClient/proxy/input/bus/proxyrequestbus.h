@@ -19,6 +19,7 @@ public:
 
     const QString httpStatusCode() { return QString::number(200); }
     const QString httpStatusDescription() { return "OK"; }
+    void setHttpStatus( int code, QString description );
 
     QByteArray* callModule(ProxyRequest *req);
 
