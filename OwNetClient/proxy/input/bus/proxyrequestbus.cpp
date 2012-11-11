@@ -26,7 +26,7 @@ void ProxyRequestBus::setHttpStatus( int code, QString description )
 void ProxyRequestBus::readRequest()
 {
     // checks if module exists
-    if( m_routes->contains(m_request->module())) {
+    if (m_routes->contains(m_request->module())) {
         // returning processed request
         QBuffer *buffer = new QBuffer(m_routes->value(m_request->module())->processRequest(this, m_request));
         buffer->open(QIODevice::ReadOnly);

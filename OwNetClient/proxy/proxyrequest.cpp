@@ -7,7 +7,7 @@
 #include <QRegExp>
 
 ProxyRequest::ProxyRequest(QTcpSocket *socket, QObject *parent)
-    : QObject(parent), m_socket(socket), m_hashCode(-1), m_isApiRequest(false)
+    : QObject(parent), m_socket(socket), m_hashCode(-1), m_isApiRequest(false), m_id(-1)
 {
 }
 
@@ -24,7 +24,7 @@ bool ProxyRequest::readFromSocket()
             QStringList tuple = readLine.split(QRegExp("[ \r\n][ \r\n]*"));
             if (tuple.count() > 1) {
                 m_requestMethod = tuple.first().toLower();
-                m_url = tuple.at(1);
+                m_qUrl = QUrl::fromEncoded(tuple.at(1).toUtf8());
             } else {
                 return false;
             }
@@ -112,25 +112,20 @@ bool ProxyRequest::isStaticResourceRequest() const
  */
 QString ProxyRequest::urlExtension() const
 {
-    QStringList parts = m_url.split("?").first().split(".");
+    QStringList parts = m_qUrl.path().split(".");
     if (parts.count() > 1)
         return parts.last();
     return "";
 }
 
 /**
- * @brief Analyzes the url and parses out the domain, subdomain, relative url and module, action and id for local requests.
+ * @brief Analyzes the url and parses out the domain, subdomain and module, action and id for local requests.
  */
 void ProxyRequest::analyzeUrl()
 {
-    m_hashCode = qHash(m_url);
+    m_hashCode = qHash(url());
 
-    QStringList httpSplit = m_url.split("//");
-    httpSplit.takeFirst();
-    QString url = httpSplit.join("//");
-    QStringList split = url.split("/");
-    QString fullDomain = split.takeFirst();
-    QStringList domainSplit = fullDomain.split(".");
+    QStringList domainSplit = QString(m_qUrl.encodedHost()).split(".");
     if (domainSplit.first() == "www")
         domainSplit.takeFirst();
 
@@ -139,47 +134,30 @@ void ProxyRequest::analyzeUrl()
         m_subDomain = domainSplit.join(".");
     }
 
-    if (split.count() > 0) {
-        QStringList params = split.join("/").split("?");
-        m_relativeUrl = params.takeFirst();
+    if (isLocalRequest()) {
+        QStringList split = relativeUrl().remove(QRegExp("^[/]")).split("/");
 
-        if (isLocalRequest()) {
-            split = m_relativeUrl.split("/");
+        if (split.first() == "api") {
+            split.takeFirst();
+            m_isApiRequest = true;
 
-            if (split.first() == "api") {
-                split.takeFirst();
-                m_isApiRequest = true;
+            if (split.count()) {
+                m_module = split.takeFirst();
 
                 if (split.count()) {
-                    m_module = split.takeFirst();
-
-                    if (split.count()) {
-                        QString idOrAction = split.first();
-                        bool ok;
-                        int id = idOrAction.toInt(&ok);
-                        if (ok) {
-                            m_id = id;
-                            split.takeFirst();
-                        }
-                        if (split.count())
-                            m_action = split.join("/");
+                    QString idOrAction = split.first();
+                    bool ok;
+                    int id = idOrAction.toInt(&ok);
+                    if (ok) {
+                        m_id = id;
+                        split.takeFirst();
                     }
+                    if (split.count())
+                        m_action = split.join("/");
                 }
             }
         }
-        if (params.count() > 0){
-            params = params.join("?").split("&");
-            for (int i = 0; i < params.count(); i++){
-                QStringList paramsKeyValue = params.at(i).split("=");
-                QString key = paramsKeyValue.first();
-                QString value = paramsKeyValue.last();
-                m_parameters.insert(key, value);
-            }
-        }
-    } else {
-        m_relativeUrl = "";
     }
-
 }
 
 /**

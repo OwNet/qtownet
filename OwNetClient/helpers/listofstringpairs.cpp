@@ -10,7 +10,7 @@ ListOfStringPairs::ListOfStringPairs()
 void ListOfStringPairs::insert(const QString &key, const QString &value)
 {
     QPair<QString, QString> pair(key, value);
-    this->append(pair);
+    append(pair);
 }
 
 void ListOfStringPairs::parse(const QVariantMap &variantMap)
