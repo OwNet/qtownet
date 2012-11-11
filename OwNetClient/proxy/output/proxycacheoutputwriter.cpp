@@ -22,6 +22,9 @@ ProxyCacheOutputWriter::ProxyCacheOutputWriter(ProxyDownload *download, ProxyHan
     m_downloadReaderId = m_proxyDownload->registerReader();
 }
 
+/**
+ * @brief Close the remaining output file in cache and save to database if successful.
+ */
 void ProxyCacheOutputWriter::virtualClose()
 {
     if (m_cacheFile)
@@ -31,19 +34,26 @@ void ProxyCacheOutputWriter::virtualClose()
         save();
 }
 
+/**
+ * @brief Read data from input and write to the current file in cache. Creates a new file if maximum size reached.
+ * @param ioDevice
+ */
 void ProxyCacheOutputWriter::read(QIODevice *ioDevice)
 {
-    m_cacheFile->write(ioDevice->readAll());
-    m_partSizeWritten += ioDevice->size();
-
     if (m_partSizeWritten > MaxFileSize) {
         m_cacheFile->close();
         delete m_cacheFile;
 
         createCacheFile();
     }
+    m_cacheFile->write(ioDevice->readAll());
+    m_partSizeWritten += ioDevice->size();
 }
 
+/**
+ * @brief Save cache info to database (i.e. url, request and response headers).
+ * @return True if succesful
+ */
 bool ProxyCacheOutputWriter::save()
 {
     bool update = false;
@@ -83,6 +93,9 @@ bool ProxyCacheOutputWriter::save()
     return true;
 }
 
+/**
+ * @brief Triggered if input failed. Removes the data written in cache.
+ */
 void ProxyCacheOutputWriter::error()
 {
     m_failed = true;
@@ -99,6 +112,9 @@ void ProxyCacheOutputWriter::error()
     }
 }
 
+/**
+ * @brief Creates a new output file to be written to in cache.
+ */
 void ProxyCacheOutputWriter::createCacheFile()
 {
     CacheFolder cacheFolder;

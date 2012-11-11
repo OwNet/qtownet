@@ -5,6 +5,10 @@
 
 class QFile;
 
+/**
+ * @brief Reads data from ProxyDownload and outputs them to cache.
+ * Data in cache can be written in multiple files with a specified size.
+ */
 class ProxyCacheOutputWriter : public ProxyOutputWriter
 {
 public:

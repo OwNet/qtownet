@@ -11,6 +11,10 @@ ProxyRequest::ProxyRequest(QTcpSocket *socket, QObject *parent)
 {
 }
 
+/**
+ * @brief Reads request headers from socket.
+ * @return Returns true if successful
+ */
 bool ProxyRequest::readFromSocket()
 {
     for (int i = 0; m_socket->isOpen() && m_socket->canReadLine(); ++i) {
@@ -49,6 +53,10 @@ bool ProxyRequest::readFromSocket()
     return true;
 }
 
+/**
+ * @brief Get the HTTP request type.
+ * @return HTTP request type
+ */
 ProxyRequest::RequestType ProxyRequest::requestType()
 {
     if (m_requestMethod == "get")
@@ -62,6 +70,10 @@ ProxyRequest::RequestType ProxyRequest::requestType()
     return UNKNOWN;
 }
 
+/**
+ * @brief Get the content type from the url extension.
+ * @return Content type of the request
+ */
 QString ProxyRequest::requestContentType() const
 {
     QString ext = urlExtension();
@@ -85,11 +97,19 @@ QString ProxyRequest::staticResourcePath() const
     return "";
 }
 
+/**
+ * @brief Checks if the request is for a local static file.
+ * @return True if requests a local proxy file.
+ */
 bool ProxyRequest::isStaticResourceRequest() const
 {
     return isLocalRequest() && !isApiRequst();
 }
 
+/**
+ * @brief Extracts the extension from the url.
+ * @return Url extension
+ */
 QString ProxyRequest::urlExtension() const
 {
     QStringList parts = m_url.split("?").first().split(".");
@@ -98,6 +118,9 @@ QString ProxyRequest::urlExtension() const
     return "";
 }
 
+/**
+ * @brief Analyzes the url and parses out the domain, subdomain, relative url and module, action and id for local requests.
+ */
 void ProxyRequest::analyzeUrl()
 {
     m_hashCode = qHash(m_url);
@@ -159,6 +182,9 @@ void ProxyRequest::analyzeUrl()
 
 }
 
+/**
+ * @brief The known content types based on the url extension.
+ */
 QMap<QString, QString> ProxyRequest::m_contentTypes = initContentTypes();
 QMap<QString, QString> ProxyRequest::initContentTypes()
 {

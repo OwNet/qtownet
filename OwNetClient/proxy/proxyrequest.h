@@ -9,6 +9,9 @@
 
 class QTcpSocket;
 
+/**
+ * @brief Represents all the information about the request received by proxy.
+ */
 class ProxyRequest : public QObject
 {
     Q_OBJECT
