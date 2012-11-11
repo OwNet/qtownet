@@ -74,12 +74,12 @@ ProxyRequest::RequestType ProxyRequest::requestType()
  * @brief Get the content type from the url extension.
  * @return Content type of the request
  */
-QString ProxyRequest::requestContentType() const
+QString ProxyRequest::requestContentType(const QString &defaultContentType) const
 {
     QString ext = urlExtension();
     if (ProxyRequest::m_contentTypes.contains(ext))
         return ProxyRequest::m_contentTypes.value(ext);
-    return "application/octet-stream";
+    return defaultContentType.isEmpty() ? "application/octet-stream" : defaultContentType;
 }
 
 /**

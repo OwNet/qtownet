@@ -13,6 +13,14 @@ void ListOfStringPairs::insert(const QString &key, const QString &value)
     append(pair);
 }
 
+void ListOfStringPairs::insertOrReplace(const QString &key, const QString &value)
+{
+    for (int i = count(); i >= 0; --i)
+        if (QString::compare(at(i).second, key, Qt::CaseInsensitive) == 0)
+            removeAt(i);
+    insert(key, value);
+}
+
 void ListOfStringPairs::parse(const QVariantMap &variantMap)
 {
     foreach (QString key, variantMap.keys()) {
@@ -23,9 +31,8 @@ void ListOfStringPairs::parse(const QVariantMap &variantMap)
 QString ListOfStringPairs::toString()
 {
     QVariantMap map;
-    for (int i = 0; i < count(); ++i) {
+    for (int i = 0; i < count(); ++i)
         map.insert(at(i).first, at(i).second);
-    }
 
     QJson::Serializer serializer;
     return QString(serializer.serialize(map));

@@ -35,7 +35,7 @@ public:
 
     QUrl qUrl() const { return m_qUrl; }
     QString url() const { return m_qUrl.toEncoded(QUrl::None); }
-    QString requestContentType() const;
+    QString requestContentType(const QString &defaultContentType = "") const;
     QString relativeUrl() const { return m_qUrl.encodedPath(); }
     QString action() const { return m_action; }
     QString module() const { return isLocalRequest() ? m_module : QString(); }

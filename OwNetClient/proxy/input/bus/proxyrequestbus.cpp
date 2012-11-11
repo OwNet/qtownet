@@ -14,7 +14,7 @@ ProxyRequestBus::ProxyRequestBus(ProxyRequest *request, QObject *parent)
     m_httpStatusCode = QString::number(200);
     m_httpStatusDescription = "OK";
 
-    addHeader("Content-type", m_request->requestContentType());
+    addHeader("Content-type", m_request->requestContentType("application/json"));
 }
 
 void ProxyRequestBus::setHttpStatus( int code, QString description )

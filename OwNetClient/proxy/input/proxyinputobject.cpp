@@ -15,7 +15,6 @@ void ProxyInputObject::startDownload()
     }
 }
 
-
 void ProxyInputObject::addHeader(const QString &key, const QString &value)
 {
     m_responseHeaders.insert(key, value);
