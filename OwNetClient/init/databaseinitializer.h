@@ -16,8 +16,8 @@ public:
 private:
 
     QSqlDatabase db;
-    void createUserTable();
-    void dropUserTable();
+    void createUsersTable();
+    void dropUsersTable();
 
 
 };

@@ -28,10 +28,10 @@ void DatabaseInitializer::init()
 
 
     //Drop User table
-    dropUserTable();
+    dropUsersTable();
 
     //User Table init
-    createUserTable();
+    createUsersTable();
 
 
 
@@ -40,7 +40,7 @@ void DatabaseInitializer::init()
     // TODO: Close?
 }
 
-void DatabaseInitializer::createUserTable()
+void DatabaseInitializer::createUsersTable()
 {
      QSqlQuery q;
 
@@ -48,15 +48,15 @@ void DatabaseInitializer::createUserTable()
 
      //LastVisit Registered LastLogin (Unix Time, the number of seconds since 1970-01-01 00:00:00 UTC)
 
-     if( q.exec("create table Users (Id INTEGER PRIMARY KEY,"\
-            "Firstname TEXT NOT NULL,"\
-            "Lastname TEXT NOT NULL,"\
-            "Role TEXT NOT NULL,"\
-            "Password TEXT NOT NULL,"\
-            "Email TEXT,"\
-            "LastVisit INTEGER NOT NULL,"\
-            "Registered INTEGER NOT NULL,"\
-            "LastLogin INTEGER NOT NULL"\
+     if( q.exec("create table users (Id INTEGER PRIMARY KEY,"\
+            "first_name TEXT NOT NULL,"\
+            "last_name TEXT NOT NULL,"\
+            "role TEXT NOT NULL,"\
+            "password TEXT NOT NULL,"\
+            "email TEXT,"\
+            "last_visit INTEGER NOT NULL,"\
+            "registered INTEGER NOT NULL,"\
+            "last_login INTEGER NOT NULL"\
             ");")
       ) qDebug() << "User Table Created";
      else
@@ -64,7 +64,7 @@ void DatabaseInitializer::createUserTable()
 
 }
 
-void DatabaseInitializer::dropUserTable()
+void DatabaseInitializer::dropUsersTable()
 {
     QSqlQuery q;
     q.exec("DROP TABLE Users");

@@ -1,18 +1,49 @@
 #include "usermodule.h"
 #include <QSqlQuery>
 #include <QString>
+#include <QByteArray>
+#include <QDebug>
+
+
 
 UserModule::UserModule(QObject *parent) :
     IModule(parent)
 {
-    setUrl("user");
+    setUrl("users.js");
+
+
 }
 
-/**
- * @brief UserModule::registerUser registers new user
- * @return bool
- */
-bool UserModule::registerUser()
+
+// create element
+QByteArray* UserModule::create(IBus *bus, ProxyRequest *req)
+{
+}
+
+// show element
+QByteArray* UserModule::show( IBus *bus, ProxyRequest *req)
+{
+}
+
+//delete element
+QByteArray* UserModule::del( IBus *bus,  ProxyRequest *req)
+{
+}
+
+//edit element
+QByteArray* UserModule::edit( IBus *bus,  ProxyRequest *req)
+{
+}
+
+QByteArray* UserModule::index( IBus *bus,  ProxyRequest *req)
+{
+
+    return new QByteArray();
+}
+
+
+
+/*QByteArray* UserModule::registerUser(IBus *bus, QByteArray data)
 {
     QSqlQuery q;
 
@@ -26,13 +57,14 @@ bool UserModule::registerUser()
     query.exec();
 
     if(q.exec())
-        return true;
+        bus->setHttpStatus(200, "OK");
     else
-        return false;
+        bus->setHttpStatus(400,"Bad Request");
+
+
 }
 
-
-QByteArray* UserModule::processRequest(IBus *bus, ProxyRequest *req)
+QByteArray* UserModule::getAllUsers(IBus *bus, QByteArray data)
 {
-    //insert case which will call all the methods
-}
+}*/
+

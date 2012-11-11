@@ -12,7 +12,6 @@ class UserModule : public IModule
 public:
     explicit UserModule(QObject *parent = 0);
     
-    QByteArray* processRequest(IBus *bus, ProxyRequest *req);
 
 
 signals:
@@ -21,7 +20,19 @@ public slots:
 
 private:
 
-    bool registerUser();
+    // create element
+    QByteArray* create(IBus *bus, ProxyRequest *req);
+
+    // show element
+    QByteArray* show( IBus *bus, ProxyRequest *req);
+
+    //delete element
+    QByteArray* del( IBus *bus, ProxyRequest *req);
+
+    //edit element
+    QByteArray* edit( IBus *bus, ProxyRequest *req);
+
+    QByteArray* index( IBus *bus,  ProxyRequest *req);
     
 };
 

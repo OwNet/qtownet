@@ -80,6 +80,8 @@ const QString ProxyRequest::urlExtension()
 
 void ProxyRequest::analyzeUrl()
 {
+    m_id = 0;
+
     m_hashCode = qHash(m_url);
 
     QStringList httpSplit = m_url.split("//");
@@ -106,9 +108,11 @@ void ProxyRequest::analyzeUrl()
            bool ok;
            int id = idOrAction.toInt(&ok);
            if(ok){
+
                m_id = id;
                split.takeFirst();
            }
+
            if (split.count())
                m_action = split.join("/");
        }

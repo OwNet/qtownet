@@ -17,7 +17,7 @@ void ModuleInitializer::init()
     QList<IModule*> moduleList;
 
     // here have to be all the used modules
-    moduleList.append(new TestModule());
+
     moduleList.append(new DatabaseModule());
     moduleList.append(new UserModule());
 
