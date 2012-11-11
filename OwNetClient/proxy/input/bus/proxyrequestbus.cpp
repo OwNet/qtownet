@@ -17,12 +17,6 @@ ProxyRequestBus::ProxyRequestBus(ProxyRequest *request, QObject *parent)
     addHeader("Content-type", m_request->requestContentType("application/json"));
 }
 
-void ProxyRequestBus::setHttpStatus( int code, QString description )
-{
-    m_httpStatusCode = QString::number(code);
-    m_httpStatusDescription = description;
-}
-
 void ProxyRequestBus::readRequest()
 {
     // checks if module exists
@@ -58,6 +52,12 @@ QByteArray* ProxyRequestBus::callModule( ProxyRequest *req)
     // need to find only first part of url (module url)
 
     return m_routes->value(req->module())->processRequest(this,req);
+}
+
+void ProxyRequestBus::setHttpStatus(int code, const QString &description)
+{
+    setHttpStatusCode(code);
+    setHttpStatusDescription(description);
 }
 
 void ProxyRequestBus::registerModule(IModule *newModule, QString url)

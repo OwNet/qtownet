@@ -29,7 +29,8 @@ private:
 
     QFile *m_cacheFile;
     ProxyRequest *m_request;
-    long m_partSizeWritten;
+    qint64 m_partSizeWritten;
+    qint64 m_sizeWritten;
     int m_numParts;
     bool m_failed;
 };

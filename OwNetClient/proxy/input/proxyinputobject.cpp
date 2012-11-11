@@ -15,6 +15,16 @@ void ProxyInputObject::startDownload()
     }
 }
 
+void ProxyInputObject::setHttpStatusCode(int code)
+{
+    m_httpStatusCode = QString::number(code);
+}
+
+void ProxyInputObject::setHttpStatusDescription(const QString &description)
+{
+    m_httpStatusDescription = description;
+}
+
 void ProxyInputObject::addHeader(const QString &key, const QString &value)
 {
     m_responseHeaders.insert(key, value);

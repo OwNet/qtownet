@@ -7,6 +7,7 @@
 class ProxyDownload;
 class ProxyRequest;
 class ProxyHandler;
+class GDSFClock;
 
 /**
  * @brief Contains a list of all active downloads. Creates a new download or reuses an active one on request.
@@ -29,12 +30,14 @@ public:
 
     ProxyDownload *proxyDownload(ProxyRequest *request, ProxyHandler *handler, int &downloadReaderId);
     void deregisterDownloadReader(ProxyDownload *proxyDownload, int readerId);
+    GDSFClock *gdsfClock() { return m_gdsfClock; }
 
 private:
-    ProxyDownloads() {}
+    ProxyDownloads();
 
     QMap<int, ProxyDownload*> m_openDownloads;
     QMutex m_openDownloadsMutex;
+    GDSFClock *m_gdsfClock;
 
     static ProxyDownloads *m_instance;
 };

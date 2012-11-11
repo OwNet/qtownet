@@ -59,6 +59,8 @@ void ProxyWebInputObject::readReply()
 
         m_httpStatusCode = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toString();
         m_httpStatusDescription = reply->attribute(QNetworkRequest::HttpReasonPhraseAttribute).toString();
+        if (m_httpStatusDescription.isNull())
+            m_httpStatusDescription = "";
 
         QList<QNetworkReply::RawHeaderPair> headers = reply->rawHeaderPairs();
         for (int i = 0; i < headers.count(); ++i)
