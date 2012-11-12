@@ -6,9 +6,14 @@
 #include <QNetworkRequest>
 #include <QMap>
 #include <QByteArray>
+#include <QUrl>
+#include <QStringList>
 
 class QTcpSocket;
 
+/**
+ * @brief Represents all the information about the request received by proxy.
+ */
 class ProxyRequest : public QObject
 {
     Q_OBJECT
@@ -23,21 +28,24 @@ public:
     };
 
     ProxyRequest(QTcpSocket *socket, QObject *parent = 0);
-
+    QVariantMap postBodyFromJson() const;
+    QMap<QString, QString> postBodyFromForm() const;
     bool readFromSocket();
-    ProxyRequest::RequestType requestType();
-    ListOfStringPairs &requestHeaders() { return m_requestHeaders; }
+    ProxyRequest::RequestType requestType() const;
+    ListOfStringPairs requestHeaders() const { return m_requestHeaders; }
 
-    QString url() const { return m_url; }
-    QString requestContentType() const;
-    QString relativeUrl() const { return m_relativeUrl; }
+    QUrl qUrl() const { return m_qUrl; }
+    QString url() const { return m_qUrl.toEncoded(QUrl::None); }
+    QString requestContentType(const QString &defaultContentType = "") const;
+    QString relativeUrl() const { return m_qUrl.encodedPath(); }
     QString action() const { return m_action; }
     QString module() const { return isLocalRequest() ? m_module : QString(); }
     QString subDomain() const { return m_subDomain; }
 
     int id() const { return m_id; }
-    QMap<QString, QString> parameters() const { return m_parameters; }
-    QByteArray &requestBody() { return m_requestBody; }
+    QString parameterValue(const QString &key) const { return m_qUrl.queryItemValue(key); }
+    QStringList allParameterValues(const QString &key) const { return m_qUrl.allQueryItemValues(key); }
+    QByteArray requestBody() const { return m_requestBody; }
     QString staticResourcePath() const;
 
     int hashCode() const { return m_hashCode; }
@@ -46,7 +54,7 @@ public:
     bool isStaticResourceRequest() const;
     bool isApiRequst() const { return m_isApiRequest; }
 
-    QTcpSocket *socket() { return m_socket; }
+    QTcpSocket *socket() const { return m_socket; }
 
 private:
     QString urlExtension() const;
@@ -54,16 +62,14 @@ private:
     static QMap<QString, QString> initContentTypes();
 
     QString m_requestMethod;
-    QString m_relativeUrl;
     QString m_domain;
     QString m_subDomain;
-    QString m_url;
     QString m_module;
     QString m_action;
     int m_id;
-    QMap<QString, QString> m_parameters;
     QByteArray m_requestBody;
     bool m_isApiRequest;
+    QUrl m_qUrl;
 
     QTcpSocket *m_socket;
     static QMap<QString, QString> m_contentTypes;

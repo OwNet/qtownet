@@ -91,6 +91,9 @@ void ProxyOutputWriter::readAvailableParts()
     }
 }
 
+/**
+ * @brief Connects slots to signals in the ProxyDownload.
+ */
 void ProxyOutputWriter::connectProxyDownload()
 {
     connect(m_proxyDownload, SIGNAL(downloadFinished()), this, SLOT(readAvailableParts()), Qt::QueuedConnection);
