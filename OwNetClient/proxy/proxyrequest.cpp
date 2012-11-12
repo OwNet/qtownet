@@ -1,5 +1,6 @@
 #include "proxyrequest.h"
 #include "messagehelper.h"
+#include "qjson/parser.h"
 
 #include <QNetworkRequest>
 #include <QStringList>
@@ -57,7 +58,7 @@ bool ProxyRequest::readFromSocket()
  * @brief Get the HTTP request type.
  * @return HTTP request type
  */
-ProxyRequest::RequestType ProxyRequest::requestType()
+ProxyRequest::RequestType ProxyRequest::requestType() const
 {
     if (m_requestMethod == "get")
         return GET;
@@ -68,6 +69,61 @@ ProxyRequest::RequestType ProxyRequest::requestType()
     else if (m_requestMethod == "delete")
         return DELETE;
     return UNKNOWN;
+}
+
+QVariantMap ProxyRequest::postBodyFromJson() const
+{
+    QVariantMap result;
+    if(requestType() != POST && requestType() != PUT)
+        return result;
+
+    bool ok;
+    QJson::Parser parser;
+    result = parser.parse(m_requestBody, &ok).toMap();
+    return result;
+}
+
+QMap<QString, QString> ProxyRequest::postBodyFromForm() const
+{
+    QMap<QString, QString> result;
+    if(requestType() != POST && requestType() != PUT)
+        return result;
+
+    QString body(m_requestBody);
+    body.replace("+", " ");
+    body.replace("%21", "!");
+    body.replace("%22", "\"");
+    body.replace("%23", "#");
+    body.replace("%24", "$");
+    body.replace("%25", "%");
+    body.replace("%27", "'");
+    body.replace("%28", "(");
+    body.replace("%29", ")");
+    body.replace("%2A", "*");
+    body.replace("%2B", "+");
+    body.replace("%2C", ",");
+    body.replace("%2D", "-");
+    body.replace("%2E", ".");
+    body.replace("%2F", "/");
+    body.replace("%3A", ":");
+    body.replace("%3B", ";");
+    body.replace("%3C", "<");
+    body.replace("%3E", ">");
+    body.replace("%3F", "?");
+    body.replace("%40", "@");
+    body.replace("%5B", "[");
+    body.replace("%5D", "]");
+    body.replace("%5F", "_");
+    QStringList split = body.split("&");
+    for (int i = 0; i < split.count(); i++){
+        QStringList paramsKeyValue = split.at(i).split("=");
+        QString key = paramsKeyValue.first();
+        QString value = paramsKeyValue.last();
+        value.replace("%26", "&");
+        value.replace("%3D", "=");
+        result.insert(key, value);
+    }
+    return result;
 }
 
 /**
@@ -92,7 +148,7 @@ QString ProxyRequest::staticResourcePath() const
         if (!subDomain().isEmpty())
             return QString ("static/%1/%2").arg(subDomain()).arg(relativeUrl());
 
-        return QString("static/%1").arg(relativeUrl());
+    return QString("static/%1").arg(relativeUrl());
 
     return "";
 }

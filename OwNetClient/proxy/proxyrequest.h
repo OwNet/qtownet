@@ -28,9 +28,10 @@ public:
     };
 
     ProxyRequest(QTcpSocket *socket, QObject *parent = 0);
-
+    QVariantMap postBodyFromJson() const;
+    QMap<QString, QString> postBodyFromForm() const;
     bool readFromSocket();
-    ProxyRequest::RequestType requestType();
+    ProxyRequest::RequestType requestType() const;
     ListOfStringPairs requestHeaders() const { return m_requestHeaders; }
 
     QUrl qUrl() const { return m_qUrl; }
