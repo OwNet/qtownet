@@ -44,4 +44,5 @@ QString ListOfStringPairs::valueForKey(const QString &key) const
         if (QString::compare(at(i).first, key, Qt::CaseInsensitive) == 0)
             return at(i).second;
     }
+    return "";
 }

@@ -21,7 +21,7 @@ public:
 protected:
     void virtualClose();
     void read(QIODevice *ioDevice);
-    bool save();
+    void save();
     void error();
 
 private:

@@ -7,13 +7,13 @@
 #include "messagehelper.h"
 #include "proxydownloads.h"
 #include "gdsfclock.h"
+#include "databaseupdate.h"
 
 #include <QFile>
 #include <QIODevice>
-#include <QSqlQuery>
-#include <QSqlError>
-#include <QSqlRecord>
 #include <QDateTime>
+#include <QSqlQuery>
+#include <QSqlRecord>
 
 ProxyCacheOutputWriter::ProxyCacheOutputWriter(ProxyDownload *download, ProxyHandler *proxyHandler, QObject *parent)
     : ProxyOutputWriter(proxyHandler, parent), m_partSizeWritten(0), m_sizeWritten(0), m_numParts(0), m_failed(false)
@@ -59,57 +59,36 @@ void ProxyCacheOutputWriter::read(QIODevice *ioDevice)
  * @brief Save cache info to database (i.e. url, request and response headers).
  * @return True if succesful
  */
-bool ProxyCacheOutputWriter::save()
+void ProxyCacheOutputWriter::save()
 {
-    bool update = false;
-
-    QSqlQuery query;
-    query.prepare("SELECT access_count FROM caches WHERE id = :id LIMIT 1");
-    query.bindValue(":id", m_proxyDownload->hashCode());
-    update = query.exec() && query.next();
+    QSqlQuery sqlQuery;
+    sqlQuery.prepare("SELECT access_count FROM caches WHERE id = :id LIMIT 1");
+    sqlQuery.bindValue(":id", m_proxyDownload->hashCode());
     int accessCount = 0;
 
-    if (!update) {
-        query.prepare("INSERT INTO caches ("
-                        "id, absolute_uri, request_headers, "
-                        "response_headers, num_parts, date_created, "
-                        "date_updated, status_code, status_description, size, access_value"
-                      ") VALUES ("
-                        ":id, :absolute_uri, :request_headers, "
-                        ":response_headers, :num_parts, :date_created, "
-                        ":date_updated, :status_code, :status_description, :size, :access_value"
-                      ")");
-    } else {
-        accessCount = query.value(query.record().indexOf("access_count")).toInt();
-        query.prepare("UPDATE caches SET "
-                        "absolute_uri = :absolute_uri, request_headers = :request_headers, "
-                        "response_headers = :response_headers, num_parts = :num_parts, "
-                        "date_updated = :date_updated, status_code = :status_code, "
-                        "status_description = :status_description, size = :size, access_value = :access_value"
-                      " WHERE id = :id");
+    DatabaseUpdateQuery::EntryType entryType = DatabaseUpdateQuery::Insert;
+
+    if (sqlQuery.exec() && sqlQuery.next()) {
+        entryType = DatabaseUpdateQuery::Update;
+        accessCount = sqlQuery.value(sqlQuery.record().indexOf("access_count")).toInt();
     }
-    QString timestamp = QDateTime::currentDateTime().toString(Qt::ISODate);
     accessCount++;
 
-    query.bindValue(":id", m_request->hashCode());
-    query.bindValue(":absolute_uri", m_request->url());
-    query.bindValue(":request_headers", m_request->requestHeaders().toString());
-    query.bindValue(":response_headers", m_proxyDownload->inputObject()->responseHeaders().toString());
-    query.bindValue(":num_parts", m_numParts);
-    query.bindValue(":date_updated", timestamp);
-    query.bindValue(":status_code", m_proxyDownload->inputObject()->httpStatusCode().toInt());
-    query.bindValue(":status_description", QString(m_proxyDownload->inputObject()->httpStatusDescription()));
-    query.bindValue(":size", m_sizeWritten);
-    query.bindValue(":access_value", ProxyDownloads::instance()->gdsfClock()->getGDSFPriority(accessCount, m_sizeWritten));
+    DatabaseUpdate update;
+    DatabaseUpdateQuery *query = update.createUpdateQuery("caches", entryType);
+    query->setUpdateDates(true);
+    query->setWhere("id", m_proxyDownload->hashCode());
+    query->setColumnValue("id", m_proxyDownload->hashCode());
+    query->setColumnValue("absolute_uri", m_request->url());
+    query->setColumnValue("request_headers", m_request->requestHeaders().toString());
+    query->setColumnValue("response_headers", m_proxyDownload->inputObject()->responseHeaders().toString());
+    query->setColumnValue("num_parts", m_numParts);
+    query->setColumnValue("status_code", m_proxyDownload->inputObject()->httpStatusCode().toInt());
+    query->setColumnValue("status_description", m_proxyDownload->inputObject()->httpStatusDescription());
+    query->setColumnValue("size", m_sizeWritten);
+    query->setColumnValue("access_value", ProxyDownloads::instance()->gdsfClock()->getGDSFPriority(accessCount, m_sizeWritten));
 
-    if (!update)
-        query.bindValue(":date_created", timestamp);
-
-    if (!query.exec()) {
-        MessageHelper::debug(query.lastError().text());
-        return false;
-    }
-    return true;
+    update.execute();
 }
 
 /**

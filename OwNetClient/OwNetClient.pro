@@ -53,7 +53,9 @@ SOURCES += main.cpp\
     jobs/job.cpp \
     init/jobinitializer.cpp \
     jobs/cleancachejob.cpp \
-    cache/gdsfclock.cpp
+    cache/gdsfclock.cpp \
+    database/databaseupdatequery.cpp \
+    database/databaseupdate.cpp
 
 HEADERS  += view/mainwindow.h \
         proxy/proxyserver.h \
@@ -100,7 +102,9 @@ HEADERS  += view/mainwindow.h \
     jobs/job.h \
     init/jobinitializer.h \
     jobs/cleancachejob.h \
-    cache/gdsfclock.h
+    cache/gdsfclock.h \
+    database/databaseupdatequery.h \
+    database/databaseupdate.h
 
 FORMS    += view/mainwindow.ui
 
@@ -113,4 +117,5 @@ INCLUDEPATH += proxy \
     proxy/downloads \
     proxy/output modules \
     jobs \
-    cache
+    cache \
+    database

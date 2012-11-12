@@ -1,6 +1,11 @@
 #include "databaseinitializer.h"
 #include "messagehelper.h"
 
+#include "proxydownloads.h"
+#include "gdsfclock.h"
+
+#include "databaseupdate.h"
+
 #include <QtCore/QVariant>
 
 DatabaseInitializer::DatabaseInitializer()
