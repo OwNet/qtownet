@@ -18,14 +18,6 @@ class IModule : public QObject
     Q_OBJECT
 public:
 
-    enum Action {
-        INDEX,
-        SHOW,
-        CREATE,
-        EDIT,
-        DELETE,
-        UNKNOWN
-    };
 
     explicit IModule(QObject *parent = 0);
     const QString &url() { return m_url;}
@@ -64,7 +56,7 @@ private:
 
     //edit element
     virtual QByteArray* edit( IBus *bus,  ProxyRequest *req){return new QByteArray();}
-    
+
 };
 
 #endif // IMODULE_H

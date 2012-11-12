@@ -9,9 +9,6 @@ IModule::IModule(QObject *parent) :
 
 QByteArray* IModule::processRequest(IBus *bus, ProxyRequest *req)
 {
-    Action a = UNKNOWN;
-
-
 
     //get right action, also perserve other actions as REST
 
@@ -21,58 +18,28 @@ QByteArray* IModule::processRequest(IBus *bus, ProxyRequest *req)
         //case index
         if( req->id() == 0 && req->requestType()== ProxyRequest::GET){
 
-            a = INDEX;
+            return index(bus, req);
         }
 
         //case show
         else if( req->requestType()== ProxyRequest::GET  )
-            a = SHOW;
+            return show(bus, req);
 
         //case create
         else if( req->requestType() == ProxyRequest::POST )
-            a = CREATE;
+            return create(bus, req);
 
         //case edit
         else if( req->requestType() == ProxyRequest::PUT)
-            a =  EDIT;
+            return edit(bus, req);
 
         //case delete
         else if(req->requestType() == ProxyRequest::DELETE)
-            a = DELETE;
+             del(bus, req);
     }
-
-    switch (a)
-    {
-
-    case INDEX:
-
-            return index(bus, req);
-            break;
-
-    case SHOW:
-            return show(bus, req);
-            break;
-
-    case EDIT:
-            return edit(bus, req);
-            break;
-
-    case CREATE:
-            return create(bus, req);
-            break;
-
-    case DELETE:
-            del(bus, req);
-            break;
-
-    default:
-            //other actions TO DO
-            return new QByteArray();
-            break;
-
-
-    }
-
+    else
+        //other actions TO DO
+        return new QByteArray();
 
 }
 

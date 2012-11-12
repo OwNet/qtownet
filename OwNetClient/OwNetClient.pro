@@ -49,7 +49,8 @@ SOURCES += main.cpp\
     proxy/downloads/proxybytedownloadpart.cpp \
     proxy/downloads/proxystreamdownloadpart.cpp \
     proxy/downloads/proxylastdownloadpart.cpp \
-    modules/usermodule.cpp
+    modules/usermodule.cpp \
+    modules/sessionmodule.cpp
 
 HEADERS  += view/mainwindow.h \
         proxy/proxyserver.h \
@@ -92,7 +93,8 @@ HEADERS  += view/mainwindow.h \
     proxy/downloads/proxybytedownloadpart.h \
     proxy/downloads/proxystreamdownloadpart.h \
     proxy/downloads/proxylastdownloadpart.h \
-    modules/usermodule.h
+    modules/usermodule.h \
+    modules/sessionmodule.h
 
 FORMS    += view/mainwindow.ui
 

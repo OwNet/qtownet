@@ -4,3 +4,5 @@ SUBDIRS += \
     OwNetClient
 
 QT += sql
+
+INCLUDEPATH += "helpers/qjson/"

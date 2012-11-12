@@ -3,9 +3,9 @@
 #include "qlist.h"
 
 #include "imodule.h"
-#include "testmodule.h"
 #include "databasemodule.h"
 #include "usermodule.h"
+#include "sessionmodule.h"
 
 ModuleInitializer::ModuleInitializer(QObject *parent) :
     QObject(parent)
@@ -20,6 +20,7 @@ void ModuleInitializer::init()
 
     moduleList.append(new DatabaseModule());
     moduleList.append(new UserModule());
+    moduleList.append(new SessionModule());
 
     for (int i = 0; i < moduleList.count(); i++) {
         ProxyRequestBus::registerModule(moduleList.at(i), moduleList.at(i)->url());
