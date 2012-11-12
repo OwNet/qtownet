@@ -29,7 +29,7 @@ void ProxyStaticInputObject::readRequest()
 
         emit finished();
     } else {
-        MessageHelper::debug(QString("404 NOT FOUND static/%1").arg(m_request->relativeUrl()));
+        MessageHelper::debug(QString("404 NOT FOUND static/%1").arg(dir.absoluteFilePath(m_request->staticResourcePath())));
         emit failed();
     }
 }
