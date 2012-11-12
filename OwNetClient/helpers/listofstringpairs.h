@@ -15,6 +15,7 @@ public:
     void insertOrReplace(const QString &key, const QString &value);
     void parse(const QVariantMap &variantMap);
     QString toString();
+    QString valueForKey(const QString &key)const;
 };
 
 #endif // LISTOFSTRINGPAIRS_H
