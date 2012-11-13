@@ -107,7 +107,7 @@ QByteArray* UserModule::show( IBus *bus, ProxyRequest *req)
 
            bus->setHttpStatus(200, "OK");
 
-           user.insert("id:", query.value(query.record().indexOf("id")));
+           user.insert("id", query.value(query.record().indexOf("id")));
            user.insert("first_name", query.value(query.record().indexOf("first_name")));
            user.insert("last_name", query.value(query.record().indexOf("last_name")));
            user.insert("login", query.value(query.record().indexOf("login")));
@@ -145,7 +145,7 @@ QByteArray* UserModule::index( IBus *bus,  ProxyRequest *req)
        while(query.next())
        {
            QVariantMap user;
-           user.insert("id:", query.value(query.record().indexOf("id")));
+           user.insert("id", query.value(query.record().indexOf("id")));
            user.insert("first_name", query.value(query.record().indexOf("first_name")));
            user.insert("last_name", query.value(query.record().indexOf("last_name")));
            user.insert("login", query.value(query.record().indexOf("login")));
