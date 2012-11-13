@@ -54,5 +54,6 @@ QByteArray* SessionModule::create(IBus *bus, ProxyRequest *req)
 QByteArray* SessionModule::del(IBus *bus, ProxyRequest *req)
 {
     this->m_sessionData.clear();
+    bus->setHttpStatus(204,"No Content");
     return new QByteArray();
 }

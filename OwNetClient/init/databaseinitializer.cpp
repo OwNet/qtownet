@@ -59,15 +59,17 @@ void DatabaseInitializer::createUsersTable()
       pridat neskor
       */
 
-     if( q.exec("create table users (id INTEGER PRIMARY KEY,"\
-            "first_name TEXT NOT NULL,"\
-            "last_name TEXT NOT NULL,"\
-            "login TEXT NOT NULL,"\
-            "role TEXT NOT NULL,"\
-            "password TEXT NOT NULL,"\
-            "email TEXT"\
-            ");")
-      ) qDebug() << "User Table Created";
+     if( q.exec("create table users (id INTEGER PRIMARY KEY,"
+                "first_name TEXT NOT NULL,"
+                "last_name TEXT NOT NULL,"
+                "login TEXT NOT NULL,"
+                "role TEXT NOT NULL,"
+                "password TEXT NOT NULL,"
+                "email TEXT,"
+                "date_created TEXT,"
+                "date_updated TEXT"
+                ");")
+             ) qDebug() << "User Table Created";
      else
          qDebug() << "Failed to Create User table";
 

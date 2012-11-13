@@ -9,7 +9,7 @@
 #include <QDateTime>
 #include <QHash>
 #include <QSqlRecord>
-
+#include <database/databaseupdate.h>
 
 UserModule::UserModule(QObject *parent) :
     IModule(parent)
@@ -55,26 +55,25 @@ QByteArray* UserModule::create(IBus *bus, ProxyRequest *req)
         QString email = reqJson["email"].toString();
         QString password = reqJson["password"].toString();
 
-        QSqlQuery query;
-
         //creating user ID
-
         uint id = qHash(QString("%1-%2").arg(login).arg(QDateTime::currentDateTime().toString(Qt::ISODate)));
 
-        query.prepare("INSERT INTO users (id, first_name, last_name, login, role, password, email)"
-                      "VALUES ( :id , :first_name, :last_name, :login,"
-                      ":role,:password,:email)");
-        query.bindValue(":id", id);
-        query.bindValue(":first_name", "first_name");
-        query.bindValue(":last_name", "last_name");
-        query.bindValue(":login", login);
-        query.bindValue(":role", "user");
-        query.bindValue(":password", "password");
-        query.bindValue(":email", "email");
+        DatabaseUpdate update;
+
+        DatabaseUpdateQuery *query = update.createUpdateQuery("users", DatabaseUpdateQuery::Insert);
+
+        query->setUpdateDates(true); // sam nastavi v tabulke datumy date_created a date_updated
+
+        query->setColumnValue("id", id);
+        query->setColumnValue("first_name", first_name);
+        query->setColumnValue("last_name", last_name);
+        query->setColumnValue("login", login);
+        query->setColumnValue("email", email);
+        query->setColumnValue("role", "user");
+        query->setColumnValue("pasword", password);
 
 
-
-        if(query.exec())
+        if(update.execute())
             bus->setHttpStatus(201, "Created");
         else
             bus->setHttpStatus(400,"Bad Request");
@@ -108,10 +107,11 @@ QByteArray* UserModule::show( IBus *bus, ProxyRequest *req)
 
            bus->setHttpStatus(200, "OK");
 
-           user.insert("id:", query.value(0));
-           user.insert("first_name:", query.value(1));
-           user.insert("last_name:", query.value(2));
-           user.insert("login:", query.value(3));
+           user.insert("id:", query.value(query.record().indexOf("id")));
+           user.insert("first_name", query.value(query.record().indexOf("first_name")));
+           user.insert("lastn_name", query.value(query.record().indexOf("last_name")));
+           user.insert("login", query.value(query.record().indexOf("login")));
+           user.insert("email", query.value(query.record().indexOf("email")));
 
            QByteArray *json = new QByteArray(serializer.serialize(user));
            return json;
