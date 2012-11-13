@@ -42,9 +42,9 @@ void ProxyOutputWriter::close()
     virtualClose();
 
     if (m_proxyDownload) {
-        m_proxyDownloads->deregisterDownloadReader(m_proxyDownload, m_downloadReaderId);
-
         disconnect(m_proxyDownload);
+
+        m_proxyDownloads->deregisterDownloadReader(m_proxyDownload, m_downloadReaderId);
     }
 }
 
@@ -91,6 +91,9 @@ void ProxyOutputWriter::readAvailableParts()
     }
 }
 
+/**
+ * @brief Connects slots to signals in the ProxyDownload.
+ */
 void ProxyOutputWriter::connectProxyDownload()
 {
     connect(m_proxyDownload, SIGNAL(downloadFinished()), this, SLOT(readAvailableParts()), Qt::QueuedConnection);

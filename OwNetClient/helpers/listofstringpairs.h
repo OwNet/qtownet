@@ -11,9 +11,11 @@ class ListOfStringPairs : public QList< QPair<QString, QString> >
 public:
     ListOfStringPairs();
 
-    void insert(const QString &, const QString &);
+    void insert(const QString &key, const QString &value);
+    void insertOrReplace(const QString &key, const QString &value);
     void parse(const QVariantMap &variantMap);
     QString toString();
+    QString valueForKey(const QString &key)const;
 };
 
 #endif // LISTOFSTRINGPAIRS_H

@@ -44,13 +44,22 @@ SOURCES += main.cpp\
     helpers/applicationdatastorage.cpp \
     proxy/output/proxycacheoutputwriter.cpp \
     proxy/input/proxycacheinputobject.cpp \
-    helpers/cachefolder.cpp \
+    cache/cachefolder.cpp \
     proxy/downloads/proxydownloadpart.cpp \
     proxy/downloads/proxybytedownloadpart.cpp \
     proxy/downloads/proxystreamdownloadpart.cpp \
     proxy/downloads/proxylastdownloadpart.cpp \
+<<<<<<< HEAD
     modules/usermodule.cpp \
     modules/sessionmodule.cpp
+=======
+    jobs/job.cpp \
+    init/jobinitializer.cpp \
+    jobs/cleancachejob.cpp \
+    cache/gdsfclock.cpp \
+    database/databaseupdatequery.cpp \
+    database/databaseupdate.cpp
+>>>>>>> master
 
 HEADERS  += view/mainwindow.h \
         proxy/proxyserver.h \
@@ -88,13 +97,22 @@ HEADERS  += view/mainwindow.h \
     helpers/applicationdatastorage.h \
     proxy/output/proxycacheoutputwriter.h \
     proxy/input/proxycacheinputobject.h \
-    helpers/cachefolder.h \
+    cache/cachefolder.h \
     proxy/downloads/proxydownloadpart.h \
     proxy/downloads/proxybytedownloadpart.h \
     proxy/downloads/proxystreamdownloadpart.h \
     proxy/downloads/proxylastdownloadpart.h \
+<<<<<<< HEAD
     modules/usermodule.h \
     modules/sessionmodule.h
+=======
+    jobs/job.h \
+    init/jobinitializer.h \
+    jobs/cleancachejob.h \
+    cache/gdsfclock.h \
+    database/databaseupdatequery.h \
+    database/databaseupdate.h
+>>>>>>> master
 
 FORMS    += view/mainwindow.ui
 
@@ -105,4 +123,7 @@ INCLUDEPATH += proxy \
     proxy/input \
     proxy/input/bus \
     proxy/downloads \
-    proxy/output modules
+    proxy/output modules \
+    jobs \
+    cache \
+    database

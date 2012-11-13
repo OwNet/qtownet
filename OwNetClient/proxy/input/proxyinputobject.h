@@ -20,10 +20,13 @@ public:
 
     void startDownload();
 
-    const QString &httpStatusCode() { return m_httpStatusCode; }
-    const QString &httpStatusDescription() { return m_httpStatusDescription; }
-    const QString &contentType() { return m_contentType; }
-    ListOfStringPairs &responseHeaders() { return m_responseHeaders; }
+    QString httpStatusCode() const { return m_httpStatusCode; }
+    void setHttpStatusCode(int code);
+    QString httpStatusDescription() const { return m_httpStatusDescription.isNull() ? QString() : m_httpStatusDescription; }
+    void setHttpStatusDescription(const QString &description);
+    QString contentType() const { return m_contentType; }
+    void setContentType(const QString &value);
+    ListOfStringPairs responseHeaders() const { return m_responseHeaders; }
     ProxyRequest *request() { return m_request; }
 
 signals:

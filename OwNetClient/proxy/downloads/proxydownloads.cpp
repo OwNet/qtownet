@@ -2,7 +2,7 @@
 
 #include "proxydownload.h"
 #include "proxyrequest.h"
-
+#include "gdsfclock.h"
 #include "proxyhandler.h"
 
 ProxyDownloads *ProxyDownloads::m_instance = 0;
@@ -55,4 +55,9 @@ void ProxyDownloads::deregisterDownloadReader(ProxyDownload *proxyDownload, int 
         proxyDownload->close();
         delete proxyDownload;
     }
+}
+
+ProxyDownloads::ProxyDownloads()
+{
+    m_gdsfClock = new GDSFClock();
 }
