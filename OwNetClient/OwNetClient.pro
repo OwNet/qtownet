@@ -55,7 +55,8 @@ SOURCES += main.cpp\
     jobs/cleancachejob.cpp \
     cache/gdsfclock.cpp \
     database/databaseupdatequery.cpp \
-    database/databaseupdate.cpp
+    database/databaseupdate.cpp \
+    proxy/proxytrafficcounter.cpp
 
 HEADERS  += view/mainwindow.h \
         proxy/proxyserver.h \
@@ -104,7 +105,8 @@ HEADERS  += view/mainwindow.h \
     jobs/cleancachejob.h \
     cache/gdsfclock.h \
     database/databaseupdatequery.h \
-    database/databaseupdate.h
+    database/databaseupdate.h \
+    proxy/proxytrafficcounter.h
 
 FORMS    += view/mainwindow.ui
 
