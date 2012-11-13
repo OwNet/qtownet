@@ -14,7 +14,7 @@
 UserModule::UserModule(QObject *parent) :
     IModule(parent)
 {
-    setUrl("users.js");
+    setUrl("users");
 
 }
 
@@ -70,10 +70,10 @@ QByteArray* UserModule::create(IBus *bus, ProxyRequest *req)
         query->setColumnValue("login", login);
         query->setColumnValue("email", email);
         query->setColumnValue("role", "user");
-        query->setColumnValue("pasword", password);
+        query->setColumnValue("password", password);
 
-
-        if(update.execute())
+        int a = update.execute();
+        if(!a)
             bus->setHttpStatus(201, "Created");
         else
             bus->setHttpStatus(400,"Bad Request");
@@ -109,7 +109,7 @@ QByteArray* UserModule::show( IBus *bus, ProxyRequest *req)
 
            user.insert("id:", query.value(query.record().indexOf("id")));
            user.insert("first_name", query.value(query.record().indexOf("first_name")));
-           user.insert("lastn_name", query.value(query.record().indexOf("last_name")));
+           user.insert("last_name", query.value(query.record().indexOf("last_name")));
            user.insert("login", query.value(query.record().indexOf("login")));
            user.insert("email", query.value(query.record().indexOf("email")));
 
@@ -145,8 +145,11 @@ QByteArray* UserModule::index( IBus *bus,  ProxyRequest *req)
        while(query.next())
        {
            QVariantMap user;
+           user.insert("id:", query.value(query.record().indexOf("id")));
            user.insert("first_name", query.value(query.record().indexOf("first_name")));
            user.insert("last_name", query.value(query.record().indexOf("last_name")));
+           user.insert("login", query.value(query.record().indexOf("login")));
+           user.insert("email", query.value(query.record().indexOf("email")));
            users.append(user);
        }
 

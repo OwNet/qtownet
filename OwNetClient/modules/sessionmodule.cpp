@@ -6,7 +6,7 @@
 SessionModule::SessionModule(QObject *parent) :
     IModule(parent)
 {
-    setUrl("session.js");
+    setUrl("session");
 }
 
 bool SessionModule::isLoggedIn()
@@ -24,6 +24,7 @@ QByteArray* SessionModule::create(IBus *bus, ProxyRequest *req)
     // if user is already loggedIn
     if(isLoggedIn()){
         bus->setHttpStatus(400,"Bad Request");
+        return new QByteArray();
     }
 
     reqJson = p->parse(req->requestBody(), &ok).toMap();
@@ -53,6 +54,12 @@ QByteArray* SessionModule::create(IBus *bus, ProxyRequest *req)
 
 QByteArray* SessionModule::del(IBus *bus, ProxyRequest *req)
 {
+
+    if(!isLoggedIn()){
+        bus->setHttpStatus(400,"Bad Request");
+        return new QByteArray();
+    }
+
     this->m_sessionData.clear();
     bus->setHttpStatus(204,"No Content");
     return new QByteArray();

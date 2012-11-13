@@ -16,7 +16,7 @@ QByteArray* IModule::processRequest(IBus *bus, ProxyRequest *req)
     {
 
         //case index
-        if( req->id() == 0 && req->requestType()== ProxyRequest::GET){
+        if( req->id() == -1 && req->requestType()== ProxyRequest::GET){
 
             return index(bus, req);
         }
