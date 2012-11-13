@@ -6,8 +6,9 @@
 #include "helpers/qjson/parser.h"
 #include "helpers/qjson/serializer.h"
 #include <QVariant>
-#include "time.h"
+#include <QDateTime>
 #include <QHash>
+#include <QSqlRecord>
 
 
 UserModule::UserModule(QObject *parent) :
@@ -58,11 +59,7 @@ QByteArray* UserModule::create(IBus *bus, ProxyRequest *req)
 
         //creating user ID
 
-        time_t t;
-        time(&t);
-        int id = (int)t;
-        int hash = (int)qHash(login);
-        id += hash;
+        uint id = qHash(QString("%1-%2").arg(login).arg(QDateTime::currentDateTime().toString(Qt::ISODate)));
 
         query.prepare("INSERT INTO users (id, first_name, last_name, login, role, password, email)"
                       "VALUES ( :id , :first_name, :last_name, :login,"
@@ -143,18 +140,17 @@ QByteArray* UserModule::index( IBus *bus,  ProxyRequest *req)
    if( query.exec("SELECT * FROM users")){
 
        QJson::Serializer serializer;
-       QVariantMap users;
+       QVariantList users;
 
-
-       if(query.first())
-           do{
-
-
-
-           }while(query.next());
+       while(query.next())
+       {
+           QVariantMap user;
+           user.insert("first_name", query.value(query.record().indexOf("first_name")));
+           user.insert("last_name", query.value(query.record().indexOf("last_name")));
+           users.append(user);
+       }
 
        bus->setHttpStatus(200, "OK");
-       users.insert("users:", "users");
        QByteArray *json = new QByteArray(serializer.serialize(users));
        return json;
    }
