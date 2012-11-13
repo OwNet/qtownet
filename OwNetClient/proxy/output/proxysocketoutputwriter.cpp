@@ -79,6 +79,8 @@ void ProxySocketOutputWriter::read(QIODevice *ioDevice)
            << "\r\n";
         ListOfStringPairs headers = m_proxyDownload->inputObject()->responseHeaders();
         for (int i = 0; i < headers.count(); ++i) {
+            if (headers.at(i).second == "chunked")
+                continue;
             os << headers.at(i).first << ": " << headers.at(i).second << "\r\n";
         }
         os << "\r\n";

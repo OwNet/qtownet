@@ -6,6 +6,7 @@
 #include <QStringList>
 #include <QTcpSocket>
 #include <QRegExp>
+#include <QDebug>
 
 ProxyRequest::ProxyRequest(QTcpSocket *socket, QObject *parent)
     : QObject(parent), m_socket(socket), m_hashCode(-1), m_isApiRequest(false), m_id(-1)
@@ -47,6 +48,10 @@ bool ProxyRequest::readFromSocket()
                 }
             }
         }
+    }
+    for (int i = 0; i < m_requestHeaders.count(); ++i) {
+
+        qDebug() << m_requestHeaders.at(i).first << m_requestHeaders.at(i).second;
     }
 
     analyzeUrl();

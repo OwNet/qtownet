@@ -41,11 +41,12 @@ void ProxyOutputWriter::close()
 {
     virtualClose();
 
-    if (m_proxyDownload) {
-        m_proxyDownloads->deregisterDownloadReader(m_proxyDownload, m_downloadReaderId);
+    // UNCOMMENT
+//    if (m_proxyDownload) {
+//        m_proxyDownloads->deregisterDownloadReader(m_proxyDownload, m_downloadReaderId);
 
-        disconnect(m_proxyDownload);
-    }
+//        disconnect(m_proxyDownload);
+//    }
 }
 
 /**

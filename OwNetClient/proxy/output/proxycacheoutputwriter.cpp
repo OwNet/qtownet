@@ -105,10 +105,10 @@ bool ProxyCacheOutputWriter::save()
     if (!update)
         query.bindValue(":date_created", timestamp);
 
-    if (!query.exec()) {
-        MessageHelper::debug(query.lastError().text());
-        return false;
-    }
+//    if (!query.exec()) {
+//        MessageHelper::debug(query.lastError().text());
+//        return false;
+//    }
     return true;
 }
 

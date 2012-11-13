@@ -14,12 +14,12 @@ QByteArray* PrefetchingModule::processRequest(IBus *bus, ProxyRequest *req)
 
     if (req->relativeUrl().startsWith("visit"))
     {
-        if (req->parameters().contains("page"))
+        if (req->parameterValue("page") != NULL )
         {
 
-            QString page = req->parameters().value("page");
+            QString page = req->parameterValue("page");
 
-            QString idString = req->parameters().value("id");
+            QString idString = req->parameterValue("id");
 
             m_map.insert(idString.toInt(), new LoggedPage(idString.toInt(), page));
 
@@ -28,11 +28,11 @@ QByteArray* PrefetchingModule::processRequest(IBus *bus, ProxyRequest *req)
     }
     else if (req->relativeUrl().startsWith("link"))
     {
-        if (req->parameters().contains("from") && req->parameters().contains("to"))
+        if (req->parameterValue("from") != NULL  && req->parameterValue("to") != NULL)
         {
 
-            QString page = req->parameters().value("from");
-            QString linkUrl = req->parameters().value("to");
+            QString page = req->parameterValue("from");
+            QString linkUrl = req->parameterValue("to");
             bool ok = false;
             int pageId = page.toInt(&ok, 10);
             if (ok && m_map.contains(pageId))
