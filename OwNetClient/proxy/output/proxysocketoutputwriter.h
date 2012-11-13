@@ -6,6 +6,9 @@ class QSemaphore;
 
 #include "proxyoutputwriter.h"
 
+/**
+ * @brief Reads data from ProxyDownload and outputs them to socket.
+ */
 class ProxySocketOutputWriter : public ProxyOutputWriter
 {
     Q_OBJECT

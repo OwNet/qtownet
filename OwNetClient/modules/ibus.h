@@ -17,7 +17,7 @@ public:
      */
     virtual QByteArray* callModule(ProxyRequest *req) = 0;
 
-    virtual void setHttpStatus( int code, QString description ) = 0;
+    virtual void setHttpStatus(int code, const QString &description) = 0;
 };
 
 #endif // IBUS_H

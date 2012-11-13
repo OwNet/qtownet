@@ -7,6 +7,8 @@
 #include "proxyrequest.h"
 #include "cachefolder.h"
 #include "qjson/json_parser.hh"
+#include "gdsfclock.h"
+#include "proxydownloads.h"
 
 ProxyCacheInputObject::ProxyCacheInputObject(ProxyRequest *request, QObject *parent)
     : ProxyInputObject(request, parent), m_exists(false), m_numParts(0)
@@ -14,19 +16,30 @@ ProxyCacheInputObject::ProxyCacheInputObject(ProxyRequest *request, QObject *par
     QSqlQuery query;
     query.prepare("SELECT * FROM caches WHERE id = :id");
     query.bindValue(":id", request->hashCode());
-    if (query.exec()) {
-        if (query.next()) {
-            m_exists = true;
-            m_numParts = query.value(query.record().indexOf("num_parts")).toInt();
+    if (query.exec() && query.next()) {
+        m_exists = true;
+        m_numParts = query.value(query.record().indexOf("num_parts")).toInt();
 
-            bool ok;
-            QJson::Parser parser;
-            QVariantMap result = parser.parse(query.value(query.record().indexOf("response_headers"))
-                                              .toByteArray(), &ok)
-                    .toMap();
-            if (ok)
-                m_responseHeaders.parse(result);
-        }
+        setHttpStatusCode(query.value(query.record().indexOf("status_code")).toInt());
+        setHttpStatusDescription(query.value(query.record().indexOf("status_description")).toString());
+
+        bool ok;
+        QJson::Parser parser;
+        QVariantMap result = parser.parse(query.value(query.record().indexOf("response_headers"))
+                                          .toByteArray(), &ok)
+                .toMap();
+        if (ok)
+            m_responseHeaders.parse(result);
+
+        int accessCount = query.value(query.record().indexOf("access_count")).toInt() + 1;
+        long size = query.value(query.record().indexOf("size")).toLongLong();
+
+        query.prepare("UPDATE caches SET access_count = :access_count, access_value = :access_value "
+                      "WHERE id = :id");
+        query.bindValue(":id", request->hashCode());
+        query.bindValue(":access_count", accessCount);
+        query.bindValue(":access_value", ProxyDownloads::instance()->gdsfClock()->getGDSFPriority(accessCount, size));
+        query.exec();
     }
 }
 

@@ -5,6 +5,10 @@
 
 class QFile;
 
+/**
+ * @brief Reads data from ProxyDownload and outputs them to cache.
+ * Data in cache can be written in multiple files with a specified size.
+ */
 class ProxyCacheOutputWriter : public ProxyOutputWriter
 {
 public:
@@ -17,7 +21,7 @@ public:
 protected:
     void virtualClose();
     void read(QIODevice *ioDevice);
-    bool save();
+    void save();
     void error();
 
 private:
@@ -25,7 +29,8 @@ private:
 
     QFile *m_cacheFile;
     ProxyRequest *m_request;
-    long m_partSizeWritten;
+    qint64 m_partSizeWritten;
+    qint64 m_sizeWritten;
     int m_numParts;
     bool m_failed;
 };

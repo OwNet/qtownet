@@ -17,7 +17,7 @@ void ProxyWebInputObject::readRequest()
     QNetworkAccessManager *manager = new QNetworkAccessManager(m_request->socket());
     QNetworkReply *reply = NULL;
     QNetworkRequest request;
-    request.setUrl(QUrl::fromEncoded(m_request->url().toUtf8()));
+    request.setUrl(m_request->qUrl());
     for (int i = 0; i < m_request->requestHeaders().count(); ++i)
         request.setRawHeader(m_request->requestHeaders().at(i).first.toLatin1(),
                              m_request->requestHeaders().at(i).second.toLatin1());
@@ -28,13 +28,15 @@ void ProxyWebInputObject::readRequest()
         reply = manager->get(request);
         break;
     case ProxyRequest::POST:
-        reply = manager->post(request, new QBuffer(&m_request->requestBody()));
+        reply = manager->post(request, new QBuffer(new QByteArray(m_request->requestBody())));
         break;
     case ProxyRequest::PUT:
-        reply = manager->put(request, new QBuffer(&m_request->requestBody()));
+        reply = manager->put(request, new QBuffer(new QByteArray(m_request->requestBody())));
         break;
     case ProxyRequest::DELETE:
         reply = manager->deleteResource(request);
+        break;
+    case ProxyRequest::UNKNOWN:
         break;
     }
 
@@ -57,6 +59,8 @@ void ProxyWebInputObject::readReply()
 
         m_httpStatusCode = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toString();
         m_httpStatusDescription = reply->attribute(QNetworkRequest::HttpReasonPhraseAttribute).toString();
+        if (m_httpStatusDescription.isNull())
+            m_httpStatusDescription = "";
 
         QList<QNetworkReply::RawHeaderPair> headers = reply->rawHeaderPairs();
         for (int i = 0; i < headers.count(); ++i)
