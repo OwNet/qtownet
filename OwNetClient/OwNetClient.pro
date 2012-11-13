@@ -50,7 +50,7 @@ SOURCES += main.cpp\
     proxy/downloads/proxystreamdownloadpart.cpp \
     proxy/downloads/proxylastdownloadpart.cpp \
     modules/usermodule.cpp \
-    modules/sessionmodule.cpp
+    modules/sessionmodule.cpp\
     jobs/job.cpp \
     init/jobinitializer.cpp \
     jobs/cleancachejob.cpp \
@@ -101,13 +101,13 @@ HEADERS  += view/mainwindow.h \
     proxy/downloads/proxystreamdownloadpart.h \
     proxy/downloads/proxylastdownloadpart.h \
     modules/usermodule.h \
-    modules/sessionmodule.h
+    modules/sessionmodule.h\
     jobs/job.h \
     init/jobinitializer.h \
     jobs/cleancachejob.h \
     cache/gdsfclock.h \
     database/databaseupdatequery.h \
-    database/databaseupdate.h
+    database/databaseupdate.h\
 
 FORMS    += view/mainwindow.ui
 

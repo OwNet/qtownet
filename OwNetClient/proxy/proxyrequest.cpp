@@ -179,22 +179,9 @@ QString ProxyRequest::urlExtension() const
  */
 void ProxyRequest::analyzeUrl()
 {
-<<<<<<< HEAD
-    m_id = 0;
-
-    m_hashCode = qHash(m_url);
-
-    QStringList httpSplit = m_url.split("//");
-    httpSplit.takeFirst();
-    QString url = httpSplit.join("//");
-    QStringList split = url.split("/");
-    QString fullDomain = split.takeFirst();
-    QStringList domainSplit = fullDomain.split(".");
-=======
     m_hashCode = qHash(url());
 
     QStringList domainSplit = QString(m_qUrl.encodedHost()).split(".");
->>>>>>> master
     if (domainSplit.first() == "www")
         domainSplit.takeFirst();
 
@@ -203,37 +190,6 @@ void ProxyRequest::analyzeUrl()
         m_subDomain = domainSplit.join(".");
     }
 
-<<<<<<< HEAD
-    if (split.count() > 0) {
-       QStringList params = split.join("/").split("?");
-       m_relativeUrl = params.takeFirst();
-       split = m_relativeUrl.split("/");
-       m_module = split.takeFirst();
-       if (split.count() > 0){
-           QString idOrAction = split.first();
-           bool ok;
-           int id = idOrAction.toInt(&ok);
-           if(ok){
-
-               m_id = id;
-               split.takeFirst();
-           }
-
-           if (split.count())
-               m_action = split.join("/");
-       }
-       if (params.count() > 0){
-           params = params.join("?").split("&");
-           for (int i = 0; i < params.count(); i++){
-               QStringList paramsKeyValue = params.at(i).split("=");
-               QString key = paramsKeyValue.first();
-               QString value = paramsKeyValue.last();
-               m_parameters.insert(key, value);
-           }
-       }
-    } else {
-        m_relativeUrl = "";
-=======
     if (isLocalRequest()) {
         QStringList split = relativeUrl().remove(QRegExp("^[/]")).split("/");
 
@@ -257,7 +213,6 @@ void ProxyRequest::analyzeUrl()
                 }
             }
         }
->>>>>>> master
     }
 }
 

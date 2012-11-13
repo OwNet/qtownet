@@ -2,33 +2,29 @@
 #include "messagehelper.h"
 
 #include "proxydownloads.h"
-#include "gdsfclock.h"
-
-#include "databaseupdate.h"
 
 #include <QtCore/QVariant>
+#include <QSqlDatabase>
+#include <QSqlError>
+#include <QSqlQuery>
 #include <QDebug>
-
-
 
 DatabaseInitializer::DatabaseInitializer()
 {
 }
 
-
 void DatabaseInitializer::init()
 {
     // init application database
 
-    db = QSqlDatabase::addDatabase("QSQLITE");
+    QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE");
     db.setDatabaseName("ownet.sqlite");
 
 
-    if (! db.open()) {
+    if (!db.open()) {
         MessageHelper::error(QObject::tr("Failed to open database"),
                                 QObject::tr("Unable to open the database: %1.")
                              .arg(db.lastError().text()));
-
     }
 
 
@@ -38,26 +34,12 @@ void DatabaseInitializer::init()
     //User Table init
     createUsersTable();
 
-
-
-
-
     // TODO: Close?
 }
 
 void DatabaseInitializer::createUsersTable()
 {
      QSqlQuery q;
-
-     //TO DO discuss types
-
-     //LastVisit Registered LastLogin (Unix Time, the number of seconds since 1970-01-01 00:00:00 UTC)
-     /*"last_visit INTEGER NOT NULL,"\
-     "registered INTEGER NOT NULL,"\
-     "last_login INTEGER NOT NULL"\
-
-      pridat neskor
-      */
 
      if( q.exec("create table users (id INTEGER PRIMARY KEY,"
                 "first_name TEXT NOT NULL,"
@@ -79,4 +61,5 @@ void DatabaseInitializer::dropUsersTable()
 {
     QSqlQuery q;
     q.exec("DROP TABLE Users");
+
 }
