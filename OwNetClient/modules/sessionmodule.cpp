@@ -47,7 +47,7 @@ QByteArray* SessionModule::create(IBus *bus, ProxyRequest *req)
             bus->setHttpStatus(201,"Created");
 
             QVariantMap user;
-            user.insert("id:", q.value(0));
+            user.insert("user_id", q.value(0));
             QByteArray *json = new QByteArray(serializer.serialize(user));
 
             return json;
