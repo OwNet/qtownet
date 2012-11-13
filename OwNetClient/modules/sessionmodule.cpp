@@ -2,6 +2,7 @@
 #include <QSqlQuery>
 #include "ibus.h"
 #include "helpers/qjson/parser.h"
+#include "helpers/qjson/serializer.h"
 
 SessionModule::SessionModule(QObject *parent) :
     IModule(parent)
@@ -18,6 +19,7 @@ QByteArray* SessionModule::create(IBus *bus, ProxyRequest *req)
 {
     QJson::Parser *p = new QJson::Parser();
     QVariantMap reqJson;
+     QJson::Serializer serializer;
 
     bool ok;
 
@@ -43,7 +45,12 @@ QByteArray* SessionModule::create(IBus *bus, ProxyRequest *req)
         {
             this->m_sessionData.insert("logged",q.value(0));
             bus->setHttpStatus(201,"Created");
-            return new QByteArray();
+
+            QVariantMap user;
+            user.insert("id:", q.value(0));
+            QByteArray *json = new QByteArray(serializer.serialize(user));
+
+            return json;
         }
 
     }
