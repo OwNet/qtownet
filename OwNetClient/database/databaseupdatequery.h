@@ -6,6 +6,10 @@
 
 class QSqlQuery;
 
+/**
+ * @brief Database query to update, insert or delete data.
+ * Can be exported to JSON.
+ */
 class DatabaseUpdateQuery : public QObject
 {
     Q_OBJECT
