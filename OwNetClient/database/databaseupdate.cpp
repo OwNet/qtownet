@@ -39,7 +39,7 @@ DatabaseUpdateQuery *DatabaseUpdate::createUpdateQuery(const QVariantMap &conten
  */
 int DatabaseUpdate::execute()
 {
-    int numFailed;
+    int numFailed = 0;
     for (int i = 0; i < m_updateQueries.count(); ++i) {
         if (!m_updateQueries.at(i)->executeQuery())
             numFailed++;
