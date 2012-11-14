@@ -36,7 +36,7 @@ public:
 
     QUrl qUrl() const { return m_qUrl; }
     QString url() const { return m_qUrl.toEncoded(QUrl::None); }
-    QString requestContentType(const QString &defaultContentType = "") const;
+    QString requestContentType(const QString &defaultContentType = "", const QString &extension = "") const;
     QString relativeUrl() const { return m_qUrl.encodedPath(); }
     QString action() const { return m_action; }
     QString module() const { return isLocalRequest() ? m_module : QString(); }
@@ -44,6 +44,7 @@ public:
 
     int id() const { return m_id; }
     QString parameterValue(const QString &key) const { return m_qUrl.queryItemValue(key); }
+    bool hasParameter(const QString& key) const { return m_qUrl.hasQueryItem(key); }
     QStringList allParameterValues(const QString &key) const { return m_qUrl.allQueryItemValues(key); }
     QByteArray requestBody() const { return m_requestBody; }
     QString staticResourcePath() const;

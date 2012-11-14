@@ -14,7 +14,7 @@ public:
 
 private:
     CleanCacheJob *m_cleanCacheJob;
-    PrefetchJob *m_prefetchJob;
+    //PrefetchJob *m_prefetchJob;
 };
 
 #endif // JOBINITIALIZER_H

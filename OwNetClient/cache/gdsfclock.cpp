@@ -1,9 +1,10 @@
 #include "gdsfclock.h"
 
 #include "qmath.h"
+#include "databaseupdate.h"
 
-#include <QSqlQuery>
 #include <QVariant>
+#include <QSqlQuery>
 
 GDSFClock::GDSFClock(QObject *parent) :
     QObject(parent), m_lastClock(0)
@@ -39,11 +40,10 @@ void GDSFClock::setLastClock(double clock)
     m_lastClock = clock;
     m_lastClockMutex.unlock();
 
-    QSqlQuery query;
-    query.prepare("DELETE FROM cache_clean_clocks");
-    query.exec();
+    DatabaseUpdate update(false);
+    update.createUpdateQuery("cache_clean_clocks", DatabaseUpdateQuery::Delete);
+    DatabaseUpdateQuery *query = update.createUpdateQuery("cache_clean_clocks", DatabaseUpdateQuery::Insert);
+    query->setColumnValue("value", clock);
 
-    query.prepare("INSERT INTO cache_clean_clocks (value) VALUES (:value)");
-    query.bindValue(":value", clock);
-    query.exec();
+    update.execute();
 }

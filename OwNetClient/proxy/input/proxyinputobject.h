@@ -25,6 +25,7 @@ public:
     QString httpStatusDescription() const { return m_httpStatusDescription.isNull() ? QString() : m_httpStatusDescription; }
     void setHttpStatusDescription(const QString &description);
     QString contentType() const { return m_contentType; }
+    void setContentType(const QString &value);
     ListOfStringPairs responseHeaders() const { return m_responseHeaders; }
     ProxyRequest *request() { return m_request; }
 

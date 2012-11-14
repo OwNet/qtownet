@@ -86,17 +86,28 @@ void ProxySocketOutputWriter::read(QIODevice *ioDevice)
         os << "\r\n";
         os.flush();
     }
-
+    QRegExp rx("(.*<body[^>]*>)(.*)");
     if (!m_foundBody && m_proxyDownload->inputObject()->contentType().toLower().contains("text/html")) {
         while (!ioDevice->atEnd()) {
             QByteArray lineBytes = ioDevice->readLine();
             QString line = QString::fromLatin1(lineBytes);
-            if (line.contains("<body")) {
+            if (rx.indexIn(line) != -1 && rx.capturedTexts().length() == 3) {
+        //    if (line.contains("<body")) {
+
+
+                QStringList listx = rx.capturedTexts();
+
+                m_socket->write(listx.at(1).toLatin1());
+
                 m_socket->write(QString("<script type=\"text/javascript\" src=\"http://static.ownet/inject.js\"></script>")
                                 .toLatin1());
+                m_socket->write(listx.at(2).toLatin1());
                 m_foundBody = true;
             }
-            m_socket->write(lineBytes);
+            else
+            {
+                m_socket->write(lineBytes);
+            }
         }
     }
     else {

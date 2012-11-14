@@ -47,6 +47,7 @@ void ProxyOutputWriter::close()
 
 //        disconnect(m_proxyDownload);
 //    }
+
 }
 
 /**

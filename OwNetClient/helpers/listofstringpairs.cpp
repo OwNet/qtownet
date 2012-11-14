@@ -15,7 +15,7 @@ void ListOfStringPairs::insert(const QString &key, const QString &value)
 
 void ListOfStringPairs::insertOrReplace(const QString &key, const QString &value)
 {
-    for (int i = count(); i >= 0; --i)
+    for (int i = count() - 1; i >= 0; --i)
         if (QString::compare(at(i).first, key, Qt::CaseInsensitive) == 0)
             removeAt(i);
     insert(key, value);
@@ -44,4 +44,5 @@ QString ListOfStringPairs::valueForKey(const QString &key) const
         if (QString::compare(at(i).first, key, Qt::CaseInsensitive) == 0)
             return at(i).second;
     }
+    return "";
 }

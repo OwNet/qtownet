@@ -135,9 +135,9 @@ QMap<QString, QString> ProxyRequest::postBodyFromForm() const
  * @brief Get the content type from the url extension.
  * @return Content type of the request
  */
-QString ProxyRequest::requestContentType(const QString &defaultContentType) const
+QString ProxyRequest::requestContentType(const QString &defaultContentType, const QString &extension) const
 {
-    QString ext = urlExtension();
+    QString ext = extension.isEmpty() ? urlExtension() : extension;
     if (ProxyRequest::m_contentTypes.contains(ext))
         return ProxyRequest::m_contentTypes.value(ext);
     return defaultContentType.isEmpty() ? "application/octet-stream" : defaultContentType;
