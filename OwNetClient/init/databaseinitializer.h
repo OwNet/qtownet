@@ -9,9 +9,12 @@ public:
     DatabaseInitializer();
 
     void init();
+    void createUsersTable();
+    void dropUsersTable();
 
 private:
     void createUserTable();
+
 
 
 };
