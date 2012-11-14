@@ -1,2 +1,2 @@
 Windows:
-copy inject.js file to C:\Users\<user>\AppData\Local\OwNetClient\static\
+copy inject.js file to C:\Users\<user>\AppData\Local\OwNetClient\static\static\
