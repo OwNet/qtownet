@@ -23,8 +23,7 @@ public:
 
 private:
   // int m_pageCounter;
-   QRegExp* m_reg;
-
+   int m_pageCounter;
 
 
    PrefetchJob* m_prefetchJob;

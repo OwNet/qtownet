@@ -18,7 +18,7 @@ public:
     void registerLink(int id, QString url);
     void registerPage(int id, QString url);
     void removePage(int id);
-
+    void removePage(QString url);
 protected:
     void execute();
 

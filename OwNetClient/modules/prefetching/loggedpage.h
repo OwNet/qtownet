@@ -11,6 +11,7 @@ public:
     const int id();
 
     LoggedPage(int id, QString url);
+    const QString& url() { return m_url; }
     void addLinks(QString url) { m_links.push_back(url); }
     QString link();
     const QList<QString> &links() { return m_links; }

@@ -58,6 +58,25 @@ void PrefetchJob::removePage(int id)
     m_mapMutex.unlock();
 }
 
+void PrefetchJob::removePage(QString url)
+{
+    int id = -1;
+    for (auto it = m_map.begin(); it != m_map.end();)
+    {
+        if (((LoggedPage*) it.value())->url() == url)
+        {
+            id = it.key();
+            break;
+        }
+        ++it;
+    }
+
+    if (id != -1)
+    {
+        removePage(id);
+    }
+}
+
 void PrefetchJob::execute()
 {
     if (!m_activeMutex.tryLock())
