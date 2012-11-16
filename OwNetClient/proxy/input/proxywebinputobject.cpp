@@ -1,6 +1,8 @@
 #include "proxywebinputobject.h"
 #include "messagehelper.h"
 #include "proxyrequest.h"
+#include "proxydownloads.h"
+#include "proxytrafficcounter.h"
 
 #include <QNetworkAccessManager>
 #include <QNetworkReply>
@@ -48,6 +50,8 @@ void ProxyWebInputObject::readRequest()
     connect(reply, SIGNAL(finished()), this, SLOT(downloadFinished()));
     connect(reply, SIGNAL(readyRead()), this, SLOT(readReply()));
     connect(reply, SIGNAL(error(QNetworkReply::NetworkError)), this, SLOT(error(QNetworkReply::NetworkError)));
+
+    ProxyDownloads::instance()->trafficCounter()->increaseCurrentTraffic();
 }
 
 void ProxyWebInputObject::readReply()
