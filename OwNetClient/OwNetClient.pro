@@ -32,7 +32,6 @@ SOURCES += main.cpp\
     helpers/qjson/serializer.cpp \
     helpers/qjson/serializerrunnable.cpp \
     proxy/input/bus/proxyrequestbus.cpp \
-    modules/testmodule.cpp \
     modules/imodule.cpp \
     init/moduleinitializer.cpp \
     modules/ibus.cpp \
@@ -50,6 +49,8 @@ SOURCES += main.cpp\
     proxy/downloads/proxybytedownloadpart.cpp \
     proxy/downloads/proxystreamdownloadpart.cpp \
     proxy/downloads/proxylastdownloadpart.cpp \
+    modules/usermodule.cpp \
+    modules/sessionmodule.cpp\
     jobs/job.cpp \
     init/jobinitializer.cpp \
     jobs/cleancachejob.cpp \
@@ -58,6 +59,7 @@ SOURCES += main.cpp\
     database/databaseupdate.cpp \
     proxy/proxytrafficcounter.cpp \
     jobs/proxytrafficcounterjob.cpp
+
 
 HEADERS  += view/mainwindow.h \
         proxy/proxyserver.h \
@@ -83,7 +85,6 @@ HEADERS  += view/mainwindow.h \
     helpers/qjson/serializerrunnable.h \
     helpers/qjson/stack.hh \
     proxy/input/bus/proxyrequestbus.h \
-    modules/testmodule.h \
     modules/imodule.h \
     init/moduleinitializer.h \
     modules/ibus.h \
@@ -101,6 +102,8 @@ HEADERS  += view/mainwindow.h \
     proxy/downloads/proxybytedownloadpart.h \
     proxy/downloads/proxystreamdownloadpart.h \
     proxy/downloads/proxylastdownloadpart.h \
+    modules/usermodule.h \
+    modules/sessionmodule.h\
     jobs/job.h \
     init/jobinitializer.h \
     jobs/cleancachejob.h \
