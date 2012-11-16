@@ -5,6 +5,7 @@
 
 #include <QBuffer>
 #include <QVariantList>
+#include <QDebug>
 
 QMap<QString, IModule*> *ProxyRequestBus::m_routes = new QMap<QString, IModule*>();
 
@@ -27,7 +28,7 @@ void ProxyRequestBus::readRequest()
         emit readyRead(buffer);
     }
     else {
-        // ak chyba modifikovat po dohodnuti s matusom
+
         QVariantMap status;
         status.insert("Status", "FAILED");
 

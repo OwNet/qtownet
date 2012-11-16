@@ -11,6 +11,7 @@
 #include <QSqlQuery>
 #include <QTextStream>
 #include <QCoreApplication>
+#include <QDebug>
 
 DatabaseInitializer::DatabaseInitializer()
 {
@@ -53,11 +54,11 @@ void DatabaseInitializer::runMigrations()
     query.exec("CREATE TABLE IF NOT EXISTS migrations (name TEXT PRIMARY KEY); ");
 
     // in migrations directory
-    QDir appDataDir = ApplicationDataStorage().appDataDirectory();
-    if (appDataDir.exists("migrations")) {
-        QDir migrationsDir(appDataDir.absolutePath().append("/migrations"));
+    QDir dir = ApplicationDataStorage().appDataDirectory();
+    if (dir.exists("migrations")) {
+        dir.cd("migrations");
 
-        QFileInfoList list = migrationsDir.entryInfoList(QDir::Files, QDir::Name);
+        QFileInfoList list = dir.entryInfoList(QDir::Files, QDir::Name);
 
         // for all migrations
         for (int i = 0; i < list.size(); ++i) {
@@ -67,6 +68,7 @@ void DatabaseInitializer::runMigrations()
             query.exec();
 
             // unless migration has been run
+            bool success = true;
             if (! query.next())
             {
                 MessageHelper::debug(QObject::tr("Running migration %1.")
@@ -74,15 +76,30 @@ void DatabaseInitializer::runMigrations()
 
                 // read file
                 QFile file(list.at(i).absoluteFilePath());
-                if(file.open(QIODevice::ReadOnly)) {
+                if (file.open(QIODevice::ReadOnly | QIODevice::Text)) {
                     QTextStream in(&file);
+                    in.setCodec("UTF-8");
+                    QStringList queries = in.readAll().split(";", QString::SkipEmptyParts);
 
-                    // execute each line
-                    QSqlQuery query;
-                    while (!in.atEnd()) {
-                        QString line = in.readLine();
-                        query.exec(line);
+                    QSqlDatabase db = QSqlDatabase::database();
+                    db.transaction();
+
+                    foreach (QString strQuery, queries) {
+                        if (strQuery.trimmed().isEmpty())
+                            continue;
+
+                        QSqlQuery query;
+                        if (!query.exec(strQuery)) {
+                            MessageHelper::debug(query.lastError().text());
+                            success = false;
+                            break;
+                        }
                     }
+
+                    if (!success)
+                        db.rollback();
+                    else
+                        db.commit();
 
                     file.close();
                 }
