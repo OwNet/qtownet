@@ -9,14 +9,10 @@ public:
     DatabaseInitializer();
 
     void init();
-    void createUsersTable();
-    void dropUsersTable();
 
 private:
-    void createUserTable();
-
-
-
+    void openDatabase();
+    void runMigrations();
 };
 
 #endif // DATABASEINITIALIZER_H
