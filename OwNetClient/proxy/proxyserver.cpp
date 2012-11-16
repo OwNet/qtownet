@@ -46,7 +46,7 @@ void ProxyServer::disposeHandler(ProxyHandler *handler)
     delete handler;
 }
 
-void ProxyServer::incomingConnection(int handle)
+void ProxyServer::incomingConnection(qintptr handle)
 {
     ProxyHandler * handler = NULL;
 

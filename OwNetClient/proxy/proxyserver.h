@@ -28,7 +28,7 @@ private slots:
     void proxyRequestFinished(ProxyHandler * handler);
 
 protected:
-    void incomingConnection(int handle);
+    void incomingConnection(qintptr handle);
 
 private:
     ProxyHandler *initializeProxyHandler();
