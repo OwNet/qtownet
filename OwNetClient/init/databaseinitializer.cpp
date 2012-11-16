@@ -9,6 +9,7 @@
 #include <QSqlError>
 #include <QSqlQuery>
 #include <QTextStream>
+#include <QDebug>
 
 DatabaseInitializer::DatabaseInitializer()
 {

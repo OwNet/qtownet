@@ -11,11 +11,27 @@ class DatabaseModule : public IModule
 public:
     explicit DatabaseModule(QObject *parent = NULL);
 
-   QByteArray *processRequest(IBus *bus, ProxyRequest *req);
+   /* // create element
+    QByteArray* create(IBus *bus, ProxyRequest *req){return new QByteArray;}
+
+    // show element
+    QByteArray* show( IBus *bus, ProxyRequest *req){return new QByteArray;}
+
+    //delete element
+    QByteArray* del( IBus *bus, ProxyRequest *req){return new QByteArray;}
+
+    //edit element
+    QByteArray* edit( IBus *bus, ProxyRequest *req){return new QByteArray;}
+
+    QByteArray* index( IBus *bus,  ProxyRequest *req){return new QByteArray;}
+*/
 
 signals:
 
 public slots:
+
+private:
+
 
 };
 
