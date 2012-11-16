@@ -11,6 +11,7 @@ ApplicationDataStorage::ApplicationDataStorage(QObject *parent) :
 
 QDir ApplicationDataStorage::appDataDirectory()
 {
+    // configure stub data storage
     if (ApplicationEnvironment().contains("OWNET_APP_DATA_DIR_NAME"))
         return QDir(ApplicationEnvironment().value("OWNET_APP_DATA_DIR_NAME"));
     else

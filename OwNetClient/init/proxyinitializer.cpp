@@ -12,6 +12,7 @@ ProxyInitializer::ProxyInitializer()
 
 void ProxyInitializer::init()
 {
+    // configure stub listening port
     int port = ApplicationEnvironment().value("OWNET_LISTEN_PORT",
                                               QString::number(ProxyServer::Port)).toInt();
 
