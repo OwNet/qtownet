@@ -8,14 +8,13 @@ int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
 
-    if (! ApplicationEnvironment().contains("OWNET_DISABLE_GUI"))
-    {
-        MainWindow w;
-        w.show();
-    }
+    MainWindow w;
 
     Initializer initializer;
     initializer.init();
-    
+
+    if (!ApplicationEnvironment().contains("OWNET_DISABLE_GUI"))
+        w.show();
+
     return a.exec();
 }

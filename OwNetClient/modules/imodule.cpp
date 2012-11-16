@@ -35,12 +35,10 @@ QByteArray* IModule::processRequest(IBus *bus, ProxyRequest *req)
 
         //case delete
         else if(req->requestType() == ProxyRequest::DELETE)
-             del(bus, req);
+             return del(bus, req);
     }
-    else
-        //other actions TO DO
-        return new QByteArray();
-
+    //other actions TO DO
+    return new QByteArray();
 }
 
 

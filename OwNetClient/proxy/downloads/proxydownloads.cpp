@@ -23,7 +23,6 @@ ProxyDownloads::~ProxyDownloads()
 ProxyDownload *ProxyDownloads::proxyDownload(ProxyRequest *request, ProxyHandler *handler, int &downloadReaderId)
 {
     ProxyDownload *download = NULL;
-    m_trafficCounter = new ProxyTrafficCounter;
 
     m_openDownloadsMutex.lock();
 
@@ -67,4 +66,5 @@ void ProxyDownloads::deregisterDownloadReader(ProxyDownload *proxyDownload, int 
 ProxyDownloads::ProxyDownloads()
 {
     m_gdsfClock = new GDSFClock();
+    m_trafficCounter = new ProxyTrafficCounter;
 }
