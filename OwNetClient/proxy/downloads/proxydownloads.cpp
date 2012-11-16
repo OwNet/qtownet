@@ -4,8 +4,14 @@
 #include "proxyrequest.h"
 #include "gdsfclock.h"
 #include "proxyhandler.h"
+#include "proxytrafficcounter.h"
 
 ProxyDownloads *ProxyDownloads::m_instance = 0;
+
+ProxyDownloads::~ProxyDownloads()
+{
+    delete m_trafficCounter;
+}
 
 /**
  * @brief Creates a new ProxyDownload, or returns an active one if available.
@@ -17,6 +23,7 @@ ProxyDownloads *ProxyDownloads::m_instance = 0;
 ProxyDownload *ProxyDownloads::proxyDownload(ProxyRequest *request, ProxyHandler *handler, int &downloadReaderId)
 {
     ProxyDownload *download = NULL;
+    m_trafficCounter = new ProxyTrafficCounter;
 
     m_openDownloadsMutex.lock();
 

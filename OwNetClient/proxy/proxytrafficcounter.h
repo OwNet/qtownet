@@ -4,29 +4,25 @@
 #include <QObject>
 #include <QMutex>
 
-#define TrafficArraySize 60
-
 class ProxyTrafficCounter : public QObject
 {
     Q_OBJECT
 public:
+    enum {
+        TrafficArraySize = 60
+    };
 
     explicit ProxyTrafficCounter(QObject *parent = 0);
-    void ProxyTraffic();
-    void IncreaseCurrentTraffic();
-    void TakeCurrentTrafficSnapshot();
-    int LastTraffic();
+
+    void increaseCurrentTraffic();
+    void takeCurrentTrafficSnapshot();
+    int lastTraffic();
 
 private:
-
     int m_trafficArrayIndex;
     int m_currentTraffic;
     int m_traffic[TrafficArraySize];
     QMutex m_currentTrafficLock;
-signals:
-    
-public slots:
-    
 };
 
 #endif // PROXYTRAFFICCOUNTER_H
