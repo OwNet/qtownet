@@ -2,6 +2,7 @@
 #include "messagehelper.h"
 
 #include "applicationdatastorage.h"
+#include "applicationenvironment.h"
 #include "proxydownloads.h"
 
 #include <QtCore/QVariant>
@@ -9,6 +10,7 @@
 #include <QSqlError>
 #include <QSqlQuery>
 #include <QTextStream>
+#include <QCoreApplication>
 #include <QDebug>
 
 DatabaseInitializer::DatabaseInitializer()
@@ -26,8 +28,14 @@ void DatabaseInitializer::init()
  */
 void DatabaseInitializer::openDatabase()
 {
+    // configure stub database name
+    QString databaseName = ApplicationEnvironment().value("OWNET_DATABASE_NAME", "ownet.sqlite");
+
+    MessageHelper::debug(QObject::tr("Opening database %1")
+                         .arg(databaseName));
+
     QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE");
-    db.setDatabaseName("ownet.sqlite");
+    db.setDatabaseName(databaseName);
 
     if (!db.open()) {
         MessageHelper::error(QObject::tr("Failed to open database"),

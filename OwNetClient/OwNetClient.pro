@@ -57,9 +57,10 @@ SOURCES += main.cpp\
     cache/gdsfclock.cpp \
     database/databaseupdatequery.cpp \
     database/databaseupdate.cpp \
+    helpers/applicationenvironment.cpp \
+    helpers/applicationproxyfactory.cpp \
     proxy/proxytrafficcounter.cpp \
     jobs/proxytrafficcounterjob.cpp
-
 
 HEADERS  += view/mainwindow.h \
         proxy/proxyserver.h \
@@ -110,6 +111,8 @@ HEADERS  += view/mainwindow.h \
     cache/gdsfclock.h \
     database/databaseupdatequery.h \
     database/databaseupdate.h \
+    helpers/applicationenvironment.h \
+    helpers/applicationproxyfactory.h \
     proxy/proxytrafficcounter.h \
     jobs/proxytrafficcounterjob.h
 

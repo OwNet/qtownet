@@ -6,6 +6,7 @@
 
 #include <QNetworkAccessManager>
 #include <QNetworkReply>
+#include <QNetworkProxy>
 #include <QTcpSocket>
 #include <QBuffer>
 
@@ -19,6 +20,7 @@ void ProxyWebInputObject::readRequest()
     QNetworkAccessManager *manager = new QNetworkAccessManager(m_request->socket());
     QNetworkReply *reply = NULL;
     QNetworkRequest request;
+
     request.setUrl(m_request->qUrl());
     for (int i = 0; i < m_request->requestHeaders().count(); ++i)
         request.setRawHeader(m_request->requestHeaders().at(i).first.toLatin1(),
