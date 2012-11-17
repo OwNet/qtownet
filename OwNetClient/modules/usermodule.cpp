@@ -69,7 +69,7 @@ QByteArray* UserModule::create(IBus *bus, ProxyRequest *req)
         query->setColumnValue("last_name", last_name);
         query->setColumnValue("login", login);
         query->setColumnValue("email", email);
-        query->setColumnValue("role", "user");
+        query->setColumnValue("role_id", 1);
         query->setColumnValue("password", password);
 
         int a = update.execute();

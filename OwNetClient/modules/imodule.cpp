@@ -10,7 +10,7 @@ IModule::IModule(QObject *parent) :
 QByteArray* IModule::processRequest(IBus *bus, ProxyRequest *req)
 {
 
-    //get right action, also perserve other actions as REST
+    //get right action, also perserve other actions
 
     if(req->action()=="" || req->action()=="index" || req->action()=="show" || req->action()=="edit" || req->action()=="delete" || req->action()=="create")
     {
