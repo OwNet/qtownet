@@ -10,40 +10,23 @@ ProxyServer::ProxyServer(QObject *parent)
         m_freeHandlerIds.enqueue(initializeProxyHandler()->handlerId());
 }
 
-void ProxyServer::disposeHandlerIfNecessary(ProxyHandler *handler)
-{
-    m_freeHandlersMutex.lock();
-    if (m_freeHandlerIds.count() > MaxNumberOfProxyHandlers) {
-        if (!handler->isActive())
-           disposeHandler(handler);
-    }
-    m_freeHandlersMutex.unlock();
-}
-
 ProxyHandler * ProxyServer::initializeProxyHandler()
 {
-    ProxyHandler *handler = new ProxyHandler(m_lastHandlerId++);
+    QThread *t = new QThread();
+
+    ProxyHandler *handler = new ProxyHandler(m_lastHandlerId++, t);
     m_handlersMap.insert(handler->handlerId(), handler);
     connect(this, SIGNAL(askAllHandlersToFinish()), handler, SLOT(finishHandling()));
-    connect(handler, SIGNAL(canBeDisposed(ProxyHandler*)), this, SLOT(disposeHandlerIfNecessary(ProxyHandler*)));
 
-    QThread *t = new QThread();
     t->start();
     t->moveToThread(t);
     handler->moveToThread(t);
 
-    connect(handler, SIGNAL(finished()), t, SLOT(quit()));
+    connect(handler, SIGNAL(disposeThread()), t, SLOT(quit()));
     connect(t, SIGNAL(finished()), t, SLOT(deleteLater()));
     connect(handler, SIGNAL(requestFinished(ProxyHandler *)), this, SLOT(proxyRequestFinished(ProxyHandler *)));
 
     return handler;
-}
-
-void ProxyServer::disposeHandler(ProxyHandler *handler)
-{
-    m_handlersMap.remove(handler->handlerId());
-    handler->triggerFinish();
-    delete handler;
 }
 
 void ProxyServer::incomingConnection(int handle)
@@ -67,8 +50,9 @@ void ProxyServer::incomingConnection(int handle)
 void ProxyServer::proxyRequestFinished(ProxyHandler *handler) {
     m_freeHandlersMutex.lock();
 
-    if (m_freeHandlerIds.count() > MaxNumberOfProxyHandlers && !handler->hasDependentObjects()) {
-        disposeHandler(handler);
+    if (m_freeHandlerIds.count() > MaxNumberOfProxyHandlers) {
+        m_handlersMap.remove(handler->handlerId());
+        handler->dispose();
     } else {
         m_freeHandlerIds.enqueue(handler->handlerId());
     }

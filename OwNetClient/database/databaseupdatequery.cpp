@@ -136,7 +136,6 @@ bool DatabaseUpdateQuery::executeQuery()
                             bindingValue(columnKeys.at(i), columns.value(columnKeys.at(i))));
     }
 
-    MessageHelper::debug(queryString);
     if (!query.exec()) {
         MessageHelper::debug(query.lastError().text());
         return false;

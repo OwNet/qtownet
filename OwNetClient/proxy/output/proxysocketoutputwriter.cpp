@@ -4,14 +4,14 @@
 #include "proxyrequest.h"
 #include "messagehelper.h"
 #include "proxyinputobject.h"
-#include "proxyhandler.h"
+#include "proxyhandlersession.h"
 
 #include <QTcpSocket>
 #include <QFile>
 #include <QSemaphore>
 
-ProxySocketOutputWriter::ProxySocketOutputWriter(int socketDescriptor, ProxyHandler *proxyHandler) :
-    ProxyOutputWriter(proxyHandler, proxyHandler), m_socketDescriptor(socketDescriptor), m_writtenToSocket(false), m_foundBody(false), m_socket(NULL)
+ProxySocketOutputWriter::ProxySocketOutputWriter(int socketDescriptor, ProxyHandlerSession *proxyHandlerSession)
+    : ProxyOutputWriter(proxyHandlerSession), m_socketDescriptor(socketDescriptor), m_writtenToSocket(false), m_foundBody(false), m_socket(NULL)
 {
 }
 
@@ -30,11 +30,11 @@ void ProxySocketOutputWriter::startDownload()
  */
 void ProxySocketOutputWriter::readRequest()
 {
-    ProxyRequest *request = new ProxyRequest(m_socket, m_proxyHandler);
+    ProxyRequest *request = new ProxyRequest(m_socket, m_proxyHandlerSession);
 
     if (!request->readFromSocket()) {
         MessageHelper::debug("Failed to read from socket.");
-        finish();
+        forceQuit();
         return;
     }
     MessageHelper::debug(request->url());

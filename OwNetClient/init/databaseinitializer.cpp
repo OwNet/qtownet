@@ -29,7 +29,8 @@ void DatabaseInitializer::init()
 void DatabaseInitializer::openDatabase()
 {
     // configure stub database name
-    QString databaseName = ApplicationEnvironment().value("OWNET_DATABASE_NAME", "ownet.sqlite");
+    QString databaseName = ApplicationEnvironment().value("OWNET_DATABASE_NAME",
+                                           ApplicationDataStorage().appDataDirectory().absoluteFilePath("ownet.sqlite"));
 
     MessageHelper::debug(QObject::tr("Opening database %1")
                          .arg(databaseName));
@@ -39,7 +40,7 @@ void DatabaseInitializer::openDatabase()
 
     if (!db.open()) {
         MessageHelper::error(QObject::tr("Failed to open database"),
-                                QObject::tr("Unable to open the database: %1.")
+                             QObject::tr("Unable to open the database: %1.")
                              .arg(db.lastError().text()));
     }
 }
@@ -54,7 +55,7 @@ void DatabaseInitializer::runMigrations()
     query.exec("CREATE TABLE IF NOT EXISTS migrations (name TEXT PRIMARY KEY); ");
 
     // in migrations directory
-    QDir dir = ApplicationDataStorage().appDataDirectory();
+    QDir dir = ApplicationDataStorage().appResourcesDirectory();
     if (dir.exists("migrations")) {
         dir.cd("migrations");
 

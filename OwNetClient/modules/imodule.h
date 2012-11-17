@@ -43,19 +43,19 @@ private:
 
 
 
-    virtual QByteArray* index(IBus *bus,  ProxyRequest *req){return new QByteArray();}
+    virtual QByteArray* index(IBus *,  ProxyRequest *){return new QByteArray();}
 
     // create element
-    virtual QByteArray* create(IBus *bus,  ProxyRequest *req){return new QByteArray();}
+    virtual QByteArray* create(IBus *,  ProxyRequest *){return new QByteArray();}
 
     // show element
-    virtual QByteArray* show( IBus *bus,  ProxyRequest *req){return new QByteArray();}
+    virtual QByteArray* show( IBus *,  ProxyRequest *){return new QByteArray();}
 
     //delete element
-    virtual QByteArray* del( IBus *bus,  ProxyRequest *req){return new QByteArray();}
+    virtual QByteArray* del( IBus *,  ProxyRequest *){return new QByteArray();}
 
     //edit element
-    virtual QByteArray* edit( IBus *bus,  ProxyRequest *req){return new QByteArray();}
+    virtual QByteArray* edit( IBus *,  ProxyRequest *){return new QByteArray();}
 
 };
 

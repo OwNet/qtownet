@@ -3,23 +3,32 @@
 #include "proxydownload.h"
 #include "proxydownloads.h"
 #include "proxyrequest.h"
-#include "proxyhandler.h"
+#include "proxyhandlersession.h"
 #include "proxydownloadpart.h"
 
-ProxyOutputWriter::ProxyOutputWriter(ProxyHandler *proxyHandler, QObject *parent) :
-    QObject(parent), m_proxyHandler(proxyHandler), m_proxyDownload(NULL), m_downloadReaderId(-1), m_lastPartRead(0), m_closed(false)
+ProxyOutputWriter::ProxyOutputWriter(ProxyHandlerSession *proxyHandlerSession)
+    : QObject(proxyHandlerSession), m_proxyHandlerSession(proxyHandlerSession), m_proxyDownload(NULL), m_downloadReaderId(-1), m_lastPartRead(0), m_closed(false)
 {
+    m_proxyHandlerDependentObjectId = m_proxyHandlerSession->registerDependentObject();
     m_proxyDownloads = ProxyDownloads::instance();
+
+    connect(m_proxyHandlerSession, SIGNAL(shouldForceQuit()), this, SLOT(forceQuit()));
 }
 
 /**
  * @brief Force finish downloading request, triggered from outside.
  */
-void ProxyOutputWriter::finish()
+void ProxyOutputWriter::forceQuit()
 {
     m_readingMutex.lock();
-    close();
+    if (m_closed) {
+        m_readingMutex.unlock();
+        return;
+    }
+    m_closed = true;
     m_readingMutex.unlock();
+
+    close();
 }
 
 /**
@@ -28,7 +37,7 @@ void ProxyOutputWriter::finish()
  */
 void ProxyOutputWriter::createDownload(ProxyRequest *request)
 {
-    m_proxyDownload = m_proxyDownloads->proxyDownload(request, m_proxyHandler, m_downloadReaderId);
+    m_proxyDownload = m_proxyDownloads->proxyDownload(request, m_proxyHandlerSession, m_downloadReaderId);
     connectProxyDownload();
 
     m_proxyDownload->startDownload();
@@ -39,13 +48,15 @@ void ProxyOutputWriter::createDownload(ProxyRequest *request)
  */
 void ProxyOutputWriter::close()
 {
-    virtualClose();
-
     if (m_proxyDownload) {
         disconnect(m_proxyDownload);
 
         m_proxyDownloads->deregisterDownloadReader(m_proxyDownload, m_downloadReaderId);
+        m_proxyDownload = NULL;
     }
+
+    virtualClose();
+    m_proxyHandlerSession->deregisterDependentObject(m_proxyHandlerDependentObjectId);
 }
 
 /**
@@ -85,7 +96,6 @@ void ProxyOutputWriter::readAvailableParts()
 
     if (callClose) {
         close();
-        emit finished();
     } else {
         emit iAmActive();
     }

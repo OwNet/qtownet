@@ -5,7 +5,7 @@
 #include "proxycacheinputobject.h"
 #include "proxyrequestbus.h"
 #include "proxyrequest.h"
-#include "proxyhandler.h"
+#include "proxyhandlersession.h"
 #include "proxycacheoutputwriter.h"
 #include "proxybytedownloadpart.h"
 #include "proxystreamdownloadpart.h"
@@ -21,11 +21,11 @@
  * @param handler ProxyHandler object
  * @param parent QObject parent
  */
-ProxyDownload::ProxyDownload(ProxyRequest *request, ProxyHandler *handler, QObject *parent) :
-    QObject(parent), m_inputObject(NULL), m_proxyHandler(handler), m_nextReaderId(1), m_shareDownload(false)
+ProxyDownload::ProxyDownload(ProxyRequest *request, ProxyHandlerSession *handlerSession, QObject *parent) :
+    QObject(parent), m_inputObject(NULL), m_proxyHandlerSession(handlerSession), m_nextReaderId(1), m_shareDownload(false)
 {
     m_hashCode = request->hashCode();
-    m_proxyHandlerDependentObjectId = m_proxyHandler->registerDependentObject();
+    m_proxyHandlerDependentObjectId = m_proxyHandlerSession->registerDependentObject();
 
     if (request->isStaticResourceRequest()) {
         m_inputObject = new ProxyStaticInputObject(request, this);
@@ -36,7 +36,7 @@ ProxyDownload::ProxyDownload(ProxyRequest *request, ProxyHandler *handler, QObje
     }
 
     if (m_shareDownload)
-        new ProxyCacheOutputWriter(this, m_proxyHandler, this);
+        new ProxyCacheOutputWriter(this, registerReader(), m_proxyHandlerSession);
 
     connect(m_inputObject, SIGNAL(finished()), this, SLOT(inputObjectFinished()));
     connect(m_inputObject, SIGNAL(failed()), this, SLOT(inputObjectError()));
@@ -95,7 +95,7 @@ void ProxyDownload::startDownload()
  */
 void ProxyDownload::close()
 {
-    m_proxyHandler->deregisterDependentObject(m_proxyHandlerDependentObjectId);
+    m_proxyHandlerSession->deregisterDependentObject(m_proxyHandlerDependentObjectId);
 }
 
 /**

@@ -11,6 +11,7 @@ public:
     explicit ApplicationDataStorage(QObject *parent = 0);
 
     QDir appDataDirectory();
+    QDir appResourcesDirectory();
     
 signals:
     
