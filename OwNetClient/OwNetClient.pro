@@ -63,7 +63,8 @@ SOURCES += main.cpp\
     jobs/proxytrafficcounterjob.cpp \
     proxy/proxyhandlersession.cpp \
     helpers/settings.cpp \
-    view/preferencesdialog.cpp
+    view/preferencesdialog.cpp \
+    init/settingsinitializer.cpp
 
 HEADERS  += view/mainwindow.h \
         proxy/proxyserver.h \
@@ -120,7 +121,8 @@ HEADERS  += view/mainwindow.h \
     jobs/proxytrafficcounterjob.h \
     proxy/proxyhandlersession.h \
     helpers/settings.h \
-    view/preferencesdialog.h
+    view/preferencesdialog.h \
+    init/settingsinitializer.h
 
 FORMS    += view/mainwindow.ui \
     view/preferencesdialog.ui

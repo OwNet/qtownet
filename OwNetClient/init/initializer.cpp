@@ -1,6 +1,7 @@
 #include "initializer.h"
 #include "applicationproxyfactory.h"
 #include "messagehelper.h"
+#include "settingsinitializer.h"
 
 #include <QCoreApplication>
 
@@ -20,6 +21,7 @@ void Initializer::init()
     m_proxyInitializer.init();
     m_moduleInitializer.init();
     m_jobInitializer.init();
+    SettingsInitializer().init();
 
     MessageHelper::debug("Proxy initialized and waiting for requests.");
 }

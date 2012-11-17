@@ -14,6 +14,7 @@ PreferencesDialog::PreferencesDialog(QWidget *parent) :
 
     connect(this, SIGNAL(accepted()), this, SLOT(savePreferences()));
     connect(this->ui->btnAppDataBrowse, SIGNAL(clicked()), this, SLOT(browseAppData()));
+    connect(this->ui->btnAppResourcesBrowse, SIGNAL(clicked()), this, SLOT(browseAppResources()));
 
     loadSettings();
 }
@@ -27,9 +28,13 @@ void PreferencesDialog::savePreferences()
 {
     Settings settings;
 
-    QDir appData(ui->leAppDataPath->text());
-    if (appData.exists())
-        settings.setValue("application/data_folder_path", appData.absolutePath());
+    QDir dir(ui->leAppDataPath->text());
+    if (dir.exists())
+        settings.setValue("application/data_folder_path", dir.absolutePath());
+
+    dir.setPath(ui->leAppResourcesPath->text());
+    if (dir.exists())
+        settings.setValue("application/resources_folder_path", dir.absolutePath());
 }
 
 void PreferencesDialog::browseAppData()
@@ -42,8 +47,19 @@ void PreferencesDialog::browseAppData()
         ui->leAppDataPath->setText(dir);
 }
 
+void PreferencesDialog::browseAppResources()
+{
+    QString dir = QFileDialog::getExistingDirectory(this, tr("Open Directory"),
+                                                    QDir::homePath(),
+                                                    QFileDialog::ShowDirsOnly
+                                                    | QFileDialog::DontResolveSymlinks);
+    if (!dir.isNull())
+        ui->leAppResourcesPath->setText(dir);
+}
+
 void PreferencesDialog::loadSettings()
 {
     ApplicationDataStorage appData;
     ui->leAppDataPath->setText(appData.appDataDirectory().absolutePath());
+    ui->leAppResourcesPath->setText(appData.appResourcesDirectory().absolutePath());
 }

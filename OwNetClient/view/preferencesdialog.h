@@ -18,6 +18,7 @@ public:
 private slots:
     void savePreferences();
     void browseAppData();
+    void browseAppResources();
     
 private:
     void loadSettings();
