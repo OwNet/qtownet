@@ -61,7 +61,9 @@ SOURCES += main.cpp\
     helpers/applicationproxyfactory.cpp \
     proxy/proxytrafficcounter.cpp \
     jobs/proxytrafficcounterjob.cpp \
-    proxy/proxyhandlersession.cpp
+    proxy/proxyhandlersession.cpp \
+    helpers/settings.cpp \
+    view/preferencesdialog.cpp
 
 HEADERS  += view/mainwindow.h \
         proxy/proxyserver.h \
@@ -116,9 +118,12 @@ HEADERS  += view/mainwindow.h \
     helpers/applicationproxyfactory.h \
     proxy/proxytrafficcounter.h \
     jobs/proxytrafficcounterjob.h \
-    proxy/proxyhandlersession.h
+    proxy/proxyhandlersession.h \
+    helpers/settings.h \
+    view/preferencesdialog.h
 
-FORMS    += view/mainwindow.ui
+FORMS    += view/mainwindow.ui \
+    view/preferencesdialog.ui
 
 INCLUDEPATH += proxy \
     init \
@@ -131,3 +136,6 @@ INCLUDEPATH += proxy \
     jobs \
     cache \
     database
+
+RESOURCES += \
+    resources.qrc

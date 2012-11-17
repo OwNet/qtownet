@@ -2,6 +2,8 @@
 #include "applicationenvironment.h"
 #include "messagehelper.h"
 
+#include "settings.h"
+
 #include <QDesktopServices>
 
 ApplicationDataStorage::ApplicationDataStorage(QObject *parent) :
@@ -16,12 +18,17 @@ QDir ApplicationDataStorage::appDataDirectory()
         return QDir(ApplicationEnvironment().value("OWNET_APP_DATA_DIR_NAME"));
     else
     {
-        QDir dir(QDesktopServices::storageLocation(QDesktopServices::DataLocation));
+        QDir dir;
+        Settings settings;
+        if (settings.contains("application/data_folder_path")) {
+            dir.setPath(settings.value("application/data_folder_path").toString());
+        } else {
+            dir.setPath(QDesktopServices::storageLocation(QDesktopServices::DataLocation));
+            if (!dir.exists("OwNetClient"))
+                dir.mkdir("OwNetClient");
+            dir.cd("OwNetClient");
+        }
 
-        if (!dir.exists("OwNetClient"))
-            dir.mkdir("OwNetClient");
-
-        dir.cd("OwNetClient");
         return dir;
     }
 }

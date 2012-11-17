@@ -2,12 +2,17 @@
 #include "applicationproxyfactory.h"
 #include "messagehelper.h"
 
+#include <QCoreApplication>
+
 Initializer::Initializer()
 {
 }
 
 void Initializer::init()
 {
+    QCoreApplication::setOrganizationName("The Reconnected");
+    QCoreApplication::setApplicationName("OwNet Client");
+
     // manage proxies to stub network
     QNetworkProxyFactory::setApplicationProxyFactory(new ApplicationProxyFactory());
 
