@@ -16,7 +16,7 @@ QDir ApplicationDataStorage::appDataDirectory()
         return QDir(ApplicationEnvironment().value("OWNET_APP_DATA_DIR_NAME"));
     else
     {
-        QDir dir(QDesktopServices::storageLocation(QDesktopServices::DataLocation));
+        QDir dir(QStandardPaths::writableLocation(QStandardPaths::DataLocation));
 
         if (!dir.exists("OwNetClient"))
             dir.mkdir("OwNetClient");

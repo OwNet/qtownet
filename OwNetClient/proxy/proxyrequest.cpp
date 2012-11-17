@@ -26,6 +26,7 @@ bool ProxyRequest::readFromSocket()
             if (tuple.count() > 1) {
                 m_requestMethod = tuple.first().toLower();
                 m_qUrl = QUrl::fromEncoded(tuple.at(1).toUtf8());
+                m_qUrlQuery = QUrlQuery(m_qUrl);
             } else {
                 return false;
             }
@@ -181,7 +182,7 @@ void ProxyRequest::analyzeUrl()
 {
     m_hashCode = qHash(url());
 
-    QStringList domainSplit = QString(m_qUrl.encodedHost()).split(".");
+    QStringList domainSplit = QString(m_qUrl.host(QUrl::FullyEncoded)).split(".");
     if (domainSplit.first() == "www")
         domainSplit.takeFirst();
 
