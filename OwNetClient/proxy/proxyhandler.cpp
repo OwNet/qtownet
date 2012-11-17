@@ -8,6 +8,7 @@
 #include "proxydownloads.h"
 #include "proxydownload.h"
 #include "proxysocketoutputwriter.h"
+#include "proxyhandlersession.h"
 
 #include <QRegExp>
 #include <QWidget>
@@ -18,11 +19,10 @@
 #include <QApplication>
 
 ProxyHandler::ProxyHandler(int handlerId, QObject *parent)
-    : QObject(parent), m_handlerId(handlerId), m_isActive(false), m_timeoutTimer(NULL)
+    : QObject(parent), m_handlerId(handlerId), m_isActive(false), m_timeoutTimer(NULL), m_proxyHandlerSession(NULL)
 {
     m_openSemaphore = new QSemaphore(1);
     connect(this, SIGNAL(start()), this, SLOT(handleRequest()));
-    connect(this, SIGNAL(finish()), this, SLOT(finishHandling()));
 }
 
 ProxyHandler::~ProxyHandler()
@@ -37,34 +37,9 @@ void ProxyHandler::setDescriptorAndStart(int desc) {
     emit start();
 }
 
-void ProxyHandler::triggerFinish()
+void ProxyHandler::dispose()
 {
-    emit finish();
-}
-
-int ProxyHandler::registerDependentObject()
-{
-    QMutexLocker mutexLocker(&m_dependentObjectsMutex);
-
-    int objectId = m_lastDependentObjectId++;
-    m_dependentObjects.append(objectId);
-    return objectId;
-}
-
-void ProxyHandler::deregisterDependentObject(int objectId)
-{
-    QMutexLocker mutexLocker(&m_dependentObjectsMutex);
-
-    m_dependentObjects.removeAll(objectId);
-    if (!m_dependentObjects.count() && !m_isActive)
-        emit canBeDisposed(this);
-}
-
-bool ProxyHandler::hasDependentObjects()
-{
-    QMutexLocker mutexLocker(&m_dependentObjectsMutex);
-
-    return m_dependentObjects.count() > 0;
+    emit disposeThread();
 }
 
 void ProxyHandler::handleRequest()
@@ -72,20 +47,22 @@ void ProxyHandler::handleRequest()
     m_timeoutTimer = new QTimer(this);
     connect(m_timeoutTimer, SIGNAL(timeout()), this, SLOT(requestTimeout()));
 
-    m_socketOutputWriter = new ProxySocketOutputWriter(m_socketDescriptor, this);
-    connect(m_socketOutputWriter, SIGNAL(finished()), this, SLOT(downloadFinished()));
-    connect(m_socketOutputWriter, SIGNAL(iAmActive()), this, SLOT(restartTimeout()));
+    m_proxyHandlerSession = new ProxyHandlerSession(this);
+    connect(m_proxyHandlerSession, SIGNAL(allFinished()), this, SLOT(proxyHandlerSessionFinished()));
 
-    m_socketOutputWriter->startDownload();
+    ProxySocketOutputWriter *socketOutputWriter = new ProxySocketOutputWriter(m_socketDescriptor, m_proxyHandlerSession);
+    connect(socketOutputWriter, SIGNAL(iAmActive()), this, SLOT(restartTimeout()));
+
+    socketOutputWriter->startDownload();
     m_timeoutTimer->start(Timeout);
 }
 
 void ProxyHandler::requestTimeout()
 {
-    if (m_socketOutputWriter)
-        m_socketOutputWriter->finish();
+    m_timeoutTimer->stop();
 
-    finishHandlingRequest();
+    if (m_proxyHandlerSession)
+        m_proxyHandlerSession->forceQuitAll();
 }
 
 void ProxyHandler::restartTimeout()
@@ -96,7 +73,13 @@ void ProxyHandler::restartTimeout()
     }
 }
 
-void ProxyHandler::finishHandlingRequest()
+void ProxyHandler::finishHandling()
+{
+    if (m_proxyHandlerSession)
+        m_proxyHandlerSession->forceQuitAll();
+}
+
+void ProxyHandler::proxyHandlerSessionFinished()
 {
     if (m_timeoutTimer) {
         m_timeoutTimer->stop();
@@ -104,34 +87,13 @@ void ProxyHandler::finishHandlingRequest()
         m_timeoutTimer = NULL;
     }
 
-    if (m_socketOutputWriter) {
+    if (m_proxyHandlerSession) {
         qApp->processEvents();
-        m_socketOutputWriter->deleteLater();
-        m_socketOutputWriter = NULL;
+        m_proxyHandlerSession->deleteLater();
+        m_proxyHandlerSession = NULL;
 
         m_openSemaphore->release();
         emit requestFinished(this);
     }
-}
-
-void ProxyHandler::error(QNetworkReply::NetworkError)
-{
-    QNetworkReply *reply = qobject_cast<QNetworkReply*>(sender());
-    MessageHelper::debug(reply->errorString());
-    finishHandlingRequest();
-}
-
-void ProxyHandler::downloadFinished()
-{
-    finishHandlingRequest();
-}
-
-void ProxyHandler::finishHandling()
-{
-    if (m_socketOutputWriter)
-        m_socketOutputWriter->finish();
-
-    finishHandlingRequest();
-    emit finished();
     m_isActive = false;
 }

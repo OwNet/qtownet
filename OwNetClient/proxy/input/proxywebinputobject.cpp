@@ -17,7 +17,7 @@ ProxyWebInputObject::ProxyWebInputObject(ProxyRequest *request, QObject *parent)
 
 void ProxyWebInputObject::readRequest()
 {
-    QNetworkAccessManager *manager = new QNetworkAccessManager(m_request->socket());
+    QNetworkAccessManager *manager = new QNetworkAccessManager(parent());
     QNetworkReply *reply = NULL;
     QNetworkRequest request;
 

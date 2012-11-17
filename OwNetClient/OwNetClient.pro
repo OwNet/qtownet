@@ -60,7 +60,8 @@ SOURCES += main.cpp\
     helpers/applicationenvironment.cpp \
     helpers/applicationproxyfactory.cpp \
     proxy/proxytrafficcounter.cpp \
-    jobs/proxytrafficcounterjob.cpp
+    jobs/proxytrafficcounterjob.cpp \
+    proxy/proxyhandlersession.cpp
 
 HEADERS  += view/mainwindow.h \
         proxy/proxyserver.h \
@@ -114,7 +115,8 @@ HEADERS  += view/mainwindow.h \
     helpers/applicationenvironment.h \
     helpers/applicationproxyfactory.h \
     proxy/proxytrafficcounter.h \
-    jobs/proxytrafficcounterjob.h
+    jobs/proxytrafficcounterjob.h \
+    proxy/proxyhandlersession.h
 
 FORMS    += view/mainwindow.ui
 

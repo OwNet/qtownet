@@ -24,7 +24,6 @@ public:
     };
 
 private slots:
-    void disposeHandlerIfNecessary(ProxyHandler *handler);
     void proxyRequestFinished(ProxyHandler * handler);
 
 protected:
@@ -32,7 +31,6 @@ protected:
 
 private:
     ProxyHandler *initializeProxyHandler();
-    void disposeHandler(ProxyHandler *handler);
 
     QQueue<int> m_freeHandlerIds;
     QMap<int, ProxyHandler *> m_handlersMap;

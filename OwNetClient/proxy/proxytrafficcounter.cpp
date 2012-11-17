@@ -1,7 +1,7 @@
 #include "proxytrafficcounter.h"
 
-ProxyTrafficCounter::ProxyTrafficCounter(QObject *parent) :
-    QObject(parent), m_trafficArrayIndex(0), m_currentTraffic(0)
+ProxyTrafficCounter::ProxyTrafficCounter(QObject *parent)
+    : QObject(parent), m_trafficArrayIndex(0), m_currentTraffic(0)
 {
     for (int i = 0; i < TrafficArraySize; ++i)
         m_traffic[i] = 0;

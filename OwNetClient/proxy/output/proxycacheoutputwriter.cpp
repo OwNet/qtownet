@@ -15,14 +15,15 @@
 #include <QSqlQuery>
 #include <QSqlRecord>
 
-ProxyCacheOutputWriter::ProxyCacheOutputWriter(ProxyDownload *download, ProxyHandler *proxyHandler, QObject *parent)
-    : ProxyOutputWriter(proxyHandler, parent), m_partSizeWritten(0), m_sizeWritten(0), m_numParts(0), m_failed(false)
+ProxyCacheOutputWriter::ProxyCacheOutputWriter(ProxyDownload *download, int downloadReaderId, ProxyHandlerSession *proxyHandlerSession)
+    : ProxyOutputWriter(proxyHandlerSession), m_partSizeWritten(0), m_sizeWritten(0), m_numParts(0), m_failed(false), m_firstRead(true)
 {
+    m_downloadReaderId = downloadReaderId;
     m_proxyDownload = download;
     m_request = m_proxyDownload->inputObject()->request();
+    m_hashCode = m_request->hashCode();
     createCacheFile();
     connectProxyDownload();
-    m_downloadReaderId = m_proxyDownload->registerReader();
 }
 
 /**
@@ -43,9 +44,18 @@ void ProxyCacheOutputWriter::virtualClose()
  */
 void ProxyCacheOutputWriter::read(QIODevice *ioDevice)
 {
+    if (m_firstRead) {
+        m_firstRead = false;
+        m_url = m_request->url();
+        m_requestHeaders = m_request->requestHeaders().toString();
+        m_responseHeaders = m_proxyDownload->inputObject()->responseHeaders().toString();
+        m_statusCode = m_proxyDownload->inputObject()->httpStatusCode().toInt();
+        m_statusDescription = m_proxyDownload->inputObject()->httpStatusDescription();
+    }
     if (m_partSizeWritten > MaxFileSize) {
         m_cacheFile->close();
         delete m_cacheFile;
+        m_cacheFile = NULL;
 
         createCacheFile();
     }
@@ -61,9 +71,12 @@ void ProxyCacheOutputWriter::read(QIODevice *ioDevice)
  */
 void ProxyCacheOutputWriter::save()
 {
+    if (m_firstRead)
+        return;
+
     QSqlQuery sqlQuery;
     sqlQuery.prepare("SELECT access_count FROM caches WHERE id = :id LIMIT 1");
-    sqlQuery.bindValue(":id", m_proxyDownload->hashCode());
+    sqlQuery.bindValue(":id", m_hashCode);
     int accessCount = 0;
 
     DatabaseUpdateQuery::EntryType entryType = DatabaseUpdateQuery::Insert;
@@ -77,14 +90,14 @@ void ProxyCacheOutputWriter::save()
     DatabaseUpdate update;
     DatabaseUpdateQuery *query = update.createUpdateQuery("caches", entryType);
     query->setUpdateDates(true);
-    query->setWhere("id", m_proxyDownload->hashCode());
-    query->setColumnValue("id", m_proxyDownload->hashCode());
-    query->setColumnValue("absolute_uri", m_request->url());
-    query->setColumnValue("request_headers", m_request->requestHeaders().toString());
-    query->setColumnValue("response_headers", m_proxyDownload->inputObject()->responseHeaders().toString());
+    query->setWhere("id", m_hashCode);
+    query->setColumnValue("id", m_hashCode);
+    query->setColumnValue("absolute_uri", m_url);
+    query->setColumnValue("request_headers", m_requestHeaders);
+    query->setColumnValue("response_headers", m_responseHeaders);
     query->setColumnValue("num_parts", m_numParts);
-    query->setColumnValue("status_code", m_proxyDownload->inputObject()->httpStatusCode().toInt());
-    query->setColumnValue("status_description", m_proxyDownload->inputObject()->httpStatusDescription());
+    query->setColumnValue("status_code", m_statusCode);
+    query->setColumnValue("status_description", m_statusDescription);
     query->setColumnValue("size", m_sizeWritten);
     query->setColumnValue("access_value", ProxyDownloads::instance()->gdsfClock()->getGDSFPriority(accessCount, m_sizeWritten));
 
@@ -103,7 +116,7 @@ void ProxyCacheOutputWriter::error()
 
     CacheFolder cacheFolder;
     for (int i = 0; i < m_numParts; ++i) {
-        QFile *file = cacheFolder.cacheFile(m_request, i);
+        QFile *file = cacheFolder.cacheFile(m_hashCode, i);
         if (file->exists())
             file->remove();
         delete file;
@@ -116,7 +129,7 @@ void ProxyCacheOutputWriter::error()
 void ProxyCacheOutputWriter::createCacheFile()
 {
     CacheFolder cacheFolder;
-    m_cacheFile = cacheFolder.cacheFile(m_request, m_numParts, this);
+    m_cacheFile = cacheFolder.cacheFile(m_hashCode, m_numParts, this);
     m_cacheFile->open(QIODevice::WriteOnly);
     m_numParts++;
     m_partSizeWritten = 0;

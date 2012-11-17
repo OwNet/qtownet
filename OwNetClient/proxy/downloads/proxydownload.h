@@ -9,7 +9,7 @@
 
 class ProxyInputObject;
 class ProxyRequest;
-class ProxyHandler;
+class ProxyHandlerSession;
 class QIODevice;
 class ProxyDownloadPart;
 
@@ -21,7 +21,7 @@ class ProxyDownload : public QObject
 {
     Q_OBJECT
 public:
-    ProxyDownload(ProxyRequest *request, ProxyHandler *handler, QObject *parent = 0);
+    ProxyDownload(ProxyRequest *request, ProxyHandlerSession *handlerSession, QObject *parent = 0);
 
     ProxyInputObject *inputObject() { return m_inputObject; }
 
@@ -52,7 +52,7 @@ private:
     ProxyInputObject *webInputObject(ProxyRequest *request);
 
     ProxyInputObject *m_inputObject;
-    ProxyHandler *m_proxyHandler;
+    ProxyHandlerSession *m_proxyHandlerSession;
 
     QMutex m_downloadPartsMutex;
     QList<ProxyDownloadPart *> m_downloadParts;

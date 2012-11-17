@@ -12,6 +12,7 @@ class ProxyInputObject;
 class ProxyRequest;
 class ProxyDownloads;
 class ProxySocketOutputWriter;
+class ProxyHandlerSession;
 
 class ProxyHandler : public QObject
 {
@@ -26,43 +27,31 @@ public:
     ~ProxyHandler();
 
     void setDescriptorAndStart(int handle);
-    void triggerFinish();
-
-    int registerDependentObject();
-    void deregisterDependentObject(int objectId);
-    bool hasDependentObjects();
 
     bool isActive() { return m_isActive; }
     int handlerId() { return m_handlerId; }
+    void dispose();
 
 signals:
-    void error(QTcpSocket::SocketError socketError);
-    void finished();
     void requestFinished(ProxyHandler *);
     void start();
-    void finish();
-    void canBeDisposed(ProxyHandler *);
+    void disposeThread();
+
+public slots:
+    void proxyHandlerSessionFinished();
 
 private slots:
-    void error(QNetworkReply::NetworkError);
     void handleRequest();
     void requestTimeout();
     void restartTimeout();
-    void downloadFinished();
     void finishHandling();
 
 private:
-    void finishHandlingRequest();
-
     int m_socketDescriptor;
     int m_handlerId;
     bool m_isActive;
 
-    QList<int> m_dependentObjects;
-    int m_lastDependentObjectId;
-    QMutex m_dependentObjectsMutex;
-
-    ProxySocketOutputWriter *m_socketOutputWriter;
+    ProxyHandlerSession *m_proxyHandlerSession;
     QSemaphore *m_openSemaphore;
     QTimer *m_timeoutTimer;
 };

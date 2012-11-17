@@ -15,7 +15,7 @@ ProxyByteDownloadPart::~ProxyByteDownloadPart()
 
 QIODevice *ProxyByteDownloadPart::stream()
 {
-    QBuffer *buffer = new QBuffer(m_bytes);
+    QBuffer *buffer = new QBuffer(m_bytes, this);
     buffer->open(QIODevice::ReadOnly);
 
     return buffer;
