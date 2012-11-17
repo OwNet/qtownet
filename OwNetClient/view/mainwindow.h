@@ -17,8 +17,11 @@ public:
 
 private slots:
     void showPreferences();
+    void openMyOwNet();
     
 private:
+    void createTrayIcon();
+
     Ui::MainWindow *ui;
 };
 
