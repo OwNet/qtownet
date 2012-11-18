@@ -29,8 +29,7 @@ void DatabaseInitializer::init()
 void DatabaseInitializer::openDatabase()
 {
     // configure stub database name
-    QString databaseName = ApplicationEnvironment().value("OWNET_DATABASE_NAME",
-                                           ApplicationDataStorage().appDataDirectory().absoluteFilePath("ownet.sqlite"));
+    QString databaseName = ApplicationDataStorage().appDataDirectory().absoluteFilePath("ownet.sqlite");
 
     MessageHelper::debug(QObject::tr("Opening database %1")
                          .arg(databaseName));

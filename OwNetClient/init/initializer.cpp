@@ -17,11 +17,11 @@ void Initializer::init()
     // manage proxies to stub network
     QNetworkProxyFactory::setApplicationProxyFactory(new ApplicationProxyFactory());
 
+    SettingsInitializer().init();
     m_databaseInitializer.init();
     m_proxyInitializer.init();
     m_moduleInitializer.init();
     m_jobInitializer.init();
-    SettingsInitializer().init();
 
     MessageHelper::debug("Proxy initialized and waiting for requests.");
 }
