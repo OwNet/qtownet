@@ -60,24 +60,20 @@ void ProxyWebInputObject::readReply()
 {
     QNetworkReply *reply = qobject_cast<QNetworkReply*>(sender());
 
-    if (!m_readHeaders) {
-        m_readHeaders = true;
+    if (!m_readHeaders)
+        readResponseHeaders(reply);
 
-        m_httpStatusCode = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toString();
-        m_httpStatusDescription = reply->attribute(QNetworkRequest::HttpReasonPhraseAttribute).toString();
-        if (m_httpStatusDescription.isNull())
-            m_httpStatusDescription = "";
-
-        QList<QNetworkReply::RawHeaderPair> headers = reply->rawHeaderPairs();
-        for (int i = 0; i < headers.count(); ++i)
-            addHeader(headers.at(i).first, headers.at(i).second);
-    }
     emit readyRead(reply);
 }
 
 void ProxyWebInputObject::error(QNetworkReply::NetworkError)
 {
     QNetworkReply *reply = qobject_cast<QNetworkReply*>(sender());
+    if (!m_readHeaders) {
+        readResponseHeaders(reply);
+
+        emit readyRead(new QBuffer());
+    }
     MessageHelper::debug(reply->errorString());
 
     disconnect(this);
@@ -86,6 +82,27 @@ void ProxyWebInputObject::error(QNetworkReply::NetworkError)
 
 void ProxyWebInputObject::downloadFinished()
 {
+    if (!m_readHeaders) {
+        QNetworkReply *reply = qobject_cast<QNetworkReply*>(sender());
+        readResponseHeaders(reply);
+
+        emit readyRead(new QBuffer());
+    }
+
     disconnect(this);
     emit finished();
+}
+
+void ProxyWebInputObject::readResponseHeaders(QNetworkReply *reply)
+{
+    m_readHeaders = true;
+
+    m_httpStatusCode = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toString();
+    m_httpStatusDescription = reply->attribute(QNetworkRequest::HttpReasonPhraseAttribute).toString();
+    if (m_httpStatusDescription.isNull())
+        m_httpStatusDescription = "";
+
+    QList<QNetworkReply::RawHeaderPair> headers = reply->rawHeaderPairs();
+    for (int i = 0; i < headers.count(); ++i)
+        addHeader(headers.at(i).first, headers.at(i).second);
 }

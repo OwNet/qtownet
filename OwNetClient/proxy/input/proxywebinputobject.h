@@ -19,6 +19,7 @@ private slots:
     void readReply();
     void error(QNetworkReply::NetworkError);
     void downloadFinished();
+    void readResponseHeaders(QNetworkReply *reply);
 
 private:
     bool m_readHeaders;
