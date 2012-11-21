@@ -34,7 +34,6 @@ SOURCES += main.cpp\
     proxy/input/bus/proxyrequestbus.cpp \
     modules/imodule.cpp \
     init/moduleinitializer.cpp \
-    modules/ibus.cpp \
     init/databaseinitializer.cpp \
     modules/databasemodule.cpp \
     proxy/downloads/proxydownloads.cpp \
@@ -122,7 +121,8 @@ HEADERS  += view/mainwindow.h \
     proxy/proxyhandlersession.h \
     helpers/settings.h \
     view/preferencesdialog.h \
-    init/settingsinitializer.h
+    init/settingsinitializer.h \
+    modules/irequest.h
 
 FORMS    += view/mainwindow.ui \
     view/preferencesdialog.ui

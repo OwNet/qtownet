@@ -1,62 +1,40 @@
 #ifndef IMODULE_H
 #define IMODULE_H
 
+#include "ibus.h"
+
 #include <QObject>
 #include <QString>
-#include "ibus.h"
 #include <QByteArray>
-
-
-class IModule;
+#include <QtPlugin>
 
 /**
  * @brief The IModule class Interface for Modules (Abstract class)
  */
-class IModule : public QObject
+class IModule
 {
-
-    Q_OBJECT
 public:
+    virtual QString url() const = 0;
 
-
-    explicit IModule(QObject *parent = 0);
-    const QString &url() { return m_url;}
-
-    /**
-     * @brief processRequest Virtual function for Processing request from proxy/
-     *        every module derived from IModule has to implement this function in it's own way
-     * @param bus
-     * @param req
-     * @return  response Bytes
-     */
-    QByteArray* processRequest(IBus *bus, ProxyRequest *req);
-
-protected:
-    void setUrl(QString url) { m_url = url;}
-
-signals:
-    
-public slots:
+    QByteArray* processRequest(IBus *bus, IRequest *req);
 
 private:
-    QString m_url;
-
-
-
-    virtual QByteArray* index(IBus *,  ProxyRequest *){return new QByteArray();}
+    virtual QByteArray *index(IBus *, IRequest *) { return new QByteArray(); }
 
     // create element
-    virtual QByteArray* create(IBus *,  ProxyRequest *){return new QByteArray();}
+    virtual QByteArray *create(IBus *, IRequest *) { return new QByteArray(); }
 
     // show element
-    virtual QByteArray* show( IBus *,  ProxyRequest *){return new QByteArray();}
+    virtual QByteArray *show(IBus *, IRequest *) { return new QByteArray(); }
 
     //delete element
-    virtual QByteArray* del( IBus *,  ProxyRequest *){return new QByteArray();}
+    virtual QByteArray *del(IBus *, IRequest *) { return new QByteArray(); }
 
     //edit element
-    virtual QByteArray* edit( IBus *,  ProxyRequest *){return new QByteArray();}
-
+    virtual QByteArray *edit(IBus *, IRequest *) { return new QByteArray(); }
 };
+
+Q_DECLARE_INTERFACE(IModule,
+                     "com.thereconnected.OwNet.IModule/1.0")
 
 #endif // IMODULE_H

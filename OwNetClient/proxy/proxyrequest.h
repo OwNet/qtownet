@@ -2,6 +2,7 @@
 #define PROXYREQUEST_H
 
 #include "listofstringpairs.h"
+#include "irequest.h"
 
 #include <QNetworkRequest>
 #include <QMap>
@@ -14,24 +15,16 @@ class QTcpSocket;
 /**
  * @brief Represents all the information about the request received by proxy.
  */
-class ProxyRequest : public QObject
+class ProxyRequest : public QObject, public IRequest
 {
     Q_OBJECT
 
 public:
-    enum RequestType {
-        GET,
-        POST,
-        PUT,
-        DELETE,
-        UNKNOWN
-    };
-
     ProxyRequest(QTcpSocket *socket, QObject *parent = 0);
     QVariantMap postBodyFromJson() const;
     QMap<QString, QString> postBodyFromForm() const;
     bool readFromSocket();
-    ProxyRequest::RequestType requestType() const;
+    IRequest::RequestType requestType() const;
     ListOfStringPairs requestHeaders() const { return m_requestHeaders; }
 
     QUrl qUrl() const { return m_qUrl; }
@@ -52,7 +45,7 @@ public:
 
     bool isLocalRequest() const { return m_domain == "ownet"; }
     bool isStaticResourceRequest() const;
-    bool isApiRequst() const { return m_isApiRequest; }
+    bool isApiRequest() const { return m_isApiRequest; }
 
     QTcpSocket *socket() const { return m_socket; }
 

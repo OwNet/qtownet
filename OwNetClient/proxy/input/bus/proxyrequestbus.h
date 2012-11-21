@@ -4,7 +4,6 @@
 #include "proxyinputobject.h"
 #include "imodule.h"
 #include "ibus.h"
-#include <QByteArray>
 
 class ProxyRequest;
 class QIODevice;
@@ -13,17 +12,16 @@ class ProxyRequestBus : public ProxyInputObject, public IBus
 {
     Q_OBJECT
 
-
 public:
     ProxyRequestBus(ProxyRequest *request, QObject *parent = 0);
 
     const QString httpStatusCode() { return QString::number(200); }
     const QString httpStatusDescription() { return "OK"; }
 
-    QByteArray* callModule(ProxyRequest *req);
+    QByteArray* callModule(IRequest *req);
     void setHttpStatus(int code, const QString &description);
 
-    static void registerModule(IModule *newModule, QString url);
+    static void registerModule(IModule *newModule);
 
 protected:
     void readRequest();

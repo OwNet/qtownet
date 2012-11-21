@@ -8,24 +8,21 @@
 
 class SessionModule : public IModule
 {
-    Q_OBJECT
 public:
-    explicit SessionModule(QObject *parent = 0);
+    explicit SessionModule();
+
+    QString url() const { return "session"; }
 
     // check whether user is logged in or not
     bool isLoggedIn();
-    
-signals:
-    
-public slots:
 
 private:
 
     // create session
-    QByteArray* create(IBus *bus, ProxyRequest *req);
+    QByteArray *create(IBus *bus, IRequest *req);
 
     //delete element
-    QByteArray* del( IBus *bus, ProxyRequest *req);
+    QByteArray *del(IBus *bus, IRequest *req);
 
    /* // show element
     QByteArray* show( IBus *bus, ProxyRequest *req);

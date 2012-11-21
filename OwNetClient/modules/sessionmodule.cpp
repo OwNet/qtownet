@@ -4,10 +4,8 @@
 #include "helpers/qjson/parser.h"
 #include "helpers/qjson/serializer.h"
 
-SessionModule::SessionModule(QObject *parent) :
-    IModule(parent)
+SessionModule::SessionModule()
 {
-    setUrl("session");
 }
 
 bool SessionModule::isLoggedIn()
@@ -15,7 +13,7 @@ bool SessionModule::isLoggedIn()
     return this->m_sessionData.contains("logged");
 }
 
-QByteArray* SessionModule::create(IBus *bus, ProxyRequest *req)
+QByteArray *SessionModule::create(IBus *bus, IRequest *req)
 {
     QJson::Parser *p = new QJson::Parser();
     QVariantMap reqJson;
@@ -24,15 +22,14 @@ QByteArray* SessionModule::create(IBus *bus, ProxyRequest *req)
     bool ok;
 
     // if user is already loggedIn
-    if(isLoggedIn()){
+    if (isLoggedIn()) {
         bus->setHttpStatus(400,"Bad Request");
         return new QByteArray();
     }
 
     reqJson = p->parse(req->requestBody(), &ok).toMap();
 
-    if(ok){
-
+    if (ok) {
         QString login = reqJson["login"].toString();
         QString password = reqJson["password"].toString();
 
@@ -41,9 +38,8 @@ QByteArray* SessionModule::create(IBus *bus, ProxyRequest *req)
         q.bindValue(":login",login);
         q.bindValue(":password",password);
 
-        if(q.exec() && q.first())
-        {
-            this->m_sessionData.insert("logged",q.value(0));
+        if (q.exec() && q.first()) {
+            m_sessionData.insert("logged",q.value(0));
             bus->setHttpStatus(201,"Created");
 
             QVariantMap user;
@@ -59,15 +55,15 @@ QByteArray* SessionModule::create(IBus *bus, ProxyRequest *req)
     return new QByteArray();
 }
 
-QByteArray* SessionModule::del(IBus *bus, ProxyRequest *req)
+QByteArray *SessionModule::del(IBus *bus, IRequest *req)
 {
 
-    if(!isLoggedIn()){
-        bus->setHttpStatus(400,"Bad Request");
+    if (!isLoggedIn()) {
+        bus->setHttpStatus(400, "Bad Request");
         return new QByteArray();
     }
 
-    this->m_sessionData.clear();
-    bus->setHttpStatus(204,"No Content");
+    m_sessionData.clear();
+    bus->setHttpStatus(204, "No Content");
     return new QByteArray();
 }

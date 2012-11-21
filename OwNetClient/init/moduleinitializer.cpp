@@ -7,6 +7,10 @@
 #include "usermodule.h"
 #include "sessionmodule.h"
 
+#include <QDir>
+#include <QPluginLoader>
+#include <QApplication>
+
 ModuleInitializer::ModuleInitializer(QObject *parent) :
     QObject(parent)
 {
@@ -14,15 +18,29 @@ ModuleInitializer::ModuleInitializer(QObject *parent) :
 
 void ModuleInitializer::init()
 {
-    QList<IModule*> moduleList;
-
     // here have to be all the used modules
 
-    moduleList.append(new DatabaseModule());
-    moduleList.append(new UserModule());
-    moduleList.append(new SessionModule());
+    ProxyRequestBus::registerModule(new DatabaseModule());
+    ProxyRequestBus::registerModule(new UserModule());
+    ProxyRequestBus::registerModule(new SessionModule());
 
-    for (int i = 0; i < moduleList.count(); i++) {
-        ProxyRequestBus::registerModule(moduleList.at(i), moduleList.at(i)->url());
-   }
+    loadPlugins();
 }
+
+void ModuleInitializer::loadPlugins()
+ {
+     QDir modulesDir = QDir(qApp->applicationDirPath());
+
+     modulesDir.cd("modules");
+
+     foreach (QString fileName, modulesDir.entryList(QDir::Files)) {
+         QPluginLoader loader(modulesDir.absoluteFilePath(fileName));
+         QObject *plugin = loader.instance();
+
+         if (plugin) {
+             IModule *module = qobject_cast<IModule *>(plugin);
+             if (module)
+                 ProxyRequestBus::registerModule(module);
+         }
+     }
+ }

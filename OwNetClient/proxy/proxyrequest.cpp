@@ -159,7 +159,7 @@ QString ProxyRequest::staticResourcePath() const
  */
 bool ProxyRequest::isStaticResourceRequest() const
 {
-    return isLocalRequest() && !isApiRequst();
+    return isLocalRequest() && !isApiRequest();
 }
 
 /**

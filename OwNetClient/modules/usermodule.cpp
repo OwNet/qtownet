@@ -11,15 +11,12 @@
 #include <QSqlRecord>
 #include <database/databaseupdate.h>
 
-UserModule::UserModule(QObject *parent) :
-    IModule(parent)
+UserModule::UserModule()
 {
-    setUrl("users");
-
 }
 
 // create element
-QByteArray* UserModule::create(IBus *bus, ProxyRequest *req)
+QByteArray* UserModule::create(IBus *bus, IRequest *req)
 {
     QJson::Parser *p = new QJson::Parser();
     QVariantMap reqJson;
@@ -91,7 +88,7 @@ QByteArray* UserModule::create(IBus *bus, ProxyRequest *req)
 }
 
 // show element
-QByteArray* UserModule::show( IBus *bus, ProxyRequest *req)
+QByteArray* UserModule::show( IBus *bus, IRequest *req)
 {
     QSqlQuery query;
 
@@ -123,16 +120,16 @@ QByteArray* UserModule::show( IBus *bus, ProxyRequest *req)
 }
 
 //delete element
-QByteArray* UserModule::del( IBus *bus,  ProxyRequest *req)
+QByteArray* UserModule::del( IBus *bus,  IRequest *req)
 {
 }
 
 //edit element
-QByteArray* UserModule::edit( IBus *bus,  ProxyRequest *req)
+QByteArray* UserModule::edit( IBus *bus,  IRequest *req)
 {
 }
 
-QByteArray* UserModule::index( IBus *bus,  ProxyRequest *req)
+QByteArray* UserModule::index( IBus *bus,  IRequest *req)
 {
 
     QSqlQuery query;

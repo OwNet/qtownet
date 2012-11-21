@@ -7,9 +7,10 @@
 
 class DatabaseModule : public IModule
 {
-    Q_OBJECT
 public:
-    explicit DatabaseModule(QObject *parent = NULL);
+    explicit DatabaseModule();
+
+    QString url() const { return "db"; }
 
    /* // create element
     QByteArray* create(IBus *bus, ProxyRequest *req){return new QByteArray;}
@@ -25,14 +26,6 @@ public:
 
     QByteArray* index( IBus *bus,  ProxyRequest *req){return new QByteArray;}
 */
-
-signals:
-
-public slots:
-
-private:
-
-
 };
 
 #endif // DATABASEMODULE_H

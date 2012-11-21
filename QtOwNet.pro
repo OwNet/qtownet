@@ -1,7 +1,8 @@
 TEMPLATE = subdirs
 
 SUBDIRS += \
-    OwNetClient
+    OwNetClient \
+    Modules
 
 INCLUDEPATH += "helpers/qjson/"
 
