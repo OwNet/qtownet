@@ -12,12 +12,12 @@ public:
 
 private:
     // create element
-    QByteArray *create(IBus *bus, IRequest *req);
+    QVariant *create(IBus *bus, IRequest *req);
 
     // show element
-    QByteArray *show(IBus *bus, IRequest *req);
+    QVariant *show(IBus *bus, IRequest *req);
 
-    QByteArray *index(IBus *bus,  IRequest *);
+    QVariant *index(IBus *bus,  IRequest *);
     
 };
 

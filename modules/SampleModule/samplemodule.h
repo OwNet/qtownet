@@ -13,7 +13,7 @@ class SampleModule : public QObject, public IRestModule
 public:
     QString name() const { return "sample"; }
 
-    QByteArray *index(IBus *, IRequest *request);
+    QVariant *index(IBus *, IRequest *request);
 };
 
 #endif // SAMPLEMODULE_H

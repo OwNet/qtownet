@@ -5,7 +5,6 @@
 #include "imodule.h"
 #include "databasemodule.h"
 #include "usermodule.h"
-#include "sessionmodule.h"
 #include "requestrouter.h"
 
 #include <QDir>
@@ -23,7 +22,6 @@ void ModuleInitializer::init()
 
     ProxyRequestBus::registerModule(new RequestRouter(new DatabaseModule(), this));
     ProxyRequestBus::registerModule(new RequestRouter(new UserModule(), this));
-    ProxyRequestBus::registerModule(new RequestRouter(new SessionModule(), this));
 
     loadPlugins();
 }

@@ -4,6 +4,7 @@
 #include "ibus.h"
 #include "imodule.h"
 #include "irestmodule.h"
+#include "qjson/serializer.h"
 
 RequestRouter::RequestRouter(IModule *iModule, QObject *parent)
     : QObject(parent),
@@ -33,6 +34,7 @@ QByteArray *RequestRouter::processRequest(IBus *bus, IRequest *req)
         response = m_iModule->processRequest(bus, req);
     } else if (m_iRestModule) {
         //get right action, also perserve other actions
+        QVariant *json = NULL;
 
         if (req->action() == "" ||
                 req->action() == "index" ||
@@ -43,27 +45,32 @@ QByteArray *RequestRouter::processRequest(IBus *bus, IRequest *req)
 
             //case index
             if (req->id() == -1 && req->requestType() == IRequest::GET)
-                response = m_iRestModule->index(bus, req);
+                json = m_iRestModule->index(bus, req);
 
             //case show
-            else if (req->requestType()== IRequest::GET)
-                response = m_iRestModule->show(bus, req);
+            else if (req->requestType() == IRequest::GET)
+                json = m_iRestModule->show(bus, req);
 
             //case create
             else if (req->requestType() == IRequest::POST)
-                response = m_iRestModule->create(bus, req);
+                json = m_iRestModule->create(bus, req);
 
             //case edit
             else if (req->requestType() == IRequest::PUT)
-                response = m_iRestModule->edit(bus, req);
+                json = m_iRestModule->edit(bus, req);
 
             //case delete
             else if (req->requestType() == IRequest::DELETE)
-                 response = m_iRestModule->del(bus, req);
+                json = m_iRestModule->del(bus, req);
 
             //other actions
             else
-                response = m_iRestModule->processRequest(bus, req);
+                json = m_iRestModule->processRequest(bus, req);
+        }
+        if (json) {
+            QJson::Serializer serializer;
+            response = new QByteArray(serializer.serialize(*json));
+            delete json;
         }
     }
     if (response)

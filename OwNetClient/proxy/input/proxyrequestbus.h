@@ -23,6 +23,8 @@ public:
 
     static void registerModule(RequestRouter *router);
 
+    ISession *session();
+
 protected:
     void readRequest();
 

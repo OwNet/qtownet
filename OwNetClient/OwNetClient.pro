@@ -48,7 +48,6 @@ SOURCES += main.cpp\
     proxy/downloads/proxystreamdownloadpart.cpp \
     proxy/downloads/proxylastdownloadpart.cpp \
     modules/usermodule.cpp \
-    modules/sessionmodule.cpp\
     jobs/job.cpp \
     init/jobinitializer.cpp \
     jobs/cleancachejob.cpp \
@@ -64,7 +63,8 @@ SOURCES += main.cpp\
     view/preferencesdialog.cpp \
     init/settingsinitializer.cpp \
     helpers/variantmap.cpp \
-    modules/requestrouter.cpp
+    modules/requestrouter.cpp \
+    helpers/session.cpp
 
 HEADERS  += view/mainwindow.h \
         proxy/proxyserver.h \
@@ -108,7 +108,6 @@ HEADERS  += view/mainwindow.h \
     proxy/downloads/proxystreamdownloadpart.h \
     proxy/downloads/proxylastdownloadpart.h \
     modules/usermodule.h \
-    modules/sessionmodule.h\
     jobs/job.h \
     init/jobinitializer.h \
     jobs/cleancachejob.h \
@@ -126,7 +125,9 @@ HEADERS  += view/mainwindow.h \
     modules/irequest.h \
     helpers/variantmap.h \
     modules/irestmodule.h \
-    modules/requestrouter.h
+    modules/requestrouter.h \
+    modules/isession.h \
+    helpers/session.h
 
 FORMS    += view/mainwindow.ui \
     view/preferencesdialog.ui

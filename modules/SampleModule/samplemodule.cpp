@@ -1,10 +1,13 @@
 #include "samplemodule.h"
 
 #include "modules/irequest.h"
+#include <QDebug>
 
-QByteArray *SampleModule::index(IBus *, IRequest *request)
+QVariant *SampleModule::index(IBus *, IRequest *request)
 {
-    return new QByteArray(request->module().toUtf8());
+    QVariantMap values;
+    values.insert("module", request->module());
+    return new QVariant(values);
 }
 
 Q_EXPORT_PLUGIN2(ownet_samplemodule, SampleModule)

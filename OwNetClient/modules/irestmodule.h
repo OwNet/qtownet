@@ -4,7 +4,7 @@
 #include <QString>
 #include <QtPlugin>
 
-class QByteArray;
+class QVariant;
 class IRequest;
 class IBus;
 
@@ -13,22 +13,22 @@ class IRestModule
 public:
     virtual QString name() const = 0;
 
-    virtual QByteArray *index(IBus *, IRequest *) { return NULL; }
+    virtual QVariant *index(IBus *, IRequest *) { return NULL; }
 
     // create element
-    virtual QByteArray *create(IBus *, IRequest *) { return NULL; }
+    virtual QVariant *create(IBus *, IRequest *) { return NULL; }
 
     // show element
-    virtual QByteArray *show(IBus *, IRequest *) { return NULL; }
+    virtual QVariant *show(IBus *, IRequest *) { return NULL; }
 
     // delete element
-    virtual QByteArray *del(IBus *, IRequest *) { return NULL; }
+    virtual QVariant *del(IBus *, IRequest *) { return NULL; }
 
     // edit element
-    virtual QByteArray *edit(IBus *, IRequest *) { return NULL; }
+    virtual QVariant *edit(IBus *, IRequest *) { return NULL; }
 
     // other action
-    virtual QByteArray *processRequest(IBus *, IRequest *) { return NULL; }
+    virtual QVariant *processRequest(IBus *, IRequest *) { return NULL; }
 };
 
 Q_DECLARE_INTERFACE(IRestModule,

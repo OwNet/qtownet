@@ -3,6 +3,7 @@
 #include "proxyrequest.h"
 #include "qjson/serializer.h"
 #include "requestrouter.h"
+#include "session.h"
 
 #include <QBuffer>
 #include <QVariantList>
@@ -65,4 +66,9 @@ void ProxyRequestBus::setHttpStatus(int code, const QString &description)
 void ProxyRequestBus::registerModule(RequestRouter *router)
 {
     m_routes->insert(router->moduleName(), router);
+}
+
+ISession *ProxyRequestBus::session()
+{
+    return new Session(this);
 }
