@@ -15,18 +15,12 @@ public:
 
 private:
     // create element
-    QByteArray* create(IBus *bus, IRequest *req);
+    QByteArray *create(IBus *bus, IRequest *req);
 
     // show element
-    QByteArray* show( IBus *bus, IRequest *req);
+    QByteArray *show(IBus *bus, IRequest *req);
 
-    //delete element
-    QByteArray* del( IBus *bus, IRequest *req);
-
-    //edit element
-    QByteArray* edit( IBus *bus, IRequest *req);
-
-    QByteArray* index( IBus *bus,  IRequest *req);
+    QByteArray *index(IBus *bus,  IRequest *);
     
 };
 

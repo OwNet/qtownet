@@ -3,7 +3,7 @@
 
 #include <QObject>
 
-#include "listofstringpairs.h"
+#include "variantmap.h"
 
 class ProxyRequest;
 class QIODevice;
@@ -26,7 +26,7 @@ public:
     void setHttpStatusDescription(const QString &description);
     QString contentType() const { return m_contentType; }
     void setContentType(const QString &value);
-    ListOfStringPairs responseHeaders() const { return m_responseHeaders; }
+    VariantMap responseHeaders() const { return m_responseHeaders; }
     ProxyRequest *request() { return m_request; }
 
 signals:
@@ -45,7 +45,7 @@ protected:
     QString m_httpStatusCode;
     QString m_httpStatusDescription;
     bool m_downloadStarted;
-    ListOfStringPairs m_responseHeaders;
+    VariantMap m_responseHeaders;
 };
 
 #endif // PROXYINPUTOBJECT_H

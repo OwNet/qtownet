@@ -55,7 +55,7 @@ QByteArray *SessionModule::create(IBus *bus, IRequest *req)
     return new QByteArray();
 }
 
-QByteArray *SessionModule::del(IBus *bus, IRequest *req)
+QByteArray *SessionModule::del(IBus *bus, IRequest *)
 {
 
     if (!isLoggedIn()) {

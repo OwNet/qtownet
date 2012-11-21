@@ -77,9 +77,11 @@ void ProxySocketOutputWriter::read(QIODevice *ioDevice)
            << " "
            << m_proxyDownload->inputObject()->httpStatusDescription()
            << "\r\n";
-        ListOfStringPairs headers = m_proxyDownload->inputObject()->responseHeaders();
-        for (int i = 0; i < headers.count(); ++i) {
-            os << headers.at(i).first << ": " << headers.at(i).second << "\r\n";
+        foreach (QString key, m_proxyDownload->inputObject()->responseHeaders().keys()) {
+            os << key
+               << ": "
+               << m_proxyDownload->inputObject()->responseHeaders().value(key).toString()
+               << "\r\n";
         }
         os << "\r\n";
         os.flush();

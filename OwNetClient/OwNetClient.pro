@@ -63,7 +63,8 @@ SOURCES += main.cpp\
     proxy/proxyhandlersession.cpp \
     helpers/settings.cpp \
     view/preferencesdialog.cpp \
-    init/settingsinitializer.cpp
+    init/settingsinitializer.cpp \
+    helpers/variantmap.cpp
 
 HEADERS  += view/mainwindow.h \
         proxy/proxyserver.h \
@@ -122,7 +123,8 @@ HEADERS  += view/mainwindow.h \
     helpers/settings.h \
     view/preferencesdialog.h \
     init/settingsinitializer.h \
-    modules/irequest.h
+    modules/irequest.h \
+    helpers/variantmap.h
 
 FORMS    += view/mainwindow.ui \
     view/preferencesdialog.ui

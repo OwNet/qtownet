@@ -22,19 +22,9 @@ private:
     QByteArray *create(IBus *bus, IRequest *req);
 
     //delete element
-    QByteArray *del(IBus *bus, IRequest *req);
-
-   /* // show element
-    QByteArray* show( IBus *bus, ProxyRequest *req);
-
-    //edit element
-    QByteArray* edit( IBus *bus, ProxyRequest *req);
-
-    QByteArray* index( IBus *bus,  ProxyRequest *req);*/
+    QByteArray *del(IBus *bus, IRequest *);
 
     QVariantMap m_sessionData;
-
-    
 };
 
 #endif // SESSIONMODULE_H

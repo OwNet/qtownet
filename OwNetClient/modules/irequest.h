@@ -18,6 +18,7 @@ public:
     virtual QMap<QString, QString> postBodyFromForm() const = 0;
 
     virtual IRequest::RequestType requestType() const = 0;
+    virtual QVariantMap requestHeaders() const = 0;
 
     virtual QUrl qUrl() const = 0;
     virtual QString url() const = 0;

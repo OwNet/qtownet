@@ -35,6 +35,6 @@ private:
 };
 
 Q_DECLARE_INTERFACE(IModule,
-                     "com.thereconnected.OwNet.IModule/1.0")
+                    "com.thereconnected.OwNet.IModule/1.0")
 
 #endif // IMODULE_H

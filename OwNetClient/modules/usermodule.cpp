@@ -79,10 +79,10 @@ QByteArray* UserModule::create(IBus *bus, IRequest *req)
         // create answer
         return new QByteArray();
 
-     }
+    }
 
-     bus->setHttpStatus(400, "Bad Request");
-     return new QByteArray();
+    bus->setHttpStatus(400, "Bad Request");
+    return new QByteArray();
 
 
 }
@@ -97,21 +97,21 @@ QByteArray* UserModule::show( IBus *bus, IRequest *req)
 
     if( query.exec()){
 
-       QJson::Serializer serializer;
-       QVariantMap user;
+        QJson::Serializer serializer;
+        QVariantMap user;
 
-       if(query.first()){
+        if(query.first()){
 
-           bus->setHttpStatus(200, "OK");
+            bus->setHttpStatus(200, "OK");
 
-           user.insert("id", query.value(query.record().indexOf("id")));
-           user.insert("first_name", query.value(query.record().indexOf("first_name")));
-           user.insert("last_name", query.value(query.record().indexOf("last_name")));
-           user.insert("login", query.value(query.record().indexOf("login")));
-           user.insert("email", query.value(query.record().indexOf("email")));
+            user.insert("id", query.value(query.record().indexOf("id")));
+            user.insert("first_name", query.value(query.record().indexOf("first_name")));
+            user.insert("last_name", query.value(query.record().indexOf("last_name")));
+            user.insert("login", query.value(query.record().indexOf("login")));
+            user.insert("email", query.value(query.record().indexOf("email")));
 
-           QByteArray *json = new QByteArray(serializer.serialize(user));
-           return json;
+            QByteArray *json = new QByteArray(serializer.serialize(user));
+            return json;
         }
     }
 
@@ -119,48 +119,35 @@ QByteArray* UserModule::show( IBus *bus, IRequest *req)
     return new QByteArray();
 }
 
-//delete element
-QByteArray* UserModule::del( IBus *bus,  IRequest *req)
-{
-}
-
-//edit element
-QByteArray* UserModule::edit( IBus *bus,  IRequest *req)
-{
-}
-
-QByteArray* UserModule::index( IBus *bus,  IRequest *req)
+QByteArray* UserModule::index(IBus *bus,  IRequest *)
 {
 
     QSqlQuery query;
 
-   if( query.exec("SELECT * FROM users")){
+    if (query.exec("SELECT * FROM users")) {
 
-       QJson::Serializer serializer;
-       QVariantList users;
+        QJson::Serializer serializer;
+        QVariantList users;
 
-       while(query.next())
-       {
-           QVariantMap user;
-           user.insert("id", query.value(query.record().indexOf("id")));
-           user.insert("first_name", query.value(query.record().indexOf("first_name")));
-           user.insert("last_name", query.value(query.record().indexOf("last_name")));
-           user.insert("login", query.value(query.record().indexOf("login")));
-           user.insert("email", query.value(query.record().indexOf("email")));
-           users.append(user);
-       }
+        while(query.next()) {
+            QVariantMap user;
+            user.insert("id", query.value(query.record().indexOf("id")));
+            user.insert("first_name", query.value(query.record().indexOf("first_name")));
+            user.insert("last_name", query.value(query.record().indexOf("last_name")));
+            user.insert("login", query.value(query.record().indexOf("login")));
+            user.insert("email", query.value(query.record().indexOf("email")));
+            users.append(user);
+        }
 
-       bus->setHttpStatus(200, "OK");
-       QByteArray *json = new QByteArray(serializer.serialize(users));
-       return json;
-   }
+        bus->setHttpStatus(200, "OK");
+        QByteArray *json = new QByteArray(serializer.serialize(users));
+        return json;
+    }
     else
         bus->setHttpStatus(400,"Bad Request");
 
     return new QByteArray();
 }
-
-
 
 /*QByteArray* UserModule::registerUser(IBus *bus, QByteArray data)
 {
@@ -186,4 +173,3 @@ QByteArray* UserModule::index( IBus *bus,  IRequest *req)
 QByteArray* UserModule::getAllUsers(IBus *bus, QByteArray data)
 {
 }*/
-

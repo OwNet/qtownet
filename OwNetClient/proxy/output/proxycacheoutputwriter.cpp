@@ -47,8 +47,8 @@ void ProxyCacheOutputWriter::read(QIODevice *ioDevice)
     if (m_firstRead) {
         m_firstRead = false;
         m_url = m_request->url();
-        m_requestHeaders = m_request->requestHeaders().toString();
-        m_responseHeaders = m_proxyDownload->inputObject()->responseHeaders().toString();
+        m_requestHeaders = VariantMap(m_request->requestHeaders()).toJsonString();
+        m_responseHeaders = m_proxyDownload->inputObject()->responseHeaders().toJsonString();
         m_statusCode = m_proxyDownload->inputObject()->httpStatusCode().toInt();
         m_statusDescription = m_proxyDownload->inputObject()->httpStatusDescription();
     }
