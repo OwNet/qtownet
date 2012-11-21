@@ -31,7 +31,7 @@ SOURCES += main.cpp\
     helpers/qjson/qobjecthelper.cpp \
     helpers/qjson/serializer.cpp \
     helpers/qjson/serializerrunnable.cpp \
-    proxy/input/bus/proxyrequestbus.cpp \
+    proxy/input/proxyrequestbus.cpp \
     modules/imodule.cpp \
     init/moduleinitializer.cpp \
     init/databaseinitializer.cpp \
@@ -88,7 +88,7 @@ HEADERS  += view/mainwindow.h \
     helpers/qjson/serializer.h \
     helpers/qjson/serializerrunnable.h \
     helpers/qjson/stack.hh \
-    proxy/input/bus/proxyrequestbus.h \
+    proxy/input/proxyrequestbus.h \
     modules/imodule.h \
     init/moduleinitializer.h \
     modules/ibus.h \
