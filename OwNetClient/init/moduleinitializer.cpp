@@ -28,19 +28,24 @@ void ModuleInitializer::init()
 }
 
 void ModuleInitializer::loadPlugins()
- {
-     QDir modulesDir = QDir(qApp->applicationDirPath());
+{
+    QDir modulesDir = QDir(qApp->applicationDirPath());
 
-     modulesDir.cd("modules");
+#if defined(Q_OS_WIN)
+    if (modulesDir.dirName().toLower() == "debug" || modulesDir.dirName().toLower() == "release")
+        modulesDir.cdUp();
+#endif
 
-     foreach (QString fileName, modulesDir.entryList(QDir::Files)) {
-         QPluginLoader loader(modulesDir.absoluteFilePath(fileName));
-         QObject *plugin = loader.instance();
+    modulesDir.cd("modules");
 
-         if (plugin) {
-             IModule *module = qobject_cast<IModule *>(plugin);
-             if (module)
-                 ProxyRequestBus::registerModule(module);
-         }
-     }
- }
+    foreach (QString fileName, modulesDir.entryList(QDir::Files)) {
+        QPluginLoader loader(modulesDir.absoluteFilePath(fileName));
+        QObject *plugin = loader.instance();
+
+        if (plugin) {
+            IModule *module = qobject_cast<IModule *>(plugin);
+            if (module)
+                ProxyRequestBus::registerModule(module);
+        }
+    }
+}
