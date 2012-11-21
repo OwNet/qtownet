@@ -10,6 +10,7 @@
 #include "proxybytedownloadpart.h"
 #include "proxystreamdownloadpart.h"
 #include "proxylastdownloadpart.h"
+#include "proxycachefiledownloadpart.h"
 
 #include <QBuffer>
 #include <QDebug>
@@ -22,7 +23,12 @@
  * @param parent QObject parent
  */
 ProxyDownload::ProxyDownload(ProxyRequest *request, ProxyHandlerSession *handlerSession, QObject *parent) :
-    QObject(parent), m_inputObject(NULL), m_proxyHandlerSession(handlerSession), m_nextReaderId(1), m_shareDownload(false)
+    QObject(parent),
+    m_inputObject(NULL),
+    m_proxyHandlerSession(handlerSession),
+    m_nextReaderId(FirstReaderId),
+    m_shareDownload(false),
+    m_nextDownloadPartIndex(FirstDownloadPartIndex)
 {
     m_hashCode = request->hashCode();
     m_proxyHandlerDependentObjectId = m_proxyHandlerSession->registerDependentObject();
@@ -54,7 +60,7 @@ int ProxyDownload::registerReader()
     m_readersMutex.lock();
     readerId = m_nextReaderId;
     m_nextReaderId++;
-    m_readers.insert(readerId, 0);
+    m_readers.insert(readerId, FirstDownloadPartIndex);
     m_readersMutex.unlock();
 
     return readerId;
@@ -112,27 +118,74 @@ ProxyDownloadPart *ProxyDownload::downloadPart(int readerId)
     m_downloadPartsMutex.lock();
     int i = m_readers.value(readerId);
 
-    if (m_downloadParts.count() > i)
-        downloadPart = m_downloadParts.at(i);
+    if (m_downloadParts.contains(i))
+        downloadPart = m_downloadParts.value(i);
 
-    if (downloadPart)
-        m_readers[readerId] = i + 1;
+    if (downloadPart) {
+        m_readers[readerId] = downloadPart->nextDownloadPartIndex();
+        downloadPart->registerReader(readerId);
+    }
+
     m_downloadPartsMutex.unlock();
 
     return downloadPart;
 }
 
 /**
- * @brief Read the response from the input object, creates a new download part. Triggered when the response is ready.
+ * @brief Replace the ProxyDownloadPart at the position and the next numParts with the given ProxyDownload
+ * @param downloadPart The new ProxyDownloadPart
+ * @param at Position of the ProxyDownloadPart
+ * @param numParts Number of parts to replace
+ */
+void ProxyDownload::replaceDownloadParts(ProxyCacheFileDownloadPart *downloadPart, int at)
+{
+    m_downloadPartsMutex.lock();
+
+    ProxyDownloadPart *previousPart = m_downloadParts.value(at);
+
+    m_downloadParts.insert(at, downloadPart);
+
+    if (m_downloadParts.contains(downloadPart->nextDownloadPartIndex())) {
+        ProxyDownloadPart *nextPart = m_downloadParts.value(downloadPart->nextDownloadPartIndex());
+        nextPart->setParent(downloadPart);
+
+        QList<int> previousPartsReaders;
+        foreach (int key, m_readers.keys()) {
+            int i = m_readers[key];
+            if (i > at && i <= downloadPart->nextDownloadPartIndex())
+                previousPartsReaders.append(key);
+        }
+        if (previousPartsReaders.count())
+            nextPart->deletePreviousPartAfterReadersRegister(previousPart, previousPartsReaders);
+        else
+            delete previousPart;
+    }
+
+    m_downloadPartsMutex.unlock();
+}
+
+/**
+ * @brief Read the response from the input object, creates a new download part.
+ * Triggered when the response is ready.
  * @param ioDevice Stream from the input object to read.
  */
 void ProxyDownload::readReply(QIODevice *ioDevice)
 {
     m_downloadPartsMutex.lock();
+
+    int partIndex = m_nextDownloadPartIndex++;
+
+    QObject *parent = this;
+    if (partIndex > FirstDownloadPartIndex)
+        parent = m_downloadParts.value(partIndex - 1);
+
+    ProxyDownloadPart *part = NULL;
     if (m_shareDownload)
-        m_downloadParts.append(new ProxyByteDownloadPart(new QByteArray(ioDevice->readAll()), this));
+        part = new ProxyByteDownloadPart(new QByteArray(ioDevice->readAll()), m_nextDownloadPartIndex, parent);
     else
-        m_downloadParts.append(new ProxyStreamDownloadPart(ioDevice, this));
+        part = new ProxyStreamDownloadPart(ioDevice, m_nextDownloadPartIndex, parent);
+    m_downloadParts.insert(partIndex, part);
+
     m_downloadPartsMutex.unlock();
 
     emit bytePartAvailable();
@@ -144,7 +197,7 @@ void ProxyDownload::readReply(QIODevice *ioDevice)
 void ProxyDownload::inputObjectFinished()
 {
     m_downloadPartsMutex.lock();
-    m_downloadParts.append(new ProxyLastDownloadPart(this));
+    m_downloadParts.insert(m_nextDownloadPartIndex++, new ProxyLastDownloadPart(this));
     m_downloadPartsMutex.unlock();
 
     emit downloadFinished();
@@ -156,7 +209,7 @@ void ProxyDownload::inputObjectFinished()
 void ProxyDownload::inputObjectError()
 {
     m_downloadPartsMutex.lock();
-    m_downloadParts.append(new ProxyLastDownloadPart(this, true));
+    m_downloadParts.insert(m_nextDownloadPartIndex++, new ProxyLastDownloadPart(this, true));
     m_downloadPartsMutex.unlock();
 
     emit downloadFinished();

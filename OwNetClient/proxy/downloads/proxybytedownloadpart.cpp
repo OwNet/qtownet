@@ -3,8 +3,8 @@
 #include <QByteArray>
 #include <QBuffer>
 
-ProxyByteDownloadPart::ProxyByteDownloadPart(QByteArray *bytes, QObject *parent)
-    : ProxyDownloadPart(parent), m_bytes(bytes)
+ProxyByteDownloadPart::ProxyByteDownloadPart(QByteArray *bytes, int nextDownloadPartIndex, QObject *parent)
+    : ProxyDownloadPart(nextDownloadPartIndex, parent), m_bytes(bytes)
 {
 }
 
