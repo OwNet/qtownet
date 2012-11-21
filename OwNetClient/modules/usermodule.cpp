@@ -1,15 +1,19 @@
 #include "usermodule.h"
+
+#include "database/databaseupdate.h"
+#include "helpers/qjson/parser.h"
+#include "helpers/qjson/serializer.h"
+#include "irequest.h"
+#include "ibus.h"
+
 #include <QSqlQuery>
 #include <QString>
 #include <QByteArray>
 #include <QDebug>
-#include "helpers/qjson/parser.h"
-#include "helpers/qjson/serializer.h"
 #include <QVariant>
 #include <QDateTime>
 #include <QHash>
 #include <QSqlRecord>
-#include <database/databaseupdate.h>
 
 UserModule::UserModule()
 {

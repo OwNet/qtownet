@@ -1,9 +1,9 @@
 #ifndef IBUS_H
 #define IBUS_H
 
-#include "irequest.h"
-
 #include <QByteArray>
+
+class IRequest;
 
 class IBus
 {

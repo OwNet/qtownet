@@ -3,15 +3,15 @@
 
 #include <QObject>
 
-#include "modules/imodule.h"
+#include "modules/irestmodule.h"
 
-class SampleModule : public QObject, public IModule
+class SampleModule : public QObject, public IRestModule
 {
     Q_OBJECT
-    Q_INTERFACES(IModule)
+    Q_INTERFACES(IRestModule)
 
 public:
-    QString url() const { return "sample"; }
+    QString name() const { return "sample"; }
 
     QByteArray *index(IBus *, IRequest *request);
 };

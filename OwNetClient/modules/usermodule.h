@@ -1,17 +1,14 @@
 #ifndef USERMODULE_H
 #define USERMODULE_H
 
-#include <QObject>
-#include <imodule.h>
-#include <ibus.h>
-#include <QByteArray>
+#include "irestmodule.h"
 
-class UserModule : public IModule
+class UserModule : public IRestModule
 {
 public:
     explicit UserModule();
 
-    QString url() const { return "users"; }
+    QString name() const { return "users"; }
 
 private:
     // create element

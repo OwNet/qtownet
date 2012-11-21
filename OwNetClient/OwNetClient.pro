@@ -32,7 +32,6 @@ SOURCES += main.cpp\
     helpers/qjson/serializer.cpp \
     helpers/qjson/serializerrunnable.cpp \
     proxy/input/proxyrequestbus.cpp \
-    modules/imodule.cpp \
     init/moduleinitializer.cpp \
     init/databaseinitializer.cpp \
     modules/databasemodule.cpp \
@@ -64,7 +63,8 @@ SOURCES += main.cpp\
     helpers/settings.cpp \
     view/preferencesdialog.cpp \
     init/settingsinitializer.cpp \
-    helpers/variantmap.cpp
+    helpers/variantmap.cpp \
+    modules/requestrouter.cpp
 
 HEADERS  += view/mainwindow.h \
         proxy/proxyserver.h \
@@ -124,7 +124,9 @@ HEADERS  += view/mainwindow.h \
     view/preferencesdialog.h \
     init/settingsinitializer.h \
     modules/irequest.h \
-    helpers/variantmap.h
+    helpers/variantmap.h \
+    modules/irestmodule.h \
+    modules/requestrouter.h
 
 FORMS    += view/mainwindow.ui \
     view/preferencesdialog.ui

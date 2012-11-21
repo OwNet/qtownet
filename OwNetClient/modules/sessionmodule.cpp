@@ -1,8 +1,11 @@
 #include "sessionmodule.h"
-#include <QSqlQuery>
+
 #include "ibus.h"
+#include "irequest.h"
 #include "helpers/qjson/parser.h"
 #include "helpers/qjson/serializer.h"
+
+#include <QSqlQuery>
 
 SessionModule::SessionModule()
 {

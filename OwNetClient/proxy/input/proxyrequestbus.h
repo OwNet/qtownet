@@ -2,9 +2,9 @@
 #define REQUESTBUS_H
 
 #include "proxyinputobject.h"
-#include "imodule.h"
 #include "ibus.h"
 
+class RequestRouter;
 class ProxyRequest;
 class QIODevice;
 
@@ -21,7 +21,7 @@ public:
     QByteArray* callModule(IRequest *req);
     void setHttpStatus(int code, const QString &description);
 
-    static void registerModule(IModule *newModule);
+    static void registerModule(RequestRouter *router);
 
 protected:
     void readRequest();
@@ -29,7 +29,7 @@ protected:
 private:
     ProxyRequest *m_request;
 
-    static QMap<QString ,IModule*> *m_routes;
+    static QMap<QString, RequestRouter*> *m_routes;
 };
 
 #endif // REQUESTBUS_H

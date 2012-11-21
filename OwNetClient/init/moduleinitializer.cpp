@@ -6,6 +6,7 @@
 #include "databasemodule.h"
 #include "usermodule.h"
 #include "sessionmodule.h"
+#include "requestrouter.h"
 
 #include <QDir>
 #include <QPluginLoader>
@@ -20,9 +21,9 @@ void ModuleInitializer::init()
 {
     // here have to be all the used modules
 
-    ProxyRequestBus::registerModule(new DatabaseModule());
-    ProxyRequestBus::registerModule(new UserModule());
-    ProxyRequestBus::registerModule(new SessionModule());
+    ProxyRequestBus::registerModule(new RequestRouter(new DatabaseModule(), this));
+    ProxyRequestBus::registerModule(new RequestRouter(new UserModule(), this));
+    ProxyRequestBus::registerModule(new RequestRouter(new SessionModule(), this));
 
     loadPlugins();
 }
@@ -44,8 +45,13 @@ void ModuleInitializer::loadPlugins()
 
         if (plugin) {
             IModule *module = qobject_cast<IModule *>(plugin);
-            if (module)
-                ProxyRequestBus::registerModule(module);
+            if (module) {
+                ProxyRequestBus::registerModule(new RequestRouter(module, this));
+            } else {
+                IRestModule *restModule = qobject_cast<IRestModule *>(plugin);
+                if (restModule)
+                    ProxyRequestBus::registerModule(new RequestRouter(restModule, this));
+            }
         }
     }
 }

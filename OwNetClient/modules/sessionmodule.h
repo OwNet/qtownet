@@ -1,17 +1,16 @@
 #ifndef SESSIONMODULE_H
 #define SESSIONMODULE_H
 
-#include <QObject>
 #include <QVariantMap>
-#include <QByteArray>
-#include <imodule.h>
 
-class SessionModule : public IModule
+#include "irestmodule.h"
+
+class SessionModule : public IRestModule
 {
 public:
     explicit SessionModule();
 
-    QString url() const { return "session"; }
+    QString name() const { return "session"; }
 
     // check whether user is logged in or not
     bool isLoggedIn();

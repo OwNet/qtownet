@@ -2,12 +2,13 @@
 
 #include "proxyrequest.h"
 #include "qjson/serializer.h"
+#include "requestrouter.h"
 
 #include <QBuffer>
 #include <QVariantList>
 #include <QDebug>
 
-QMap<QString, IModule*> *ProxyRequestBus::m_routes = new QMap<QString, IModule*>();
+QMap<QString, RequestRouter*> *ProxyRequestBus::m_routes = new QMap<QString, RequestRouter*>();
 
 ProxyRequestBus::ProxyRequestBus(ProxyRequest *request, QObject *parent)
     : ProxyInputObject(request, parent), m_request(request)
@@ -61,7 +62,7 @@ void ProxyRequestBus::setHttpStatus(int code, const QString &description)
     setHttpStatusDescription(description);
 }
 
-void ProxyRequestBus::registerModule(IModule *newModule)
+void ProxyRequestBus::registerModule(RequestRouter *router)
 {
-    m_routes->insert(newModule->url(), newModule);
+    m_routes->insert(router->moduleName(), router);
 }
