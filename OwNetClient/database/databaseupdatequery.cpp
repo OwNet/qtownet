@@ -59,7 +59,7 @@ void DatabaseUpdateQuery::setUpdateDates(bool setDates)
     m_content.insert("set_update_dates", setDates);
 }
 
-QVariant DatabaseUpdateQuery::bindingValue(const QString &name, const QVariant &value)
+QVariant DatabaseUpdateQuery::bindingValue(const QString &name, const QVariant &value) const
 {
     if (m_temporaryBindings.contains(name))
         return m_temporaryBindings.value(name);

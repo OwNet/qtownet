@@ -19,7 +19,11 @@
 #include <QApplication>
 
 ProxyHandler::ProxyHandler(int handlerId, QObject *parent)
-    : QObject(parent), m_handlerId(handlerId), m_isActive(false), m_timeoutTimer(NULL), m_proxyHandlerSession(NULL)
+    : QObject(parent),
+      m_handlerId(handlerId),
+      m_isActive(false),
+      m_proxyHandlerSession(NULL),
+      m_timeoutTimer(NULL)
 {
     m_openSemaphore = new QSemaphore(1);
     connect(this, SIGNAL(start()), this, SLOT(handleRequest()));

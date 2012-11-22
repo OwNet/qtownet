@@ -22,9 +22,9 @@ void ProxyWebInputObject::readRequest()
     QNetworkRequest request;
 
     request.setUrl(m_request->qUrl());
-    for (int i = 0; i < m_request->requestHeaders().count(); ++i)
-        request.setRawHeader(m_request->requestHeaders().at(i).first.toLatin1(),
-                             m_request->requestHeaders().at(i).second.toLatin1());
+    foreach (QString headerName, m_request->requestHeaders().keys())
+        request.setRawHeader(headerName.toUtf8(),
+                             m_request->requestHeaders().value(headerName).toString().toUtf8());
     request.setRawHeader("X-Proxied-By", "OwNet");
 
     switch (m_request->requestType()) {
