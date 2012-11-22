@@ -44,11 +44,11 @@ void ProxyHandler::dispose()
 
 void ProxyHandler::handleRequest()
 {
-    m_timeoutTimer = new QTimer(this);
-    connect(m_timeoutTimer, SIGNAL(timeout()), this, SLOT(requestTimeout()));
-
     m_proxyHandlerSession = new ProxyHandlerSession(this);
     connect(m_proxyHandlerSession, SIGNAL(allFinished()), this, SLOT(proxyHandlerSessionFinished()));
+
+    m_timeoutTimer = new QTimer(m_proxyHandlerSession);
+    connect(m_timeoutTimer, SIGNAL(timeout()), this, SLOT(requestTimeout()));
 
     ProxySocketOutputWriter *socketOutputWriter = new ProxySocketOutputWriter(m_socketDescriptor, m_proxyHandlerSession);
     connect(socketOutputWriter, SIGNAL(iAmActive()), this, SLOT(restartTimeout()));
@@ -83,12 +83,10 @@ void ProxyHandler::proxyHandlerSessionFinished()
 {
     if (m_timeoutTimer) {
         m_timeoutTimer->stop();
-        delete m_timeoutTimer;
         m_timeoutTimer = NULL;
     }
 
     if (m_proxyHandlerSession) {
-        qApp->processEvents();
         m_proxyHandlerSession->deleteLater();
         m_proxyHandlerSession = NULL;
 
