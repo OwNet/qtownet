@@ -25,6 +25,7 @@ public:
 
     ISession *session();
     IDatabaseUpdate *databaseUpdate();
+    QSettings *settings();
 
 protected:
     void readRequest();

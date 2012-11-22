@@ -5,6 +5,7 @@
 #include "requestrouter.h"
 #include "session.h"
 #include "databaseupdate.h"
+#include "settings.h"
 
 #include <QBuffer>
 #include <QVariantList>
@@ -77,4 +78,9 @@ ISession *ProxyRequestBus::session()
 IDatabaseUpdate *ProxyRequestBus::databaseUpdate()
 {
     return new DatabaseUpdate(this);
+}
+
+QSettings *ProxyRequestBus::settings()
+{
+    return new Settings(this);
 }

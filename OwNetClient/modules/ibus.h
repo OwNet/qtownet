@@ -5,6 +5,7 @@ class QByteArray;
 class IRequest;
 class ISession;
 class IDatabaseUpdate;
+class QSettings;
 
 class IBus
 {
@@ -22,6 +23,8 @@ public:
     virtual ISession *session() = 0;
 
     virtual IDatabaseUpdate *databaseUpdate() = 0;
+
+    virtual QSettings *settings() = 0;
 };
 
 #endif // IBUS_H
