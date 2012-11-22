@@ -24,6 +24,7 @@ public:
     static void registerModule(RequestRouter *router);
 
     ISession *session();
+    IDatabaseUpdate *databaseUpdate();
 
 protected:
     void readRequest();

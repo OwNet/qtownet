@@ -88,7 +88,7 @@ void ProxyCacheOutputWriter::save()
     accessCount++;
 
     DatabaseUpdate update;
-    DatabaseUpdateQuery *query = update.createUpdateQuery("caches", entryType);
+    IDatabaseUpdateQuery *query = update.createUpdateQuery("caches", entryType);
     query->setUpdateDates(true);
     query->setWhere("id", m_hashCode);
     query->setColumnValue("id", m_hashCode);

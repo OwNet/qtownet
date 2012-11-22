@@ -1,11 +1,10 @@
 #ifndef IBUS_H
 #define IBUS_H
 
-#include <QByteArray>
-
-#include "isession.h"
-
+class QByteArray;
 class IRequest;
+class ISession;
+class IDatabaseUpdate;
 
 class IBus
 {
@@ -21,6 +20,8 @@ public:
     virtual void setHttpStatus(int code, const QString &description) = 0;
 
     virtual ISession *session() = 0;
+
+    virtual IDatabaseUpdate *databaseUpdate() = 0;
 };
 
 #endif // IBUS_H

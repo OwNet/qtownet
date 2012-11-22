@@ -1,27 +1,15 @@
-#include "usermodule.h"
+#include "usersmodule.h"
 
-#include "database/databaseupdate.h"
-#include "helpers/qjson/parser.h"
-#include "helpers/qjson/serializer.h"
-#include "irequest.h"
-#include "ibus.h"
+#include "modules/irequest.h"
+#include "modules/idatabaseupdate.h"
+#include "modules/ibus.h"
 
 #include <QSqlQuery>
-#include <QString>
-#include <QByteArray>
-#include <QDebug>
-#include <QVariant>
-#include <QDateTime>
-#include <QHash>
 #include <QSqlRecord>
-#include <QVariantMap>
-
-UserModule::UserModule()
-{
-}
+#include <QDateTime>
 
 // create element
-QVariant *UserModule::create(IBus *bus, IRequest *req)
+QVariant *UsersModule::create(IBus *bus, IRequest *req)
 {
     QVariantMap reqJson = req->postBodyFromJson();
 
@@ -50,9 +38,9 @@ QVariant *UserModule::create(IBus *bus, IRequest *req)
     //creating user ID
     uint id = qHash(QString("%1-%2").arg(login).arg(QDateTime::currentDateTime().toString(Qt::ISODate)));
 
-    DatabaseUpdate update;
+    IDatabaseUpdate *update = bus->databaseUpdate();
 
-    DatabaseUpdateQuery *query = update.createUpdateQuery("users", DatabaseUpdateQuery::Insert);
+    IDatabaseUpdateQuery *query = update->createUpdateQuery("users", IDatabaseUpdateQuery::Insert);
 
     query->setUpdateDates(true); // sam nastavi v tabulke datumy date_created a date_updated
 
@@ -64,7 +52,7 @@ QVariant *UserModule::create(IBus *bus, IRequest *req)
     query->setColumnValue("role_id", 1);
     query->setColumnValue("password", password);
 
-    int a = update.execute();
+    int a = update->execute();
     if(!a)
         bus->setHttpStatus(201, "Created");
     else
@@ -76,17 +64,16 @@ QVariant *UserModule::create(IBus *bus, IRequest *req)
 }
 
 // show element
-QVariant *UserModule::show(IBus *bus, IRequest *req)
+QVariant *UsersModule::show(IBus *bus, IRequest *req)
 {
     QSqlQuery query;
 
     query.prepare("SELECT * FROM users WHERE id = :id");
     query.bindValue(":id",req->id());
 
-    if (query.exec()){
+    if (query.exec()) {
 
-
-        if(query.first()){
+        if (query.first()) {
 
             bus->setHttpStatus(200, "OK");
 
@@ -105,14 +92,14 @@ QVariant *UserModule::show(IBus *bus, IRequest *req)
     return new QVariant;
 }
 
-QVariant *UserModule::index(IBus *bus, IRequest *)
+QVariant *UsersModule::index(IBus *bus, IRequest *)
 {
     QSqlQuery query;
 
     if (query.exec("SELECT * FROM users")) {
         QVariantList users;
 
-        while(query.next()) {
+        while (query.next()) {
             QVariantMap user;
             user.insert("id", query.value(query.record().indexOf("id")));
             user.insert("first_name", query.value(query.record().indexOf("first_name")));
@@ -131,27 +118,4 @@ QVariant *UserModule::index(IBus *bus, IRequest *)
     return new QVariant;
 }
 
-/*QByteArray* UserModule::registerUser(IBus *bus, QByteArray data)
-{
-    QSqlQuery q;
-
-    QSqlQuery query;
-
-    query.prepare("INSERT INTO employee (id, name, salary) "
-                  "VALUES (:id, :name, :salary)");
-    query.bindValue(":id", 1001);
-    query.bindValue(":name", "Thad Beaumont");
-    query.bindValue(":salary", 65000);
-    query.exec();
-
-    if(q.exec())
-        bus->setHttpStatus(200, "OK");
-    else
-        bus->setHttpStatus(400,"Bad Request");
-
-
-}
-
-QByteArray* UserModule::getAllUsers(IBus *bus, QByteArray data)
-{
-}*/
+Q_EXPORT_PLUGIN2(ownet_usersmodule, UsersModule)

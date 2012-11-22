@@ -4,6 +4,7 @@
 #include "qjson/serializer.h"
 #include "requestrouter.h"
 #include "session.h"
+#include "databaseupdate.h"
 
 #include <QBuffer>
 #include <QVariantList>
@@ -71,4 +72,9 @@ void ProxyRequestBus::registerModule(RequestRouter *router)
 ISession *ProxyRequestBus::session()
 {
     return new Session(this);
+}
+
+IDatabaseUpdate *ProxyRequestBus::databaseUpdate()
+{
+    return new DatabaseUpdate(this);
 }

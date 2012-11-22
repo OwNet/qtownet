@@ -1,24 +1,27 @@
 #ifndef DATABASEUPDATE_H
 #define DATABASEUPDATE_H
 
+#include "idatabaseupdate.h"
+#include "databaseupdatequery.h"
+
 #include <QObject>
 #include <QList>
-
-#include "databaseupdatequery.h"
 
 /**
  * @brief Container for insert, update and delete database queries.
  * Can be exported to JSON and stored in database journal.
  */
-class DatabaseUpdate : public QObject
+class DatabaseUpdate : public QObject, public IDatabaseUpdate
 {
     Q_OBJECT
 
 public:
-    explicit DatabaseUpdate(bool sync = true, QObject *parent = 0);
+    DatabaseUpdate(QObject *parent = 0);
+    DatabaseUpdate(bool sync, QObject *parent = 0);
 
-    DatabaseUpdateQuery *createUpdateQuery(const QString &table, DatabaseUpdateQuery::EntryType type = DatabaseUpdateQuery::Insert);
-    DatabaseUpdateQuery *createUpdateQuery(const QVariantMap &content);
+    void setSync(bool sync) { m_sync = sync; }
+    IDatabaseUpdateQuery *createUpdateQuery(const QString &table, IDatabaseUpdateQuery::EntryType type = IDatabaseUpdateQuery::Insert);
+    IDatabaseUpdateQuery *createUpdateQuery(const QVariantMap &content);
     int execute();
 
 private:

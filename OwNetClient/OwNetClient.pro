@@ -47,7 +47,6 @@ SOURCES += main.cpp\
     proxy/downloads/proxybytedownloadpart.cpp \
     proxy/downloads/proxystreamdownloadpart.cpp \
     proxy/downloads/proxylastdownloadpart.cpp \
-    modules/usermodule.cpp \
     jobs/job.cpp \
     init/jobinitializer.cpp \
     jobs/cleancachejob.cpp \
@@ -107,7 +106,6 @@ HEADERS  += view/mainwindow.h \
     proxy/downloads/proxybytedownloadpart.h \
     proxy/downloads/proxystreamdownloadpart.h \
     proxy/downloads/proxylastdownloadpart.h \
-    modules/usermodule.h \
     jobs/job.h \
     init/jobinitializer.h \
     jobs/cleancachejob.h \
@@ -127,7 +125,9 @@ HEADERS  += view/mainwindow.h \
     modules/irestmodule.h \
     modules/requestrouter.h \
     modules/isession.h \
-    helpers/session.h
+    helpers/session.h \
+    modules/idatabaseupdate.h \
+    modules/idatabaseupdatequery.h
 
 FORMS    += view/mainwindow.ui \
     view/preferencesdialog.ui

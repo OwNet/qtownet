@@ -2,6 +2,7 @@
 
 #include "modules/irequest.h"
 #include "modules/ibus.h"
+#include "modules/isession.h"
 
 #include <QSqlQuery>
 

@@ -1,16 +1,16 @@
 QT             -= gui
 QT             += sql
 
-TARGET          = $$qtLibraryTarget(ownet_samplemodule)
+TARGET          = $$qtLibraryTarget(ownet_usersmodule)
 TEMPLATE        = lib
 CONFIG         += plugin
 
 INCLUDEPATH    += ../../OwNetClient
 
-SOURCES        += samplemodule.cpp
+SOURCES        += usersmodule.cpp
 
-HEADERS        += samplemodule.h
+HEADERS        += usersmodule.h
 
-TARGET          = $$qtLibraryTarget(ownet_samplemodule)
+TARGET          = $$qtLibraryTarget(ownet_usersmodule)
 macx:DESTDIR    = ../../OwNetClient/OwNetClient.app/Contents/MacOS/modules
 !macx:DESTDIR   = ../../OwNetClient/modules

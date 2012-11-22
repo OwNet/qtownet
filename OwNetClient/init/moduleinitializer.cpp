@@ -4,7 +4,6 @@
 
 #include "imodule.h"
 #include "databasemodule.h"
-#include "usermodule.h"
 #include "requestrouter.h"
 
 #include <QDir>
@@ -21,7 +20,6 @@ void ModuleInitializer::init()
     // here have to be all the used modules
 
     ProxyRequestBus::registerModule(new RequestRouter(new DatabaseModule(), this));
-    ProxyRequestBus::registerModule(new RequestRouter(new UserModule(), this));
 
     loadPlugins();
 }

@@ -1,5 +1,5 @@
-#ifndef SAMPLEMODULE_H
-#define SAMPLEMODULE_H
+#ifndef SESSIONMODULE_H
+#define SESSIONMODULE_H
 
 #include <QObject>
 #include <QVariantMap>
@@ -19,4 +19,4 @@ public:
     QVariant *del(IBus *bus, IRequest *);
 };
 
-#endif // SAMPLEMODULE_H
+#endif // SESSIONMODULE_H
