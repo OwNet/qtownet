@@ -31,10 +31,8 @@ SOURCES += main.cpp\
     helpers/qjson/qobjecthelper.cpp \
     helpers/qjson/serializer.cpp \
     helpers/qjson/serializerrunnable.cpp \
-    proxy/input/bus/proxyrequestbus.cpp \
-    modules/imodule.cpp \
+    proxy/input/proxyrequestbus.cpp \
     init/moduleinitializer.cpp \
-    modules/ibus.cpp \
     init/databaseinitializer.cpp \
     modules/databasemodule.cpp \
     proxy/downloads/proxydownloads.cpp \
@@ -49,8 +47,6 @@ SOURCES += main.cpp\
     proxy/downloads/proxybytedownloadpart.cpp \
     proxy/downloads/proxystreamdownloadpart.cpp \
     proxy/downloads/proxylastdownloadpart.cpp \
-    modules/usermodule.cpp \
-    modules/sessionmodule.cpp\
     jobs/job.cpp \
     init/jobinitializer.cpp \
     jobs/cleancachejob.cpp \
@@ -65,7 +61,10 @@ SOURCES += main.cpp\
     helpers/settings.cpp \
     view/preferencesdialog.cpp \
     init/settingsinitializer.cpp \
-    modules/groupmodule.cpp
+    modules/groupmodule.cpp \
+    helpers/variantmap.cpp \
+    modules/requestrouter.cpp \
+    helpers/session.cpp
 
 HEADERS  += view/mainwindow.h \
         proxy/proxyserver.h \
@@ -90,7 +89,7 @@ HEADERS  += view/mainwindow.h \
     helpers/qjson/serializer.h \
     helpers/qjson/serializerrunnable.h \
     helpers/qjson/stack.hh \
-    proxy/input/bus/proxyrequestbus.h \
+    proxy/input/proxyrequestbus.h \
     modules/imodule.h \
     init/moduleinitializer.h \
     modules/ibus.h \
@@ -108,8 +107,6 @@ HEADERS  += view/mainwindow.h \
     proxy/downloads/proxybytedownloadpart.h \
     proxy/downloads/proxystreamdownloadpart.h \
     proxy/downloads/proxylastdownloadpart.h \
-    modules/usermodule.h \
-    modules/sessionmodule.h\
     jobs/job.h \
     init/jobinitializer.h \
     jobs/cleancachejob.h \
@@ -124,7 +121,15 @@ HEADERS  += view/mainwindow.h \
     helpers/settings.h \
     view/preferencesdialog.h \
     init/settingsinitializer.h \
-    modules/groupmodule.h
+    modules/groupmodule.h \
+    modules/irequest.h \
+    helpers/variantmap.h \
+    modules/irestmodule.h \
+    modules/requestrouter.h \
+    modules/isession.h \
+    helpers/session.h \
+    modules/idatabaseupdate.h \
+    modules/idatabaseupdatequery.h
 
 FORMS    += view/mainwindow.ui \
     view/preferencesdialog.ui

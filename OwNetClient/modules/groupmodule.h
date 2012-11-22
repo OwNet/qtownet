@@ -1,38 +1,29 @@
 #ifndef GROUPMODULE_H
 #define GROUPMODULE_H
 
+#include "irestmodule.h"
+#include "ibus.h"
+
 #include <QObject>
-#include <imodule.h>
-#include <ibus.h>
 #include <QByteArray>
 
-class GroupModule : public IModule
+class GroupModule : public QObject, public IRestModule
 {
     Q_OBJECT
 public:
     explicit GroupModule(QObject *parent = 0);
 
-
-
-signals:
-
-public slots:
+    QString name() const { return "groups"; }
 
 private:
 
     // create element
-    QByteArray* create(IBus *bus, ProxyRequest *req);
+    QVariant* create(IBus *bus, IRequest *req);
 
     // show element
-    QByteArray* show( IBus *bus, ProxyRequest *req);
+    QVariant* show( IBus *bus, IRequest *req);
 
-    //delete element
-    QByteArray* del( IBus *bus, ProxyRequest *req);
-
-    //edit element
-    QByteArray* edit( IBus *bus, ProxyRequest *req);
-
-    QByteArray* index( IBus *bus,  ProxyRequest *req);
+    QVariant* index( IBus *bus,  IRequest *req);
 };
 
 #endif // GROUPMODULE_H

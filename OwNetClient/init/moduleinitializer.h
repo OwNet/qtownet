@@ -11,10 +11,8 @@ public:
     explicit ModuleInitializer(QObject *parent = 0);
     void init();
     
-signals:
-    
-public slots:
-    
+private:
+    void loadPlugins();
 };
 
 #endif // MODULEINITIALIZER_H

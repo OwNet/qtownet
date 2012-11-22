@@ -42,7 +42,7 @@ void GDSFClock::setLastClock(double clock)
 
     DatabaseUpdate update(false);
     update.createUpdateQuery("cache_clean_clocks", DatabaseUpdateQuery::Delete);
-    DatabaseUpdateQuery *query = update.createUpdateQuery("cache_clean_clocks", DatabaseUpdateQuery::Insert);
+    IDatabaseUpdateQuery *query = update.createUpdateQuery("cache_clean_clocks", IDatabaseUpdateQuery::Insert);
     query->setColumnValue("value", clock);
 
     update.execute();

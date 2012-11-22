@@ -8,7 +8,11 @@
 #include <QRegExp>
 
 ProxyRequest::ProxyRequest(QTcpSocket *socket, QObject *parent)
-    : QObject(parent), m_socket(socket), m_hashCode(-1), m_isApiRequest(false), m_id(-1)
+    : QObject(parent),
+      m_id(-1),
+      m_hashCode(-1),
+      m_isApiRequest(false),
+      m_socket(socket)
 {
 }
 
@@ -159,7 +163,7 @@ QString ProxyRequest::staticResourcePath() const
  */
 bool ProxyRequest::isStaticResourceRequest() const
 {
-    return isLocalRequest() && !isApiRequst();
+    return isLocalRequest() && !isApiRequest();
 }
 
 /**
