@@ -12,7 +12,7 @@ public:
     QVariant value(const QString &key, const QVariant &defaultValue = QVariant()) const;
 
 private:
-    static QMap<QString ,QVariant> *m_cachedSettings;
+    static QMap<QString, QVariant> *m_cachedSettings;
 };
 
 #endif // SETTINGS_H

@@ -1,6 +1,8 @@
 #ifndef DATABASEUPDATEQUERY_H
 #define DATABASEUPDATEQUERY_H
 
+#include "idatabaseupdatequery.h"
+
 #include <QObject>
 #include <QVariantMap>
 
@@ -10,17 +12,10 @@ class QSqlQuery;
  * @brief Database query to update, insert or delete data.
  * Can be exported to JSON.
  */
-class DatabaseUpdateQuery : public QObject
+class DatabaseUpdateQuery : public QObject, public IDatabaseUpdateQuery
 {
     Q_OBJECT
 public:
-    enum EntryType {
-        Insert = 1,
-        Update = 2,
-        Detect = 3,
-        Delete = 4
-    };
-
     DatabaseUpdateQuery(const QString &table, EntryType type = Insert, QObject *parent = 0);
     DatabaseUpdateQuery(const QVariantMap &content, QObject *parent = 0);
 
@@ -31,13 +26,13 @@ public:
     void setTemporaryBinding(const QString &name, const QVariant &value);
     void setWhere(const QString &name, const QVariant &value);
     void setUpdateDates(bool setDates);
-    QVariant bindingValue(const QString &name, const QVariant &value);
     void save();
     bool executeQuery();
 
     QString table() const;
     EntryType type() const;
     QVariantMap content() const;
+    QVariant bindingValue(const QString &name, const QVariant &value) const;
     
 private:
     QString timestamp() const;

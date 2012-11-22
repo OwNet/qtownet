@@ -8,11 +8,8 @@
 
 #include "messagehelper.h"
 
-DatabaseModule::DatabaseModule(QObject *parent) :
-    IModule(parent)
+DatabaseModule::DatabaseModule()
 {
-    setUrl("db");
-
 }
 
 /**

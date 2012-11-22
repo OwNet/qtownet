@@ -1,7 +1,8 @@
 #ifndef PROXYREQUEST_H
 #define PROXYREQUEST_H
 
-#include "listofstringpairs.h"
+#include "irequest.h"
+#include "variantmap.h"
 
 #include <QNetworkRequest>
 #include <QMap>
@@ -14,25 +15,20 @@ class QTcpSocket;
 /**
  * @brief Represents all the information about the request received by proxy.
  */
-class ProxyRequest : public QObject
+class ProxyRequest : public QObject, public IRequest
 {
     Q_OBJECT
 
 public:
-    enum RequestType {
-        GET,
-        POST,
-        PUT,
-        DELETE,
-        UNKNOWN
-    };
-
     ProxyRequest(QTcpSocket *socket, QObject *parent = 0);
+
     QVariantMap postBodyFromJson() const;
     QMap<QString, QString> postBodyFromForm() const;
+
     bool readFromSocket();
-    ProxyRequest::RequestType requestType() const;
-    ListOfStringPairs requestHeaders() const { return m_requestHeaders; }
+
+    IRequest::RequestType requestType() const;
+    QVariantMap requestHeaders() const { return m_requestHeaders; }
 
     QUrl qUrl() const { return m_qUrl; }
     QString url() const { return m_qUrl.toEncoded(QUrl::None); }
@@ -52,7 +48,7 @@ public:
 
     bool isLocalRequest() const { return m_domain == "ownet"; }
     bool isStaticResourceRequest() const;
-    bool isApiRequst() const { return m_isApiRequest; }
+    bool isApiRequest() const { return m_isApiRequest; }
 
     QTcpSocket *socket() const { return m_socket; }
 
@@ -61,20 +57,21 @@ private:
     void analyzeUrl();
     static QMap<QString, QString> initContentTypes();
 
+    int m_id;
+    int m_hashCode;
+
+    bool m_isApiRequest;
+
+    QByteArray m_requestBody;
+    QTcpSocket *m_socket;
+    static QMap<QString, QString> m_contentTypes;
+    VariantMap m_requestHeaders;
+    QUrl m_qUrl;
     QString m_requestMethod;
     QString m_domain;
     QString m_subDomain;
     QString m_module;
     QString m_action;
-    int m_id;
-    QByteArray m_requestBody;
-    bool m_isApiRequest;
-    QUrl m_qUrl;
-
-    QTcpSocket *m_socket;
-    static QMap<QString, QString> m_contentTypes;
-    ListOfStringPairs m_requestHeaders;
-    int m_hashCode;
 
     friend class ProxyInitializer;
 };

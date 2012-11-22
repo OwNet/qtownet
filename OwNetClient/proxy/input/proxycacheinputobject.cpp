@@ -29,7 +29,7 @@ ProxyCacheInputObject::ProxyCacheInputObject(ProxyRequest *request, QObject *par
                                           .toByteArray(), &ok)
                 .toMap();
         if (ok)
-            m_responseHeaders.parse(result);
+            m_responseHeaders = VariantMap(result);
 
         int accessCount = query.value(query.record().indexOf("access_count")).toInt() + 1;
         long size = query.value(query.record().indexOf("size")).toLongLong();
