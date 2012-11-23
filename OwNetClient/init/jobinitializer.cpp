@@ -2,9 +2,10 @@
 
 #include "cleancachejob.h"
 #include "proxytrafficcounterjob.h"
+#include "heartbeatjob.h"
 
 JobInitializer::JobInitializer()
-    : m_cleanCacheJob(NULL), m_trafficCounterJob(NULL)
+    : m_cleanCacheJob(NULL), m_trafficCounterJob(NULL), m_heartbeatJob(NULL)
 {
 }
 
@@ -14,10 +15,13 @@ JobInitializer::~JobInitializer()
         delete m_cleanCacheJob;
     if (m_trafficCounterJob)
         delete m_trafficCounterJob;
+    if (m_heartbeatJob)
+        delete m_heartbeatJob;
 }
 
 void JobInitializer::init()
 {
     m_cleanCacheJob = new CleanCacheJob();
     m_trafficCounterJob = new ProxyTrafficCounterJob();
+    m_heartbeatJob = new HeartbeatJob();
 }

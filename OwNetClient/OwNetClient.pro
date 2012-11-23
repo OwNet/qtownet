@@ -64,7 +64,8 @@ SOURCES += main.cpp\
     proxy/downloads/proxycachefiledownloadpart.cpp \
     helpers/variantmap.cpp \
     modules/requestrouter.cpp \
-    helpers/session.cpp
+    helpers/session.cpp \
+    jobs/heartbeatjob.cpp
 
 HEADERS  += view/mainwindow.h \
         proxy/proxyserver.h \
@@ -129,7 +130,8 @@ HEADERS  += view/mainwindow.h \
     modules/isession.h \
     helpers/session.h \
     modules/idatabaseupdate.h \
-    modules/idatabaseupdatequery.h
+    modules/idatabaseupdatequery.h\
+    jobs/heartbeatjob.h
 
 FORMS    += view/mainwindow.ui \
     view/preferencesdialog.ui
