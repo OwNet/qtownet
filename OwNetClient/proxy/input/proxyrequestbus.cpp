@@ -27,7 +27,7 @@ void ProxyRequestBus::readRequest()
     // checks if module exists
     if (m_routes->contains(m_request->module())) {
         // returning processed request
-        QBuffer *buffer = new QBuffer(m_routes->value(m_request->module())->processRequest(this, m_request), this);
+        QBuffer *buffer = new QBuffer(m_routes->value(m_request->module())->processRequest(this, m_request));
         buffer->open(QIODevice::ReadOnly);
         emit readyRead(buffer);
     }
@@ -39,7 +39,7 @@ void ProxyRequestBus::readRequest()
         QJson::Serializer serializer;
         QByteArray *json = new QByteArray(serializer.serialize(status));
 
-        QBuffer *buffer = new QBuffer(json, this);
+        QBuffer *buffer = new QBuffer(json);
         buffer->open(QIODevice::ReadOnly);
         emit readyRead(buffer);
     }
