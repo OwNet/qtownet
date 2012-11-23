@@ -65,7 +65,8 @@ SOURCES += main.cpp\
     helpers/variantmap.cpp \
     modules/requestrouter.cpp \
     helpers/session.cpp \
-    jobs/heartbeatjob.cpp
+    jobs/heartbeatjob.cpp \
+    init/communicationinitializer.cpp
 
 HEADERS  += view/mainwindow.h \
         proxy/proxyserver.h \
@@ -131,7 +132,8 @@ HEADERS  += view/mainwindow.h \
     helpers/session.h \
     modules/idatabaseupdate.h \
     modules/idatabaseupdatequery.h\
-    jobs/heartbeatjob.h
+    jobs/heartbeatjob.h \
+    init/communicationinitializer.h
 
 FORMS    += view/mainwindow.ui \
     view/preferencesdialog.ui
