@@ -25,13 +25,16 @@ protected:
     void error();
 
 private:
+    void finishedWritingToCacheFile();
     void createCacheFile();
 
     QFile *m_cacheFile;
     ProxyRequest *m_request;
     qint64 m_partSizeWritten;
     qint64 m_sizeWritten;
-    int m_numParts;
+    int m_numFileParts;
+    int m_fileStartedAtMemoryPart;
+    int m_currentMemoryPart;
     bool m_failed;
     bool m_firstRead;
 

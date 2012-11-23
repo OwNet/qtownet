@@ -61,6 +61,7 @@ SOURCES += main.cpp\
     helpers/settings.cpp \
     view/preferencesdialog.cpp \
     init/settingsinitializer.cpp \
+    proxy/downloads/proxycachefiledownloadpart.cpp \
     helpers/variantmap.cpp \
     modules/requestrouter.cpp \
     helpers/session.cpp
@@ -120,6 +121,7 @@ HEADERS  += view/mainwindow.h \
     helpers/settings.h \
     view/preferencesdialog.h \
     init/settingsinitializer.h \
+    proxy/downloads/proxycachefiledownloadpart.h \
     modules/irequest.h \
     helpers/variantmap.h \
     modules/irestmodule.h \

@@ -33,7 +33,7 @@ void ProxyStaticInputObject::readRequest()
         fi.setFile(dir.absoluteFilePath(entries.first()));
         setContentType(m_request->requestContentType("", fi.suffix()));
     }
-    QFile *file = new QFile(fi.absoluteFilePath());
+    QFile *file = new QFile(fi.absoluteFilePath(), this);
 
     if (file->exists()) {
         if (file->open(QIODevice::ReadOnly))

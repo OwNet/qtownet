@@ -11,6 +11,7 @@ ProxyDownloads *ProxyDownloads::m_instance = 0;
 ProxyDownloads::~ProxyDownloads()
 {
     delete m_trafficCounter;
+    delete m_gdsfClock;
 }
 
 /**
@@ -63,6 +64,6 @@ void ProxyDownloads::deregisterDownloadReader(ProxyDownload *proxyDownload, int 
 
 ProxyDownloads::ProxyDownloads()
 {
-    m_gdsfClock = new GDSFClock();
+    m_gdsfClock = new GDSFClock;
     m_trafficCounter = new ProxyTrafficCounter;
 }
