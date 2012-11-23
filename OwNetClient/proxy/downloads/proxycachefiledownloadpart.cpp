@@ -13,5 +13,5 @@ QIODevice *ProxyCacheFileDownloadPart::stream()
     QFile *file = new QFile(m_path, this);
     if (file->open(QIODevice::ReadOnly))
         return file;
-    return new QBuffer;
+    return new QBuffer(this);
 }
