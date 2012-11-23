@@ -3,9 +3,12 @@
 #include "qlist.h"
 
 #include "imodule.h"
-#include "testmodule.h"
 #include "databasemodule.h"
-#include "prefetching/prefetchingmodule.h"
+#include "requestrouter.h"
+
+#include <QDir>
+#include <QPluginLoader>
+#include <QApplication>
 
 ModuleInitializer::ModuleInitializer(QObject *parent) :
     QObject(parent)
@@ -14,14 +17,37 @@ ModuleInitializer::ModuleInitializer(QObject *parent) :
 
 void ModuleInitializer::init()
 {
-    QList<IModule*> moduleList;
+    // here have to be all the used modules
 
-    // here has to be all the used modules
-    moduleList.append(new TestModule());
-    moduleList.append(new DatabaseModule());
-    moduleList.append(new PrefetchingModule());
+    ProxyRequestBus::registerModule(new RequestRouter(new DatabaseModule(), this));
 
-    for (int i = 0; i < moduleList.count(); i++) {
-        ProxyRequestBus::registerModule(moduleList.at(i), moduleList.at(i)->url());
-   }
+    loadPlugins();
+}
+
+void ModuleInitializer::loadPlugins()
+{
+    QDir modulesDir = QDir(qApp->applicationDirPath());
+
+#if defined(Q_OS_WIN)
+    if (modulesDir.dirName().toLower() == "debug" || modulesDir.dirName().toLower() == "release")
+        modulesDir.cdUp();
+#endif
+
+    modulesDir.cd("modules");
+
+    foreach (QString fileName, modulesDir.entryList(QDir::Files)) {
+        QPluginLoader loader(modulesDir.absoluteFilePath(fileName));
+        QObject *plugin = loader.instance();
+
+        if (plugin) {
+            IModule *module = qobject_cast<IModule *>(plugin);
+            if (module) {
+                ProxyRequestBus::registerModule(new RequestRouter(module, this));
+            } else {
+                IRestModule *restModule = qobject_cast<IRestModule *>(plugin);
+                if (restModule)
+                    ProxyRequestBus::registerModule(new RequestRouter(restModule, this));
+            }
+        }
+    }
 }

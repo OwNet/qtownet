@@ -8,10 +8,8 @@
 
 #include "messagehelper.h"
 
-DatabaseModule::DatabaseModule(QObject *parent) :
-    IModule(parent)
+DatabaseModule::DatabaseModule()
 {
-    setUrl("db");
 }
 
 /**
@@ -20,12 +18,13 @@ DatabaseModule::DatabaseModule(QObject *parent) :
  * @param req
  * @return byte array
  */
-QByteArray* DatabaseModule::processRequest(IBus *bus, ProxyRequest *req)
+
+/*QByteArray* DatabaseModule::processRequest(IBus *bus, ProxyRequest *req)
 {
     QVariantMap response;
     QJson::Serializer serializer;
 
-    /*
+    //
     Not implemented
 
     MessageHelper::debug("Querying...");
@@ -37,10 +36,10 @@ QByteArray* DatabaseModule::processRequest(IBus *bus, ProxyRequest *req)
     while (q.next()) {
         MessageHelper::debug(QObject::tr("%1 %2").arg(q.value(0).toString()).arg(q.value(1).toString()));
     }
-    */
+
 
     response.insert("ok", "<data>");
 
     return new QByteArray(serializer.serialize(response));
-}
+}*/
 

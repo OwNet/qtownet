@@ -59,7 +59,7 @@ void DatabaseUpdateQuery::setUpdateDates(bool setDates)
     m_content.insert("set_update_dates", setDates);
 }
 
-QVariant DatabaseUpdateQuery::bindingValue(const QString &name, const QVariant &value)
+QVariant DatabaseUpdateQuery::bindingValue(const QString &name, const QVariant &value) const
 {
     if (m_temporaryBindings.contains(name))
         return m_temporaryBindings.value(name);
@@ -136,7 +136,6 @@ bool DatabaseUpdateQuery::executeQuery()
                             bindingValue(columnKeys.at(i), columns.value(columnKeys.at(i))));
     }
 
-    MessageHelper::debug(queryString);
     if (!query.exec()) {
         MessageHelper::debug(query.lastError().text());
         return false;

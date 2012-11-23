@@ -9,7 +9,11 @@
 #include <QDebug>
 
 ProxyRequest::ProxyRequest(QTcpSocket *socket, QObject *parent)
-    : QObject(parent), m_socket(socket), m_hashCode(-1), m_isApiRequest(false), m_id(-1)
+    : QObject(parent),
+      m_id(-1),
+      m_hashCode(-1),
+      m_isApiRequest(false),
+      m_socket(socket)
 {
 }
 
@@ -49,10 +53,10 @@ bool ProxyRequest::readFromSocket()
             }
         }
     }
-    for (int i = 0; i < m_requestHeaders.count(); ++i) {
+//    for (int i = 0; i < m_requestHeaders.count(); ++i) {
 
-        qDebug() << m_requestHeaders.at(i).first << m_requestHeaders.at(i).second;
-    }
+//        qDebug() << m_requestHeaders.at(i).first << m_requestHeaders.at(i).second;
+//    }
 
     analyzeUrl();
 
@@ -164,7 +168,7 @@ QString ProxyRequest::staticResourcePath() const
  */
 bool ProxyRequest::isStaticResourceRequest() const
 {
-    return isLocalRequest() && !isApiRequst();
+    return isLocalRequest() && !isApiRequest();
 }
 
 /**

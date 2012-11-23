@@ -2,7 +2,7 @@
 #define JOBINITIALIZER_H
 
 class CleanCacheJob;
-class PrefetchJob;
+class ProxyTrafficCounterJob;
 
 class JobInitializer
 {
@@ -14,7 +14,7 @@ public:
 
 private:
     CleanCacheJob *m_cleanCacheJob;
-    //PrefetchJob *m_prefetchJob;
+    ProxyTrafficCounterJob *m_trafficCounterJob;
 };
 
 #endif // JOBINITIALIZER_H

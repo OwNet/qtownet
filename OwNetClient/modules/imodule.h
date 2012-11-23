@@ -1,40 +1,24 @@
 #ifndef IMODULE_H
 #define IMODULE_H
 
-#include <QObject>
 #include <QString>
-#include "ibus.h"
+#include <QtPlugin>
 
+class IBus;
+class IRequest;
 
 /**
  * @brief The IModule class Interface for Modules (Abstract class)
  */
-class IModule : public QObject
+class IModule
 {
-    Q_OBJECT
 public:
-    explicit IModule(QObject *parent = 0);
-    const QString &url() { return m_url;}
+    virtual QString name() const = 0;
 
-    /**
-     * @brief processRequest Virtual function for Processing request from proxy/
-     *        every module derived from IModule has to implement this function in it's own way
-     * @param bus
-     * @param req
-     * @return  response Bytes
-     */
-    virtual QByteArray* processRequest(IBus *bus, ProxyRequest *req) = 0;
-
-protected:
-    void setUrl(QString url) { m_url = url;}
-    
-signals:
-    
-public slots:
-
-private:
-    QString m_url;
-    
+    virtual QByteArray *processRequest(IBus *bus, IRequest *req) = 0;
 };
+
+Q_DECLARE_INTERFACE(IModule,
+                    "com.thereconnected.OwNet.IModule/1.0")
 
 #endif // IMODULE_H

@@ -1,22 +1,15 @@
 #ifndef DATABASEMODULE_H
 #define DATABASEMODULE_H
 
-#include <imodule.h>
-#include <QByteArray>
+#include "irestmodule.h"
 #include "ibus.h"
 
-class DatabaseModule : public IModule
+class DatabaseModule : public IRestModule
 {
-    Q_OBJECT
 public:
-    explicit DatabaseModule(QObject *parent = NULL);
+    explicit DatabaseModule();
 
-   QByteArray *processRequest(IBus *bus, ProxyRequest *req);
-
-signals:
-
-public slots:
-
+    QString name() const { return "db"; }
 };
 
 #endif // DATABASEMODULE_H

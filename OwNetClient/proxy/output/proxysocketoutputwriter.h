@@ -14,7 +14,7 @@ class ProxySocketOutputWriter : public ProxyOutputWriter
     Q_OBJECT
 
 public:
-    ProxySocketOutputWriter(int socketDescriptor, ProxyHandler *proxyHandler);
+    ProxySocketOutputWriter(int socketDescriptor, ProxyHandlerSession *proxyHandler);
 
     enum {
         BufferSize = 8192

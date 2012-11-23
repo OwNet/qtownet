@@ -1,6 +1,10 @@
 #include "applicationdatastorage.h"
 
-#include <QDesktopServices>
+#include "applicationenvironment.h"
+#include "messagehelper.h"
+#include "settings.h"
+
+#include <QDir>
 
 ApplicationDataStorage::ApplicationDataStorage(QObject *parent) :
     QObject(parent)
@@ -9,10 +13,26 @@ ApplicationDataStorage::ApplicationDataStorage(QObject *parent) :
 
 QDir ApplicationDataStorage::appDataDirectory()
 {
-    QDir dir(QDesktopServices::storageLocation(QDesktopServices::DataLocation));
-    if (!dir.exists("OwNetClient"))
-        dir.mkdir("OwNetClient");
+    QDir dir;
+    QString path = Settings().value("application/data_folder_path").toString();
+    if (!path.isEmpty()) {
+        dir.setPath(path);
+        if (!dir.exists())
+            dir.mkpath(dir.absolutePath());
+        return dir;
+    }
+    return dir;
+}
 
-    dir.cd("OwNetClient");
+QDir ApplicationDataStorage::appResourcesDirectory()
+{
+    QDir dir;
+    QString path = Settings().value("application/resources_folder_path").toString();
+    if (!path.isEmpty()) {
+        dir.setPath(path);
+        if (!dir.exists())
+            dir.mkpath(dir.absolutePath());
+        return dir;
+    }
     return dir;
 }

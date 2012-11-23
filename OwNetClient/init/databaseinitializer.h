@@ -11,9 +11,8 @@ public:
     void init();
 
 private:
-    void createUserTable();
-
-
+    void openDatabase();
+    void runMigrations();
 };
 
 #endif // DATABASEINITIALIZER_H

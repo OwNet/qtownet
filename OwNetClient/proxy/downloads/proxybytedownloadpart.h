@@ -10,7 +10,7 @@
 class ProxyByteDownloadPart : public ProxyDownloadPart
 {
 public:
-    ProxyByteDownloadPart(QByteArray *bytes, QObject *parent = NULL);
+    ProxyByteDownloadPart(QByteArray *bytes, int nextDownloadPartIndex, QObject *parent = NULL);
     ~ProxyByteDownloadPart();
 
     QIODevice *stream();
