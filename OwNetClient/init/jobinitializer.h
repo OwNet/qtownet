@@ -16,7 +16,6 @@ public:
 private:
     CleanCacheJob *m_cleanCacheJob;
     ProxyTrafficCounterJob *m_trafficCounterJob;
-    HeartbeatJob *m_heartbeatJob;
 };
 
 #endif // JOBINITIALIZER_H
