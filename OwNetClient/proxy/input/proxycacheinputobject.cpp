@@ -41,6 +41,12 @@ ProxyCacheInputObject::ProxyCacheInputObject(ProxyRequest *request, QObject *par
         query.bindValue(":access_value", ProxyDownloads::instance()->gdsfClock()->getGDSFPriority(accessCount, size));
         query.exec();
     }
+
+    if (m_exists) {
+        QFile *file = CacheFolder().cacheFile(m_request, 0);
+        m_exists = file->exists();
+        delete file;
+    }
 }
 
 void ProxyCacheInputObject::readRequest()
