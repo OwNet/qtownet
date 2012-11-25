@@ -23,7 +23,7 @@ ProxyHandler * ProxyServer::initializeProxyHandler()
     handler->moveToThread(t);
 
     connect(handler, SIGNAL(disposeThread()), t, SLOT(quit()));
-    connect(t, SIGNAL(finished()), t, SLOT(deleteLater()));
+    //connect(t, SIGNAL(finished()), t, SLOT(deleteLater()));
     connect(handler, SIGNAL(requestFinished(ProxyHandler *)), this, SLOT(proxyRequestFinished(ProxyHandler *)));
 
     return handler;
@@ -50,12 +50,12 @@ void ProxyServer::incomingConnection(int handle)
 void ProxyServer::proxyRequestFinished(ProxyHandler *handler) {
     m_freeHandlersMutex.lock();
 
-    if (m_freeHandlerIds.count() > MaxNumberOfProxyHandlers) {
-        m_handlersMap.remove(handler->handlerId());
+    /*if (m_freeHandlerIds.count() > MaxNumberOfProxyHandlers) {
+        m_handlersMap.remove(handler->handlerId());*/
         handler->dispose();
-    } else {
+    /*} else {
         m_freeHandlerIds.enqueue(handler->handlerId());
-    }
+    }*/
 
     m_freeHandlersMutex.unlock();
 }

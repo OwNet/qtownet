@@ -68,6 +68,7 @@ void ProxySocketOutputWriter::virtualClose()
             if (m_socket->state() != QAbstractSocket::UnconnectedState)
                 m_socket->waitForDisconnected();
         }
+        m_socket = NULL;
         m_openRequests->remove(m_requestHashCode);
     }
 }

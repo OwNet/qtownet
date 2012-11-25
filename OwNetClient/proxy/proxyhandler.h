@@ -24,11 +24,9 @@ class ProxyHandler : public QObject
 
 public:
     ProxyHandler(int handlerId, QObject *parent = NULL);
-    ~ProxyHandler();
 
     void setDescriptorAndStart(int handle);
 
-    bool isActive() { return m_isActive; }
     int handlerId() { return m_handlerId; }
     void dispose();
 
@@ -49,10 +47,8 @@ private slots:
 private:
     int m_socketDescriptor;
     int m_handlerId;
-    bool m_isActive;
 
     ProxyHandlerSession *m_proxyHandlerSession;
-    QSemaphore *m_openSemaphore;
     QTimer *m_timeoutTimer;
 };
 
