@@ -21,7 +21,6 @@ void ModuleInitializer::init()
     // here have to be all the used modules
 
     ProxyRequestBus::registerModule(new RequestRouter(new DatabaseModule(), this));
-    ProxyRequestBus::registerModule(new RequestRouter(new GroupModule()));
 
     loadPlugins();
 }

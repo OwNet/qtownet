@@ -3,4 +3,5 @@ TEMPLATE = subdirs
 SUBDIRS += \
     SampleModule \
     SessionModule \
-    UsersModule
+    UsersModule \
+    GroupsModule
