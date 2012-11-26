@@ -16,9 +16,10 @@ SessionService::SessionService(IProxyConnection *proxyConnection, QObject *paren
 QVariant *SessionService::create(IBus *bus, IRequest *req)
 {
     QVariantMap response;
+    QObject parent;
 
     // if user is already loggedIn
-    if (m_proxyConnection->session()->isLoggedIn()) {
+    if (m_proxyConnection->session(&parent)->isLoggedIn()) {
         bus->setHttpStatus(400, "Bad Request");
         return new QVariant;
     }
@@ -34,7 +35,7 @@ QVariant *SessionService::create(IBus *bus, IRequest *req)
     q.bindValue(":password", password);
 
     if (q.exec() && q.first()) {
-        m_proxyConnection->session()->setValue("logged", q.value(0));
+        m_proxyConnection->session(&parent)->setValue("logged", q.value(0));
         bus->setHttpStatus(201,"Created");
 
         response.insert("user_id", q.value(0));
@@ -47,13 +48,14 @@ QVariant *SessionService::create(IBus *bus, IRequest *req)
 QVariant *SessionService::del(IBus *bus, IRequest *)
 {
     QVariantMap response;
+    QObject parent;
 
-    if (!m_proxyConnection->session()->isLoggedIn()) {
+    if (!m_proxyConnection->session(&parent)->isLoggedIn()) {
         bus->setHttpStatus(400, "Bad Request");
         response.insert("success", false);
     }
 
-    m_proxyConnection->session()->clear();
+    m_proxyConnection->session(&parent)->clear();
     response.insert("success", true);
 
     return new QVariant(response);
