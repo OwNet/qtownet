@@ -19,12 +19,6 @@ public:
     virtual QByteArray* callModule(IRequest *req) = 0;
 
     virtual void setHttpStatus(int code, const QString &description) = 0;
-
-    virtual ISession *session() = 0;
-
-    virtual IDatabaseUpdate *databaseUpdate() = 0;
-
-    virtual QSettings *settings() = 0;
 };
 
 #endif // IBUS_H

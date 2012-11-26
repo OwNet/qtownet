@@ -3,17 +3,15 @@
 
 #include <QObject>
 
-#include "modules/irestmodule.h"
+#include "imodule.h"
 
-class SampleModule : public QObject, public IRestModule
+class SampleModule : public QObject, public IModule
 {
     Q_OBJECT
-    Q_INTERFACES(IRestModule)
+    Q_INTERFACES(IModule)
 
 public:
-    QString name() const { return "sample"; }
-
-    QVariant *index(IBus *, IRequest *request);
+    QList<IRestService*> *restServices();
 };
 
 #endif // SAMPLEMODULE_H

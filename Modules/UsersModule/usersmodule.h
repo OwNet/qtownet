@@ -2,20 +2,21 @@
 #define USERSMODULE_H
 
 #include <QObject>
+#include <QList>
 
-#include "modules/irestmodule.h"
+#include "imodule.h"
 
-class UsersModule : public QObject, public IRestModule
+class UsersModule : public QObject, public IModule
 {
     Q_OBJECT
-    Q_INTERFACES(IRestModule)
+    Q_INTERFACES(IModule)
 
 public:
-    QString name() const { return "users"; }
+    void init(IProxyConnection *proxyConnection);
+    QList<IRestService*> *restServices();
 
-    QVariant *create(IBus *bus, IRequest *req);
-    QVariant *show(IBus *bus, IRequest *req);
-    QVariant *index(IBus *bus, IRequest *);
+private:
+    QList<IRestService*> m_services;
 };
 
 #endif // USERSMODULE_H
