@@ -2,13 +2,12 @@
 #define IRESTMODULE_H
 
 #include <QString>
-#include <QtPlugin>
 
 class QVariant;
 class IRequest;
 class IBus;
 
-class IRestModule
+class IRestService
 {
 public:
     virtual QString name() const = 0;
@@ -30,8 +29,5 @@ public:
     // other action
     virtual QVariant *processRequest(IBus *, IRequest *) { return NULL; }
 };
-
-Q_DECLARE_INTERFACE(IRestModule,
-                    "com.thereconnected.OwNet.IRestModule/1.0")
 
 #endif // IRESTMODULE_H

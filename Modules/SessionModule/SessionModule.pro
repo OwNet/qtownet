@@ -5,11 +5,13 @@ TARGET          = $$qtLibraryTarget(ownet_sessionmodule)
 TEMPLATE        = lib
 CONFIG         += plugin
 
-INCLUDEPATH    += ../../OwNetClient
+INCLUDEPATH    += ../../OwNetClient/modules/interfaces
 
-SOURCES        += sessionmodule.cpp
+SOURCES        += sessionmodule.cpp \
+    service.cpp
 
-HEADERS        += sessionmodule.h
+HEADERS        += sessionmodule.h \
+    service.h
 
 TARGET          = $$qtLibraryTarget(ownet_sessionmodule)
 macx:DESTDIR    = ../../OwNetClient/OwNetClient.app/Contents/MacOS/modules
