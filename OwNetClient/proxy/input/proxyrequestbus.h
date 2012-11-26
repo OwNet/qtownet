@@ -23,10 +23,6 @@ public:
 
     static void registerModule(RequestRouter *router);
 
-    ISession *session();
-    IDatabaseUpdate *databaseUpdate();
-    QSettings *settings();
-
 protected:
     void readRequest();
 

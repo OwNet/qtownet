@@ -1,15 +1,19 @@
 #include "moduleinitializer.h"
-#include "proxyrequestbus.h"
-#include "qlist.h"
 
+#include "proxyrequestbus.h"
 #include "imodule.h"
+#include "irestservice.h"
+#include "iservice.h"
 #include "databasemodule.h"
 #include "requestrouter.h"
-#include "groupmodule.h"
+#include "proxyconnection.h"
+#include "ijobaction.h"
+#include "modulejob.h"
 
 #include <QDir>
 #include <QPluginLoader>
 #include <QApplication>
+#include <QList>
 
 ModuleInitializer::ModuleInitializer(QObject *parent) :
     QObject(parent)
@@ -23,6 +27,26 @@ void ModuleInitializer::init()
     ProxyRequestBus::registerModule(new RequestRouter(new DatabaseModule(), this));
 
     loadPlugins();
+}
+
+void ModuleInitializer::initModule(IModule *module)
+{
+    module->init(new ProxyConnection(this));
+
+    QList<IService *> *services = module->services();
+    if (services)
+        foreach (IService *service, *services)
+            ProxyRequestBus::registerModule(new RequestRouter(service, this));
+
+    QList<IRestService *> *restServices = module->restServices();
+    if (restServices)
+        foreach (IRestService *service, *restServices)
+            ProxyRequestBus::registerModule(new RequestRouter(service, this));
+
+    QList<IJobAction *> *jobs = module->jobs();
+    if (jobs)
+        foreach (IJobAction *jobAction, *jobs)
+            new ModuleJob(jobAction, this);
 }
 
 void ModuleInitializer::loadPlugins()
@@ -42,13 +66,8 @@ void ModuleInitializer::loadPlugins()
 
         if (plugin) {
             IModule *module = qobject_cast<IModule *>(plugin);
-            if (module) {
-                ProxyRequestBus::registerModule(new RequestRouter(module, this));
-            } else {
-                IRestModule *restModule = qobject_cast<IRestModule *>(plugin);
-                if (restModule)
-                    ProxyRequestBus::registerModule(new RequestRouter(restModule, this));
-            }
+            if (module)
+                initModule(module);
         }
     }
 }

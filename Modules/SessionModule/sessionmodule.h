@@ -4,19 +4,19 @@
 #include <QObject>
 #include <QVariantMap>
 
-#include "modules/irestmodule.h"
+#include "imodule.h"
 
-class SessionModule : public QObject, public IRestModule
+class SessionModule : public QObject, public IModule
 {
     Q_OBJECT
-    Q_INTERFACES(IRestModule)
+    Q_INTERFACES(IModule)
 
 public:
-    QString name() const { return "session"; }
+    void init(IProxyConnection *proxyConnection);
+    QList<IRestService*> *restServices();
 
-    QVariant *create(IBus *bus, IRequest *req);
-
-    QVariant *del(IBus *bus, IRequest *);
+private:
+    QList<IRestService *> m_services;
 };
 
 #endif // SESSIONMODULE_H

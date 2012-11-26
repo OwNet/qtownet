@@ -2,11 +2,14 @@
 #include "ui_mainwindow.h"
 
 #include "preferencesdialog.h"
+#include "proxysocketoutputwriter.h"
 
 #include <QSystemTrayIcon>
 #include <QAction>
 #include <QDesktopServices>
 #include <QUrl>
+#include <QShortcut>
+#include <QDebug>
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -18,6 +21,10 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->btnPreferences, SIGNAL(clicked()), this, SLOT(showPreferences()));
 
     createTrayIcon();
+
+    QShortcut *dumpSockets = new QShortcut(QKeySequence(tr("Ctrl+L", "Dump Open Socket")), this);
+    dumpSockets->setContext(Qt::ApplicationShortcut);
+    connect(dumpSockets, SIGNAL(activated()), this, SLOT(dumpOpenSockets()));
 }
 
 MainWindow::~MainWindow()
@@ -34,6 +41,16 @@ void MainWindow::showPreferences()
 void MainWindow::openMyOwNet()
 {
     QDesktopServices::openUrl(QUrl("http://my.ownet"));
+}
+
+void MainWindow::dumpOpenSockets()
+{
+    qDebug() << tr("+++ Open Sockets +++");
+
+    foreach (QString url, ProxySocketOutputWriter::dumpOpenRequests())
+        qDebug() << url;
+
+    qDebug() << tr("--- Open Sockets ---");
 }
 
 void MainWindow::createTrayIcon()

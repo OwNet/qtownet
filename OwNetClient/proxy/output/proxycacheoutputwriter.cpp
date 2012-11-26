@@ -8,6 +8,7 @@
 #include "proxydownloads.h"
 #include "gdsfclock.h"
 #include "databaseupdate.h"
+#include "proxycachefiledownloadpart.h"
 
 #include <QFile>
 #include <QIODevice>
@@ -16,13 +17,20 @@
 #include <QSqlRecord>
 
 ProxyCacheOutputWriter::ProxyCacheOutputWriter(ProxyDownload *download, int downloadReaderId, ProxyHandlerSession *proxyHandlerSession)
-    : ProxyOutputWriter(proxyHandlerSession), m_partSizeWritten(0), m_sizeWritten(0), m_numParts(0), m_failed(false), m_firstRead(true)
+    : ProxyOutputWriter(proxyHandlerSession),
+      m_partSizeWritten(0),
+      m_sizeWritten(0),
+      m_numFileParts(0),
+      m_fileStartedAtMemoryPart(0),
+      m_failed(false),
+      m_firstRead(true),
+      m_currentMemoryPart(-1),
+      m_cacheFile(NULL)
 {
     m_downloadReaderId = downloadReaderId;
     m_proxyDownload = download;
     m_request = m_proxyDownload->inputObject()->request();
     m_hashCode = m_request->hashCode();
-    createCacheFile();
     connectProxyDownload();
 }
 
@@ -44,6 +52,8 @@ void ProxyCacheOutputWriter::virtualClose()
  */
 void ProxyCacheOutputWriter::read(QIODevice *ioDevice)
 {
+    m_currentMemoryPart++;
+
     if (m_firstRead) {
         m_firstRead = false;
         m_url = m_request->url();
@@ -52,13 +62,13 @@ void ProxyCacheOutputWriter::read(QIODevice *ioDevice)
         m_statusCode = m_proxyDownload->inputObject()->httpStatusCode().toInt();
         m_statusDescription = m_proxyDownload->inputObject()->httpStatusDescription();
     }
-    if (m_partSizeWritten > MaxFileSize) {
-        m_cacheFile->close();
-        delete m_cacheFile;
-        m_cacheFile = NULL;
 
+    if (m_partSizeWritten > MaxFileSize)
+        finishedWritingToCacheFile();
+
+    if (!m_cacheFile)
         createCacheFile();
-    }
+
     m_cacheFile->write(ioDevice->readAll());
     long size = ioDevice->size();
     m_partSizeWritten += size;
@@ -95,7 +105,7 @@ void ProxyCacheOutputWriter::save()
     query->setColumnValue("absolute_uri", m_url);
     query->setColumnValue("request_headers", m_requestHeaders);
     query->setColumnValue("response_headers", m_responseHeaders);
-    query->setColumnValue("num_parts", m_numParts);
+    query->setColumnValue("num_parts", m_numFileParts);
     query->setColumnValue("status_code", m_statusCode);
     query->setColumnValue("status_description", m_statusDescription);
     query->setColumnValue("size", m_sizeWritten);
@@ -115,12 +125,25 @@ void ProxyCacheOutputWriter::error()
     m_cacheFile = NULL;
 
     CacheFolder cacheFolder;
-    for (int i = 0; i < m_numParts; ++i) {
+    for (int i = 0; i < m_numFileParts; ++i) {
         QFile *file = cacheFolder.cacheFile(m_hashCode, i);
         if (file->exists())
             file->remove();
         delete file;
     }
+}
+
+void ProxyCacheOutputWriter::finishedWritingToCacheFile()
+{
+    QString fileName = m_cacheFile->fileName();
+
+    m_cacheFile->close();
+    delete m_cacheFile;
+    m_cacheFile = NULL;
+
+    if (m_proxyDownload)
+        m_proxyDownload->replaceDownloadParts(new ProxyCacheFileDownloadPart(fileName, m_currentMemoryPart, parent()),
+                                              m_fileStartedAtMemoryPart);
 }
 
 /**
@@ -129,8 +152,9 @@ void ProxyCacheOutputWriter::error()
 void ProxyCacheOutputWriter::createCacheFile()
 {
     CacheFolder cacheFolder;
-    m_cacheFile = cacheFolder.cacheFile(m_hashCode, m_numParts, this);
+    m_cacheFile = cacheFolder.cacheFile(m_hashCode, m_numFileParts, this);
     m_cacheFile->open(QIODevice::WriteOnly);
-    m_numParts++;
+    m_fileStartedAtMemoryPart = m_currentMemoryPart;
+    m_numFileParts++;
     m_partSizeWritten = 0;
 }

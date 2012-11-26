@@ -32,10 +32,10 @@ void ProxyWebInputObject::readRequest()
         reply = manager->get(request);
         break;
     case ProxyRequest::POST:
-        reply = manager->post(request, new QBuffer(new QByteArray(m_request->requestBody())));
+        reply = manager->post(request, new QBuffer(new QByteArray(m_request->requestBody()), this));
         break;
     case ProxyRequest::PUT:
-        reply = manager->put(request, new QBuffer(new QByteArray(m_request->requestBody())));
+        reply = manager->put(request, new QBuffer(new QByteArray(m_request->requestBody()), this));
         break;
     case ProxyRequest::DELETE:
         reply = manager->deleteResource(request);
@@ -72,7 +72,7 @@ void ProxyWebInputObject::error(QNetworkReply::NetworkError)
     if (!m_readHeaders) {
         readResponseHeaders(reply);
 
-        emit readyRead(new QBuffer());
+        emit readyRead(new QBuffer(this));
     }
     MessageHelper::debug(reply->errorString());
 
@@ -86,7 +86,7 @@ void ProxyWebInputObject::downloadFinished()
         QNetworkReply *reply = qobject_cast<QNetworkReply*>(sender());
         readResponseHeaders(reply);
 
-        emit readyRead(new QBuffer());
+        emit readyRead(new QBuffer(this));
     }
 
     disconnect(this);
