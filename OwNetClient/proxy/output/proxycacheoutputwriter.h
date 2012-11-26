@@ -12,7 +12,7 @@ class QFile;
 class ProxyCacheOutputWriter : public ProxyOutputWriter
 {
 public:
-    ProxyCacheOutputWriter(ProxyDownload *download, ProxyHandler *proxyHandler, QObject *parent = NULL);
+    ProxyCacheOutputWriter(ProxyDownload *download, int downloadReaderId, ProxyHandlerSession *proxyHandlerSession);
 
     enum {
         MaxFileSize = 524288 // 0.5 MB
@@ -25,14 +25,25 @@ protected:
     void error();
 
 private:
+    void finishedWritingToCacheFile();
     void createCacheFile();
 
     QFile *m_cacheFile;
     ProxyRequest *m_request;
     qint64 m_partSizeWritten;
     qint64 m_sizeWritten;
-    int m_numParts;
+    int m_numFileParts;
+    int m_fileStartedAtMemoryPart;
+    int m_currentMemoryPart;
     bool m_failed;
+    bool m_firstRead;
+
+    int m_hashCode;
+    QString m_url;
+    QString m_requestHeaders;
+    QString m_responseHeaders;
+    int m_statusCode;
+    QString m_statusDescription;
 };
 
 #endif // PROXYCACHEOUTPUTWRITER_H

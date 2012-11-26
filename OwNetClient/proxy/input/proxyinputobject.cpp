@@ -2,8 +2,8 @@
 
 #include "messagehelper.h"
 
-ProxyInputObject::ProxyInputObject(ProxyRequest *request, QObject *parent) :
-    QObject(parent), m_request(request), m_downloadStarted(false)
+ProxyInputObject::ProxyInputObject(ProxyRequest *request, QObject *parent)
+    : QObject(parent), m_request(request), m_downloadStarted(false)
 {
 }
 
@@ -28,7 +28,7 @@ void ProxyInputObject::setHttpStatusDescription(const QString &description)
 void ProxyInputObject::setContentType(const QString &value)
 {
     m_contentType = value;
-    m_responseHeaders.insertOrReplace("Content-type", value);
+    m_responseHeaders.insertCaseInsensitive("Content-type", value);
 }
 
 void ProxyInputObject::addHeader(const QString &key, const QString &value)

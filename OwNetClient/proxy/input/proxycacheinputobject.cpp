@@ -29,7 +29,7 @@ ProxyCacheInputObject::ProxyCacheInputObject(ProxyRequest *request, QObject *par
                                           .toByteArray(), &ok)
                 .toMap();
         if (ok)
-            m_responseHeaders.parse(result);
+            m_responseHeaders = VariantMap(result);
 
         int accessCount = query.value(query.record().indexOf("access_count")).toInt() + 1;
         long size = query.value(query.record().indexOf("size")).toLongLong();
@@ -40,6 +40,12 @@ ProxyCacheInputObject::ProxyCacheInputObject(ProxyRequest *request, QObject *par
         query.bindValue(":access_count", accessCount);
         query.bindValue(":access_value", ProxyDownloads::instance()->gdsfClock()->getGDSFPriority(accessCount, size));
         query.exec();
+    }
+
+    if (m_exists) {
+        QFile *file = CacheFolder().cacheFile(m_request, 0);
+        m_exists = file->exists();
+        delete file;
     }
 }
 

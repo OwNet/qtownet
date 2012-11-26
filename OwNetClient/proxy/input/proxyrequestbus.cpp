@@ -2,12 +2,16 @@
 
 #include "proxyrequest.h"
 #include "qjson/serializer.h"
+#include "requestrouter.h"
+#include "session.h"
+#include "databaseupdate.h"
+#include "settings.h"
 
 #include <QBuffer>
 #include <QVariantList>
 #include <QDebug>
 
-QMap<QString, IModule*> *ProxyRequestBus::m_routes = new QMap<QString, IModule*>();
+QMap<QString, RequestRouter*> *ProxyRequestBus::m_routes = new QMap<QString, RequestRouter*>();
 
 ProxyRequestBus::ProxyRequestBus(ProxyRequest *request, QObject *parent)
     : ProxyInputObject(request, parent), m_request(request)
@@ -48,11 +52,11 @@ void ProxyRequestBus::readRequest()
  * @param req
  * @return processedRequest from module in byte array
  */
-QByteArray* ProxyRequestBus::callModule( ProxyRequest *req)
+QByteArray* ProxyRequestBus::callModule(IRequest *req)
 {
     // need to find only first part of url (module url)
 
-    return m_routes->value(req->module())->processRequest(this,req);
+    return m_routes->value(req->module())->processRequest(this, req);
 }
 
 void ProxyRequestBus::setHttpStatus(int code, const QString &description)
@@ -61,7 +65,7 @@ void ProxyRequestBus::setHttpStatus(int code, const QString &description)
     setHttpStatusDescription(description);
 }
 
-void ProxyRequestBus::registerModule(IModule *newModule, QString url)
+void ProxyRequestBus::registerModule(RequestRouter *router)
 {
-    m_routes->insert(url, newModule);
+    m_routes->insert(router->moduleName(), router);
 }

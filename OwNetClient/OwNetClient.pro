@@ -31,10 +31,8 @@ SOURCES += main.cpp\
     helpers/qjson/qobjecthelper.cpp \
     helpers/qjson/serializer.cpp \
     helpers/qjson/serializerrunnable.cpp \
-    proxy/input/bus/proxyrequestbus.cpp \
-    modules/imodule.cpp \
+    proxy/input/proxyrequestbus.cpp \
     init/moduleinitializer.cpp \
-    modules/ibus.cpp \
     init/databaseinitializer.cpp \
     modules/databasemodule.cpp \
     proxy/downloads/proxydownloads.cpp \
@@ -49,8 +47,6 @@ SOURCES += main.cpp\
     proxy/downloads/proxybytedownloadpart.cpp \
     proxy/downloads/proxystreamdownloadpart.cpp \
     proxy/downloads/proxylastdownloadpart.cpp \
-    modules/usermodule.cpp \
-    modules/sessionmodule.cpp\
     jobs/job.cpp \
     init/jobinitializer.cpp \
     jobs/cleancachejob.cpp \
@@ -60,7 +56,17 @@ SOURCES += main.cpp\
     helpers/applicationenvironment.cpp \
     helpers/applicationproxyfactory.cpp \
     proxy/proxytrafficcounter.cpp \
-    jobs/proxytrafficcounterjob.cpp
+    jobs/proxytrafficcounterjob.cpp \
+    proxy/proxyhandlersession.cpp \
+    helpers/settings.cpp \
+    view/preferencesdialog.cpp \
+    init/settingsinitializer.cpp \
+    proxy/downloads/proxycachefiledownloadpart.cpp \
+    helpers/variantmap.cpp \
+    modules/requestrouter.cpp \
+    helpers/session.cpp \
+    helpers/proxyconnection.cpp \
+    jobs/modulejob.cpp
 
 HEADERS  += view/mainwindow.h \
         proxy/proxyserver.h \
@@ -85,10 +91,10 @@ HEADERS  += view/mainwindow.h \
     helpers/qjson/serializer.h \
     helpers/qjson/serializerrunnable.h \
     helpers/qjson/stack.hh \
-    proxy/input/bus/proxyrequestbus.h \
-    modules/imodule.h \
+    proxy/input/proxyrequestbus.h \
+    modules/interfaces/imodule.h \
     init/moduleinitializer.h \
-    modules/ibus.h \
+    modules/interfaces/ibus.h \
     init/databaseinitializer.h \
     modules/databasemodule.h \
     proxy/downloads/proxydownloads.h \
@@ -103,8 +109,6 @@ HEADERS  += view/mainwindow.h \
     proxy/downloads/proxybytedownloadpart.h \
     proxy/downloads/proxystreamdownloadpart.h \
     proxy/downloads/proxylastdownloadpart.h \
-    modules/usermodule.h \
-    modules/sessionmodule.h\
     jobs/job.h \
     init/jobinitializer.h \
     jobs/cleancachejob.h \
@@ -114,9 +118,28 @@ HEADERS  += view/mainwindow.h \
     helpers/applicationenvironment.h \
     helpers/applicationproxyfactory.h \
     proxy/proxytrafficcounter.h \
-    jobs/proxytrafficcounterjob.h
+    jobs/proxytrafficcounterjob.h \
+    proxy/proxyhandlersession.h \
+    helpers/settings.h \
+    view/preferencesdialog.h \
+    init/settingsinitializer.h \
+    proxy/downloads/proxycachefiledownloadpart.h \
+    modules/interfaces/irequest.h \
+    helpers/variantmap.h \
+    modules/requestrouter.h \
+    modules/interfaces/isession.h \
+    helpers/session.h \
+    modules/interfaces/idatabaseupdate.h \
+    modules/interfaces/idatabaseupdatequery.h \
+    modules/interfaces/ijobaction.h \
+    modules/interfaces/iproxyconnection.h \
+    helpers/proxyconnection.h \
+    modules/interfaces/iservice.h \
+    modules/interfaces/irestservice.h \
+    jobs/modulejob.h
 
-FORMS    += view/mainwindow.ui
+FORMS    += view/mainwindow.ui \
+    view/preferencesdialog.ui
 
 INCLUDEPATH += proxy \
     init \
@@ -125,7 +148,12 @@ INCLUDEPATH += proxy \
     proxy/input \
     proxy/input/bus \
     proxy/downloads \
-    proxy/output modules \
+    proxy/output \
+    modules \
+    modules/interfaces \
     jobs \
     cache \
     database
+
+RESOURCES += \
+    resources.qrc

@@ -3,8 +3,13 @@
 #include <QDebug>
 #include "qjson/serializer.h"
 
-DatabaseUpdate::DatabaseUpdate(bool sync, QObject *parent) :
-    QObject(parent), m_sync(sync)
+DatabaseUpdate::DatabaseUpdate(QObject *parent)
+    : QObject(parent), m_sync(true)
+{
+}
+
+DatabaseUpdate::DatabaseUpdate(bool sync, QObject *parent)
+    : QObject(parent), m_sync(sync)
 {
 }
 
@@ -14,7 +19,7 @@ DatabaseUpdate::DatabaseUpdate(bool sync, QObject *parent) :
  * @param type Query type
  * @return
  */
-DatabaseUpdateQuery *DatabaseUpdate::createUpdateQuery(const QString &table, DatabaseUpdateQuery::EntryType type)
+IDatabaseUpdateQuery *DatabaseUpdate::createUpdateQuery(const QString &table, DatabaseUpdateQuery::EntryType type)
 {
     DatabaseUpdateQuery *query = new DatabaseUpdateQuery(table, type, this);
     m_updateQueries.append(query);
@@ -26,7 +31,7 @@ DatabaseUpdateQuery *DatabaseUpdate::createUpdateQuery(const QString &table, Dat
  * @param content JSON formatted content
  * @return
  */
-DatabaseUpdateQuery *DatabaseUpdate::createUpdateQuery(const QVariantMap &content)
+IDatabaseUpdateQuery *DatabaseUpdate::createUpdateQuery(const QVariantMap &content)
 {
     DatabaseUpdateQuery *query = new DatabaseUpdateQuery(content, this);
     m_updateQueries.append(query);

@@ -4,14 +4,16 @@
 #include "proxyrequest.h"
 #include "messagehelper.h"
 #include "proxyinputobject.h"
-#include "proxyhandler.h"
+#include "proxyhandlersession.h"
 
 #include <QTcpSocket>
 #include <QFile>
 #include <QSemaphore>
 
-ProxySocketOutputWriter::ProxySocketOutputWriter(int socketDescriptor, ProxyHandler *proxyHandler) :
-    ProxyOutputWriter(proxyHandler, proxyHandler), m_socketDescriptor(socketDescriptor), m_writtenToSocket(false), m_foundBody(false), m_socket(NULL)
+QMap<int, QString> *ProxySocketOutputWriter::m_openRequests = new QMap<int, QString>();
+
+ProxySocketOutputWriter::ProxySocketOutputWriter(int socketDescriptor, ProxyHandlerSession *proxyHandlerSession)
+    : ProxyOutputWriter(proxyHandlerSession), m_socketDescriptor(socketDescriptor), m_writtenToSocket(false), m_foundBody(false), m_socket(NULL)
 {
 }
 
@@ -26,18 +28,30 @@ void ProxySocketOutputWriter::startDownload()
 }
 
 /**
+ * @brief Return list of requests that are currently being processed.
+ * @return List of open requests
+ */
+QList<QString> ProxySocketOutputWriter::dumpOpenRequests()
+{
+    return m_openRequests->values();
+}
+
+/**
  * @brief Triggered when socket is ready to be read.
  */
 void ProxySocketOutputWriter::readRequest()
 {
-    ProxyRequest *request = new ProxyRequest(m_socket, m_proxyHandler);
+    ProxyRequest *request = new ProxyRequest(m_socket, m_proxyHandlerSession);
 
     if (!request->readFromSocket()) {
         MessageHelper::debug("Failed to read from socket.");
-        finish();
+        forceQuit();
         return;
     }
+    m_requestHashCode = request->hashCode();
+
     MessageHelper::debug(request->url());
+//    m_openRequests->insert(m_requestHashCode, request->url());
 
     createDownload(request);
 }
@@ -54,6 +68,8 @@ void ProxySocketOutputWriter::virtualClose()
             if (m_socket->state() != QAbstractSocket::UnconnectedState)
                 m_socket->waitForDisconnected();
         }
+        m_socket = NULL;
+//        m_openRequests->remove(m_requestHashCode);
     }
 }
 
@@ -77,9 +93,11 @@ void ProxySocketOutputWriter::read(QIODevice *ioDevice)
            << " "
            << m_proxyDownload->inputObject()->httpStatusDescription()
            << "\r\n";
-        ListOfStringPairs headers = m_proxyDownload->inputObject()->responseHeaders();
-        for (int i = 0; i < headers.count(); ++i) {
-            os << headers.at(i).first << ": " << headers.at(i).second << "\r\n";
+        foreach (QString key, m_proxyDownload->inputObject()->responseHeaders().keys()) {
+            os << key
+               << ": "
+               << m_proxyDownload->inputObject()->responseHeaders().value(key).toString()
+               << "\r\n";
         }
         os << "\r\n";
         os.flush();

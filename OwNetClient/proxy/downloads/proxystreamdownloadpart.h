@@ -10,7 +10,7 @@
 class ProxyStreamDownloadPart : public ProxyDownloadPart
 {
 public:
-    ProxyStreamDownloadPart(QIODevice *stream, QObject *parent = NULL);
+    ProxyStreamDownloadPart(QIODevice *stream, int nextDownloadPartIndex, QObject *parent = NULL);
     ~ProxyStreamDownloadPart();
 
     QIODevice *stream() { return m_stream; }

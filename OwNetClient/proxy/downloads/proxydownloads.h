@@ -6,7 +6,7 @@
 
 class ProxyDownload;
 class ProxyRequest;
-class ProxyHandler;
+class ProxyHandlerSession;
 class GDSFClock;
 class ProxyTrafficCounter;
 
@@ -30,7 +30,7 @@ public:
     }
     ~ProxyDownloads();
 
-    ProxyDownload *proxyDownload(ProxyRequest *request, ProxyHandler *handler, int &downloadReaderId);
+    ProxyDownload *proxyDownload(ProxyRequest *request, ProxyHandlerSession *handlerSession, int &downloadReaderId);
     void deregisterDownloadReader(ProxyDownload *proxyDownload, int readerId);
     GDSFClock *gdsfClock() const { return m_gdsfClock; }
     ProxyTrafficCounter *trafficCounter() const { return m_trafficCounter; }

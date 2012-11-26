@@ -9,9 +9,10 @@
 
 class ProxyInputObject;
 class ProxyRequest;
-class ProxyHandler;
+class ProxyHandlerSession;
 class QIODevice;
 class ProxyDownloadPart;
+class ProxyCacheFileDownloadPart;
 
 /**
  * @brief Used as an intermediary between the input source (web, cache, disk) and the output writer (socket, cache)
@@ -20,8 +21,14 @@ class ProxyDownloadPart;
 class ProxyDownload : public QObject
 {
     Q_OBJECT
+
 public:
-    ProxyDownload(ProxyRequest *request, ProxyHandler *handler, QObject *parent = 0);
+    ProxyDownload(ProxyRequest *request, ProxyHandlerSession *handlerSession, QObject *parent = 0);
+
+    enum {
+        FirstDownloadPartIndex = 0,
+        FirstReaderId = 1
+    };
 
     ProxyInputObject *inputObject() { return m_inputObject; }
 
@@ -36,6 +43,7 @@ public:
     void close();
 
     ProxyDownloadPart *downloadPart(int readerId);
+    void replaceDownloadParts(ProxyCacheFileDownloadPart *downloadPart, int at);
     
 signals:
     void bytePartAvailable();
@@ -49,13 +57,16 @@ private slots:
     void inputObjectError();
     
 private:
+    void deleteUnnecessaryParts();
+
     ProxyInputObject *webInputObject(ProxyRequest *request);
 
     ProxyInputObject *m_inputObject;
-    ProxyHandler *m_proxyHandler;
+    ProxyHandlerSession *m_proxyHandlerSession;
 
     QMutex m_downloadPartsMutex;
-    QList<ProxyDownloadPart *> m_downloadParts;
+    QMap<int, ProxyDownloadPart *> m_downloadParts;
+    int m_nextDownloadPartIndex;
 
     QMutex m_readersMutex;
     QMap<int, int> m_readers;

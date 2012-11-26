@@ -2,8 +2,8 @@
 
 #include <QIODevice>
 
-ProxyStreamDownloadPart::ProxyStreamDownloadPart(QIODevice *stream, QObject *parent)
-    : ProxyDownloadPart(parent), m_stream(stream)
+ProxyStreamDownloadPart::ProxyStreamDownloadPart(QIODevice *stream, int nextDownloadPartIndex, QObject *parent)
+    : ProxyDownloadPart(nextDownloadPartIndex, parent), m_stream(stream)
 {
 }
 
