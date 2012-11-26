@@ -4,4 +4,5 @@ SUBDIRS += \
     SampleModule \
     SessionModule \
     UsersModule \
-    GroupsModule
+    GroupsModule\
+    RecommendationsModule
