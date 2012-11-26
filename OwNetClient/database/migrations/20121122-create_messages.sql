@@ -1,0 +1,9 @@
+CREATE TABLE messages (id INTEGER PRIMARY KEY,
+date_created TEXT NOT NULL,
+user_id INTEGER NOT NULL,
+message TEXT NOT NULL,
+parent_id INTEGER,
+
+FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE,
+FOREIGN KEY(parent_id) REFERENCES messages(id) ON DELETE CASCADE
+);
