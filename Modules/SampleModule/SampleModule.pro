@@ -8,10 +8,10 @@ CONFIG         += plugin
 INCLUDEPATH    += ../../OwNetClient/modules/interfaces
 
 SOURCES        += samplemodule.cpp \
-    service.cpp
+    sampleservice.cpp
 
 HEADERS        += samplemodule.h \
-    service.h
+    sampleservice.h
 
 TARGET          = $$qtLibraryTarget(ownet_samplemodule)
 macx:DESTDIR    = ../../OwNetClient/OwNetClient.app/Contents/MacOS/modules

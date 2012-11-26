@@ -5,11 +5,11 @@
 
 #include "irestservice.h"
 
-class Service : public QObject, public IRestService
+class SampleService : public QObject, public IRestService
 {
     Q_OBJECT
 public:
-    Service(QObject *parent = NULL);
+    SampleService(QObject *parent = NULL);
 
     QString name() const { return "sample"; }
     QVariant *index(IBus *, IRequest *request);

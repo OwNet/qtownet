@@ -1,4 +1,4 @@
-#include "service.h"
+#include "sessionservice.h"
 
 #include "irequest.h"
 #include "ibus.h"
@@ -7,13 +7,13 @@
 
 #include <QSqlQuery>
 
-Service::Service(IProxyConnection *proxyConnection, QObject *parent) :
+SessionService::SessionService(IProxyConnection *proxyConnection, QObject *parent) :
     QObject(parent),
     m_proxyConnection(proxyConnection)
 {
 }
 
-QVariant *Service::create(IBus *bus, IRequest *req)
+QVariant *SessionService::create(IBus *bus, IRequest *req)
 {
     QVariantMap response;
 
@@ -44,7 +44,7 @@ QVariant *Service::create(IBus *bus, IRequest *req)
     return new QVariant(response);
 }
 
-QVariant *Service::del(IBus *bus, IRequest *)
+QVariant *SessionService::del(IBus *bus, IRequest *)
 {
     QVariantMap response;
 

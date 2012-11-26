@@ -7,11 +7,11 @@
 
 class IProxyConnection;
 
-class Service : public QObject, public IRestService
+class UsersService : public QObject, public IRestService
 {
     Q_OBJECT
 public:
-    explicit Service(IProxyConnection *proxyConnection, QObject *parent = 0);
+    explicit UsersService(IProxyConnection *proxyConnection, QObject *parent = 0);
 
     QString name() const { return "users"; }
 

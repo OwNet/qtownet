@@ -8,10 +8,10 @@ CONFIG         += plugin
 INCLUDEPATH    += ../../OwNetClient/modules/interfaces
 
 SOURCES        += sessionmodule.cpp \
-    service.cpp
+    sessionservice.cpp
 
 HEADERS        += sessionmodule.h \
-    service.h
+    sessionservice.h
 
 TARGET          = $$qtLibraryTarget(ownet_sessionmodule)
 macx:DESTDIR    = ../../OwNetClient/OwNetClient.app/Contents/MacOS/modules
