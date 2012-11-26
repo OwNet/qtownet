@@ -15,7 +15,8 @@ public:
     RequestRouter(IService *iService, QObject *parent = 0);
     RequestRouter(IRestService *iRestService, QObject *parent = 0);
 
-    QByteArray *processRequest(IBus *bus, IRequest *req);
+    QByteArray *processRequest(IBus *bus, IRequest *req) const;
+    QVariant *processRestRequest(IBus *bus, IRequest *req) const;
 
     QString moduleName() const;
     

@@ -1,4 +1,4 @@
-#include "service.h"
+#include "usersservice.h"
 
 #include "irequest.h"
 #include "idatabaseupdate.h"
@@ -9,14 +9,14 @@
 #include <QSqlRecord>
 #include <QDateTime>
 
-Service::Service(IProxyConnection *proxyConnection, QObject *parent) :
+UsersService::UsersService(IProxyConnection *proxyConnection, QObject *parent) :
     QObject(parent),
     m_proxyConnection(proxyConnection)
 {
 }
 
 // create element
-QVariant *Service::create(IBus *bus, IRequest *req)
+QVariant *UsersService::create(IBus *bus, IRequest *req)
 {
     QVariantMap reqJson = req->postBodyFromJson();
 
@@ -71,7 +71,7 @@ QVariant *Service::create(IBus *bus, IRequest *req)
 }
 
 // show element
-QVariant *Service::show(IBus *bus, IRequest *req)
+QVariant *UsersService::show(IBus *bus, IRequest *req)
 {
     QSqlQuery query;
 
@@ -99,7 +99,7 @@ QVariant *Service::show(IBus *bus, IRequest *req)
     return new QVariant;
 }
 
-QVariant *Service::index(IBus *bus, IRequest *)
+QVariant *UsersService::index(IBus *bus, IRequest *)
 {
     QSqlQuery query;
 

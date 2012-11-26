@@ -66,7 +66,8 @@ SOURCES += main.cpp\
     modules/requestrouter.cpp \
     helpers/session.cpp \
     helpers/proxyconnection.cpp \
-    jobs/modulejob.cpp\
+    jobs/modulejob.cpp \
+    helpers/artificialrequest.cpp
 
 
 HEADERS  += view/mainwindow.h \
@@ -137,7 +138,8 @@ HEADERS  += view/mainwindow.h \
     helpers/proxyconnection.h \
     modules/interfaces/iservice.h \
     modules/interfaces/irestservice.h \
-    jobs/modulejob.h\
+    jobs/modulejob.h \
+    helpers/artificialrequest.h
 
 
 FORMS    += view/mainwindow.ui \

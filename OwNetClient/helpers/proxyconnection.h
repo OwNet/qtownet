@@ -14,6 +14,7 @@ public:
     ISession *session();
     IDatabaseUpdate *databaseUpdate();
     QSettings *settings();
+    IRequest *createRequest(IRequest::RequestType requestType, const QString &module, const QString &action = QString(), int id = -1);
 };
 
 #endif // PROXYCONNECTION_H
