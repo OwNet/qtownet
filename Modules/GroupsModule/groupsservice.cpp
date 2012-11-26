@@ -341,8 +341,7 @@ QVariant* GroupsService::index( IBus *bus,  IRequest *req)
 
 QVariant* GroupsService::edit(IBus *bus, IRequest *req)
 {
-    QSqlQuery query1;
-    bool allowEdit = false;
+
     QVariantMap reqJson = req->postBodyFromJson();
     QString curUser_id = m_proxyConnection->session()->value("logged").toString();
 
@@ -357,7 +356,7 @@ QVariant* GroupsService::edit(IBus *bus, IRequest *req)
                 query->setColumnValue("name", reqJson["name"]);
 
             if(reqJson["description"] != "")
-                query->setColumnValue("name", reqJson["description"]);
+                query->setColumnValue("description", reqJson["description"]);
 
             if(reqJson["has_approvement"] != "")
                 query->setColumnValue("has_approvement", reqJson["has_approvement"]);
@@ -412,6 +411,14 @@ QVariant* GroupsService::del(IBus *bus, IRequest *req)
             IDatabaseUpdateQuery *query = update->createUpdateQuery("groups", IDatabaseUpdateQuery::Delete);
             query->setUpdateDates(true);
             query->setWhere("id", reqJson["group_id"]);
+            if(!update->execute()){
+                bus->setHttpStatus(200,"OK");
+                return new QVariant;
+            }
+            else{
+                bus->setHttpStatus(500, "Internal Server Error");
+                return new QVariant;
+            }
      }
      else{
             bus->setHttpStatus(400, "Bad Request");
@@ -433,8 +440,29 @@ QVariant* GroupsService::processRequest(IBus *bus, IRequest *req)
     if(req->action() == "addAdmin")
         return this->addAdmin(bus, req);
 
+    if(req->action() == "getUsersGroups")
+        return this->getUsersGroups(bus, req);
+
+    if(req->action() == "getApprovements")
+        return this->getApprovements(bus, req);
+
+    if(req->action() == "getGroupUsers")
+        return this->getGroupUsers(bus, req);
+
+    if(req->action() == "deleteUser")
+        return this->deleteUser(bus, req);
+
     if(req->action() == "getGroupTypes")
         return this->getGroupTypes(bus, req);
+
+
+
+    if(req->action() == "isMember")
+        return new QVariant(this->isMember(req->parameterValue("user_id").toInt(),req->parameterValue("group_id").toInt()));
+
+    if(req->action() == "isAdmin"){
+        return new QVariant(this->isAdmin(req->parameterValue("user_id").toInt(),req->parameterValue("group_id").toInt()));
+    }
 
     return NULL;
 

@@ -16,8 +16,10 @@ public:
     QString name() const { return "users"; }
 
     QVariant *create(IBus *bus, IRequest *req);
-    QVariant *show(IBus *bus, IRequest *req);
+    // QVariant *show(IBus *bus, IRequest *req);
     QVariant *index(IBus *bus, IRequest *);
+    QVariant *edit(IBus *bus, IRequest *);
+    QVariant *del(IBus *bus, IRequest *);
 
 private:
     IProxyConnection *m_proxyConnection;
