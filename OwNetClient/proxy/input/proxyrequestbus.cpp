@@ -69,18 +69,3 @@ void ProxyRequestBus::registerModule(RequestRouter *router)
 {
     m_routes->insert(router->moduleName(), router);
 }
-
-ISession *ProxyRequestBus::session()
-{
-    return new Session(this);
-}
-
-IDatabaseUpdate *ProxyRequestBus::databaseUpdate()
-{
-    return new DatabaseUpdate(this);
-}
-
-QSettings *ProxyRequestBus::settings()
-{
-    return new Settings(this);
-}

@@ -1,13 +1,12 @@
 #include "samplemodule.h"
 
-#include "modules/irequest.h"
-#include <QDebug>
+#include "service.h"
 
-QVariant *SampleModule::index(IBus *, IRequest *request)
+QList<IRestService *> *SampleModule::restServices()
 {
-    QVariantMap values;
-    values.insert("module", request->module());
-    return new QVariant(values);
+    QList<IRestService *> *list = new QList<IRestService *>;
+    list->append(new Service(this));
+    return list;
 }
 
 Q_EXPORT_PLUGIN2(ownet_samplemodule, SampleModule)

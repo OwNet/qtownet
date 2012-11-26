@@ -3,6 +3,8 @@
 
 #include <QObject>
 
+class IModule;
+
 class ModuleInitializer : public QObject
 {
     Q_OBJECT
@@ -13,6 +15,7 @@ public:
     
 private:
     void loadPlugins();
+    void initModule(IModule *module);
 };
 
 #endif // MODULEINITIALIZER_H

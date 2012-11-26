@@ -12,7 +12,7 @@ ProxyServer::ProxyServer(QObject *parent)
 
 ProxyHandler * ProxyServer::initializeProxyHandler()
 {
-    QThread *t = new QThread();
+    QThread *t = new QThread;
 
     ProxyHandler *handler = new ProxyHandler(m_lastHandlerId++, t);
     m_handlersMap.insert(handler->handlerId(), handler);
