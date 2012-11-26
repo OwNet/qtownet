@@ -21,7 +21,8 @@ SOURCES +=  tst_testssample.cpp \
             tst_testscommunicationmanager.cpp \
             ../OwNetClient/communication/communicationmanager.cpp \
             ../OwNetClient/communication/communicationinstance.cpp \
-    main.cpp
+    main.cpp \
+    stubtime.cpp
 
 HEADERS +=  ../OwNetClient/modules/ibus.h \
             ../OwNetClient/modules/irequest.h \
@@ -33,6 +34,7 @@ HEADERS +=  ../OwNetClient/modules/ibus.h \
             ../OwNetClient/communication/communicationinstance.h \
             stubbus.h \
             stubrequest.h \
-    autotest.h
+    autotest.h \
+    stubtime.h
 
-DEFINES += SRCDIR=\\\"$$PWD/\\\"
+DEFINES += SRCDIR=\\\"$$PWD/\\\" TEST

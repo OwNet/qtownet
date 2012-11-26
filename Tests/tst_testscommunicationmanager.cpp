@@ -4,6 +4,7 @@
 #include <QDebug>
 
 #include "autotest.h"
+#include "stubtime.h"
 #include "../OwNetClient/communication/communicationmanager.h"
 #include "../OwNetClient/communication/communicationinstance.h"
 
@@ -43,8 +44,8 @@ private Q_SLOTS:
     void testMyStatusServerWhenNoHeartbeatsAreReceived();
 };
 
-const int TestsCommunicationManager::period = 5000;
-const int TestsCommunicationManager::second = 1000;
+const int TestsCommunicationManager::period = 5;
+const int TestsCommunicationManager::second = 1;
 
 TestsCommunicationManager::TestsCommunicationManager()
 {
@@ -186,6 +187,8 @@ void TestsCommunicationManager::testGetCommunicationInstancesWhenMultipleHearbea
 
 void TestsCommunicationManager::testGetCommunicationInstancesWhenNoHearbeatsAreReceived()
 {
+    StubTime::setCurrentDateTime(QDateTime::currentDateTime());
+
     CommunicationManager *communicationManager = new CommunicationManager;
     CommunicationInstance *instance;
 
@@ -201,7 +204,8 @@ void TestsCommunicationManager::testGetCommunicationInstancesWhenNoHearbeatsAreR
 
     QCOMPARE(communicationManager->getCommunicationInstances().count(), 3);
 
-    QTest::qSleep(2 * period);
+    // QTest::qSleep(2 * period);
+    StubTime::addSecs(2 * period);
 
     QCOMPARE(communicationManager->getCommunicationInstances().count(), 3);
 
@@ -210,11 +214,13 @@ void TestsCommunicationManager::testGetCommunicationInstancesWhenNoHearbeatsAreR
     message3.insert("score", "1");
     communicationManager->processMessage(&message3);
 
-    QTest::qSleep(1 * period);
+    //QTest::qSleep(1 * period);
+    StubTime::addSecs(1 * period);
 
     QCOMPARE(communicationManager->getCommunicationInstances().count(), 1);
 
-    QTest::qSleep(1 * period + 1 * second);
+    //QTest::qSleep(1 * period + 1 * second);
+    StubTime::addSecs(1 * period + 1 * second);
 
     QCOMPARE(communicationManager->getCommunicationInstances().count(), 0);
 
@@ -224,6 +230,8 @@ void TestsCommunicationManager::testGetCommunicationInstancesWhenNoHearbeatsAreR
     communicationManager->processMessage(&message4);
 
     QCOMPARE(communicationManager->getCommunicationInstances().count(), 1);
+
+    StubTime::cleanCurrentDateTime();
 }
 
 void TestsCommunicationManager::testGetServerWhenCreated()
@@ -302,6 +310,7 @@ void TestsCommunicationManager::testGetServerWhenInitializing()
 
 void TestsCommunicationManager::testGetServerWhenNoHeartbeatsAreReceived()
 {
+    StubTime::setCurrentDateTime(QDateTime::currentDateTime());
     CommunicationManager *communicationManager = new CommunicationManager;
 
     QVariantMap message1;
@@ -312,7 +321,8 @@ void TestsCommunicationManager::testGetServerWhenNoHeartbeatsAreReceived()
     QVERIFY(communicationManager->getServer() != NULL);
     QCOMPARE(communicationManager->getServer()->id(), QString("unique-client-id-1"));
 
-    QTest::qSleep(3 * period + 1 * second);
+    //QTest::qSleep(3 * period + 1 * second);
+    StubTime::addSecs(2 * period);
 
     QVERIFY(communicationManager->getServer() == NULL);
 
@@ -322,6 +332,8 @@ void TestsCommunicationManager::testGetServerWhenNoHeartbeatsAreReceived()
     communicationManager->processMessage(&message2);
 
     QVERIFY(communicationManager->getServer() != NULL);
+
+    StubTime::cleanCurrentDateTime();
 }
 
 void TestsCommunicationManager::testMyStatusInitializing()
@@ -379,6 +391,8 @@ void TestsCommunicationManager::testMyStatusServerAfterCreated()
 
 void TestsCommunicationManager::testMyStatusServerWhenNoHeartbeatsAreReceived()
 {
+    StubTime::setCurrentDateTime(QDateTime::currentDateTime());
+
     CommunicationManager *communicationManager = new CommunicationManager;
 
     communicationManager->initialized();
@@ -395,7 +409,8 @@ void TestsCommunicationManager::testMyStatusServerWhenNoHeartbeatsAreReceived()
 
     QCOMPARE(communicationManager->myStatus(), CommunicationManager::CLIENT);
 
-    QTest::qSleep(1 * period + 1 * second);
+    //QTest::qSleep(1 * period + 1 * second);
+    StubTime::addSecs(2 * period);
 
     // first loopback message
     QVariantMap message1;
@@ -410,9 +425,12 @@ void TestsCommunicationManager::testMyStatusServerWhenNoHeartbeatsAreReceived()
 
     QCOMPARE(communicationManager->myStatus(), CommunicationManager::CLIENT);
 
-    QTest::qSleep(2 * period + 1 * second);
+    //QTest::qSleep(2 * period + 1 * second);
+    StubTime::addSecs(2 * period);
 
     QCOMPARE(communicationManager->myStatus(), CommunicationManager::SERVER);
+
+    StubTime::cleanCurrentDateTime();
 }
 
 DECLARE_TEST(TestsCommunicationManager)

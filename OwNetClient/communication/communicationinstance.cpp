@@ -1,5 +1,9 @@
 #include "communicationinstance.h"
 
+#ifdef TEST
+#include "stubtime.h"
+#endif
+
 CommunicationInstance::CommunicationInstance(const QString &id, QObject *parent) :
     m_id(id), m_lastUpdated(QDateTime()), QObject(parent)
 {
@@ -15,7 +19,16 @@ void CommunicationInstance::update(int score, CommunicationManager::Status statu
 {
     m_score = score;
     m_status = status;
-    m_lastUpdated = QDateTime::currentDateTime();
+
+    QDateTime currentDateTime;
+
+#ifdef TEST
+    currentDateTime = StubTime::currentDateTime();
+#else
+    currentDateTime = QDateTime::currentDateTime();
+#endif
+
+    m_lastUpdated = currentDateTime;
 }
 
 QString CommunicationInstance::id() const
@@ -35,5 +48,13 @@ CommunicationManager::Status CommunicationInstance::status() const
 
 bool CommunicationInstance::isExpired() const
 {
-    return m_lastUpdated.addSecs(10) < QDateTime::currentDateTime();
+    QDateTime currentDateTime;
+
+#ifdef TEST
+    currentDateTime = StubTime::currentDateTime();
+#else
+    currentDateTime = QDateTime::currentDateTime();
+#endif
+
+    return m_lastUpdated.addSecs(CommunicationManager::expirationTimeInSeconds) < currentDateTime;
 }
