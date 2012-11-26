@@ -4,7 +4,8 @@
 #include <QDebug>
 
 #include "autotest.h"
-#include "stubtime.h"
+#include "stub/stubtime.h"
+
 #include "../OwNetClient/communication/communicationmanager.h"
 #include "../OwNetClient/communication/communicationinstance.h"
 

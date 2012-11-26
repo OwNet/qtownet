@@ -1,7 +1,7 @@
 #include "communicationinstance.h"
 
 #ifdef TEST
-#include "stubtime.h"
+#include "stub/stubtime.h"
 #endif
 
 CommunicationInstance::CommunicationInstance(const QString &id, QObject *parent) :
