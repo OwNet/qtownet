@@ -206,7 +206,7 @@ void TestsCommunicationManager::testGetCommunicationInstancesWhenNoHearbeatsAreR
     QCOMPARE(communicationManager->getCommunicationInstances().count(), 3);
 
     // QTest::qSleep(2 * period);
-    StubTime::addSecs(2 * period);
+    StubTime::addSecs(2 * period + 1 * second);
 
     QCOMPARE(communicationManager->getCommunicationInstances().count(), 3);
 
@@ -221,7 +221,7 @@ void TestsCommunicationManager::testGetCommunicationInstancesWhenNoHearbeatsAreR
     QCOMPARE(communicationManager->getCommunicationInstances().count(), 1);
 
     //QTest::qSleep(1 * period + 1 * second);
-    StubTime::addSecs(1 * period + 1 * second);
+    StubTime::addSecs(2 * period + 1 * second);
 
     QCOMPARE(communicationManager->getCommunicationInstances().count(), 0);
 
@@ -323,7 +323,7 @@ void TestsCommunicationManager::testGetServerWhenNoHeartbeatsAreReceived()
     QCOMPARE(communicationManager->getServer()->id(), QString("unique-client-id-1"));
 
     //QTest::qSleep(3 * period + 1 * second);
-    StubTime::addSecs(2 * period);
+    StubTime::addSecs(3 * period + 1 * second);
 
     QVERIFY(communicationManager->getServer() == NULL);
 
@@ -357,6 +357,16 @@ void TestsCommunicationManager::testMyStatusClient()
     QCOMPARE(communicationManager->myStatus(), CommunicationManager::INITIALIZING);
 
     communicationManager->initialized();
+
+    /*
+    for (int i = 0; i < communicationManager->getCommunicationInstances().size(); ++i)
+    {
+        qDebug() << communicationManager->getCommunicationInstances().at(i)->id()
+                 << communicationManager->getCommunicationInstances().at(i)->score()
+                 << communicationManager->getCommunicationInstances().at(i)->status();
+    }
+    */
+
     QCOMPARE(communicationManager->myStatus(), CommunicationManager::CLIENT);
 }
 
@@ -411,7 +421,7 @@ void TestsCommunicationManager::testMyStatusServerWhenNoHeartbeatsAreReceived()
     QCOMPARE(communicationManager->myStatus(), CommunicationManager::CLIENT);
 
     //QTest::qSleep(1 * period + 1 * second);
-    StubTime::addSecs(2 * period);
+    StubTime::addSecs(2 * period + 1 * second);
 
     // first loopback message
     QVariantMap message1;

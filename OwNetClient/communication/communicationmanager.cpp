@@ -39,6 +39,8 @@ int CommunicationManager::myScore() const
 
 CommunicationManager::Status CommunicationManager::myStatus()
 {
+    cleanAndSortInstances();
+
     if (m_initializing)
         return INITIALIZING; // not initialized yet
 
