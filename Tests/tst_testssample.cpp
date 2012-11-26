@@ -4,19 +4,21 @@
 #include <QDebug>
 
 #include "../OwNetClient/modules/irestmodule.h"
+
+#include "autotest.h"
 #include "stubbus.h"
 #include "stubrequest.h"
 
 class TestsSample : public QObject
 {
     Q_OBJECT
-    
+
 public:
     TestsSample();
 
 private:
     IRestModule *m_restModule;
-    
+
 private Q_SLOTS:
     void initTestCase();
     void cleanupTestCase();
@@ -55,6 +57,6 @@ void TestsSample::testCase1_data()
     QTest::newRow("0") << QString();
 }
 
-QTEST_MAIN(TestsSample)
+DECLARE_TEST(TestsSample)
 
 #include "tst_testssample.moc"

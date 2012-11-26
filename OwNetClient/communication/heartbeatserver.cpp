@@ -1,6 +1,7 @@
 #include "heartbeatserver.h"
 #include "messagehelper.h"
 #include "qjson/parser.h"
+#include "communicationmanager.h"
 
 #include <QHostAddress>
 #include <QUdpSocket>
@@ -45,9 +46,11 @@ void HeartbeatServer::processPendingDatagrams()
          QJson::Parser parser;
          bool ok;
 
+         MessageHelper::debug(datagram.data());
+
          QVariantMap result = parser.parse(datagram.data(), &ok).toMap();
          if (ok)
-            processMessage(result);
+            CommunicationManager::getInstance()->processMessage(&result);
      }
 }
 

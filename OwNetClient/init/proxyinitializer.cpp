@@ -36,6 +36,6 @@ void ProxyInitializer::init()
     // if we did not find one, use IPv4 localhost
     if (ipAddress.isEmpty())
         ipAddress = QHostAddress(QHostAddress::LocalHost).toString();
-    MessageHelper::debug(QObject::tr("The server is running on\n\nIP: %1\nport: %2")
+    MessageHelper::debug(QObject::tr("Proxy listens on external address %1:%2")
                                .arg(ipAddress).arg(m_proxyServer.serverPort()));
 }
