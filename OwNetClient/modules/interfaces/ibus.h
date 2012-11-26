@@ -1,6 +1,8 @@
 #ifndef IBUS_H
 #define IBUS_H
 
+#include <QVariant>
+
 class QByteArray;
 class IRequest;
 class ISession;
@@ -16,7 +18,7 @@ public:
      * @param req
      * @return response byte array
      */
-    virtual QByteArray* callModule(IRequest *req) = 0;
+    virtual QVariant *callModule(IRequest *req) = 0;
 
     virtual void setHttpStatus(int code, const QString &description) = 0;
 };
