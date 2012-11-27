@@ -121,6 +121,7 @@ QVariant *RecommendationsService::index(IBus *bus, IRequest *req)
 
         query.prepare("SELECT * FROM recommendations WHERE group_id = :group_id");
         query.bindValue(":group_id",group_id);
+        query.exec();
 
         QVariantList recomms;
 

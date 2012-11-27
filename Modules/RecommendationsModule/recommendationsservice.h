@@ -25,4 +25,4 @@ private:
     IProxyConnection *m_proxyConnection;
 };
 
-#endif // SERVICE_H
+#endif // RECOMMENDATIONSSERVICE_H

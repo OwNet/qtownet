@@ -6,4 +6,5 @@ SUBDIRS += \
     UsersModule \
     GroupsModule\
     RecommendationsModule\
-    MessagesModule
+    MessagesModule\
+    RatingsModule
