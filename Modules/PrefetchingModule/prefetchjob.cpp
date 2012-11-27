@@ -65,7 +65,7 @@ void PrefetchJob::removePage(int id)
 void PrefetchJob::removePage(QString url)
 {
     int id = -1;
-    for (auto it = m_map.begin(); it != m_map.end();)
+    for (QMap<int, LoggedPage*>::iterator it = m_map.begin(); it != m_map.end();)
     {
         if (((LoggedPage*) it.value())->url() == url)
         {
