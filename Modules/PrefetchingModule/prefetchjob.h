@@ -6,13 +6,15 @@
 #include <QMap>
 #include <QtWebKit>
 #include "ijobaction.h"
+#include <QObject>
 
 class LoggedPage;
 
 
 
-class PrefetchJob : public IJobAction
+class PrefetchJob : public QObject, public IJobAction
 {
+    Q_OBJECT
 public:
     PrefetchJob();
     void registerLink(int id, QString url);
@@ -26,12 +28,15 @@ public:
     void removePage(QString url);
 
 private:
+
     QMap<int, LoggedPage*> m_map;
     void prefetch();
     QWebView m_webView;
     QMutex m_activeMutex;
     QMutex m_mapMutex;
     int m_last;
+private slots:
+      void resetBrowser(bool);
 };
 
 #endif // PREFETCHJOB_H

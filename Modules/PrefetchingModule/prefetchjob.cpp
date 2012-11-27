@@ -20,8 +20,13 @@ PrefetchJob::PrefetchJob()
                         QString(""),
                         QString(""));
 
-
+    connect(&m_webView, SIGNAL(loadFinished(bool)), this, SLOT(resetBrowser(bool)));
     m_webView.page()->networkAccessManager()->setProxy(proxy);
+}
+
+void PrefetchJob::resetBrowser(bool)
+{
+    m_webView.load(QUrl("about:blank"));
 }
 
 void PrefetchJob::registerPage(int id, QString url)
