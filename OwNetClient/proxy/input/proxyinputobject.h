@@ -24,8 +24,8 @@ public:
     void setHttpStatusCode(int code);
     QString httpStatusDescription() const { return m_httpStatusDescription.isNull() ? QString() : m_httpStatusDescription; }
     void setHttpStatusDescription(const QString &description);
-    QString contentType() const { return m_contentType; }
-    void setContentType(const QString &value);
+    virtual QString contentType() const { return m_contentType; }
+    virtual void setContentType(const QString &value);
     VariantMap responseHeaders() const { return m_responseHeaders; }
     ProxyRequest *request() { return m_request; }
 

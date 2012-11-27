@@ -20,6 +20,9 @@ public:
      */
     virtual QVariant *callModule(IRequest *req) = 0;
 
+    virtual QString contentType() const = 0;
+    virtual void setContentType(const QString &value) = 0;
+
     virtual void setHttpStatus(int code, const QString &description) = 0;
 };
 

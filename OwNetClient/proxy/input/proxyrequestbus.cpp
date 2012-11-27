@@ -59,6 +59,11 @@ QVariant *ProxyRequestBus::callModule(IRequest *req)
     return m_routes->value(req->module())->processRestRequest(this, req);
 }
 
+void ProxyRequestBus::setContentType(const QString &value)
+{
+    ProxyInputObject::setContentType(value);
+}
+
 void ProxyRequestBus::setHttpStatus(int code, const QString &description)
 {
     setHttpStatusCode(code);
