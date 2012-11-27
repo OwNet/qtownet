@@ -1,5 +1,7 @@
 #include "proxycachefiledownloadpart.h"
 
+#include "proxydownloadstream.h"
+
 #include <QFile>
 #include <QBuffer>
 
@@ -8,10 +10,11 @@ ProxyCacheFileDownloadPart::ProxyCacheFileDownloadPart(const QString &path, int 
 {
 }
 
-QIODevice *ProxyCacheFileDownloadPart::stream()
+ProxyDownloadStream *ProxyCacheFileDownloadPart::stream()
 {
-    QFile *file = new QFile(m_path, this);
+    ProxyDownloadStream *s = new ProxyDownloadStream;
+    QFile *file = new QFile(m_path, s);
     if (file->open(QIODevice::ReadOnly))
-        return file;
-    return new QBuffer(this);
+        s->setStream(file);
+    return s;
 }

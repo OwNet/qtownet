@@ -13,7 +13,7 @@ public:
     ProxyStreamDownloadPart(QIODevice *stream, int nextDownloadPartIndex, QObject *parent = NULL);
     ~ProxyStreamDownloadPart();
 
-    QIODevice *stream() { return m_stream; }
+    ProxyDownloadStream *stream();
 
 private:
     QIODevice *m_stream;

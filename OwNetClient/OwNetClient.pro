@@ -73,7 +73,8 @@ SOURCES += main.cpp\
     helpers/proxyconnection.cpp \
     jobs/modulejob.cpp \
     helpers/artificialrequest.cpp \
-    helpers/databasesettings.cpp
+    helpers/databasesettings.cpp \
+    proxy/downloads/proxydownloadstream.cpp
 
 HEADERS  += view/mainwindow.h \
         proxy/proxyserver.h \
@@ -153,7 +154,8 @@ HEADERS  += view/mainwindow.h \
     jobs/modulejob.h \
     helpers/artificialrequest.h \
     helpers/databasesettings.h \
-    modules/interfaces/idatabasesettings.h
+    modules/interfaces/idatabasesettings.h \
+    proxy/downloads/proxydownloadstream.h
 
 FORMS    += view/mainwindow.ui \
     view/preferencesdialog.ui
