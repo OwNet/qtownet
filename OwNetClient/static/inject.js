@@ -305,7 +305,24 @@ owNetGLOBAL = {
         },
         stopReportTimeout: function () {
             if (this.reportTimeout) clearTimeout(this.reportTimeout);
-        }
+        },
+        reportPrefetch: function () {
+            try {
+                if (this.hasReportedPrefetch == 0) {
+                   // var target = owNetGLOBAL.encodedReferrerUri;
+
+                   // if (target === null || target.match(/\S/g) === null)
+                    target = owNetGLOBAL.encodedPageUri;
+
+                    owNetGLOBAL.loadScript(owNetGLOBAL.localUri + "done?page=" + target + "&gid=" + Math.floor((Math.random() * 1000) + 1), function () {
+                        return true;
+                    });
+                    this.hasReportedPrefetch = 1;
+                }
+            }
+            catch (e) {
+            }
+        },
     }
 
 };
@@ -336,44 +353,59 @@ Array.prototype.owNetContains = function (item, comparer) {
     {
         if (top === self) 
         {
-            owNetGLOBAL.ProxyContact.reportPrimary();
+            if (document.referrer.match(/prefetch.ownet\/prefetch/) !== null) {
 
-            if (document.addEventListener) 
-            {   
-                document.addEventListener("DOMContentLoaded", function () 
-                {
-                    document.removeEventListener("DOMContentLoaded", arguments.callee, false);
-                    owNetGLOBAL.ProxyContact.reportLink();
-                }, false);
+                if (document.addEventListener) {
+                    document.addEventListener("DOMContentLoaded", function () {
+                        document.removeEventListener("DOMContentLoaded", arguments.callee, false);
+                        owNetGLOBAL.ProxyContact.reportPrefetch("proxy");
+                    }, false);
+                }
+                else if (document.attachEvent) {
+                    document.attachEvent("onreadystatechange", function () {
+                        if (document.readyState === "complete") {
+                            document.detachEvent("onreadystatechange", arguments.callee);
+                            owNetGLOBAL.ProxyContact.reportPrefetch("proxy");
+                        }
+                    });
+                }
             }
-            else if (document.attachEvent) 
-            {  
-                document.attachEvent("onreadystatechange", function () 
-                {
-                    if (document.readyState === "complete") 
-                    {
-                        document.detachEvent("onreadystatechange", arguments.callee);
+            else {
+
+                owNetGLOBAL.ProxyContact.reportPrimary();
+
+                if (document.addEventListener) {
+                    document.addEventListener("DOMContentLoaded", function () {
+                        document.removeEventListener("DOMContentLoaded", arguments.callee, false);
                         owNetGLOBAL.ProxyContact.reportLink();
-                    }
-                });
-            }
+                    }, false);
+                }
+                else if (document.attachEvent) {
+                    document.attachEvent("onreadystatechange", function () {
+                        if (document.readyState === "complete") {
+                            document.detachEvent("onreadystatechange", arguments.callee);
+                            owNetGLOBAL.ProxyContact.reportLink();
+                        }
+                    });
+                }
 
 
-            if (window.addEventListener) {
-                window.addEventListener("unload", function () {
-                    owNetGLOBAL.ProxyContact.reportClose();
-                }, false);
-                window.addEventListener("beforeunload", function () {
-                    owNetGLOBAL.ProxyContact.reportClose();
-                }, false);
-            }
-            else if (window.attachEvent) {
-                window.attachEvent("onunload", function () {
-                    owNetGLOBAL.ProxyContact.reportClose();
-                });
-                window.attachEvent("onbeforeunload", function () {
-                    owNetGLOBAL.ProxyContact.reportClose();
-                });
+                if (window.addEventListener) {
+                    window.addEventListener("unload", function () {
+                        owNetGLOBAL.ProxyContact.reportClose();
+                    }, false);
+                    window.addEventListener("beforeunload", function () {
+                        owNetGLOBAL.ProxyContact.reportClose();
+                    }, false);
+                }
+                else if (window.attachEvent) {
+                    window.attachEvent("onunload", function () {
+                        owNetGLOBAL.ProxyContact.reportClose();
+                    });
+                    window.attachEvent("onbeforeunload", function () {
+                        owNetGLOBAL.ProxyContact.reportClose();
+                    });
+                }
             }
         }
     }

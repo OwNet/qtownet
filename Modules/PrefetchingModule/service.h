@@ -20,9 +20,18 @@ public:
     QByteArray *processRequest(IBus *, IRequest *);
 
 private:
+
    int m_pageCounter;
    PrefetchingModule* m_module;
    IProxyConnection *m_proxyConnection;
+
+
+   QByteArray *visit(IBus *, IRequest *);
+   QByteArray *link(IBus *, IRequest *);
+   QByteArray *close(IBus *, IRequest *);
+   QByteArray *load(IBus *, IRequest *);
+   QByteArray *done(IBus *, IRequest *);
+
    //int registerPage(QString &url);
 };
 

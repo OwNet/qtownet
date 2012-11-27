@@ -19,7 +19,7 @@ public:
     void registerPage(int id, QString url);
     void removePage(int id);
 
-    int interval() { return 2 * 60 * 1000; }
+    int interval() { return 1 * 60 * 1000; }
     void execute();
 
 
