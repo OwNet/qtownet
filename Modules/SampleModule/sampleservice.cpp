@@ -1,13 +1,13 @@
-#include "service.h"
+#include "sampleservice.h"
 
 #include "irequest.h"
 
-Service::Service(QObject *parent) :
+SampleService::SampleService(QObject *parent) :
     QObject(parent)
 {
 }
 
-QVariant *Service::index(IBus *, IRequest *request)
+QVariant *SampleService::index(IBus *, IRequest *request)
 {
     QVariantMap values;
     values.insert("module", request->module());
