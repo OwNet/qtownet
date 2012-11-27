@@ -1,10 +1,10 @@
 #ifndef DATABASEMODULE_H
 #define DATABASEMODULE_H
 
-#include "irestmodule.h"
+#include "irestservice.h"
 #include "ibus.h"
 
-class DatabaseModule : public IRestModule
+class DatabaseModule : public IRestService
 {
 public:
     explicit DatabaseModule();

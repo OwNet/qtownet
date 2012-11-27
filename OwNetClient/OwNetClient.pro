@@ -69,7 +69,10 @@ SOURCES += main.cpp\
     init/communicationinitializer.cpp \
     communication/heartbeatserver.cpp \
     communication/communicationmanager.cpp \
-    communication/communicationinstance.cpp
+    communication/communicationinstance.cpp \
+    helpers/proxyconnection.cpp \
+    jobs/modulejob.cpp \
+    helpers/artificialrequest.cpp
 
 HEADERS  += view/mainwindow.h \
         proxy/proxyserver.h \
@@ -95,9 +98,9 @@ HEADERS  += view/mainwindow.h \
     helpers/qjson/serializerrunnable.h \
     helpers/qjson/stack.hh \
     proxy/input/proxyrequestbus.h \
-    modules/imodule.h \
+    modules/interfaces/imodule.h \
     init/moduleinitializer.h \
-    modules/ibus.h \
+    modules/interfaces/ibus.h \
     init/databaseinitializer.h \
     modules/databasemodule.h \
     proxy/downloads/proxydownloads.h \
@@ -127,11 +130,10 @@ HEADERS  += view/mainwindow.h \
     view/preferencesdialog.h \
     init/settingsinitializer.h \
     proxy/downloads/proxycachefiledownloadpart.h \
-    modules/irequest.h \
+    modules/interfaces/irequest.h \
     helpers/variantmap.h \
-    modules/irestmodule.h \
     modules/requestrouter.h \
-    modules/isession.h \
+    modules/interfaces/isession.h \
     helpers/session.h \
     modules/idatabaseupdate.h \
     modules/idatabaseupdatequery.h\
@@ -139,7 +141,16 @@ HEADERS  += view/mainwindow.h \
     init/communicationinitializer.h \
     communication/heartbeatserver.h \
     communication/communicationmanager.h \
-    communication/communicationinstance.h
+    communication/communicationinstance.h \
+    modules/interfaces/idatabaseupdate.h \
+    modules/interfaces/idatabaseupdatequery.h \
+    modules/interfaces/ijobaction.h \
+    modules/interfaces/iproxyconnection.h \
+    helpers/proxyconnection.h \
+    modules/interfaces/iservice.h \
+    modules/interfaces/irestservice.h \
+    jobs/modulejob.h \
+    helpers/artificialrequest.h
 
 FORMS    += view/mainwindow.ui \
     view/preferencesdialog.ui
@@ -151,7 +162,9 @@ INCLUDEPATH += proxy \
     proxy/input \
     proxy/input/bus \
     proxy/downloads \
-    proxy/output modules \
+    proxy/output \
+    modules \
+    modules/interfaces \
     jobs \
     cache \
     database

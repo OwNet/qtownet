@@ -6,8 +6,10 @@
 #include "autotest.h"
 #include "stub/stubbus.h"
 #include "stub/stubrequest.h"
+#include "stub/stubconnection.h"
 
-#include "../OwNetClient/modules/irestmodule.h"
+#include "../OwNetClient/modules/interfaces/imodule.h"
+#include "../OwNetClient/modules/interfaces/irestservice.h"
 
 class TestsSample : public QObject
 {
@@ -17,9 +19,11 @@ public:
     TestsSample();
 
 private:
-    IRestModule *m_restModule;
+    IRestService *m_restService;
+    IModule *m_module;
     StubBus *m_stubBus;
     StubRequest *m_stubRequest;
+    StubConnection *m_proxyConnection;
 
 private Q_SLOTS:
     void initTestCase();
@@ -37,12 +41,17 @@ void TestsSample::initTestCase()
     // load plugin
     QPluginLoader loader("/home/martin/School/TP/QtOwNet-build-desktop-Qt_4_8_1_in_PATH__System__Debug/OwNetClient/modules/libownet_samplemodule.so");
     QObject *plugin = loader.instance();
-    m_restModule = qobject_cast<IRestModule *>(plugin);
+    m_module = qobject_cast<IModule *>(plugin);
 
     // initialize stubs
     m_stubBus = new StubBus(this);
     m_stubRequest = new StubRequest(this);
     m_stubRequest->setModule("sample");
+
+    // initialize module
+    m_proxyConnection = new StubConnection();
+    m_module->init(m_proxyConnection);
+    m_restService = m_module->restServices()->first();
 }
 
 void TestsSample::cleanupTestCase()
@@ -51,7 +60,7 @@ void TestsSample::cleanupTestCase()
 
 void TestsSample::testIndex()
 {
-    QVariantMap response = m_restModule->index(m_stubBus, m_stubRequest)->toMap();
+    QVariantMap response = m_restService->index(m_stubBus, m_stubRequest)->toMap();
     QFETCH(QString, module);
     QCOMPARE(response.value("module").toString(), module);
 }

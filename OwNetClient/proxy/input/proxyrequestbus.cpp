@@ -52,11 +52,11 @@ void ProxyRequestBus::readRequest()
  * @param req
  * @return processedRequest from module in byte array
  */
-QByteArray* ProxyRequestBus::callModule(IRequest *req)
+QVariant *ProxyRequestBus::callModule(IRequest *req)
 {
     // need to find only first part of url (module url)
 
-    return m_routes->value(req->module())->processRequest(this, req);
+    return m_routes->value(req->module())->processRestRequest(this, req);
 }
 
 void ProxyRequestBus::setHttpStatus(int code, const QString &description)
@@ -68,19 +68,4 @@ void ProxyRequestBus::setHttpStatus(int code, const QString &description)
 void ProxyRequestBus::registerModule(RequestRouter *router)
 {
     m_routes->insert(router->moduleName(), router);
-}
-
-ISession *ProxyRequestBus::session()
-{
-    return new Session(this);
-}
-
-IDatabaseUpdate *ProxyRequestBus::databaseUpdate()
-{
-    return new DatabaseUpdate(this);
-}
-
-QSettings *ProxyRequestBus::settings()
-{
-    return new Settings(this);
 }

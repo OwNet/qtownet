@@ -5,11 +5,13 @@ TARGET          = $$qtLibraryTarget(ownet_samplemodule)
 TEMPLATE        = lib
 CONFIG         += plugin
 
-INCLUDEPATH    += ../../OwNetClient
+INCLUDEPATH    += ../../OwNetClient/modules/interfaces
 
-SOURCES        += samplemodule.cpp
+SOURCES        += samplemodule.cpp \
+    sampleservice.cpp
 
-HEADERS        += samplemodule.h
+HEADERS        += samplemodule.h \
+    sampleservice.h
 
 TARGET          = $$qtLibraryTarget(ownet_samplemodule)
 macx:DESTDIR    = ../../OwNetClient/OwNetClient.app/Contents/MacOS/modules

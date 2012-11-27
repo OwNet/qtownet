@@ -3,7 +3,7 @@
 
 #include <QObject>
 
-#include "../OwNetClient/modules/irequest.h"
+#include "../OwNetClient/modules/interfaces/irequest.h"
 
 class StubRequest : public QObject, public IRequest
 {

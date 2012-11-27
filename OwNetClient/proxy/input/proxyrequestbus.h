@@ -18,14 +18,10 @@ public:
     const QString httpStatusCode() { return QString::number(200); }
     const QString httpStatusDescription() { return "OK"; }
 
-    QByteArray* callModule(IRequest *req);
+    QVariant *callModule(IRequest *req);
     void setHttpStatus(int code, const QString &description);
 
     static void registerModule(RequestRouter *router);
-
-    ISession *session();
-    IDatabaseUpdate *databaseUpdate();
-    QSettings *settings();
 
 protected:
     void readRequest();

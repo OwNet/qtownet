@@ -3,23 +3,17 @@
 
 #include <QObject>
 
-#include "../OwNetClient/modules/ibus.h"
+#include "../OwNetClient/modules/interfaces/ibus.h"
 
 class StubBus : public QObject, public IBus
 {
     Q_OBJECT
 public:
     explicit StubBus(QObject *parent = 0);
-    
-    QByteArray* callModule(IRequest *req);
+
+    QVariant *callModule(IRequest *req);
 
     void setHttpStatus(int code, const QString &description);
-
-    ISession *session();
-
-    IDatabaseUpdate *databaseUpdate();
-
-    QSettings *settings();
 signals:
     
 public slots:

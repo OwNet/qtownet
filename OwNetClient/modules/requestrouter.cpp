@@ -2,21 +2,21 @@
 
 #include "irequest.h"
 #include "ibus.h"
-#include "imodule.h"
-#include "irestmodule.h"
+#include "iservice.h"
+#include "irestservice.h"
 #include "qjson/serializer.h"
 
-RequestRouter::RequestRouter(IModule *iModule, QObject *parent)
+RequestRouter::RequestRouter(IService *iService, QObject *parent)
     : QObject(parent),
-      m_iModule(iModule),
-      m_iRestModule(NULL)
+      m_iService(iService),
+      m_iRestService(NULL)
 {
 }
 
-RequestRouter::RequestRouter(IRestModule *iRestModule, QObject *parent)
+RequestRouter::RequestRouter(IRestService *iRestService, QObject *parent)
     : QObject(parent),
-      m_iModule(NULL),
-      m_iRestModule(iRestModule)
+      m_iService(NULL),
+      m_iRestService(iRestService)
 {
 }
 
@@ -27,46 +27,13 @@ RequestRouter::RequestRouter(IRestModule *iRestModule, QObject *parent)
  * @param req
  * @return  response Bytes
  */
-QByteArray *RequestRouter::processRequest(IBus *bus, IRequest *req)
+QByteArray *RequestRouter::processRequest(IBus *bus, IRequest *req) const
 {
     QByteArray *response = NULL;
-    if (m_iModule) {
-        response = m_iModule->processRequest(bus, req);
-    } else if (m_iRestModule) {
-        //get right action, also perserve other actions
-        QVariant *json = NULL;
-
-        if (req->action() == "" ||
-                req->action() == "index" ||
-                req->action() == "show" ||
-                req->action() == "edit" ||
-                req->action() == "delete" ||
-                req->action() == "create") {
-
-            //case index
-            if (req->id() == -1 && req->requestType() == IRequest::GET)
-                json = m_iRestModule->index(bus, req);
-
-            //case show
-            else if (req->requestType() == IRequest::GET)
-                json = m_iRestModule->show(bus, req);
-
-            //case create
-            else if (req->requestType() == IRequest::POST)
-                json = m_iRestModule->create(bus, req);
-
-            //case edit
-            else if (req->requestType() == IRequest::PUT)
-                json = m_iRestModule->edit(bus, req);
-
-            //case delete
-            else if (req->requestType() == IRequest::DELETE)
-                json = m_iRestModule->del(bus, req);
-
-            //other actions
-            else
-                json = m_iRestModule->processRequest(bus, req);
-        }
+    if (m_iService) {
+        response = m_iService->processRequest(bus, req);
+    } else if (m_iRestService) {
+        QVariant *json = processRestRequest(bus, req);
         if (json) {
             QJson::Serializer serializer;
             response = new QByteArray(serializer.serialize(*json));
@@ -78,11 +45,53 @@ QByteArray *RequestRouter::processRequest(IBus *bus, IRequest *req)
     return new QByteArray();
 }
 
+QVariant *RequestRouter::processRestRequest(IBus *bus, IRequest *req) const
+{
+    if (!m_iRestService)
+        return NULL;
+
+    //get right action, also perserve other actions
+    QVariant *json = NULL;
+
+    if (req->action() == "" ||
+            req->action() == "index" ||
+            req->action() == "show" ||
+            req->action() == "edit" ||
+            req->action() == "delete" ||
+            req->action() == "create") {
+
+        //case index
+        if (req->id() == -1 && req->requestType() == IRequest::GET)
+            json = m_iRestService->index(bus, req);
+
+        //case show
+        else if (req->requestType() == IRequest::GET)
+            json = m_iRestService->show(bus, req);
+
+        //case create
+        else if (req->requestType() == IRequest::POST)
+            json = m_iRestService->create(bus, req);
+
+        //case edit
+        else if (req->requestType() == IRequest::PUT)
+            json = m_iRestService->edit(bus, req);
+
+        //case delete
+        else if (req->requestType() == IRequest::DELETE)
+            json = m_iRestService->del(bus, req);
+
+        //other actions
+        else
+            json = m_iRestService->processRequest(bus, req);
+    }
+    return json;
+}
+
 QString RequestRouter::moduleName() const
 {
-    if (m_iModule)
-        return m_iModule->name();
-    if (m_iRestModule)
-        return m_iRestModule->name();
+    if (m_iService)
+        return m_iService->name();
+    if (m_iRestService)
+        return m_iRestService->name();
     return QString();
 }

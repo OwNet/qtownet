@@ -10,6 +10,8 @@
 #include <QFile>
 #include <QSemaphore>
 
+QMap<int, QString> *ProxySocketOutputWriter::m_openRequests = new QMap<int, QString>();
+
 ProxySocketOutputWriter::ProxySocketOutputWriter(int socketDescriptor, ProxyHandlerSession *proxyHandlerSession)
     : ProxyOutputWriter(proxyHandlerSession), m_socketDescriptor(socketDescriptor), m_writtenToSocket(false), m_foundBody(false), m_socket(NULL)
 {
@@ -26,6 +28,15 @@ void ProxySocketOutputWriter::startDownload()
 }
 
 /**
+ * @brief Return list of requests that are currently being processed.
+ * @return List of open requests
+ */
+QList<QString> ProxySocketOutputWriter::dumpOpenRequests()
+{
+    return m_openRequests->values();
+}
+
+/**
  * @brief Triggered when socket is ready to be read.
  */
 void ProxySocketOutputWriter::readRequest()
@@ -37,7 +48,10 @@ void ProxySocketOutputWriter::readRequest()
         forceQuit();
         return;
     }
+    m_requestHashCode = request->hashCode();
+
     MessageHelper::debug(request->url());
+    //m_openRequests->insert(m_requestHashCode, request->url());
 
     createDownload(request);
 }
@@ -54,6 +68,8 @@ void ProxySocketOutputWriter::virtualClose()
             if (m_socket->state() != QAbstractSocket::UnconnectedState)
                 m_socket->waitForDisconnected();
         }
+        m_socket = NULL;
+        //m_openRequests->remove(m_requestHashCode);
     }
 }
 

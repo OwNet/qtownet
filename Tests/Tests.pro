@@ -22,20 +22,24 @@ SOURCES +=  modules/tst_testssample.cpp \
             ../OwNetClient/communication/communicationmanager.cpp \
             ../OwNetClient/communication/communicationinstance.cpp \
     main.cpp \
-    stub/stubtime.cpp
+    stub/stubtime.cpp \
+    stub/stubconnection.cpp
 
-HEADERS +=  ../OwNetClient/modules/ibus.h \
-            ../OwNetClient/modules/irequest.h \
-            ../OwNetClient/modules/irestmodule.h \
-            ../OwNetClient/modules/isession.h \
-            ../OwNetClient/modules/idatabaseupdate.h \
-            ../OwNetClient/modules/idatabaseupdatequery.h \
+HEADERS +=  ../OwNetClient/modules/interfaces/ibus.h \
+            ../OwNetClient/modules/interfaces/irequest.h \
+            ../OwNetClient/modules/interfaces/irestservice.h \
+            ../OwNetClient/modules/interfaces/isession.h \
+            ../OwNetClient/modules/interfaces/idatabaseupdate.h \
+            ../OwNetClient/modules/interfaces/idatabaseupdatequery.h \
+            ../OwNetClient/modules/interfaces/imodule.h \
+            ../OwNetClient/modules/interfaces/iproxyconnection.h \
             ../OwNetClient/communication/communicationmanager.h \
             ../OwNetClient/communication/communicationinstance.h \
             stub/stubbus.h \
             stub/stubrequest.h \
     autotest.h \
-    stub/stubtime.h
+    stub/stubtime.h \
+    stub/stubconnection.h
 
 
 DEFINES += SRCDIR=\\\"$$PWD/\\\" TEST
