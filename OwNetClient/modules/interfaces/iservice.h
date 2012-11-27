@@ -3,6 +3,9 @@
 
 #include <QString>
 
+class IBus;
+class IRequest;
+
 class IService
 {
 public:
