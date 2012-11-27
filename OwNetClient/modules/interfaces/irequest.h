@@ -30,6 +30,7 @@ public:
 
     virtual int id() const = 0;
     virtual QString parameterValue(const QString &key) const = 0;
+    virtual bool hasParameter(const QString& key) const = 0;
     virtual QStringList allParameterValues(const QString &key) const = 0;
     virtual QByteArray requestBody() const = 0;
     virtual QString staticResourcePath() const = 0;

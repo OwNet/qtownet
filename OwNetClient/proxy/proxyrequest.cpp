@@ -154,11 +154,14 @@ QString ProxyRequest::requestContentType(const QString &defaultContentType, cons
 QString ProxyRequest::staticResourcePath() const
 {
     if (isStaticResourceRequest())
-        if (!subDomain().isEmpty())
+    {
+        if (!subDomain().isEmpty()) {
+            QString murl = relativeUrl();
+
             return QString ("static/%1/%2").arg(subDomain()).arg(relativeUrl());
-
-    return QString("static/%1").arg(relativeUrl());
-
+        }
+        return QString("static/%1").arg(relativeUrl());
+    }
     return "";
 }
 

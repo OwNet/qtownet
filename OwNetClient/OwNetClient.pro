@@ -47,8 +47,6 @@ SOURCES += main.cpp\
     proxy/downloads/proxybytedownloadpart.cpp \
     proxy/downloads/proxystreamdownloadpart.cpp \
     proxy/downloads/proxylastdownloadpart.cpp \
-    modules/prefetching/prefetchingmodule.cpp \
-    modules/prefetching/loggedpage.cpp \
     jobs/job.cpp \
     init/jobinitializer.cpp \
     jobs/cleancachejob.cpp \
@@ -68,8 +66,7 @@ SOURCES += main.cpp\
     modules/requestrouter.cpp \
     helpers/session.cpp \
     helpers/proxyconnection.cpp \
-    jobs/modulejob.cpp \
-    modules/prefetching/prefetchjob.cpp
+    jobs/modulejob.cpp
 
 HEADERS  += view/mainwindow.h \
         proxy/proxyserver.h \
@@ -112,8 +109,6 @@ HEADERS  += view/mainwindow.h \
     proxy/downloads/proxybytedownloadpart.h \
     proxy/downloads/proxystreamdownloadpart.h \
     proxy/downloads/proxylastdownloadpart.h \
-    modules/prefetching/prefetchingmodule.h \
-    modules/prefetching/loggedpage.h \
     jobs/job.h \
     init/jobinitializer.h \
     jobs/cleancachejob.h \
@@ -141,8 +136,7 @@ HEADERS  += view/mainwindow.h \
     helpers/proxyconnection.h \
     modules/interfaces/iservice.h \
     modules/interfaces/irestservice.h \
-    jobs/modulejob.h \
-    modules/prefetching/prefetchjob.h
+    jobs/modulejob.h
 
 FORMS    += view/mainwindow.ui \
     view/preferencesdialog.ui

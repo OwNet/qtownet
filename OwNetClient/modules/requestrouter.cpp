@@ -62,11 +62,15 @@ QByteArray *RequestRouter::processRequest(IBus *bus, IRequest *req)
             //case delete
             else if (req->requestType() == IRequest::DELETE)
                 json = m_iRestService->del(bus, req);
-
             //other actions
             else
                 json = m_iRestService->processRequest(bus, req);
         }
+        //other actions
+        else
+            json = m_iRestService->processRequest(bus, req);
+
+
         if (json) {
             QJson::Serializer serializer;
             response = new QByteArray(serializer.serialize(*json));

@@ -1,0 +1,31 @@
+#ifndef SERVICES_H
+#define SERVICES_H
+
+#include <QObject>
+
+#include "irestservice.h"
+#include "iservice.h"
+class IProxyConnection;
+class PrefetchingModule;
+
+class Service : public QObject, public IService
+{
+    Q_OBJECT
+public:
+    Service(IProxyConnection *proxyConnection, PrefetchingModule* pm);
+
+    QString name() const { return "prefetch"; }
+//    QVariant *index(IBus *, IRequest *request);
+
+    QByteArray *processRequest(IBus *, IRequest *);
+
+private:
+   int m_pageCounter;
+   PrefetchingModule* m_module;
+   IProxyConnection *m_proxyConnection;
+   //int registerPage(QString &url);
+};
+
+
+
+#endif // SERVICES_H
