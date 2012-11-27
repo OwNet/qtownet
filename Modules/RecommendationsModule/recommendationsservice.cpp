@@ -1,4 +1,4 @@
-#include "service.h"
+#include "recommendationsservice.h"
 
 #include "irequest.h"
 #include "idatabaseupdate.h"
@@ -10,14 +10,14 @@
 #include <QSqlRecord>
 #include <QDateTime>
 
-Service::Service(IProxyConnection *proxyConnection, QObject *parent) :
+RecommendationsService::RecommendationsService(IProxyConnection *proxyConnection, QObject *parent) :
     QObject(parent),
     m_proxyConnection(proxyConnection)
 {
 }
 
 // create element
-QVariant *Service::create(IBus *bus, IRequest *req)
+QVariant *RecommendationsService::create(IBus *bus, IRequest *req)
 {
     QVariantMap reqJson = req->postBodyFromJson();
     QVariantMap error;
@@ -101,7 +101,7 @@ QVariant *Service::create(IBus *bus, IRequest *req)
 
 }
 
-QVariant *Service::index(IBus *bus, IRequest *req)
+QVariant *RecommendationsService::index(IBus *bus, IRequest *req)
 {
 
     QVariantMap reqJson = req->postBodyFromJson();
@@ -119,8 +119,7 @@ QVariant *Service::index(IBus *bus, IRequest *req)
     if(member){
         QSqlQuery query;
 
-        query.prepare("SELECT * FROM recommendations WHERE user_id = :user_id AND group_id = :group_id");
-        query.bindValue(":user_id",curUser_id);
+        query.prepare("SELECT * FROM recommendations WHERE group_id = :group_id");
         query.bindValue(":group_id",group_id);
 
         QVariantList recomms;
@@ -144,7 +143,7 @@ QVariant *Service::index(IBus *bus, IRequest *req)
     return new QVariant;
 }
 
-QVariant *Service::edit(IBus *bus, IRequest *req)
+QVariant *RecommendationsService::edit(IBus *bus, IRequest *req)
 {
 
     QVariantMap reqJson = req->postBodyFromJson();
@@ -191,7 +190,7 @@ QVariant *Service::edit(IBus *bus, IRequest *req)
 
 }
 
-QVariant *Service::del(IBus *bus, IRequest *req)
+QVariant *RecommendationsService::del(IBus *bus, IRequest *req)
 {
 
     QVariantMap reqJson = req->postBodyFromJson();

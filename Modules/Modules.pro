@@ -5,4 +5,5 @@ SUBDIRS += \
     SessionModule \
     UsersModule \
     GroupsModule\
-    RecommendationsModule
+    RecommendationsModule\
+    MessagesModule

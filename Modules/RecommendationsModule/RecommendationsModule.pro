@@ -8,10 +8,10 @@ CONFIG         += plugin
 INCLUDEPATH    += ../../OwNetClient/modules/interfaces
 
 SOURCES        += recommendationsmodule.cpp \
-    service.cpp
+    recommendationsservice.cpp
 
 HEADERS        += recommendationsmodule.h \
-    service.h
+    recommendationsservice.h
 
 TARGET          = $$qtLibraryTarget(ownet_recommendationsmodule)
 macx:DESTDIR    = ../../OwNetClient/OwNetClient.app/Contents/MacOS/modules
