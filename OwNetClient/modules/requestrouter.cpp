@@ -84,6 +84,8 @@ QVariant *RequestRouter::processRestRequest(IBus *bus, IRequest *req) const
         else
             json = m_iRestService->processRequest(bus, req);
     }
+    else
+        json = m_iRestService->processRequest(bus, req);
     return json;
 }
 

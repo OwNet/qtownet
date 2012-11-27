@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/">
+        <file>helpers/capybarawebkit/capybara.js</file>
+    </qresource>
+</RCC>

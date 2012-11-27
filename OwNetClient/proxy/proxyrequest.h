@@ -40,6 +40,7 @@ public:
 
     int id() const { return m_id; }
     QString parameterValue(const QString &key) const { return m_qUrl.queryItemValue(key); }
+    bool hasParameter(const QString& key) const { return m_qUrl.hasQueryItem(key); }
     QStringList allParameterValues(const QString &key) const { return m_qUrl.allQueryItemValues(key); }
     QByteArray requestBody() const { return m_requestBody; }
     QString staticResourcePath() const;
