@@ -72,7 +72,8 @@ SOURCES += main.cpp\
     communication/communicationinstance.cpp \
     helpers/proxyconnection.cpp \
     jobs/modulejob.cpp \
-    helpers/artificialrequest.cpp
+    helpers/artificialrequest.cpp \
+    helpers/databasesettings.cpp
 
 HEADERS  += view/mainwindow.h \
         proxy/proxyserver.h \
@@ -150,7 +151,9 @@ HEADERS  += view/mainwindow.h \
     modules/interfaces/iservice.h \
     modules/interfaces/irestservice.h \
     jobs/modulejob.h \
-    helpers/artificialrequest.h
+    helpers/artificialrequest.h \
+    helpers/databasesettings.h \
+    modules/interfaces/idatabasesettings.h
 
 FORMS    += view/mainwindow.ui \
     view/preferencesdialog.ui

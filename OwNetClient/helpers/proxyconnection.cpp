@@ -1,6 +1,7 @@
 #include "proxyconnection.h"
 
 #include "settings.h"
+#include "databasesettings.h"
 #include "databaseupdate.h"
 #include "session.h"
 #include "artificialrequest.h"
@@ -23,6 +24,11 @@ IDatabaseUpdate *ProxyConnection::databaseUpdate(QObject *parent)
 QSettings *ProxyConnection::settings(QObject *parent)
 {
     return new Settings(parent);
+}
+
+IDatabaseSettings *ProxyConnection::databaseSettings(QObject *parent)
+{
+    return new DatabaseSettings(parent);
 }
 
 IRequest *ProxyConnection::createRequest(IRequest::RequestType requestType, const QString &module, const QString &action, int id, QObject *parent)

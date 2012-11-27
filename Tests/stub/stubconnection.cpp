@@ -14,6 +14,11 @@ IDatabaseUpdate *StubConnection::databaseUpdate(QObject *parent)
     return NULL;
 }
 
+IDatabaseSettings *StubConnection::databaseSettings(QObject *parent)
+{
+    return NULL;
+}
+
 QSettings *StubConnection::settings(QObject *parent)
 {
     return NULL;

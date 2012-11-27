@@ -102,10 +102,10 @@ bool DatabaseUpdateQuery::executeQuery()
             columnKeys.append("date_updated");
         }
 
-        queryString = QString("INSERT INTO %1 (%2) VALUES (:%3)")
+        queryString = QString("INSERT INTO %1 (%2) VALUES (:v_%3)")
                 .arg(table())
                 .arg(columnKeys.join(", "))
-                .arg(columnKeys.join(", :"));
+                .arg(columnKeys.join(", :v_"));
 
         query.prepare(queryString);
     } else if (entryType == Update) {
@@ -116,7 +116,7 @@ bool DatabaseUpdateQuery::executeQuery()
         for (int i = 0; i < columnKeys.count(); ++i) {
             if (i > 0)
                 queryString.append(",");
-            queryString.append(QString(" %1 = :%1").arg(columnKeys.at(i)));
+            queryString.append(QString(" %1 = :v_%1").arg(columnKeys.at(i)));
         }
 
         appendWhere(queryString, query);
@@ -129,10 +129,10 @@ bool DatabaseUpdateQuery::executeQuery()
     }
     for (int i = 0; i < columnKeys.count(); ++i) {
         if (setDates && (columnKeys.at(i) == "date_created" || columnKeys.at(i) == "date_updated"))
-            query.bindValue(":" + columnKeys.at(i),
+            query.bindValue(":v_" + columnKeys.at(i),
                             timestamp());
         else
-            query.bindValue(":" + columnKeys.at(i),
+            query.bindValue(":v_" + columnKeys.at(i),
                             bindingValue(columnKeys.at(i), columns.value(columnKeys.at(i))));
     }
 
@@ -189,11 +189,11 @@ void DatabaseUpdateQuery::appendWhere(QString &queryString, QSqlQuery &query)
     for (int i = 0; i < whereKeys.count(); ++i) {
         if (i > 0)
             queryString.append(" AND");
-        queryString.append(QString(" %1 = :%1").arg(whereKeys.at(i)));
+        queryString.append(QString(" %1 = :w_%1").arg(whereKeys.at(i)));
     }
     query.prepare(queryString);
 
     for (int i = 0; i < whereKeys.count(); ++i)
-        query.bindValue(":" + whereKeys.at(i),
+        query.bindValue(":w_" + whereKeys.at(i),
                         bindingValue(whereKeys.at(i), where.value(whereKeys.at(i))));
 }

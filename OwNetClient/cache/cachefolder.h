@@ -11,7 +11,7 @@ public:
     CacheFolder();
 
     long size();
-    long maximumSize() { return 500 * 1000 * 1000; } // 500 MB
+    long maximumSize() { return 60 * 1000 * 1000; } // 500 MB
     long cacheReserveSize();
 
     QFile *cacheFile(ProxyRequest *request, int part, QObject *parent = NULL);
