@@ -2,6 +2,7 @@
 #define DATABASESETTINGS_H
 
 #include <QObject>
+#include <QMutex>
 
 #include "idatabasesettings.h"
 
@@ -15,10 +16,18 @@ public:
     explicit DatabaseSettings(QObject *parent = 0);
 
     void setValue(const QString &key, const QString &value);
-    QString value(const QString &key, const QString &defaultValue) const;
+    QString value(const QString &key, const QString &defaultValue = QString()) const;
+
+    bool hasClientId() const;
+    int clientId() const;
+    void createClientId();
+
+    int nextClientSyncRecordNumber();
 
 private:
     static QMap<QString, QString> *m_cachedSettings;
+
+    QMutex m_syncRecordNumberMutex;
 };
 
 #endif // DATABASESETTINGS_H

@@ -24,9 +24,19 @@ public:
     IDatabaseUpdateQuery *createUpdateQuery(const QVariantMap &content);
     int execute();
 
+    int syncWith() { return m_syncWith; }
+    void setSyncWith(int clientId) { m_syncWith = clientId; }
+
+    int groupId() { return m_groupId; }
+    void setGroupId(int groupId) { m_groupId = groupId; }
+
 private:
+    void saveToJournal();
+
     QList<DatabaseUpdateQuery*> m_updateQueries;
     bool m_sync;
+    int m_syncWith;
+    int m_groupId;
 };
 
 #endif // DATABASEUPDATE_H

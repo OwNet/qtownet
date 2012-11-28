@@ -13,6 +13,7 @@ public:
 private:
     void openDatabase();
     void runMigrations();
+    void createClientName();
 };
 
 #endif // DATABASEINITIALIZER_H

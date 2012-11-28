@@ -3,6 +3,7 @@
 #include <QMap>
 #include <QSqlQuery>
 #include <QSqlRecord>
+#include <QDateTime>
 
 #include "databaseupdate.h"
 
@@ -41,4 +42,32 @@ QString DatabaseSettings::value(const QString &key, const QString &defaultValue)
     }
 
     return defaultValue;
+}
+
+bool DatabaseSettings::hasClientId() const
+{
+    QString clientName = value("client_id");
+    return !clientName.isEmpty();
+}
+
+int DatabaseSettings::clientId() const
+{
+    return value("client_id").toInt();
+}
+
+void DatabaseSettings::createClientId()
+{
+    setValue("client_id",
+                      QString::number(qHash(QString("c_%1")
+                                            .arg(QDateTime::currentDateTime().toString(Qt::ISODate)))));
+}
+
+int DatabaseSettings::nextClientSyncRecordNumber()
+{
+    QMutexLocker locker(&m_syncRecordNumberMutex);
+
+    int clientRecordNumber = value("client_sync_record_number", "0").toInt();
+    setValue("client_sync_record_number", QString::number(clientRecordNumber + 1));
+
+    return clientRecordNumber;
 }

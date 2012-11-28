@@ -56,7 +56,12 @@ void DatabaseUpdateQuery::setWhere(const QString &name, const QVariant &value)
 
 void DatabaseUpdateQuery::setUpdateDates(bool setDates)
 {
-    m_content.insert("set_update_dates", setDates);
+    m_content.insert("set_update_dates", (int)(DateCreated | DateUpdated));
+}
+
+void DatabaseUpdateQuery::setUpdateDates(IDatabaseUpdateQuery::UpdateDates updateDates)
+{
+    m_content.insert("set_update_dates", (int)updateDates);
 }
 
 QVariant DatabaseUpdateQuery::bindingValue(const QString &name, const QVariant &value) const
@@ -92,15 +97,15 @@ bool DatabaseUpdateQuery::executeQuery()
             entryType = Insert;
     }
 
-    bool setDates = m_content.contains("set_update_dates") && m_content.value("set_update_dates").toBool();
+    UpdateDates updateDates = (UpdateDates)m_content.value("set_update_dates").toInt();
 
     QVariantMap columns = m_content.value("columns").toMap();
     QStringList columnKeys = columns.keys();
     if (entryType == Insert) {
-        if (setDates) {
+        if (updateDates & DateCreated)
             columnKeys.append("date_created");
+        if (updateDates & DateUpdated)
             columnKeys.append("date_updated");
-        }
 
         queryString = QString("INSERT INTO %1 (%2) VALUES (:v_%3)")
                 .arg(table())
@@ -109,7 +114,7 @@ bool DatabaseUpdateQuery::executeQuery()
 
         query.prepare(queryString);
     } else if (entryType == Update) {
-        if (setDates)
+        if (updateDates & DateUpdated)
             columnKeys.append("date_updated");
 
         queryString = QString("UPDATE %1 SET").arg(table());
@@ -128,7 +133,7 @@ bool DatabaseUpdateQuery::executeQuery()
         return false;
     }
     for (int i = 0; i < columnKeys.count(); ++i) {
-        if (setDates && (columnKeys.at(i) == "date_created" || columnKeys.at(i) == "date_updated"))
+        if (columnKeys.at(i) == "date_created" || columnKeys.at(i) == "date_updated")
             query.bindValue(":v_" + columnKeys.at(i),
                             timestamp());
         else

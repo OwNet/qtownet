@@ -1,15 +1,17 @@
 #include "databaseupdate.h"
 
-#include <QDebug>
+#include "databasesettings.h"
 #include "qjson/serializer.h"
 
+#include <QDebug>
+
 DatabaseUpdate::DatabaseUpdate(QObject *parent)
-    : QObject(parent), m_sync(true)
+    : QObject(parent), m_sync(true), m_syncWith(-1), m_groupId(-1)
 {
 }
 
 DatabaseUpdate::DatabaseUpdate(bool sync, QObject *parent)
-    : QObject(parent), m_sync(sync)
+    : QObject(parent), m_sync(sync), m_syncWith(-1), m_groupId(-1)
 {
 }
 
@@ -29,7 +31,7 @@ IDatabaseUpdateQuery *DatabaseUpdate::createUpdateQuery(const QString &table, Da
 /**
  * @brief Create a new query from QVariantMap
  * @param content JSON formatted content
- * @return
+ * @return New IDatabaseUpdateQuery
  */
 IDatabaseUpdateQuery *DatabaseUpdate::createUpdateQuery(const QVariantMap &content)
 {
@@ -45,12 +47,40 @@ IDatabaseUpdateQuery *DatabaseUpdate::createUpdateQuery(const QVariantMap &conte
 int DatabaseUpdate::execute()
 {
     int numFailed = 0;
-    for (int i = 0; i < m_updateQueries.count(); ++i) {
-        if (!m_updateQueries.at(i)->executeQuery())
+    foreach (DatabaseUpdateQuery *query, m_updateQueries)
+        if (!query->executeQuery())
             numFailed++;
-    }
 
-    // TODO if m_sync, save to sync journal
+    if (!numFailed && m_sync)
+        saveToJournal();
 
     return numFailed;
+}
+
+/**
+ * @brief Save queries to sync journal
+ */
+void DatabaseUpdate::saveToJournal()
+{
+    if (!m_updateQueries.count())
+        return;
+
+    QVariantList content;
+    foreach (IDatabaseUpdateQuery *query, m_updateQueries)
+        content.append(query->content());
+    QJson::Serializer serializer;
+
+    DatabaseUpdate update(false);
+    IDatabaseUpdateQuery *query = update.createUpdateQuery("sync_journal", IDatabaseUpdateQuery::Insert);
+    query->setUpdateDates(IDatabaseUpdateQuery::DateCreated);
+
+    query->setColumnValue("client_id", DatabaseSettings().clientId());
+    query->setColumnValue("client_rec_num", DatabaseSettings().nextClientSyncRecordNumber());
+    query->setColumnValue("content", serializer.serialize(content));
+    if (m_syncWith != -1)
+        query->setColumnValue("sync_with", m_syncWith);
+    if (m_groupId != -1)
+        query->setColumnValue("group_id", m_groupId);
+
+    update.execute();
 }
