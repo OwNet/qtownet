@@ -111,15 +111,16 @@ void ProxyCacheOutputWriter::save()
     query->setColumnValue("status_description", m_statusDescription);
     query->setColumnValue("size", m_sizeWritten);
     query->setColumnValue("access_value", ProxyDownloads::instance()->gdsfClock()->getGDSFPriority(accessCount, m_sizeWritten));
+    update.execute();
 
     DatabaseUpdate syncedUpdate;
     query = syncedUpdate.createUpdateQuery("client_caches", IDatabaseUpdateQuery::Detect);
     query->setUpdateDates(IDatabaseUpdateQuery::DateCreated);
     query->setColumnValue("client_id", DatabaseSettings().clientId());
     query->setColumnValue("cache_id", m_hashCode);
+    query->setWhere("client_id", DatabaseSettings().clientId());
+    query->setWhere("cache_id", m_hashCode);
     syncedUpdate.execute();
-
-    update.execute();
 }
 
 /**
