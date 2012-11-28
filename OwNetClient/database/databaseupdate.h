@@ -18,6 +18,7 @@ class DatabaseUpdate : public QObject, public IDatabaseUpdate
 public:
     DatabaseUpdate(QObject *parent = 0);
     DatabaseUpdate(bool sync, QObject *parent = 0);
+    DatabaseUpdate(const QVariantList &content, bool sync = false, QObject *parent = 0);
 
     void setSync(bool sync) { m_sync = sync; }
     IDatabaseUpdateQuery *createUpdateQuery(const QString &table, IDatabaseUpdateQuery::EntryType type = IDatabaseUpdateQuery::Insert);

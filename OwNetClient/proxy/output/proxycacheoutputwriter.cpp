@@ -9,6 +9,7 @@
 #include "gdsfclock.h"
 #include "databaseupdate.h"
 #include "proxycachefiledownloadpart.h"
+#include "databasesettings.h"
 
 #include <QFile>
 #include <QIODevice>
@@ -97,7 +98,7 @@ void ProxyCacheOutputWriter::save()
     }
     accessCount++;
 
-    DatabaseUpdate update;
+    DatabaseUpdate update(false);
     IDatabaseUpdateQuery *query = update.createUpdateQuery("caches", entryType);
     query->setUpdateDates(true);
     query->setWhere("id", m_hashCode);
@@ -110,6 +111,13 @@ void ProxyCacheOutputWriter::save()
     query->setColumnValue("status_description", m_statusDescription);
     query->setColumnValue("size", m_sizeWritten);
     query->setColumnValue("access_value", ProxyDownloads::instance()->gdsfClock()->getGDSFPriority(accessCount, m_sizeWritten));
+
+    DatabaseUpdate syncedUpdate;
+    query = syncedUpdate.createUpdateQuery("client_caches", IDatabaseUpdateQuery::Detect);
+    query->setUpdateDates(IDatabaseUpdateQuery::DateCreated);
+    query->setColumnValue("client_id", DatabaseSettings().clientId());
+    query->setColumnValue("cache_id", m_hashCode);
+    syncedUpdate.execute();
 
     update.execute();
 }

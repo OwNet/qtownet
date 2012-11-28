@@ -56,7 +56,10 @@ void DatabaseUpdateQuery::setWhere(const QString &name, const QVariant &value)
 
 void DatabaseUpdateQuery::setUpdateDates(bool setDates)
 {
-    m_content.insert("set_update_dates", (int)(DateCreated | DateUpdated));
+    if (setDates)
+        m_content.insert("set_update_dates", (int)(DateCreated | DateUpdated));
+    else
+        m_content.insert("set_update_dates", (int)IDatabaseUpdateQuery::None);
 }
 
 void DatabaseUpdateQuery::setUpdateDates(IDatabaseUpdateQuery::UpdateDates updateDates)
@@ -73,8 +76,10 @@ QVariant DatabaseUpdateQuery::bindingValue(const QString &name, const QVariant &
 
 void DatabaseUpdateQuery::save()
 {
-    m_content.insert("columns", m_columns);
-    m_content.insert("where", m_wheres);
+    if (m_columns.count())
+        m_content.insert("columns", m_columns);
+    if (m_wheres.count())
+        m_content.insert("where", m_wheres);
 }
 
 bool DatabaseUpdateQuery::executeQuery()
@@ -86,6 +91,7 @@ bool DatabaseUpdateQuery::executeQuery()
 
     QSqlQuery query;
     QString queryString;
+    // Detect if it is insert or update query
     if (entryType == Detect && m_content.contains("where")) {
         queryString = QString("SELECT 1 FROM %1").arg(table());
 
@@ -99,7 +105,10 @@ bool DatabaseUpdateQuery::executeQuery()
 
     UpdateDates updateDates = (UpdateDates)m_content.value("set_update_dates").toInt();
 
-    QVariantMap columns = m_content.value("columns").toMap();
+    QVariantMap columns;
+    if (m_content.contains("columns"))
+        columns = m_content.value("columns").toMap();
+
     QStringList columnKeys = columns.keys();
     if (entryType == Insert) {
         if (updateDates & DateCreated)
@@ -182,7 +191,10 @@ QString DatabaseUpdateQuery::timestamp() const
 
 void DatabaseUpdateQuery::appendWhere(QString &queryString, QSqlQuery &query)
 {
-    QVariantMap where = m_content.value("where").toMap();
+    QVariantMap where;
+    if (m_content.contains("where"))
+        where = m_content.value("where").toMap();
+
     if (!where.count()) {
         query.prepare(queryString);
         return;

@@ -15,6 +15,13 @@ DatabaseUpdate::DatabaseUpdate(bool sync, QObject *parent)
 {
 }
 
+DatabaseUpdate::DatabaseUpdate(const QVariantList &content, bool sync, QObject *parent)
+    : QObject(parent), m_sync(sync), m_syncWith(-1), m_groupId(-1)
+{
+    foreach (QVariant queryContent, content)
+        createUpdateQuery(queryContent.toMap());
+}
+
 /**
  * @brief Create a new query
  * @param table Name of the table
