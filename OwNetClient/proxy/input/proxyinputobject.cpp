@@ -25,15 +25,22 @@ void ProxyInputObject::setHttpStatusDescription(const QString &description)
     m_httpStatusDescription = description;
 }
 
+QString ProxyInputObject::contentType() const
+{
+    foreach (QString key, m_responseHeaders.keys()) {
+        if (key.toLower().contains("content-type")) {
+            return m_responseHeaders.value(key).toString();
+        }
+    }
+    return "";
+}
+
 void ProxyInputObject::setContentType(const QString &value)
 {
-    m_contentType = value;
     m_responseHeaders.insertCaseInsensitive("Content-type", value);
 }
 
 void ProxyInputObject::addHeader(const QString &key, const QString &value)
 {
     m_responseHeaders.insert(key, value);
-    if (key.toLower().contains("content-type"))
-        m_contentType = value;
 }
