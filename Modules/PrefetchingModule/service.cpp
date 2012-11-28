@@ -5,6 +5,15 @@
 #include "prefetchjob.h"
 #include "ibus.h"
 
+#include "irequest.h"
+#include "idatabaseupdate.h"
+#include "ibus.h"
+#include "iproxyconnection.h"
+
+#include <QSqlQuery>
+#include <QSqlRecord>
+#include <QDateTime>
+
 Service::Service(IProxyConnection *proxyConnection, PrefetchingModule* parent) :
     QObject((QObject*)parent),
     m_proxyConnection(proxyConnection)
@@ -44,32 +53,60 @@ QByteArray *Service::processRequest(IBus *bus, IRequest *req)
         return ret;
     }
 
-    return new QByteArray("{ OK : 'OK'}");
+    return new QByteArray("{ ERROR : 'PROBLEM'}");
 }
 
 
 QByteArray *Service::visit(IBus *, IRequest *req)
 {
+    QObject parent;
+    int idfrom, idto;
     if (req->hasParameter("page")) {
+
+        IDatabaseUpdate *update = m_proxyConnection->databaseUpdate(&parent);
+
         QString page = req->parameterValue("page");
+        if (page.contains("prefetch.ownet/api"))
+            return NULL;
 
         int id = m_pageCounter++;
 
         m_module->prefetchJob()->registerPage(id,  page);
 
+        IDatabaseUpdateQuery *query = update->createUpdateQuery("pages");
 
-        //MessageHelper::debug(QString("prefetch:registered %0").arg(page));
+        query->setUpdateDates(true); // sam nastavi v tabulke datumy date_created a date_updated
+
+        query->setColumnValue("absolute_uri", page);
+        query->setColumnValue("title", "Titulok stranky");
+        idfrom = qHash(QUrl(page));
+        query->setWhere("id", idfrom);
 
         if (req->hasParameter("ref")) {
             page = req->parameterValue("ref");
-            if (!page.isEmpty())
-            {
+            if (!page.isEmpty() && !page.contains("prefetch.ownet/api")) {
+                IDatabaseUpdateQuery *query2 = update->createUpdateQuery("pages");
+                query2->setUpdateDates(true);
+                query2->setColumnValue("absolute_uri", page);
+                query2->setColumnValue("title", "Titulok stranky");
+                idto = qHash(QUrl(page));
+                query2->setWhere("id", idto);
+
+                IDatabaseUpdateQuery *query3 = update->createUpdateQuery("edges", IDatabaseUpdateQuery::Insert);
+                query3->setUpdateDates(true);
+                query3->setColumnValue("page_id_from", idfrom);
+                query3->setColumnValue("page_id_to", idto);
+
                 m_module->prefetchJob()->removePage(page);
                // MessageHelper::debug(QString("prefetch:removed %0").arg(page));
             }
-        }
 
-        return new QByteArray(QString("owNetPAGEID = %1;").arg(QString::number(id)).toAscii());
+
+        }
+        int a = update->execute();
+        if(!a) {
+            return new QByteArray(QString("owNetPAGEID = %1;").arg(QString::number(id)).toAscii());
+        }
     }
     return NULL;
 }
