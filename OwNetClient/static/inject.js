@@ -353,7 +353,7 @@ Array.prototype.owNetContains = function (item, comparer) {
     {
         if (top === self) 
         {
-            if (document.referrer.match(/prefetch.ownet\/prefetch/) !== null) {
+            if (document.referrer.match(/prefetch.ownet\/api\/prefetch/) !== null) {
 
                 if (document.addEventListener) {
                     document.addEventListener("DOMContentLoaded", function () {
