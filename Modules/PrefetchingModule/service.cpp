@@ -4,7 +4,7 @@
 #include "prefetchingmodule.h"
 #include "prefetchjob.h"
 #include "ibus.h"
-
+#include "isession.h"
 #include "irequest.h"
 #include "idatabaseupdate.h"
 #include "ibus.h"
@@ -70,6 +70,15 @@ QByteArray *Service::visit(IBus *, IRequest *req)
             return NULL;
 
         int id = m_pageCounter++;
+        int user_id = -1;
+        bool t = false;
+        if (m_proxyConnection->session(&parent)->isLoggedIn()) {
+            user_id = m_proxyConnection->session(&parent)->value("logged").toInt(&t);
+            if (t == false) user_id = -1;
+        }
+
+
+        //"logged", q.value(0));
 
         m_module->prefetchJob()->registerPage(id,  page);
 
@@ -79,8 +88,16 @@ QByteArray *Service::visit(IBus *, IRequest *req)
 
         query->setColumnValue("absolute_uri", page);
         query->setColumnValue("title", "Titulok stranky");
-        idfrom = qHash(QUrl(page));
-        query->setWhere("id", idfrom);
+        idto = qHash(QUrl(page));
+        query->setWhere("id", idto);
+
+        if (user_id != -1) {
+            query = update->createUpdateQuery("user_visits_pages");
+            query->setWhere("user_id", user_id);
+            query->setWhere("page_id", idto);
+            query->setColumnValue("count", 1);  // TODO autoincrement
+            query->setColumnValue("visited_at", QDateTime::currentDateTime().toString(Qt::ISODate));
+        }
 
         if (req->hasParameter("ref")) {
             page = req->parameterValue("ref");
@@ -89,13 +106,9 @@ QByteArray *Service::visit(IBus *, IRequest *req)
                 query2->setUpdateDates(true);
                 query2->setColumnValue("absolute_uri", page);
                 query2->setColumnValue("title", "Titulok stranky");
-                idto = qHash(QUrl(page));
-                query2->setWhere("id", idto);
+                idfrom = qHash(QUrl(page));
+                query2->setWhere("id", idfrom);
 
-                IDatabaseUpdateQuery *query3 = update->createUpdateQuery("edges", IDatabaseUpdateQuery::Insert);
-                query3->setUpdateDates(true);
-                query3->setColumnValue("page_id_from", idfrom);
-                query3->setColumnValue("page_id_to", idto);
 
                 m_module->prefetchJob()->removePage(page);
                // MessageHelper::debug(QString("prefetch:removed %0").arg(page));
@@ -105,6 +118,23 @@ QByteArray *Service::visit(IBus *, IRequest *req)
         }
         int a = update->execute();
         if(!a) {
+            IDatabaseUpdate *edge = m_proxyConnection->databaseUpdate(&parent);
+            IDatabaseUpdateQuery *query3 = edge->createUpdateQuery("edges", IDatabaseUpdateQuery::Insert);
+            query3->setUpdateDates(true);
+            query3->setColumnValue("page_id_from", idfrom);
+            query3->setColumnValue("page_id_to", idto);
+            if (user_id != -1) {
+                query3 = edge->createUpdateQuery("user_traverses_edges");
+                query3->setUpdateDates(true);
+                query3->setColumnValue("page_id_from", idfrom);
+                query3->setColumnValue("page_id_to", idto);
+                query3->setColumnValue("user_id", user_id);
+                query3->setColumnValue("frequency", 1);
+                query->setColumnValue("visited_at", QDateTime::currentDateTime().toString(Qt::ISODate));
+            }
+
+            edge->execute();
+
             return new QByteArray(QString("owNetPAGEID = %1;").arg(QString::number(id)).toAscii());
         }
     }
