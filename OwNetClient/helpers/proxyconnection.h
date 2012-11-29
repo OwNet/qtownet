@@ -17,6 +17,7 @@ public:
     QSettings *settings(QObject *parent = 0);
     IDatabaseSettings *databaseSettings(QObject *parent = 0);
     IRequest *createRequest(IRequest::RequestType requestType, const QString &module, const QString &action = QString(), int id = -1, QObject *parent = 0);
+    QVariant fromJson(const QByteArray &content) const;
 };
 
 #endif // PROXYCONNECTION_H

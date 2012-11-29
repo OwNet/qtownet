@@ -33,3 +33,8 @@ IRequest *StubConnection::createRequest(IRequest::RequestType requestType, const
 {
     return NULL;
 }
+
+QVariant StubConnection::fromJson(const QByteArray &content) const
+{
+    return QVariant();
+}

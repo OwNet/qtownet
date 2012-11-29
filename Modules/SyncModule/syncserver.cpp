@@ -3,6 +3,7 @@
 #include "iproxyconnection.h"
 #include "idatabaseselectquery.h"
 #include "idatabaseselectquerywheregroup.h"
+#include "idatabaseupdate.h"
 
 #include <QSqlQuery>
 
@@ -79,17 +80,33 @@ QVariantList SyncServer::getChangesToUpload(const QVariantList &clientRecordNumb
         IDatabaseSelectQueryWhereGroup *whereGroupAndClient = whereOr->whereGroup(IDatabaseSelectQuery::And);
         whereGroupAndClient->where("group_id", valuesMap.value("group_id").toInt());
         whereGroupAndClient->where("client_id", valuesMap.value("client_id").toInt());
-        whereGroupAndClient->where("last_client_rec_num", valuesMap.value("last_client_rec_num").toInt(), IDatabaseSelectQuery::LessThan);
+        //whereGroupAndClient->where("last_client_rec_num", valuesMap.value("last_client_rec_num").toInt(), IDatabaseSelectQuery::LessThan);
+    }
+
+    QMap<QString, int> mappedChanges;
+    while (query->next()) {
+        mappedChanges.insert(QString("%1-%2")
+                             .arg(query->value("group_id").toInt())
+                             .arg(query->value("client_id").toInt()),
+                             query->value("last_client_rec_num").toInt());
     }
 
     QVariantList changes;
-    while (query->next()) {
-        QVariantMap toUpload;
-        toUpload.insert("group_id", query->value("group_id"));
-        toUpload.insert("client_id", query->value("client_id"));
-        toUpload.insert("records_since", query->value("last_client_rec_num"));
-        changes.append(toUpload);
+    foreach (QVariant values, clientRecordNumbers) {
+        QVariantMap valuesMap = values.toMap();
+        QString key = QString("%1-%2")
+                .arg(valuesMap.value("group_id").toInt())
+                .arg(valuesMap.value("client_id").toInt());
+        if (mappedChanges.contains(key)) {
+            if (mappedChanges.value(key) < valuesMap.value("last_client_rec_num").toInt()) {
+                valuesMap.insert("last_client_rec_num", mappedChanges.value(key));
+                changes.append(valuesMap);
+            }
+        } else {
+            changes.append(valuesMap);
+        }
     }
+
     return changes;
 }
 
@@ -97,8 +114,39 @@ void SyncServer::uploadChanges(const QVariantList &changes)
 {
     QMutexLocker locker(&m_syncLock);
 
+    IDatabaseSelectQuery *query = m_proxyConnection->databaseSelect("client_sync_records", this);
+
+    QMap<QString, int> currentLastRecordsMap;
+    while (query->next()) {
+        currentLastRecordsMap.insert(QString("%1-%2")
+                             .arg(query->value("group_id").toInt())
+                             .arg(query->value("client_id").toInt()),
+                             query->value("last_client_rec_num").toInt());
+    }
+
     foreach (QVariant change, changes) {
         QVariantMap changeMap = change.toMap();
+        QString key = QString("%1-%2")
+                .arg(changeMap.value("group_id").toInt())
+                .arg(changeMap.value("client_id").toInt());
 
+        if (currentLastRecordsMap.contains(key) &&
+                currentLastRecordsMap.value(key) >= changeMap.value("client_rec_num").toInt())
+            continue;
+
+        IDatabaseUpdate *update = m_proxyConnection->databaseUpdate(this);
+        update->setSync(false);
+
+        IDatabaseUpdateQuery *updateQuery = update->createUpdateQuery("sync_journal", IDatabaseUpdateQuery::Insert);
+        updateQuery->setColumnValue("client_id", changeMap.value("client_id").toInt());
+        updateQuery->setColumnValue("client_rec_num", changeMap.value("client_rec_num").toInt());
+        updateQuery->setColumnValue("content", changeMap.value("content").toString());
+        if (!changeMap.value("group_id").isNull())
+            updateQuery->setColumnValue("group_id", changeMap.value("group_id").toInt());
+        if (!changeMap.value("sync_with").isNull())
+            updateQuery->setColumnValue("sync_with", changeMap.value("sync_with").toInt());
+        updateQuery->setUpdateDates(IDatabaseUpdateQuery::DateUpdated);
+
+        updateQuery = update->createUpdateQuery(m_proxyConnection->fromJson(changeMap.value("content").toByteArray()).toMap());
     }
 }

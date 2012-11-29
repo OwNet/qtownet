@@ -14,6 +14,7 @@ public:
     IDatabaseSelectQuery *databaseSelect(const QString &table, QObject *parent);
     QSettings *settings(QObject *parent = 0);
     IRequest *createRequest(IRequest::RequestType requestType, const QString &module, const QString &action = QString(), int id = -1, QObject *parent = 0);
+    QVariant fromJson(const QByteArray &content) const;
 };
 
 #endif // STUBCONNECTION_H
