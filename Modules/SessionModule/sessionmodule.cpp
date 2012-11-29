@@ -1,10 +1,10 @@
 #include "sessionmodule.h"
 
-#include "service.h"
+#include "sessionservice.h"
 
 void SessionModule::init(IProxyConnection *proxyConnection)
 {
-    m_services.append(new Service(proxyConnection, this));
+    m_services.append(new SessionService(proxyConnection, this));
 }
 
 QList<IRestService *> *SessionModule::restServices()

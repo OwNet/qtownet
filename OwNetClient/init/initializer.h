@@ -5,6 +5,7 @@
 #include "proxyinitializer.h"
 #include "moduleinitializer.h"
 #include "jobinitializer.h"
+#include "communicationinitializer.h"
 
 class Initializer
 {
@@ -18,6 +19,7 @@ private:
     DatabaseInitializer m_databaseInitializer;
     ModuleInitializer m_moduleInitializer;
     JobInitializer m_jobInitializer;
+    CommunicationInitializer m_communicationInitializer;
 };
 
 #endif // INITIALIZER_H

@@ -51,7 +51,7 @@ void ProxySocketOutputWriter::readRequest()
     m_requestHashCode = request->hashCode();
 
     MessageHelper::debug(request->url());
-//    m_openRequests->insert(m_requestHashCode, request->url());
+    //m_openRequests->insert(m_requestHashCode, request->url());
 
     createDownload(request);
 }
@@ -69,7 +69,7 @@ void ProxySocketOutputWriter::virtualClose()
                 m_socket->waitForDisconnected();
         }
         m_socket = NULL;
-//        m_openRequests->remove(m_requestHashCode);
+        //m_openRequests->remove(m_requestHashCode);
     }
 }
 
@@ -93,26 +93,46 @@ void ProxySocketOutputWriter::read(QIODevice *ioDevice)
            << " "
            << m_proxyDownload->inputObject()->httpStatusDescription()
            << "\r\n";
+
+// "chunked encoding in header"
+//        ListOfStringPairs headers = m_proxyDownload->inputObject()->responseHeaders();
+//        for (int i = 0; i < headers.count(); ++i) {
+//            if (headers.at(i).second == "chunked")
+//                continue;
+//            os << headers.at(i).first << ": " << headers.at(i).second << "\r\n";
+
         foreach (QString key, m_proxyDownload->inputObject()->responseHeaders().keys()) {
             os << key
                << ": "
                << m_proxyDownload->inputObject()->responseHeaders().value(key).toString()
                << "\r\n";
+
         }
         os << "\r\n";
         os.flush();
     }
-
+    QRegExp rx("(.*<body[^>]*>)(.*)");
     if (!m_foundBody && m_proxyDownload->inputObject()->contentType().toLower().contains("text/html")) {
         while (!ioDevice->atEnd()) {
             QByteArray lineBytes = ioDevice->readLine();
             QString line = QString::fromLatin1(lineBytes);
-            if (line.contains("<body")) {
-                //m_socket->write(QString("<script type=\"text/javascript\" src=\"http://ownet.tym.sk/script.js\"></script>")
-                //                .toLatin1());
+            if (rx.indexIn(line) != -1 && rx.capturedTexts().length() == 3) {
+        //    if (line.contains("<body")) {
+
+
+                QStringList listx = rx.capturedTexts();
+
+                m_socket->write(listx.at(1).toLatin1());
+
+                m_socket->write(QString("<script type=\"text/javascript\" src=\"http://inject.ownet/inject.js\"></script>")
+                                .toLatin1());
+                m_socket->write(listx.at(2).toLatin1());
                 m_foundBody = true;
             }
-            m_socket->write(lineBytes);
+            else
+            {
+                m_socket->write(lineBytes);
+            }
         }
     }
     else {

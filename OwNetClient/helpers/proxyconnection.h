@@ -11,9 +11,13 @@ class ProxyConnection : public QObject, public IProxyConnection
 public:
     explicit ProxyConnection(QObject *parent = 0);
 
-    ISession *session();
-    IDatabaseUpdate *databaseUpdate();
-    QSettings *settings();
+    ISession *session(QObject *parent = 0);
+    IDatabaseUpdate *databaseUpdate(QObject *parent = 0);
+    IDatabaseSelectQuery *databaseSelect(const QString &table, QObject *parent = 0);
+    QSettings *settings(QObject *parent = 0);
+    IDatabaseSettings *databaseSettings(QObject *parent = 0);
+    IRequest *createRequest(IRequest::RequestType requestType, const QString &module, const QString &action = QString(), int id = -1, QObject *parent = 0);
+    QVariant fromJson(const QByteArray &content) const;
 };
 
 #endif // PROXYCONNECTION_H

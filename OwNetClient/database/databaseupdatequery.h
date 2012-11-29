@@ -26,6 +26,7 @@ public:
     void setTemporaryBinding(const QString &name, const QVariant &value);
     void setWhere(const QString &name, const QVariant &value);
     void setUpdateDates(bool setDates);
+    void setUpdateDates(IDatabaseUpdateQuery::UpdateDates updateDates);
     void save();
     bool executeQuery();
 

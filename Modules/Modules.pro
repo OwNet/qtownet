@@ -2,5 +2,11 @@ TEMPLATE = subdirs
 
 SUBDIRS += \
     SampleModule \
+    PrefetchingModule \
     SessionModule \
-    UsersModule
+    UsersModule \
+    GroupsModule \
+    RecommendationsModule \
+    MessagesModule \
+    RatingsModule \
+    SyncModule

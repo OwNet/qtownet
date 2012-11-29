@@ -18,13 +18,8 @@ public:
     ProxyServer(QObject *parent = 0);
 
     enum {
-        Port = 8081,
-        InitialNumberOfProxyHandlers = 5,
-        MaxNumberOfProxyHandlers = 15
+        Port = 8081
     };
-
-private slots:
-    void proxyRequestFinished(ProxyHandler * handler);
 
 protected:
     void incomingConnection(qintptr handle);
@@ -32,15 +27,8 @@ protected:
 private:
     ProxyHandler *initializeProxyHandler();
 
-    QQueue<int> m_freeHandlerIds;
-    QMap<int, ProxyHandler *> m_handlersMap;
-    QMutex m_freeHandlersMutex;
-
-    int m_lastHandlerId;
-
 signals:
     void askAllHandlersToFinish();
-    void handleNewConnection(int);
 };
 
 #endif // PROXYSERVER_H

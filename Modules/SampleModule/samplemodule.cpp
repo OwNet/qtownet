@@ -1,11 +1,11 @@
 #include "samplemodule.h"
 
-#include "service.h"
+#include "sampleservice.h"
 
 QList<IRestService *> *SampleModule::restServices()
 {
     QList<IRestService *> *list = new QList<IRestService *>;
-    list->append(new Service(this));
+    list->append(new SampleService(this));
     return list;
 }
 

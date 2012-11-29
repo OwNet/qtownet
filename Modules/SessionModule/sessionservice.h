@@ -7,11 +7,11 @@
 
 class IProxyConnection;
 
-class Service : public QObject, public IRestService
+class SessionService : public QObject, public IRestService
 {
     Q_OBJECT
 public:
-    Service(IProxyConnection *proxyConnection, QObject *parent = NULL);
+    SessionService(IProxyConnection *proxyConnection, QObject *parent = NULL);
 
     QString name() const { return "session"; }
     QVariant *create(IBus *bus, IRequest *req);

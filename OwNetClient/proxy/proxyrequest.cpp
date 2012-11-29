@@ -6,6 +6,7 @@
 #include <QStringList>
 #include <QTcpSocket>
 #include <QRegExp>
+#include <QDebug>
 
 ProxyRequest::ProxyRequest(QTcpSocket *socket, QObject *parent)
     : QObject(parent),
@@ -53,6 +54,10 @@ bool ProxyRequest::readFromSocket()
             }
         }
     }
+//    for (int i = 0; i < m_requestHeaders.count(); ++i) {
+
+//        qDebug() << m_requestHeaders.at(i).first << m_requestHeaders.at(i).second;
+//    }
 
     analyzeUrl();
 
@@ -76,6 +81,10 @@ ProxyRequest::RequestType ProxyRequest::requestType() const
     return UNKNOWN;
 }
 
+/**
+ * @brief Reads the body of the request as a JSON
+ * @return Return the request body as QVariantMap
+ */
 QVariantMap ProxyRequest::postBodyFromJson() const
 {
     QVariantMap result;
@@ -88,6 +97,10 @@ QVariantMap ProxyRequest::postBodyFromJson() const
     return result;
 }
 
+/**
+ * @brief Parses the request body as received from HTML form.
+ * @return Map of keys and values in the body
+ */
 QMap<QString, QString> ProxyRequest::postBodyFromForm() const
 {
     QMap<QString, QString> result;
@@ -150,11 +163,14 @@ QString ProxyRequest::requestContentType(const QString &defaultContentType, cons
 QString ProxyRequest::staticResourcePath() const
 {
     if (isStaticResourceRequest())
-        if (!subDomain().isEmpty())
+    {
+        if (!subDomain().isEmpty()) {
+            QString murl = relativeUrl();
+
             return QString ("static/%1/%2").arg(subDomain()).arg(relativeUrl());
-
-    return QString("static/%1").arg(relativeUrl());
-
+        }
+        return QString("static/%1").arg(relativeUrl());
+    }
     return "";
 }
 

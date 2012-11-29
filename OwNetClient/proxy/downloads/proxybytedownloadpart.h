@@ -13,7 +13,7 @@ public:
     ProxyByteDownloadPart(QByteArray *bytes, int nextDownloadPartIndex, QObject *parent = NULL);
     ~ProxyByteDownloadPart();
 
-    QIODevice *stream();
+    ProxyDownloadStream *stream();
 
 private:
     QByteArray *m_bytes;

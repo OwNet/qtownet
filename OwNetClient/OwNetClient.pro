@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += core gui network sql testlib
+QT       += core gui network sql testlib webkitwidgets
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -65,8 +65,21 @@ SOURCES += main.cpp\
     helpers/variantmap.cpp \
     modules/requestrouter.cpp \
     helpers/session.cpp \
+    jobs/heartbeatjob.cpp \
+    init/communicationinitializer.cpp \
+    communication/heartbeatserver.cpp \
+    communication/communicationmanager.cpp \
+    communication/communicationinstance.cpp \
     helpers/proxyconnection.cpp \
-    jobs/modulejob.cpp
+    jobs/modulejob.cpp \
+    helpers/artificialrequest.cpp \
+    helpers/databasesettings.cpp \
+    proxy/downloads/proxydownloadstream.cpp \
+    database/databaseselectquery.cpp \
+    database/databaseselectqueryjoin.cpp \
+    database/databaseselectquerywheregroup.cpp \
+    database/databaseselectquerywhereexpression.cpp
+
 
 HEADERS  += view/mainwindow.h \
         proxy/proxyserver.h \
@@ -129,6 +142,13 @@ HEADERS  += view/mainwindow.h \
     modules/requestrouter.h \
     modules/interfaces/isession.h \
     helpers/session.h \
+    modules/idatabaseupdate.h \
+    modules/idatabaseupdatequery.h\
+    jobs/heartbeatjob.h \
+    init/communicationinitializer.h \
+    communication/heartbeatserver.h \
+    communication/communicationmanager.h \
+    communication/communicationinstance.h \
     modules/interfaces/idatabaseupdate.h \
     modules/interfaces/idatabaseupdatequery.h \
     modules/interfaces/ijobaction.h \
@@ -136,7 +156,20 @@ HEADERS  += view/mainwindow.h \
     helpers/proxyconnection.h \
     modules/interfaces/iservice.h \
     modules/interfaces/irestservice.h \
-    jobs/modulejob.h
+    jobs/modulejob.h \
+    helpers/artificialrequest.h \
+    helpers/databasesettings.h \
+    modules/interfaces/idatabasesettings.h \
+    proxy/downloads/proxydownloadstream.h \
+    database/databaseselectquery.h \
+    database/databaseselectqueryjoin.h \
+    modules/interfaces/idatabaseselectquery.h \
+    modules/interfaces/idatabaseselectqueryjoin.h \
+    database/databaseselectquerywheregroup.h \
+    database/databaseselectquerywhereexpression.h \
+    database/idatabaseselectquerywhere.h \
+    modules/interfaces/idatabaseselectquerywheregroup.h
+
 
 FORMS    += view/mainwindow.ui \
     view/preferencesdialog.ui
@@ -144,6 +177,7 @@ FORMS    += view/mainwindow.ui \
 INCLUDEPATH += proxy \
     init \
     helpers \
+    helpers/qjson \
     view \
     proxy/input \
     proxy/input/bus \
@@ -154,6 +188,7 @@ INCLUDEPATH += proxy \
     jobs \
     cache \
     database
+
 
 RESOURCES += \
     resources.qrc
