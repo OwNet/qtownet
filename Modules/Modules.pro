@@ -5,7 +5,8 @@ SUBDIRS += \
     PrefetchingModule \
     SessionModule \
     UsersModule \
-    GroupsModule\
-    RecommendationsModule\
-    MessagesModule\
-    RatingsModule
+    GroupsModule \
+    RecommendationsModule \
+    MessagesModule \
+    RatingsModule \
+    SyncModule

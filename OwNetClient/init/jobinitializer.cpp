@@ -2,6 +2,7 @@
 
 #include "cleancachejob.h"
 #include "proxytrafficcounterjob.h"
+#include "heartbeatjob.h"
 
 JobInitializer::JobInitializer()
     : m_cleanCacheJob(NULL), m_trafficCounterJob(NULL)

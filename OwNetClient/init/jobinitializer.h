@@ -3,6 +3,7 @@
 
 class CleanCacheJob;
 class ProxyTrafficCounterJob;
+class HeartbeatJob;
 
 class JobInitializer
 {

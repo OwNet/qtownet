@@ -51,7 +51,7 @@ void ProxySocketOutputWriter::readRequest()
     m_requestHashCode = request->hashCode();
 
     MessageHelper::debug(request->url());
-    m_openRequests->insert(m_requestHashCode, request->url());
+    //m_openRequests->insert(m_requestHashCode, request->url());
 
     createDownload(request);
 }
@@ -69,7 +69,7 @@ void ProxySocketOutputWriter::virtualClose()
                 m_socket->waitForDisconnected();
         }
         m_socket = NULL;
-        m_openRequests->remove(m_requestHashCode);
+        //m_openRequests->remove(m_requestHashCode);
     }
 }
 

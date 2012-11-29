@@ -18,15 +18,26 @@ class DatabaseUpdate : public QObject, public IDatabaseUpdate
 public:
     DatabaseUpdate(QObject *parent = 0);
     DatabaseUpdate(bool sync, QObject *parent = 0);
+    DatabaseUpdate(const QVariantList &content, bool sync = false, QObject *parent = 0);
 
     void setSync(bool sync) { m_sync = sync; }
     IDatabaseUpdateQuery *createUpdateQuery(const QString &table, IDatabaseUpdateQuery::EntryType type = IDatabaseUpdateQuery::Insert);
     IDatabaseUpdateQuery *createUpdateQuery(const QVariantMap &content);
     int execute();
 
+    int syncWith() { return m_syncWith; }
+    void setSyncWith(int clientId) { m_syncWith = clientId; }
+
+    int groupId() { return m_groupId; }
+    void setGroupId(int groupId) { m_groupId = groupId; }
+
 private:
+    void saveToJournal();
+
     QList<DatabaseUpdateQuery*> m_updateQueries;
     bool m_sync;
+    int m_syncWith;
+    int m_groupId;
 };
 
 #endif // DATABASEUPDATE_H

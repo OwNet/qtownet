@@ -5,6 +5,7 @@
 #include "proxyrequest.h"
 #include "proxyhandlersession.h"
 #include "proxydownloadpart.h"
+#include "proxydownloadstream.h"
 
 ProxyOutputWriter::ProxyOutputWriter(ProxyHandlerSession *proxyHandlerSession)
     : QObject(proxyHandlerSession), m_proxyHandlerSession(proxyHandlerSession), m_proxyDownload(NULL), m_downloadReaderId(-1), m_lastPartRead(0), m_closed(false)
@@ -80,7 +81,10 @@ void ProxyOutputWriter::readAvailableParts()
                 downloadFinished = true;
                 break;
             } else {
-                read(downloadPart->stream());
+                ProxyDownloadStream *s = downloadPart->stream();
+                if (s->stream())
+                    read(s->stream());
+                delete s;
             }
         }
     } while (downloadPart);

@@ -6,6 +6,7 @@
 #include "iservice.h"
 #include "databasemodule.h"
 #include "requestrouter.h"
+#include "messagehelper.h"
 #include "proxyconnection.h"
 #include "ijobaction.h"
 #include "modulejob.h"
@@ -61,6 +62,9 @@ void ModuleInitializer::loadPlugins()
     modulesDir.cd("modules");
 
     foreach (QString fileName, modulesDir.entryList(QDir::Files)) {
+        MessageHelper::debug(QObject::tr("Loading %1")
+                             .arg(modulesDir.absoluteFilePath(fileName)));
+
         QPluginLoader loader(modulesDir.absoluteFilePath(fileName));
         QObject *plugin = loader.instance();
 

@@ -1,19 +1,14 @@
 #include "gdsfclock.h"
 
 #include "qmath.h"
-#include "databaseupdate.h"
+#include "databasesettings.h"
 
 #include <QVariant>
-#include <QSqlQuery>
 
 GDSFClock::GDSFClock(QObject *parent) :
     QObject(parent), m_lastClock(0)
 {
-    QSqlQuery query;
-    query.prepare("SELECT value FROM cache_clean_clocks LIMIT 1");
-
-    if (query.exec() && query.next())
-        m_lastClock = query.value(0).toDouble();
+    m_lastClock = DatabaseSettings().value("cache_clean_clock", QString::number(0.0)).toDouble();
 }
 
 double GDSFClock::getGDSFPriority(int accessCount, long size)
@@ -40,10 +35,5 @@ void GDSFClock::setLastClock(double clock)
     m_lastClock = clock;
     m_lastClockMutex.unlock();
 
-    DatabaseUpdate update(false);
-    update.createUpdateQuery("cache_clean_clocks", DatabaseUpdateQuery::Delete);
-    IDatabaseUpdateQuery *query = update.createUpdateQuery("cache_clean_clocks", IDatabaseUpdateQuery::Insert);
-    query->setColumnValue("value", clock);
-
-    update.execute();
+    DatabaseSettings().setValue("cache_clean_clock", QString::number(clock));
 }

@@ -4,6 +4,10 @@
 #include <QObject>
 #include <QMutex>
 
+/**
+ * @brief Represents the current session in ProxyHandler, which is open until all dependent objects finish.
+ * Tells the ProxyHandler when to finish (emits a signal).
+ */
 class ProxyHandlerSession : public QObject
 {
     Q_OBJECT

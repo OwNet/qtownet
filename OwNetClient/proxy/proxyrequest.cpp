@@ -80,6 +80,10 @@ ProxyRequest::RequestType ProxyRequest::requestType() const
     return UNKNOWN;
 }
 
+/**
+ * @brief Reads the body of the request as a JSON
+ * @return Return the request body as QVariantMap
+ */
 QVariantMap ProxyRequest::postBodyFromJson() const
 {
     QVariantMap result;
@@ -92,6 +96,10 @@ QVariantMap ProxyRequest::postBodyFromJson() const
     return result;
 }
 
+/**
+ * @brief Parses the request body as received from HTML form.
+ * @return Map of keys and values in the body
+ */
 QMap<QString, QString> ProxyRequest::postBodyFromForm() const
 {
     QMap<QString, QString> result;

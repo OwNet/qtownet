@@ -4,6 +4,7 @@
 #include "applicationdatastorage.h"
 #include "applicationenvironment.h"
 #include "proxydownloads.h"
+#include "databasesettings.h"
 
 #include <QtCore/QVariant>
 #include <QSqlDatabase>
@@ -12,6 +13,7 @@
 #include <QTextStream>
 #include <QCoreApplication>
 #include <QDebug>
+#include <QDateTime>
 
 DatabaseInitializer::DatabaseInitializer()
 {
@@ -21,6 +23,7 @@ void DatabaseInitializer::init()
 {
     openDatabase();
     runMigrations();
+    createClientName();
 }
 
 /**
@@ -49,9 +52,18 @@ void DatabaseInitializer::openDatabase()
  */
 void DatabaseInitializer::runMigrations()
 {
-    // migrations table
+    QSqlDatabase db = QSqlDatabase::database();
     QSqlQuery query;
+    QMap<QString, bool> migrations;
+
+    // migrations table
     query.exec("CREATE TABLE IF NOT EXISTS migrations (name TEXT PRIMARY KEY); ");
+
+    // load migration names
+    query.prepare("SELECT name FROM migrations; ");
+    query.exec();
+    while (query.next())
+        migrations.insert(query.value(0).toString(), true);
 
     // in migrations directory
     QDir dir = ApplicationDataStorage().appResourcesDirectory();
@@ -62,16 +74,12 @@ void DatabaseInitializer::runMigrations()
 
         // for all migrations
         for (int i = 0; i < list.size(); ++i) {
-            QSqlQuery query;
-            query.prepare("SELECT name FROM migrations WHERE name = ?; ");
-            query.addBindValue(list.at(i).fileName());
-            query.exec();
 
             // unless migration has been run
             bool success = true;
-            if (! query.next())
+            if (! migrations.contains(list.at(i).fileName()))
             {
-                MessageHelper::debug(QObject::tr("Running migration %1.")
+                MessageHelper::debug(QObject::tr("Migration %1")
                                      .arg(list.at(i).fileName()));
 
                 // read file
@@ -81,7 +89,6 @@ void DatabaseInitializer::runMigrations()
                     in.setCodec("UTF-8");
                     QStringList queries = in.readAll().split(";", QString::SkipEmptyParts);
 
-                    QSqlDatabase db = QSqlDatabase::database();
                     db.transaction();
 
                     foreach (QString strQuery, queries) {
@@ -99,22 +106,35 @@ void DatabaseInitializer::runMigrations()
                     if (!success)
                         db.rollback();
                     else
+                    {
+                        // add to migrations table
+                        QSqlQuery query;
+                        query.prepare("INSERT INTO migrations (name) VALUES (?); ");
+                        query.addBindValue(list.at(i).fileName());
+                        query.exec();
+
                         db.commit();
+                    }
 
                     file.close();
                 }
                 else {
-                    MessageHelper::debug(QObject::tr("%1: %2.")
-                                         .arg(file.errorString())
-                                         .arg(list.at(i).fileName()));
+                    MessageHelper::debug(file.errorString());
                 }
-
-                // add to migrations table
-                QSqlQuery query;
-                query.prepare("INSERT INTO migrations (name) VALUES (?); ");
-                query.addBindValue(list.at(i).fileName());
-                query.exec();
             }
+
+            if (! success)
+                break;
         }
     }
+}
+
+/**
+ * @brief Generate client name and save it to database if it doesnt already exist.
+ */
+void DatabaseInitializer::createClientName()
+{
+    DatabaseSettings settings;
+    if (!settings.hasClientId())
+        settings.createClientId();
 }
