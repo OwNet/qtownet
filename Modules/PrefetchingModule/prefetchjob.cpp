@@ -10,6 +10,8 @@
 #include <QStringList>
 
 
+
+
 #include "loggedpage.h"
 PrefetchJob::PrefetchJob()
 {
@@ -98,13 +100,15 @@ void PrefetchJob::prefetch()
     QString link;
     if (!m_map.empty() && m_map.contains(m_last))
     {
-        link = "http://prefetch.ownet/api/prefetch/load?page=" + QString(QUrl(m_map.value(m_last)->link()).toEncoded());
+        link = QString(QUrl(m_map.value(m_last)->link()).toEncoded());
     }
     m_mapMutex.unlock();
 
 
     if (!link.isEmpty())
     {
+        link = QString("http://prefetch.ownet/api/prefetch/load?page=%1").arg(link);
+
         m_webView.load(QUrl(link));
     }
 }
