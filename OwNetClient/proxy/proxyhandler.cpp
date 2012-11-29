@@ -10,7 +10,6 @@
 #include "proxysocketoutputwriter.h"
 #include "proxyhandlersession.h"
 
-#include <QRegExp>
 #include <QWidget>
 #include <QDateTime>
 #include <QNetworkAccessManager>
