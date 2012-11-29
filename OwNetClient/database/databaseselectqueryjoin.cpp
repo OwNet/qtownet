@@ -1,17 +1,26 @@
 #include "databaseselectqueryjoin.h"
 
-#include "databaseselectquerywhere.h"
+#include "databaseselectquerywhereexpression.h"
+#include "databaseselectquerywheregroup.h"
 
 DatabaseSelectQueryJoin::DatabaseSelectQueryJoin(const QString &table, IDatabaseSelectQuery::JoinType joinType, QObject *parent) :
     QObject(parent),
     m_table(table),
-    m_joinType(joinType)
+    m_joinType(joinType),
+    m_where(NULL)
 {
 }
 
-void DatabaseSelectQueryJoin::where(const QString &column, const QVariant &value, IDatabaseSelectQuery::Operator op, bool bind)
+void DatabaseSelectQueryJoin::singleWhere(const QString &column, const QVariant &value, IDatabaseSelectQuery::WhereOperator op, bool bind)
 {
-    m_wheres.append(new DatabaseSelectQueryWhere(column, value, op, bind, this));
+    m_where = new DatabaseSelectQueryWhereExpression(column, value, op, bind, this);
+}
+
+IDatabaseSelectQueryWhereGroup *DatabaseSelectQueryJoin::whereGroup(IDatabaseSelectQuery::JoinOperator op)
+{
+    DatabaseSelectQueryWhereGroup *group = new DatabaseSelectQueryWhereGroup(op, this);
+    m_where = group;
+    return group;
 }
 
 QString DatabaseSelectQueryJoin::toString() const
@@ -29,17 +38,14 @@ QString DatabaseSelectQueryJoin::toString() const
         break;
     }
     res.append(" " + m_table);
-    if (m_wheres.count()) {
-        res.append(" ON");
-        foreach (DatabaseSelectQueryWhere *where, m_wheres) {
-            res.append(" " + where->toString());
-        }
+    if (m_where) {
+        res.append(QString(" ON %1").arg(m_where->toString()));
     }
     return res;
 }
 
 void DatabaseSelectQueryJoin::bindValue(QSqlQuery *query)
 {
-    foreach (DatabaseSelectQueryWhere *where, m_wheres)
-        where->bindValue(query);
+    if (m_where)
+        m_where->bindValue(query);
 }

@@ -1,12 +1,12 @@
-#include "databaseselectquerywhere.h"
+#include "databaseselectquerywhereexpression.h"
 
 #include <QDateTime>
 #include <QSqlQuery>
 
-int DatabaseSelectQueryWhere::m_nextId = 0;
+int DatabaseSelectQueryWhereExpression::m_nextId = 0;
 
-DatabaseSelectQueryWhere::DatabaseSelectQueryWhere(const QString &column, const QVariant &value, IDatabaseSelectQuery::Operator op, bool bind, QObject *parent) :
-    QObject(parent),
+DatabaseSelectQueryWhereExpression::DatabaseSelectQueryWhereExpression(const QString &column, const QVariant &value, IDatabaseSelectQuery::WhereOperator op, bool bind, QObject *parent) :
+    IDatabaseSelectQueryWhere(parent),
     m_column(column),
     m_value(value),
     m_operator(op),
@@ -16,7 +16,7 @@ DatabaseSelectQueryWhere::DatabaseSelectQueryWhere(const QString &column, const 
         m_id = m_nextId++;
 }
 
-QString DatabaseSelectQueryWhere::toString() const
+QString DatabaseSelectQueryWhereExpression::toString()
 {
     if (m_bind)
         return QString("%1 %2 :%3")
@@ -29,13 +29,13 @@ QString DatabaseSelectQueryWhere::toString() const
             .arg(m_value.toString());
 }
 
-void DatabaseSelectQueryWhere::bindValue(QSqlQuery *query) const
+void DatabaseSelectQueryWhereExpression::bindValue(QSqlQuery *query) const
 {
     if (m_bind)
         query->bindValue(QString(":%1").arg(m_id), m_value);
 }
 
-QString DatabaseSelectQueryWhere::operatorToString() const
+QString DatabaseSelectQueryWhereExpression::operatorToString() const
 {
     switch (m_operator) {
     case IDatabaseSelectQuery::Equals:

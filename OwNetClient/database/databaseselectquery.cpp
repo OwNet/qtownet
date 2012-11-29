@@ -1,7 +1,9 @@
 #include "databaseselectquery.h"
 
 #include "databaseselectqueryjoin.h"
-#include "databaseselectquerywhere.h"
+#include "idatabaseselectquerywhere.h"
+#include "databaseselectquerywheregroup.h"
+#include "databaseselectquerywhereexpression.h"
 
 #include <QSqlQuery>
 #include <QSqlRecord>
@@ -13,7 +15,8 @@ DatabaseSelectQuery::DatabaseSelectQuery(const QString &table, QObject *parent) 
     m_table(table),
     m_limit(-1),
     m_offset(-1),
-    m_executed(false)
+    m_executed(false),
+    m_where(NULL)
 {
     m_query = new QSqlQuery;
 }
@@ -35,12 +38,8 @@ bool DatabaseSelectQuery::execute()
         queryString.append(" " + join->toString());
     }
 
-    if (m_wheres.count()) {
-        queryString.append(" WHERE");
-        foreach (DatabaseSelectQueryWhere *where, m_wheres) {
-            queryString.append(" " + where->toString());
-        }
-    }
+    if (m_where)
+        queryString.append(QString(" WHERE %1").arg(m_where->toString()));
 
     if (m_groupByColumns.count()) {
         queryString.append(" GROUP BY ");
@@ -60,12 +59,13 @@ bool DatabaseSelectQuery::execute()
 
     m_query->prepare(queryString);
 
-    foreach (DatabaseSelectQueryWhere *where, m_wheres)
-        where->bindValue(m_query);
+    if (m_where)
+        m_where->bindValue(m_query);
 
     foreach (DatabaseSelectQueryJoin *join, m_joins)
         join->bindValue(m_query);
 
+    qDebug() << queryString;
     if (!m_query->exec()) {
         qDebug() << m_query->lastError().text();
 
@@ -95,10 +95,16 @@ QVariant DatabaseSelectQuery::value(const QString &key) const
     return m_query->value(m_query->record().indexOf(key));
 }
 
-void DatabaseSelectQuery::where(const QString &column, const QVariant &value, IDatabaseSelectQuery::Operator op, bool bind)
+void DatabaseSelectQuery::singleWhere(const QString &column, const QVariant &value, IDatabaseSelectQuery::WhereOperator op, bool bind)
 {
-    DatabaseSelectQueryWhere *w = new DatabaseSelectQueryWhere(column, value, op, bind, this);
-    m_wheres.append(w);
+    m_where = new DatabaseSelectQueryWhereExpression(column, value, op, bind, this);
+}
+
+IDatabaseSelectQueryWhereGroup *DatabaseSelectQuery::whereGroup(IDatabaseSelectQuery::JoinOperator op)
+{
+    DatabaseSelectQueryWhereGroup *group = new DatabaseSelectQueryWhereGroup(op, this);
+    m_where = group;
+    return group;
 }
 
 IDatabaseSelectQueryJoin *DatabaseSelectQuery::join(const QString &table, JoinType joinType)

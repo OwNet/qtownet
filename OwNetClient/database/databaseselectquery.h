@@ -8,8 +8,9 @@
 #include "idatabaseselectquery.h"
 
 class QSqlQuery;
-class DatabaseSelectQueryWhere;
+class IDatabaseSelectQueryWhere;
 class DatabaseSelectQueryJoin;
+class IDatabaseSelectQueryWhereGroup;
 
 class DatabaseSelectQuery : public QObject, public IDatabaseSelectQuery
 {
@@ -25,7 +26,8 @@ public:
     void select(const QString &column) { m_selectColumns.append(column); }
     void select(const QStringList &columns) { m_selectColumns.append(columns); }
 
-    void where(const QString &column, const QVariant &value, Operator op = Equals, bool bind = true);
+    void singleWhere(const QString &column, const QVariant &value, WhereOperator op = Equals, bool bind = true);
+    IDatabaseSelectQueryWhereGroup *whereGroup(IDatabaseSelectQuery::JoinOperator op);
 
     IDatabaseSelectQueryJoin *join(const QString &table, IDatabaseSelectQuery::JoinType joinType = Join);
 
@@ -46,7 +48,7 @@ private:
     QStringList m_groupByColumns;
     QStringList m_orderByColumns;
     QList<DatabaseSelectQueryJoin *> m_joins;
-    QList<DatabaseSelectQueryWhere *> m_wheres;
+    IDatabaseSelectQueryWhere *m_where;
     QSqlQuery *m_query;
     int m_limit;
     int m_offset;
