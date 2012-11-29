@@ -21,7 +21,7 @@ public:
     QString module() const { return m_module; }
     QString subDomain() const { return m_submodule; }
     int id() const { return m_id; }
-
+    bool hasParameter(const QString& key) const { return m_parameters.contains(key); }
     QString parameterValue(const QString &key) const { return m_parameters.value(key); }
     void setParamater(const QString &key, const QString &value) { m_parameters.insert(key, value); }
 

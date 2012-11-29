@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += core gui network sql qtestlib
+QT       += core gui network sql qtestlib webkit
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -148,6 +148,7 @@ FORMS    += view/mainwindow.ui \
 INCLUDEPATH += proxy \
     init \
     helpers \
+    helpers/qjson \
     view \
     proxy/input \
     proxy/input/bus \
@@ -158,6 +159,7 @@ INCLUDEPATH += proxy \
     jobs \
     cache \
     database
+
 
 RESOURCES += \
     resources.qrc

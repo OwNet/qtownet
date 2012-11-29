@@ -19,6 +19,7 @@ UsersService::UsersService(IProxyConnection *proxyConnection, QObject *parent) :
 QVariant *UsersService::create(IBus *bus, IRequest *req)
 {
     QVariantMap reqJson = req->postBodyFromJson();
+    QObject parent;
 
     QString login = reqJson["login"].toString();
 
@@ -45,7 +46,7 @@ QVariant *UsersService::create(IBus *bus, IRequest *req)
     //creating user ID
     uint id = qHash(QString("%1-%2").arg(login).arg(QDateTime::currentDateTime().toString(Qt::ISODate)));
 
-    IDatabaseUpdate *update = m_proxyConnection->databaseUpdate();
+    IDatabaseUpdate *update = m_proxyConnection->databaseUpdate(&parent);
 
     IDatabaseUpdateQuery *query = update->createUpdateQuery("users", IDatabaseUpdateQuery::Insert);
 

@@ -49,8 +49,6 @@ void ProxyOutputWriter::createDownload(ProxyRequest *request)
 void ProxyOutputWriter::close()
 {
     if (m_proxyDownload) {
-        disconnect(m_proxyDownload);
-
         m_proxyDownloads->deregisterDownloadReader(m_proxyDownload, m_downloadReaderId);
         m_proxyDownload = NULL;
     }

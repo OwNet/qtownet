@@ -22,6 +22,7 @@ public:
     virtual QString module() const = 0;
     virtual QString subDomain() const = 0;
     virtual int id() const = 0;
+    virtual bool hasParameter(const QString& key) const = 0;
 
     virtual QString parameterValue(const QString &key) const = 0;
     virtual void setParamater(const QString &, const QString &) {}

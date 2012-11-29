@@ -21,8 +21,10 @@ void ProxyStaticInputObject::readRequest()
 {
     ApplicationDataStorage appDataStorage;
     QDir dir = appDataStorage.appResourcesDirectory();
-    QFileInfo fi(dir.absoluteFilePath(m_request->staticResourcePath()));
-
+    QString dirPath = dir.absolutePath();
+    QString filePath = m_request->staticResourcePath();
+    QString path = dir.absoluteFilePath(filePath);
+    QFileInfo fi(path);
     if (fi.isDir()) {
         dir.setPath(fi.absoluteFilePath());
         QStringList entries = dir.entryList(QStringList("index.*"));
@@ -41,7 +43,7 @@ void ProxyStaticInputObject::readRequest()
 
         emit finished();
     } else {
-        MessageHelper::debug(QString("404 NOT FOUND static/%1").arg(m_request->relativeUrl()));
+        MessageHelper::debug(QString("404 NOT FOUND static/%1").arg(fi.absoluteFilePath()));
         emit failed();
     }
 }
