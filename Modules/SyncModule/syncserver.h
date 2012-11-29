@@ -26,6 +26,8 @@ public:
     void setProxyConnection(IProxyConnection *proxyConnection) { m_proxyConnection = proxyConnection; }
 
     QVariantList getUpdates(const QVariantMap &clientRecordNumbers, bool syncAllGroups, int clientId);
+    QVariantList getChangesToUpload(const QVariantList &clientRecordNumbers);
+    void uploadChanges(const QVariantList &changes);
 
 private:
     SyncServer();
