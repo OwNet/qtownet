@@ -7,9 +7,13 @@ CONFIG         += plugin
 
 INCLUDEPATH    += ../../OwNetClient/modules/interfaces
 
-SOURCES        += syncmodule.cpp
+SOURCES        += syncmodule.cpp \
+    syncjob.cpp \
+    syncserver.cpp
 
-HEADERS        += syncmodule.h
+HEADERS        += syncmodule.h \
+    syncjob.h \
+    syncserver.h
 
 TARGET          = $$qtLibraryTarget(ownet_syncmodule)
 macx:DESTDIR    = ../../OwNetClient/OwNetClient.app/Contents/MacOS/modules
