@@ -74,7 +74,10 @@ SOURCES += main.cpp\
     jobs/modulejob.cpp \
     helpers/artificialrequest.cpp \
     helpers/databasesettings.cpp \
-    proxy/downloads/proxydownloadstream.cpp
+    proxy/downloads/proxydownloadstream.cpp \
+    database/databaseselectquery.cpp \
+    database/databaseselectquerywhere.cpp \
+    database/databaseselectqueryjoin.cpp
 
 HEADERS  += view/mainwindow.h \
         proxy/proxyserver.h \
@@ -155,7 +158,12 @@ HEADERS  += view/mainwindow.h \
     helpers/artificialrequest.h \
     helpers/databasesettings.h \
     modules/interfaces/idatabasesettings.h \
-    proxy/downloads/proxydownloadstream.h
+    proxy/downloads/proxydownloadstream.h \
+    database/databaseselectquery.h \
+    database/databaseselectquerywhere.h \
+    database/databaseselectqueryjoin.h \
+    modules/interfaces/idatabaseselectquery.h \
+    modules/interfaces/idatabaseselectqueryjoin.h
 
 FORMS    += view/mainwindow.ui \
     view/preferencesdialog.ui

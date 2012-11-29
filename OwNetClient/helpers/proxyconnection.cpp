@@ -3,6 +3,7 @@
 #include "settings.h"
 #include "databasesettings.h"
 #include "databaseupdate.h"
+#include "databaseselectquery.h"
 #include "session.h"
 #include "artificialrequest.h"
 
@@ -19,6 +20,11 @@ ISession *ProxyConnection::session(QObject *parent)
 IDatabaseUpdate *ProxyConnection::databaseUpdate(QObject *parent)
 {
     return new DatabaseUpdate(parent);
+}
+
+IDatabaseSelectQuery *ProxyConnection::databaseSelect(const QString &table, QObject *parent)
+{
+    return new DatabaseSelectQuery(table, parent);
 }
 
 QSettings *ProxyConnection::settings(QObject *parent)

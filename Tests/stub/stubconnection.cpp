@@ -19,6 +19,11 @@ IDatabaseSettings *StubConnection::databaseSettings(QObject *parent)
     return NULL;
 }
 
+IDatabaseSelectQuery *StubConnection::databaseSelect(const QString &table, QObject *parent)
+{
+    return NULL;
+}
+
 QSettings *StubConnection::settings(QObject *parent)
 {
     return NULL;
