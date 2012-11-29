@@ -10,7 +10,7 @@ public:
     DatabaseSelectQueryWhereGroup(IDatabaseSelectQuery::JoinOperator op, QObject *parent = 0);
 
     IDatabaseSelectQueryWhereGroup *whereGroup(IDatabaseSelectQuery::JoinOperator op);
-    void where(const QString &column, const QVariant &value, IDatabaseSelectQuery::WhereOperator op = IDatabaseSelectQuery::Equals, bool bind = true);
+    void where(const QString &column, const QVariant &value, IDatabaseSelectQuery::WhereOperator op = IDatabaseSelectQuery::Equal, bool bind = true);
 
     QString toString();
     void bindValue(QSqlQuery *query) const;

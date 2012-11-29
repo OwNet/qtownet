@@ -1,5 +1,5 @@
-#ifndef DATABASESELECTQUERYWHERE_H
-#define DATABASESELECTQUERYWHERE_H
+#ifndef DATABASESELECTQUERYWHEREEXPRESSION_H
+#define DATABASESELECTQUERYWHEREEXPRESSION_H
 
 #include <QObject>
 
@@ -9,7 +9,7 @@
 class DatabaseSelectQueryWhereExpression : public IDatabaseSelectQueryWhere
 {
 public:
-    explicit DatabaseSelectQueryWhereExpression(const QString &column, const QVariant &value, IDatabaseSelectQuery::WhereOperator op = IDatabaseSelectQuery::Equals, bool bind = true, QObject *parent = 0);
+    explicit DatabaseSelectQueryWhereExpression(const QString &column, const QVariant &value, IDatabaseSelectQuery::WhereOperator op = IDatabaseSelectQuery::Equal, bool bind = true, QObject *parent = 0);
     
     QString toString();
     void bindValue(QSqlQuery *query) const;
@@ -25,4 +25,4 @@ private:
     static int m_nextId;
 };
 
-#endif // DATABASESELECTQUERYWHERE_H
+#endif // DATABASESELECTQUERYWHEREEXPRESSION_H

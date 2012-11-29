@@ -14,7 +14,7 @@ class DatabaseSelectQueryJoin : public QObject, public IDatabaseSelectQueryJoin
 public:
     explicit DatabaseSelectQueryJoin(const QString &table, IDatabaseSelectQuery::JoinType joinType = IDatabaseSelectQuery::Join, QObject *parent = 0);
 
-    void singleWhere(const QString &column, const QVariant &value, IDatabaseSelectQuery::WhereOperator op = IDatabaseSelectQuery::Equals, bool bind = true);
+    void singleWhere(const QString &column, const QVariant &value, IDatabaseSelectQuery::WhereOperator op = IDatabaseSelectQuery::Equal, bool bind = true);
     IDatabaseSelectQueryWhereGroup *whereGroup(IDatabaseSelectQuery::JoinOperator op);
 
     QString toString() const;

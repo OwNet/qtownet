@@ -11,12 +11,15 @@ class IDatabaseSelectQuery
 {
 public:
     enum WhereOperator {
-        Equals,
-        NotEquals,
+        Equal,
+        NotEqual,
         LessThan,
         GreaterThan,
+        LessThanOrEqual,
+        GreaterThanOrEqual,
         Like,
-        In
+        In,
+        Is
     };
     enum JoinOperator {
         And,
@@ -35,7 +38,7 @@ public:
     virtual void select(const QString &column) = 0;
     virtual void select(const QStringList &columns) = 0;
 
-    virtual void singleWhere(const QString &column, const QVariant &value, WhereOperator op = Equals, bool bind = true) = 0;
+    virtual void singleWhere(const QString &column, const QVariant &value, WhereOperator op = Equal, bool bind = true) = 0;
     virtual IDatabaseSelectQueryWhereGroup *whereGroup(IDatabaseSelectQuery::JoinOperator op) = 0;
 
     virtual IDatabaseSelectQueryJoin *join(const QString &table, IDatabaseSelectQuery::JoinType joinType = Join) = 0;

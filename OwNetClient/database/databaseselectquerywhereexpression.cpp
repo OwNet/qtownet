@@ -38,18 +38,24 @@ void DatabaseSelectQueryWhereExpression::bindValue(QSqlQuery *query) const
 QString DatabaseSelectQueryWhereExpression::operatorToString() const
 {
     switch (m_operator) {
-    case IDatabaseSelectQuery::Equals:
+    case IDatabaseSelectQuery::Equal:
         return "=";
-    case IDatabaseSelectQuery::NotEquals:
+    case IDatabaseSelectQuery::NotEqual:
         return "<>";
     case IDatabaseSelectQuery::LessThan:
         return "<";
     case IDatabaseSelectQuery::GreaterThan:
         return ">";
+    case IDatabaseSelectQuery::LessThanOrEqual:
+        return "<=";
+    case IDatabaseSelectQuery::GreaterThanOrEqual:
+        return ">=";
     case IDatabaseSelectQuery::Like:
         return "LIKE";
     case IDatabaseSelectQuery::In:
         return "IN";
+    case IDatabaseSelectQuery::Is:
+        return "IS";
     }
     return "=";
 }
