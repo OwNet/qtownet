@@ -1,7 +1,4 @@
-QT             += gui
-QT             += sql
-QT             += network
-QT             += webkitwidgets
+QT             += gui sql network webkitwidgets
 
 TARGET          = $$qtLibraryTarget(ownet_prefetchingmodule)
 TEMPLATE        = lib
