@@ -44,4 +44,4 @@ HEADERS +=  ../OwNetClient/modules/interfaces/ibus.h \
 INCLUDEPATH += $$_PRO_FILE_PWD_
 
 
-DEFINES += SRCDIR=\\\"$$_PRO_FILE_PWD_ \/\\\" TEST
+DEFINES += SRCDIR=\\\"$$_PRO_FILE_PWD_\\\" TEST
