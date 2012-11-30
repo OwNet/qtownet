@@ -41,5 +41,7 @@ HEADERS +=  ../OwNetClient/modules/interfaces/ibus.h \
     stub/stubtime.h \
     stub/stubconnection.h
 
+INCLUDEPATH += $$_PRO_FILE_PWD_
 
-DEFINES += SRCDIR=\\\"$$PWD/\\\" TEST
+
+DEFINES += SRCDIR=\\\"$$_PRO_FILE_PWD_ \/\\\" TEST
