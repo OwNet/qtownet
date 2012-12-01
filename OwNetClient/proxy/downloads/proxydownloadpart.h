@@ -1,11 +1,9 @@
 #ifndef PROXYDOWNLOADPART_H
 #define PROXYDOWNLOADPART_H
 
-class QIODevice;
 class ProxyDownloadStream;
 
 #include <QObject>
-#include <QSemaphore>
 
 /**
  * @brief Part of the response created and stored in the ProxyDownload object.

@@ -4,7 +4,6 @@
 #include "irequest.h"
 #include "variantmap.h"
 
-#include <QNetworkRequest>
 #include <QMap>
 #include <QByteArray>
 #include <QUrl>

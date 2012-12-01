@@ -4,6 +4,7 @@
 #include <QSqlQuery>
 #include <QSqlRecord>
 #include <QDateTime>
+#include <QMutex>
 
 #include "databaseupdate.h"
 
@@ -64,7 +65,8 @@ void DatabaseSettings::createClientId()
 
 int DatabaseSettings::nextClientSyncRecordNumber()
 {
-    QMutexLocker locker(&m_syncRecordNumberMutex);
+    static QMutex syncRecordNumberMutex;
+    QMutexLocker locker(&syncRecordNumberMutex);
 
     int clientRecordNumber = value("client_sync_record_number", "0").toInt();
     setValue("client_sync_record_number", QString::number(clientRecordNumber + 1));

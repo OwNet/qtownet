@@ -1,17 +1,9 @@
 #ifndef PROXYTHREAD_H
 #define PROXYTHREAD_H
 
-#include <QThread>
-#include <QTcpSocket>
-#include <QNetworkReply>
-#include <QMutex>
+#include <QObject>
 
-class QSemaphore;
 class QTimer;
-class ProxyInputObject;
-class ProxyRequest;
-class ProxyDownloads;
-class ProxySocketOutputWriter;
 class ProxyHandlerSession;
 
 class ProxyHandler : public QObject

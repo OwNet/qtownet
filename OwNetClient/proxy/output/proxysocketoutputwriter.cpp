@@ -137,7 +137,6 @@ void ProxySocketOutputWriter::read(QIODevice *ioDevice)
                 m_socket->write(lineBytes);
             }
         }
-        MessageHelper::debug("done");
     }
     else {
         m_foundBody = true;

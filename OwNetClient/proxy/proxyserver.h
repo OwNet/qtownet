@@ -2,9 +2,6 @@
 #define PROXYSERVER_H
 
 #include <QTcpServer>
-#include <QQueue>
-#include <QMutex>
-#include <QMap>
 
 #include "proxyhandler.h"
 

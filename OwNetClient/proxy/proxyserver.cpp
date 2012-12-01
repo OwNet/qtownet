@@ -1,7 +1,8 @@
 #include "proxyserver.h"
+
 #include "messagehelper.h"
 
-#include "proxydownloads.h"
+#include <QThread>
 
 ProxyServer::ProxyServer(QObject *parent)
     : QTcpServer(parent)

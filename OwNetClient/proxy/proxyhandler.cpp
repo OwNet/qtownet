@@ -1,21 +1,11 @@
 #include "proxyhandler.h"
 
 #include "messagehelper.h"
-#include "proxyrequest.h"
-#include "proxywebinputobject.h"
-#include "proxystaticinputobject.h"
-#include "proxyrequestbus.h"
-#include "proxydownloads.h"
-#include "proxydownload.h"
 #include "proxysocketoutputwriter.h"
 #include "proxyhandlersession.h"
 
-#include <QWidget>
 #include <QDateTime>
-#include <QNetworkAccessManager>
-#include <QSemaphore>
 #include <QTimer>
-#include <QApplication>
 
 ProxyHandler::ProxyHandler(QObject *parent)
     : QObject(parent),

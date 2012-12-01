@@ -2,7 +2,6 @@
 #define DATABASESETTINGS_H
 
 #include <QObject>
-#include <QMutex>
 
 #include "idatabasesettings.h"
 
@@ -26,8 +25,6 @@ public:
 
 private:
     static QMap<QString, QString> *m_cachedSettings;
-
-    QMutex m_syncRecordNumberMutex;
 };
 
 #endif // DATABASESETTINGS_H

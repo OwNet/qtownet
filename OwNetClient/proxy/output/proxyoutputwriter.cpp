@@ -21,13 +21,12 @@ ProxyOutputWriter::ProxyOutputWriter(ProxyHandlerSession *proxyHandlerSession)
  */
 void ProxyOutputWriter::forceQuit()
 {
-    m_readingMutex.lock();
+    QMutexLocker locker(&m_readingMutex);
     if (m_closed) {
-        m_readingMutex.unlock();
         return;
     }
     m_closed = true;
-    m_readingMutex.unlock();
+    locker.unlock();
 
     close();
 }
@@ -64,7 +63,7 @@ void ProxyOutputWriter::close()
  */
 void ProxyOutputWriter::readAvailableParts()
 {
-    m_readingMutex.lock();
+    QMutexLocker locker(&m_readingMutex);
     if (m_closed)
         return;
     bool downloadFinished = false;
@@ -94,7 +93,7 @@ void ProxyOutputWriter::readAvailableParts()
         callClose = true;
     }
 
-    m_readingMutex.unlock();
+    locker.unlock();
 
     if (callClose) {
         close();
