@@ -33,7 +33,7 @@ ProxyHandler * ProxyServer::initializeProxyHandler()
  * @brief Received new open socket with request.
  * @param handle Socket descriptor
  */
-void ProxyServer::incomingConnection(int handle)
+void ProxyServer::incomingConnection(qintptr handle)
 {
     initializeProxyHandler()->setDescriptorAndStart(handle);
 }

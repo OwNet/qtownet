@@ -12,4 +12,3 @@ QList<IRestService *> *MessagesModule::restServices()
     return new QList<IRestService *>(m_services);
 }
 
-Q_EXPORT_PLUGIN2(ownet_messagesmodule, MessagesModule)

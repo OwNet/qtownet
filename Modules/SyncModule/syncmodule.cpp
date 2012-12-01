@@ -16,4 +16,3 @@ QList<IJobAction *> *SyncModule::jobs()
     return jobs;
 }
 
-Q_EXPORT_PLUGIN2(ownet_syncmodule, SyncModule)

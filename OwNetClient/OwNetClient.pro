@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += core gui network sql qtestlib webkit
+QT       += core gui network sql testlib
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -174,7 +174,8 @@ HEADERS  += view/mainwindow.h \
 FORMS    += view/mainwindow.ui \
     view/preferencesdialog.ui
 
-INCLUDEPATH += proxy \
+INCLUDEPATH += $$_PRO_FILE_PWD_ \
+    proxy \
     init \
     helpers \
     helpers/qjson \

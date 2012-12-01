@@ -9,6 +9,7 @@
 #include <QTcpSocket>
 #include <QFile>
 #include <QSemaphore>
+#include <QRegularExpression>
 
 QMap<int, QString> *ProxySocketOutputWriter::m_openRequests = new QMap<int, QString>();
 
@@ -111,22 +112,24 @@ void ProxySocketOutputWriter::read(QIODevice *ioDevice)
         os << "\r\n";
         os.flush();
     }
-    QRegExp rx("(.*<body[^>]*>)(.*)");
+    QRegularExpression rx("(.*<body[^>]*>)(.*)");
     if (!m_foundBody && m_proxyDownload->inputObject()->contentType().toLower().contains("text/html")) {
         while (!ioDevice->atEnd()) {
             QByteArray lineBytes = ioDevice->readLine();
             QString line = QString::fromLatin1(lineBytes);
-            if (rx.indexIn(line) != -1 && rx.capturedTexts().length() == 3) {
-        //    if (line.contains("<body")) {
+            QRegularExpressionMatch match = rx.match(line);
+            if (match.hasMatch() && match.capturedTexts().length() == 3) {
+//            if (line.contains("<body")) {
 
 
-                QStringList listx = rx.capturedTexts();
+                QStringList listx = match.capturedTexts();
 
                 m_socket->write(listx.at(1).toLatin1());
 
                 m_socket->write(QString("<script type=\"text/javascript\" src=\"http://inject.ownet/inject.js\"></script>")
                                 .toLatin1());
                 m_socket->write(listx.at(2).toLatin1());
+                m_socket->write(lineBytes);
                 m_foundBody = true;
             }
             else
@@ -134,6 +137,7 @@ void ProxySocketOutputWriter::read(QIODevice *ioDevice)
                 m_socket->write(lineBytes);
             }
         }
+        MessageHelper::debug("done");
     }
     else {
         m_foundBody = true;

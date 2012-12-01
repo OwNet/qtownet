@@ -12,4 +12,3 @@ QList<IRestService *> *RatingsModule::restServices()
     return new QList<IRestService *>(m_services);
 }
 
-Q_EXPORT_PLUGIN2(ownet_ratingsmodule, RatingsModule)

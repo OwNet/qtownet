@@ -4,7 +4,7 @@
 
 #include <QMutex>
 #include <QMap>
-#include <QtWebKit>
+#include <QWebView>
 #include "ijobaction.h"
 #include <QObject>
 

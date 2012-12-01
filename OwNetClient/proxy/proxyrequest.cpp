@@ -5,7 +5,7 @@
 #include <QNetworkRequest>
 #include <QStringList>
 #include <QTcpSocket>
-#include <QRegExp>
+#include <QRegularExpression>
 #include <QDebug>
 
 ProxyRequest::ProxyRequest(QTcpSocket *socket, QObject *parent)
@@ -27,10 +27,11 @@ bool ProxyRequest::readFromSocket()
         QString readLine(m_socket->readLine());
 
         if (i == 0) {
-            QStringList tuple = readLine.split(QRegExp("[ \r\n][ \r\n]*"));
+            QStringList tuple = readLine.split(QRegularExpression("[ \r\n][ \r\n]*"));
             if (tuple.count() > 1) {
                 m_requestMethod = tuple.first().toLower();
                 m_qUrl = QUrl::fromEncoded(tuple.at(1).toUtf8());
+                m_qUrlQuery = QUrlQuery(m_qUrl);
             } else {
                 return false;
             }
@@ -43,7 +44,7 @@ bool ProxyRequest::readFromSocket()
                     continue;
                 QString key = tokens.first();
                 QString value = tokens.at(1);
-                value.remove(QRegExp("[\r\n][\r\n]*"));
+                value.remove(QRegularExpression("[\r\n][\r\n]*"));
 
                 if (!key.toLower().contains("accept-encoding") || !value.contains("gzip")) {
                     m_requestHeaders.insert(key, value);
@@ -201,7 +202,7 @@ void ProxyRequest::analyzeUrl()
 {
     m_hashCode = qHash(url());
 
-    QStringList domainSplit = QString(m_qUrl.encodedHost()).split(".");
+    QStringList domainSplit = QString(m_qUrl.host(QUrl::FullyEncoded)).split(".");
     if (domainSplit.first() == "www")
         domainSplit.takeFirst();
 
@@ -211,7 +212,7 @@ void ProxyRequest::analyzeUrl()
     }
 
     if (isLocalRequest()) {
-        QStringList split = relativeUrl().remove(QRegExp("^[/]")).split("/");
+        QStringList split = relativeUrl().remove(QRegularExpression("^[/]")).split("/");
 
         if (split.first() == "api") {
             split.takeFirst();

@@ -1,4 +1,4 @@
-#include <QApplication>
+#include <QtWidgets/QApplication>
 #include "mainwindow.h"
 #include "initializer.h"
 #include "proxyrequestbus.h"

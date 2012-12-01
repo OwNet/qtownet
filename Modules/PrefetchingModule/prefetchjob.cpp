@@ -1,6 +1,6 @@
 #include "prefetchjob.h"
 
-
+#include <QNetworkProxy>
 //#include <QSqlQuery>
 #include <QDateTime>
 //#include <QSqlRecord>

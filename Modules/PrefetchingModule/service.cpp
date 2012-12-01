@@ -135,7 +135,7 @@ QByteArray *Service::visit(IBus *, IRequest *req)
 
             edge->execute();
 
-            return new QByteArray(QString("owNetPAGEID = %1;").arg(QString::number(id)).toAscii());
+            return new QByteArray(QString("owNetPAGEID = %1;").arg(QString::number(id)).toLatin1());
         }
     }
     return NULL;
@@ -175,7 +175,7 @@ QByteArray *Service::close(IBus *, IRequest *req) {
 QByteArray *Service::load(IBus *bus, IRequest *req) {
     if (req->hasParameter("page") && !req->parameterValue("page").isEmpty()) {
         bus->setContentType("text/html");
-        return new QByteArray(QString("<html><body onload=\"document.links[0].click();\"><a id=\"clickme\" href=\"%1\">prefetch this</a></body></html>").arg(req->parameterValue("page")).toAscii());
+        return new QByteArray(QString("<html><body onload=\"document.links[0].click();\"><a id=\"clickme\" href=\"%1\">prefetch this</a></body></html>").arg(req->parameterValue("page")).toLatin1());
     }
     return NULL;
 }

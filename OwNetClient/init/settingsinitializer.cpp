@@ -4,7 +4,7 @@
 #include "applicationenvironment.h"
 #include "messagehelper.h"
 
-#include <QDesktopServices>
+#include <QStandardPaths>
 #include <QApplication>
 #include <QDir>
 
@@ -26,7 +26,7 @@ void SettingsInitializer::init()
     Settings settings;
 
     if (!settings.contains("application/data_folder_path")) {
-        dir.setPath(QDesktopServices::storageLocation(QDesktopServices::DataLocation));
+        dir.setPath(QStandardPaths::writableLocation(QStandardPaths::DataLocation));
         settings.setValue("application/data_folder_path", dir.absoluteFilePath("OwNetClient"));
     }
     MessageHelper::debug(QObject::tr("Using data directory %1")
@@ -35,7 +35,7 @@ void SettingsInitializer::init()
     if (!settings.contains("application/resources_folder_path")) {
         dir.setPath(QApplication::applicationDirPath());
         settings.setValue("application/resources_folder_path", dir.absoluteFilePath("resources"));
-    }
+    }    
     MessageHelper::debug(QObject::tr("Using resources directory %1")
                          .arg(settings.value("application/resources_folder_path").toString()));
 }

@@ -25,5 +25,3 @@ PrefetchJob* PrefetchingModule::prefetchJob()
 {
     return m_prefetchJob;
 }
-
-Q_EXPORT_PLUGIN2(ownet_prefetchingmodule, PrefetchingModule)
