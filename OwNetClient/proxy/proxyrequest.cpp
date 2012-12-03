@@ -1,11 +1,13 @@
 #include "proxyrequest.h"
+
 #include "messagehelper.h"
 #include "qjson/parser.h"
 
 #include <QNetworkRequest>
 #include <QStringList>
 #include <QTcpSocket>
-#include <QRegExp>
+#include <QRegularExpression>
+#include <QDebug>
 
 ProxyRequest::ProxyRequest(QTcpSocket *socket, QObject *parent)
     : QObject(parent),
@@ -26,10 +28,11 @@ bool ProxyRequest::readFromSocket()
         QString readLine(m_socket->readLine());
 
         if (i == 0) {
-            QStringList tuple = readLine.split(QRegExp("[ \r\n][ \r\n]*"));
+            QStringList tuple = readLine.split(QRegularExpression("[ \r\n][ \r\n]*"));
             if (tuple.count() > 1) {
                 m_requestMethod = tuple.first().toLower();
                 m_qUrl = QUrl::fromEncoded(tuple.at(1).toUtf8());
+                m_qUrlQuery = QUrlQuery(m_qUrl);
             } else {
                 return false;
             }
@@ -42,7 +45,7 @@ bool ProxyRequest::readFromSocket()
                     continue;
                 QString key = tokens.first();
                 QString value = tokens.at(1);
-                value.remove(QRegExp("[\r\n][\r\n]*"));
+                value.remove(QRegularExpression("[\r\n][\r\n]*"));
 
                 if (!key.toLower().contains("accept-encoding") || !value.contains("gzip")) {
                     m_requestHeaders.insert(key, value);
@@ -52,6 +55,10 @@ bool ProxyRequest::readFromSocket()
             }
         }
     }
+//    for (int i = 0; i < m_requestHeaders.count(); ++i) {
+
+//        qDebug() << m_requestHeaders.at(i).first << m_requestHeaders.at(i).second;
+//    }
 
     analyzeUrl();
 
@@ -75,6 +82,10 @@ ProxyRequest::RequestType ProxyRequest::requestType() const
     return UNKNOWN;
 }
 
+/**
+ * @brief Reads the body of the request as a JSON
+ * @return Return the request body as QVariantMap
+ */
 QVariantMap ProxyRequest::postBodyFromJson() const
 {
     QVariantMap result;
@@ -87,6 +98,10 @@ QVariantMap ProxyRequest::postBodyFromJson() const
     return result;
 }
 
+/**
+ * @brief Parses the request body as received from HTML form.
+ * @return Map of keys and values in the body
+ */
 QMap<QString, QString> ProxyRequest::postBodyFromForm() const
 {
     QMap<QString, QString> result;
@@ -149,11 +164,14 @@ QString ProxyRequest::requestContentType(const QString &defaultContentType, cons
 QString ProxyRequest::staticResourcePath() const
 {
     if (isStaticResourceRequest())
-        if (!subDomain().isEmpty())
+    {
+        if (!subDomain().isEmpty()) {
+            QString murl = relativeUrl();
+
             return QString ("static/%1/%2").arg(subDomain()).arg(relativeUrl());
-
-    return QString("static/%1").arg(relativeUrl());
-
+        }
+        return QString("static/%1").arg(relativeUrl());
+    }
     return "";
 }
 
@@ -185,7 +203,7 @@ void ProxyRequest::analyzeUrl()
 {
     m_hashCode = qHash(url());
 
-    QStringList domainSplit = QString(m_qUrl.encodedHost()).split(".");
+    QStringList domainSplit = QString(m_qUrl.host(QUrl::FullyEncoded)).split(".");
     if (domainSplit.first() == "www")
         domainSplit.takeFirst();
 
@@ -195,7 +213,7 @@ void ProxyRequest::analyzeUrl()
     }
 
     if (isLocalRequest()) {
-        QStringList split = relativeUrl().remove(QRegExp("^[/]")).split("/");
+        QStringList split = relativeUrl().remove(QRegularExpression("^[/]")).split("/");
 
         if (split.first() == "api") {
             split.takeFirst();

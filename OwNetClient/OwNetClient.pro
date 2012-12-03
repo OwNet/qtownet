@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += core gui network sql qtestlib
+QT       += core gui network sql testlib
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -72,7 +72,14 @@ SOURCES += main.cpp\
     communication/communicationinstance.cpp \
     helpers/proxyconnection.cpp \
     jobs/modulejob.cpp \
-    helpers/artificialrequest.cpp
+    helpers/artificialrequest.cpp \
+    helpers/databasesettings.cpp \
+    proxy/downloads/proxydownloadstream.cpp \
+    database/databaseselectquery.cpp \
+    database/databaseselectqueryjoin.cpp \
+    database/databaseselectquerywheregroup.cpp \
+    database/databaseselectquerywhereexpression.cpp
+
 
 HEADERS  += view/mainwindow.h \
         proxy/proxyserver.h \
@@ -150,14 +157,28 @@ HEADERS  += view/mainwindow.h \
     modules/interfaces/iservice.h \
     modules/interfaces/irestservice.h \
     jobs/modulejob.h \
-    helpers/artificialrequest.h
+    helpers/artificialrequest.h \
+    helpers/databasesettings.h \
+    modules/interfaces/idatabasesettings.h \
+    proxy/downloads/proxydownloadstream.h \
+    database/databaseselectquery.h \
+    database/databaseselectqueryjoin.h \
+    modules/interfaces/idatabaseselectquery.h \
+    modules/interfaces/idatabaseselectqueryjoin.h \
+    database/databaseselectquerywheregroup.h \
+    database/databaseselectquerywhereexpression.h \
+    database/idatabaseselectquerywhere.h \
+    modules/interfaces/idatabaseselectquerywheregroup.h
+
 
 FORMS    += view/mainwindow.ui \
     view/preferencesdialog.ui
 
-INCLUDEPATH += proxy \
+INCLUDEPATH += $$_PRO_FILE_PWD_ \
+    proxy \
     init \
     helpers \
+    helpers/qjson \
     view \
     proxy/input \
     proxy/input/bus \
@@ -168,6 +189,7 @@ INCLUDEPATH += proxy \
     jobs \
     cache \
     database
+
 
 RESOURCES += \
     resources.qrc

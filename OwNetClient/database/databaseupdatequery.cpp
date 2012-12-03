@@ -56,7 +56,15 @@ void DatabaseUpdateQuery::setWhere(const QString &name, const QVariant &value)
 
 void DatabaseUpdateQuery::setUpdateDates(bool setDates)
 {
-    m_content.insert("set_update_dates", setDates);
+    if (setDates)
+        m_content.insert("set_update_dates", (int)(DateCreated | DateUpdated));
+    else
+        m_content.insert("set_update_dates", (int)IDatabaseUpdateQuery::None);
+}
+
+void DatabaseUpdateQuery::setUpdateDates(IDatabaseUpdateQuery::UpdateDates updateDates)
+{
+    m_content.insert("set_update_dates", (int)updateDates);
 }
 
 QVariant DatabaseUpdateQuery::bindingValue(const QString &name, const QVariant &value) const
@@ -68,8 +76,10 @@ QVariant DatabaseUpdateQuery::bindingValue(const QString &name, const QVariant &
 
 void DatabaseUpdateQuery::save()
 {
-    m_content.insert("columns", m_columns);
-    m_content.insert("where", m_wheres);
+    if (m_columns.count())
+        m_content.insert("columns", m_columns);
+    if (m_wheres.count())
+        m_content.insert("where", m_wheres);
 }
 
 bool DatabaseUpdateQuery::executeQuery()
@@ -81,6 +91,7 @@ bool DatabaseUpdateQuery::executeQuery()
 
     QSqlQuery query;
     QString queryString;
+    // Detect if it is insert or update query
     if (entryType == Detect && m_content.contains("where")) {
         queryString = QString("SELECT 1 FROM %1").arg(table());
 
@@ -92,31 +103,34 @@ bool DatabaseUpdateQuery::executeQuery()
             entryType = Insert;
     }
 
-    bool setDates = m_content.contains("set_update_dates") && m_content.value("set_update_dates").toBool();
+    UpdateDates updateDates = (UpdateDates)m_content.value("set_update_dates").toInt();
 
-    QVariantMap columns = m_content.value("columns").toMap();
+    QVariantMap columns;
+    if (m_content.contains("columns"))
+        columns = m_content.value("columns").toMap();
+
     QStringList columnKeys = columns.keys();
     if (entryType == Insert) {
-        if (setDates) {
+        if (updateDates & DateCreated)
             columnKeys.append("date_created");
+        if (updateDates & DateUpdated)
             columnKeys.append("date_updated");
-        }
 
-        queryString = QString("INSERT INTO %1 (%2) VALUES (:%3)")
+        queryString = QString("INSERT INTO %1 (%2) VALUES (:v_%3)")
                 .arg(table())
                 .arg(columnKeys.join(", "))
-                .arg(columnKeys.join(", :"));
+                .arg(columnKeys.join(", :v_"));
 
         query.prepare(queryString);
     } else if (entryType == Update) {
-        if (setDates)
+        if (updateDates & DateUpdated)
             columnKeys.append("date_updated");
 
         queryString = QString("UPDATE %1 SET").arg(table());
         for (int i = 0; i < columnKeys.count(); ++i) {
             if (i > 0)
                 queryString.append(",");
-            queryString.append(QString(" %1 = :%1").arg(columnKeys.at(i)));
+            queryString.append(QString(" %1 = :v_%1").arg(columnKeys.at(i)));
         }
 
         appendWhere(queryString, query);
@@ -128,11 +142,11 @@ bool DatabaseUpdateQuery::executeQuery()
         return false;
     }
     for (int i = 0; i < columnKeys.count(); ++i) {
-        if (setDates && (columnKeys.at(i) == "date_created" || columnKeys.at(i) == "date_updated"))
-            query.bindValue(":" + columnKeys.at(i),
+        if (columnKeys.at(i) == "date_created" || columnKeys.at(i) == "date_updated")
+            query.bindValue(":v_" + columnKeys.at(i),
                             timestamp());
         else
-            query.bindValue(":" + columnKeys.at(i),
+            query.bindValue(":v_" + columnKeys.at(i),
                             bindingValue(columnKeys.at(i), columns.value(columnKeys.at(i))));
     }
 
@@ -177,7 +191,10 @@ QString DatabaseUpdateQuery::timestamp() const
 
 void DatabaseUpdateQuery::appendWhere(QString &queryString, QSqlQuery &query)
 {
-    QVariantMap where = m_content.value("where").toMap();
+    QVariantMap where;
+    if (m_content.contains("where"))
+        where = m_content.value("where").toMap();
+
     if (!where.count()) {
         query.prepare(queryString);
         return;
@@ -189,11 +206,11 @@ void DatabaseUpdateQuery::appendWhere(QString &queryString, QSqlQuery &query)
     for (int i = 0; i < whereKeys.count(); ++i) {
         if (i > 0)
             queryString.append(" AND");
-        queryString.append(QString(" %1 = :%1").arg(whereKeys.at(i)));
+        queryString.append(QString(" %1 = :w_%1").arg(whereKeys.at(i)));
     }
     query.prepare(queryString);
 
     for (int i = 0; i < whereKeys.count(); ++i)
-        query.bindValue(":" + whereKeys.at(i),
+        query.bindValue(":w_" + whereKeys.at(i),
                         bindingValue(whereKeys.at(i), where.value(whereKeys.at(i))));
 }

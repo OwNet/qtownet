@@ -21,6 +21,9 @@ public:
     QVariant *callModule(IRequest *req);
     void setHttpStatus(int code, const QString &description);
 
+    QString contentType() const { return ProxyInputObject::contentType(); }
+    void setContentType(const QString &value);
+
     static void registerModule(RequestRouter *router);
 
 protected:

@@ -13,6 +13,9 @@ public:
 
     QVariant *callModule(IRequest *req);
 
+    QString contentType() const;
+    void setContentType(const QString &value);
+
     void setHttpStatus(int code, const QString &description);
 signals:
     

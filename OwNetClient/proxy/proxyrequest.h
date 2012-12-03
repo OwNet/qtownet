@@ -4,10 +4,10 @@
 #include "irequest.h"
 #include "variantmap.h"
 
-#include <QNetworkRequest>
 #include <QMap>
 #include <QByteArray>
 #include <QUrl>
+#include <QUrlQuery>
 #include <QStringList>
 
 class QTcpSocket;
@@ -33,14 +33,15 @@ public:
     QUrl qUrl() const { return m_qUrl; }
     QString url() const { return m_qUrl.toEncoded(QUrl::None); }
     QString requestContentType(const QString &defaultContentType = "", const QString &extension = "") const;
-    QString relativeUrl() const { return m_qUrl.encodedPath(); }
+    QString relativeUrl() const { return m_qUrl.path(QUrl::FullyEncoded); }
     QString action() const { return m_action; }
     QString module() const { return isLocalRequest() ? m_module : QString(); }
     QString subDomain() const { return m_subDomain; }
 
     int id() const { return m_id; }
-    QString parameterValue(const QString &key) const { return m_qUrl.queryItemValue(key); }
-    QStringList allParameterValues(const QString &key) const { return m_qUrl.allQueryItemValues(key); }
+    QString parameterValue(const QString &key) const { return m_qUrlQuery.queryItemValue(key); }
+    bool hasParameter(const QString& key) const { return m_qUrlQuery.hasQueryItem(key); }
+    QStringList allParameterValues(const QString &key) const { return m_qUrlQuery.allQueryItemValues(key); }
     QByteArray requestBody() const { return m_requestBody; }
     QString staticResourcePath() const;
 
@@ -67,6 +68,7 @@ private:
     static QMap<QString, QString> m_contentTypes;
     VariantMap m_requestHeaders;
     QUrl m_qUrl;
+    QUrlQuery m_qUrlQuery;
     QString m_requestMethod;
     QString m_domain;
     QString m_subDomain;

@@ -13,11 +13,17 @@ public:
         Detect = 3,
         Delete = 4
     };
+    enum UpdateDates {
+        None = 0,
+        DateCreated = 1,
+        DateUpdated = 2
+    };
 
     virtual void setReturningId(const QString &useColumnAs, const QVariantList &queries) = 0;
     virtual void setColumnValue(const QString &name, const QVariant &value) = 0;
     virtual void setWhere(const QString &name, const QVariant &value) = 0;
     virtual void setUpdateDates(bool setDates) = 0;
+    virtual void setUpdateDates(IDatabaseUpdateQuery::UpdateDates updateDates) = 0;
 
     virtual QString table() const = 0;
     virtual EntryType type() const = 0;

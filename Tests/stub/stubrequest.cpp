@@ -85,6 +85,11 @@ QStringList StubRequest::allParameterValues(const QString &key) const
     return QStringList();
 }
 
+bool StubRequest::hasParameter(const QString &key) const
+{
+    return false;
+}
+
 QByteArray StubRequest::requestBody() const
 {
     return QByteArray();

@@ -3,6 +3,8 @@
 
 #include "proxydownloadpart.h"
 
+class QIODevice;
+
 /**
  * @brief A download part that contains data as a stream, downloaded when accessed.
  * Can't be read by multiple output writers.
@@ -13,7 +15,7 @@ public:
     ProxyStreamDownloadPart(QIODevice *stream, int nextDownloadPartIndex, QObject *parent = NULL);
     ~ProxyStreamDownloadPart();
 
-    QIODevice *stream() { return m_stream; }
+    ProxyDownloadStream *stream();
 
 private:
     QIODevice *m_stream;

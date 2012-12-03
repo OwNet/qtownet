@@ -1,5 +1,7 @@
 #include "proxybytedownloadpart.h"
 
+#include "proxydownloadstream.h"
+
 #include <QByteArray>
 #include <QBuffer>
 
@@ -13,10 +15,12 @@ ProxyByteDownloadPart::~ProxyByteDownloadPart()
     delete m_bytes;
 }
 
-QIODevice *ProxyByteDownloadPart::stream()
+ProxyDownloadStream *ProxyByteDownloadPart::stream()
 {
-    QBuffer *buffer = new QBuffer(m_bytes, this);
+    ProxyDownloadStream *s = new ProxyDownloadStream;
+    QBuffer *buffer = new QBuffer(m_bytes, s);
     buffer->open(QIODevice::ReadOnly);
+    s->setStream(buffer);
 
-    return buffer;
+    return s;
 }

@@ -4,6 +4,7 @@
 #include "applicationdatastorage.h"
 #include "applicationenvironment.h"
 #include "proxydownloads.h"
+#include "databasesettings.h"
 
 #include <QtCore/QVariant>
 #include <QSqlDatabase>
@@ -12,6 +13,7 @@
 #include <QTextStream>
 #include <QCoreApplication>
 #include <QDebug>
+#include <QDateTime>
 
 DatabaseInitializer::DatabaseInitializer()
 {
@@ -21,6 +23,7 @@ void DatabaseInitializer::init()
 {
     openDatabase();
     runMigrations();
+    createClientName();
 }
 
 /**
@@ -124,4 +127,14 @@ void DatabaseInitializer::runMigrations()
                 break;
         }
     }
+}
+
+/**
+ * @brief Generate client name and save it to database if it doesnt already exist.
+ */
+void DatabaseInitializer::createClientName()
+{
+    DatabaseSettings settings;
+    if (!settings.hasClientId())
+        settings.createClientId();
 }

@@ -9,4 +9,3 @@ QList<IRestService *> *SampleModule::restServices()
     return list;
 }
 
-Q_EXPORT_PLUGIN2(ownet_samplemodule, SampleModule)

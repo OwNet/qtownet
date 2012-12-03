@@ -28,6 +28,7 @@ public:
     int id() const;
     QString parameterValue(const QString &key) const;
     QStringList allParameterValues(const QString &key) const;
+    bool hasParameter(const QString& key) const;
     QByteArray requestBody() const;
     QString staticResourcePath() const;
 

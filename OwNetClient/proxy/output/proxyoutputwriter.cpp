@@ -5,6 +5,7 @@
 #include "proxyrequest.h"
 #include "proxyhandlersession.h"
 #include "proxydownloadpart.h"
+#include "proxydownloadstream.h"
 
 ProxyOutputWriter::ProxyOutputWriter(ProxyHandlerSession *proxyHandlerSession)
     : QObject(proxyHandlerSession), m_proxyHandlerSession(proxyHandlerSession), m_proxyDownload(NULL), m_downloadReaderId(-1), m_lastPartRead(0), m_closed(false)
@@ -20,13 +21,12 @@ ProxyOutputWriter::ProxyOutputWriter(ProxyHandlerSession *proxyHandlerSession)
  */
 void ProxyOutputWriter::forceQuit()
 {
-    m_readingMutex.lock();
+    QMutexLocker locker(&m_readingMutex);
     if (m_closed) {
-        m_readingMutex.unlock();
         return;
     }
     m_closed = true;
-    m_readingMutex.unlock();
+    locker.unlock();
 
     close();
 }
@@ -49,8 +49,6 @@ void ProxyOutputWriter::createDownload(ProxyRequest *request)
 void ProxyOutputWriter::close()
 {
     if (m_proxyDownload) {
-        disconnect(m_proxyDownload);
-
         m_proxyDownloads->deregisterDownloadReader(m_proxyDownload, m_downloadReaderId);
         m_proxyDownload = NULL;
     }
@@ -65,7 +63,7 @@ void ProxyOutputWriter::close()
  */
 void ProxyOutputWriter::readAvailableParts()
 {
-    m_readingMutex.lock();
+    QMutexLocker locker(&m_readingMutex);
     if (m_closed)
         return;
     bool downloadFinished = false;
@@ -82,7 +80,10 @@ void ProxyOutputWriter::readAvailableParts()
                 downloadFinished = true;
                 break;
             } else {
-                read(downloadPart->stream());
+                ProxyDownloadStream *s = downloadPart->stream();
+                if (s->stream())
+                    read(s->stream());
+                delete s;
             }
         }
     } while (downloadPart);
@@ -92,7 +93,7 @@ void ProxyOutputWriter::readAvailableParts()
         callClose = true;
     }
 
-    m_readingMutex.unlock();
+    locker.unlock();
 
     if (callClose) {
         close();

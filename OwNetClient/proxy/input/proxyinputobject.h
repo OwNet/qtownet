@@ -24,8 +24,8 @@ public:
     void setHttpStatusCode(int code);
     QString httpStatusDescription() const { return m_httpStatusDescription.isNull() ? QString() : m_httpStatusDescription; }
     void setHttpStatusDescription(const QString &description);
-    QString contentType() const { return m_contentType; }
-    void setContentType(const QString &value);
+    virtual QString contentType() const;
+    virtual void setContentType(const QString &value);
     VariantMap responseHeaders() const { return m_responseHeaders; }
     ProxyRequest *request() { return m_request; }
 
@@ -41,7 +41,6 @@ protected:
     virtual void readRequest() = 0;
 
     ProxyRequest *m_request;
-    QString m_contentType;
     QString m_httpStatusCode;
     QString m_httpStatusDescription;
     bool m_downloadStarted;

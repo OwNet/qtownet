@@ -1,42 +1,33 @@
 #include "proxyhandler.h"
 
 #include "messagehelper.h"
-#include "proxyrequest.h"
-#include "proxywebinputobject.h"
-#include "proxystaticinputobject.h"
-#include "proxyrequestbus.h"
-#include "proxydownloads.h"
-#include "proxydownload.h"
 #include "proxysocketoutputwriter.h"
 #include "proxyhandlersession.h"
 
-#include <QRegExp>
-#include <QWidget>
 #include <QDateTime>
-#include <QNetworkAccessManager>
-#include <QSemaphore>
 #include <QTimer>
-#include <QApplication>
 
-ProxyHandler::ProxyHandler(int handlerId, QObject *parent)
+ProxyHandler::ProxyHandler(QObject *parent)
     : QObject(parent),
-      m_handlerId(handlerId),
       m_proxyHandlerSession(NULL),
       m_timeoutTimer(NULL)
 {
     connect(this, SIGNAL(start()), this, SLOT(handleRequest()), Qt::QueuedConnection);
 }
 
+/**
+ * @brief Set socket descriptor handle to desc and trigger start.
+ * @param desc Socket descriptor
+ */
 void ProxyHandler::setDescriptorAndStart(int desc) {
     m_socketDescriptor = desc;
     emit start();
 }
 
-void ProxyHandler::dispose()
-{
-    emit disposeThread();
-}
-
+/**
+ * @brief Triggered by start signal after setting the descriptor.
+ * Creates handler session and opens SocketOutputWriter, which starts the download.
+ */
 void ProxyHandler::handleRequest()
 {
     m_proxyHandlerSession = new ProxyHandlerSession(this);
@@ -52,6 +43,9 @@ void ProxyHandler::handleRequest()
     m_timeoutTimer->start(Timeout);
 }
 
+/**
+ * @brief Request timed out.
+ */
 void ProxyHandler::requestTimeout()
 {
     m_timeoutTimer->stop();
@@ -60,6 +54,9 @@ void ProxyHandler::requestTimeout()
         m_proxyHandlerSession->forceQuitAll();
 }
 
+/**
+ * @brief Restart timeot timer after SocketOutputWriter triggers iAmReady signal.
+ */
 void ProxyHandler::restartTimeout()
 {
     if (m_timeoutTimer) {
@@ -68,12 +65,19 @@ void ProxyHandler::restartTimeout()
     }
 }
 
+/**
+ * @brief Triggered from outside to force quit the current download.
+ */
 void ProxyHandler::finishHandling()
 {
     if (m_proxyHandlerSession)
         m_proxyHandlerSession->forceQuitAll();
 }
 
+/**
+ * @brief The current download and all dependent objects finished, disposes the current download
+ * and emits requestFinished signal.
+ */
 void ProxyHandler::proxyHandlerSessionFinished()
 {
     if (m_timeoutTimer) {
@@ -85,6 +89,6 @@ void ProxyHandler::proxyHandlerSessionFinished()
         m_proxyHandlerSession->deleteLater();
         m_proxyHandlerSession = NULL;
 
-        emit requestFinished(this);
+        emit disposeThread();
     }
 }

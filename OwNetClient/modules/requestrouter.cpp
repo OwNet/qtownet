@@ -33,7 +33,9 @@ QByteArray *RequestRouter::processRequest(IBus *bus, IRequest *req) const
     if (m_iService) {
         response = m_iService->processRequest(bus, req);
     } else if (m_iRestService) {
+
         QVariant *json = processRestRequest(bus, req);
+
         if (json) {
             QJson::Serializer serializer;
             response = new QByteArray(serializer.serialize(*json));
@@ -84,6 +86,8 @@ QVariant *RequestRouter::processRestRequest(IBus *bus, IRequest *req) const
         else
             json = m_iRestService->processRequest(bus, req);
     }
+    else
+        json = m_iRestService->processRequest(bus, req);
     return json;
 }
 

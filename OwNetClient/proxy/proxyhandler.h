@@ -1,17 +1,9 @@
 #ifndef PROXYTHREAD_H
 #define PROXYTHREAD_H
 
-#include <QThread>
-#include <QTcpSocket>
-#include <QNetworkReply>
-#include <QMutex>
+#include <QObject>
 
-class QSemaphore;
 class QTimer;
-class ProxyInputObject;
-class ProxyRequest;
-class ProxyDownloads;
-class ProxySocketOutputWriter;
 class ProxyHandlerSession;
 
 class ProxyHandler : public QObject
@@ -23,15 +15,11 @@ class ProxyHandler : public QObject
     };
 
 public:
-    ProxyHandler(int handlerId, QObject *parent = NULL);
+    ProxyHandler(QObject *parent = NULL);
 
     void setDescriptorAndStart(int handle);
 
-    int handlerId() { return m_handlerId; }
-    void dispose();
-
 signals:
-    void requestFinished(ProxyHandler *);
     void start();
     void disposeThread();
 
@@ -46,7 +34,6 @@ private slots:
 
 private:
     int m_socketDescriptor;
-    int m_handlerId;
 
     ProxyHandlerSession *m_proxyHandlerSession;
     QTimer *m_timeoutTimer;

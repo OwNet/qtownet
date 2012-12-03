@@ -1,4 +1,4 @@
-#include "jobinitializer.h"
+ #include "jobinitializer.h"
 
 #include "cleancachejob.h"
 #include "proxytrafficcounterjob.h"
@@ -13,6 +13,7 @@ JobInitializer::~JobInitializer()
 {
     if (m_cleanCacheJob)
         delete m_cleanCacheJob;
+
     if (m_trafficCounterJob)
         delete m_trafficCounterJob;
 }
@@ -20,5 +21,6 @@ JobInitializer::~JobInitializer()
 void JobInitializer::init()
 {
     m_cleanCacheJob = new CleanCacheJob();
+
     m_trafficCounterJob = new ProxyTrafficCounterJob();
 }

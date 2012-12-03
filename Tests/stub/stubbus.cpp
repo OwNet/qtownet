@@ -13,3 +13,12 @@ QVariant *StubBus::callModule(IRequest *req)
 {
     return NULL;
 }
+
+QString StubBus::contentType() const
+{
+    return QString();
+}
+
+void StubBus::setContentType(const QString &value)
+{
+}

@@ -8,7 +8,7 @@ class ProxyCacheFileDownloadPart : public ProxyDownloadPart
 public:
     ProxyCacheFileDownloadPart(const QString &path, int nextDownloadPartIndex, QObject *parent = NULL);
 
-    QIODevice *stream();
+    ProxyDownloadStream *stream();
 
 private:
     QString m_path;
