@@ -33,7 +33,7 @@ void MessageHelper::writeToLogFile(const QString &log)
 {
     if (!m_logFile) {
         m_logFile = new QFile(ApplicationDataStorage().appDataDirectory().absoluteFilePath("ownet.log"));
-        m_logFile->open(QIODevice::Append | QIODevice::WriteOnly | QIODevice::Text);
+        m_logFile->open(QIODevice::WriteOnly | QIODevice::Text);
     }
 
     QTextStream(m_logFile) << log << endl;
