@@ -39,7 +39,16 @@ TestsSample::TestsSample()
 void TestsSample::initTestCase()
 {
     // load plugin
-    QPluginLoader loader("/home/martin/School/TP/QtOwNet-build-desktop-Qt_4_8_1_in_PATH__System__Debug/OwNetClient/modules/libownet_samplemodule.so");
+    QDir modulesDir = QDir(qApp->applicationDirPath());
+
+#if defined(Q_OS_WIN)
+    if (modulesDir.dirName().toLower() == "debug" || modulesDir.dirName().toLower() == "release")
+        modulesDir.cdUp();
+#endif
+
+    modulesDir.cd("../OwNetClient/modules");
+
+    QPluginLoader loader(modulesDir.absoluteFilePath("libownet_samplemodule.so"));
     QObject *plugin = loader.instance();
     m_module = qobject_cast<IModule *>(plugin);
 
