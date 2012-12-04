@@ -142,8 +142,6 @@ HEADERS  += view/mainwindow.h \
     modules/requestrouter.h \
     modules/interfaces/isession.h \
     helpers/session.h \
-    modules/idatabaseupdate.h \
-    modules/idatabaseupdatequery.h\
     jobs/heartbeatjob.h \
     init/communicationinitializer.h \
     communication/heartbeatserver.h \
