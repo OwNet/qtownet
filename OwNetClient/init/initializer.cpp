@@ -28,7 +28,7 @@ void Initializer::init()
     MessageHelper::debug("Proxy initialized and waiting for requests.");
 
     // store current pid in pidfile
-    QFile file(ApplicationDataStorage().appDataDirectory().absolutePath().append("/ownet.pid"));
+    QFile file(ApplicationDataStorage().appDataDirectory().absoluteFilePath("ownet.pid"));
     file.open(QIODevice::WriteOnly | QIODevice::Text);
     QTextStream out(&file);
     out << QString::number(QCoreApplication::applicationPid());
