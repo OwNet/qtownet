@@ -51,7 +51,10 @@ bool GroupsService::isAdmin(int user_id, int group_id)
 // create element
 QVariant* GroupsService::create(IBus *bus, IRequest *req)
 {
-    QVariantMap reqJson = req->postBodyFromJson();
+    bool ok = false;
+    QVariantMap reqJson = req->postBodyFromJson(&ok).toMap();
+    if (!ok)
+        return NULL;
     QVariantMap error;
 
     bool missingValue = false;
@@ -341,8 +344,10 @@ QVariant* GroupsService::index( IBus *bus,  IRequest *req)
 
 QVariant* GroupsService::edit(IBus *bus, IRequest *req)
 {
-
-    QVariantMap reqJson = req->postBodyFromJson();
+    bool ok = false;
+    QVariantMap reqJson = req->postBodyFromJson(&ok).toMap();
+    if (!ok)
+        return NULL;
     QString curUser_id = m_proxyConnection->session()->value("logged").toString();
 
     if(this->isAdmin(curUser_id.toInt(), reqJson["group_id"].toInt())){
@@ -401,8 +406,10 @@ QVariant* GroupsService::edit(IBus *bus, IRequest *req)
 
 QVariant* GroupsService::del(IBus *bus, IRequest *req)
 {
-
-    QVariantMap reqJson = req->postBodyFromJson();
+    bool ok = false;
+    QVariantMap reqJson = req->postBodyFromJson(&ok).toMap();
+    if (!ok)
+        return NULL;
     QString curUser_id = m_proxyConnection->session()->value("logged").toString();
 
     if(this->isAdmin(curUser_id.toInt(), reqJson["group_id"].toInt())){
@@ -470,11 +477,14 @@ QVariant* GroupsService::processRequest(IBus *bus, IRequest *req)
 
 QVariant* GroupsService::joinGroup(IBus *bus, IRequest *req)
 {
+    bool ok = false;
+    QVariantMap reqJson = req->postBodyFromJson(&ok).toMap();
+    if (!ok)
+        return NULL;
+
     QVariantMap error;
     QSqlQuery query;
   //  bool missingValue = false;
-
-    QVariantMap reqJson = req->postBodyFromJson();
 
     QString group_id = reqJson["group_id"].toString();
     QString user_id = reqJson["user_id"].toString();
@@ -604,11 +614,13 @@ QVariant* GroupsService::joinGroup(IBus *bus, IRequest *req)
 
 QVariant* GroupsService::approveUser(IBus *bus, IRequest *req)
 {
+    bool ok = false;
+    QVariantMap reqJson = req->postBodyFromJson(&ok).toMap();
+    if (!ok)
+        return NULL;
 
     QSqlQuery query;
    //  bool missingValue = false;
-
-    QVariantMap reqJson = req->postBodyFromJson();
 
     QString group_id = reqJson["group_id"].toString();
     QString user_id = reqJson["user_id"].toString();
@@ -653,11 +665,13 @@ QVariant* GroupsService::approveUser(IBus *bus, IRequest *req)
 
 QVariant* GroupsService::addAdmin(IBus *bus, IRequest *req)
 {
+    bool ok = false;
+    QVariantMap reqJson = req->postBodyFromJson(&ok).toMap();
+    if (!ok)
+        return NULL;
 
     QSqlQuery query;
    //  bool missingValue = false;
-
-    QVariantMap reqJson = req->postBodyFromJson();
 
     QString group_id = reqJson["group_id"].toString();
     QString user_id = reqJson["user_id"].toString();
@@ -703,7 +717,10 @@ QVariant* GroupsService::addAdmin(IBus *bus, IRequest *req)
 
 QVariant* GroupsService::getApprovements(IBus *bus, IRequest *req)
 {
-    QVariantMap reqJson = req->postBodyFromJson();
+    bool ok = false;
+    QVariantMap reqJson = req->postBodyFromJson(&ok).toMap();
+    if (!ok)
+        return NULL;
     QString group_id = reqJson["group_id"].toString();
 
     QVariantList approvements;
@@ -731,7 +748,10 @@ QVariant* GroupsService::getApprovements(IBus *bus, IRequest *req)
 
 QVariant* GroupsService::getGroupUsers(IBus *bus, IRequest *req)
 {
-    QVariantMap reqJson = req->postBodyFromJson();
+    bool ok = false;
+    QVariantMap reqJson = req->postBodyFromJson(&ok).toMap();
+    if (!ok)
+        return NULL;
     QString group_id = reqJson["group_id"].toString();
 
     QVariantList users;
@@ -830,9 +850,13 @@ QVariant* GroupsService::getGroupTypes(IBus *bus, IRequest *req)
 
 QVariant* GroupsService::deleteUser(IBus *bus, IRequest *req)
 {
+    bool ok = false;
+    QVariantMap reqJson = req->postBodyFromJson(&ok).toMap();
+    if (!ok)
+        return NULL;
+
     QSqlQuery query1;
     bool allowDelete = false;
-    QVariantMap reqJson = req->postBodyFromJson();
 
     QString curUser_id = m_proxyConnection->session()->value("logged").toString();
 

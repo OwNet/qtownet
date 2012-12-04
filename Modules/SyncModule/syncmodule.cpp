@@ -6,7 +6,6 @@
 void SyncModule::init(IProxyConnection *proxyConnection)
 {
     m_proxyConnection = proxyConnection;
-    SyncServer::instance()->setProxyConnection(m_proxyConnection);
 }
 
 QList<IJobAction *> *SyncModule::jobs()

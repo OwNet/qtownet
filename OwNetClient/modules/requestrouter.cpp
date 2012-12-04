@@ -6,18 +6,18 @@
 #include "irestservice.h"
 #include "qjson/serializer.h"
 
-RequestRouter::RequestRouter(IService *iService, QObject *parent)
-    : QObject(parent),
-      m_iService(iService),
-      m_iRestService(NULL)
-{
-}
+QMap<QString, IService*> *RequestRouter::m_services = new QMap<QString, IService*>();
+QMap<QString, IRestService*> *RequestRouter::m_restServices = new QMap<QString, IRestService*>();
 
-RequestRouter::RequestRouter(IRestService *iRestService, QObject *parent)
+RequestRouter::RequestRouter(const QString &serviceName, QObject *parent)
     : QObject(parent),
-      m_iService(NULL),
-      m_iRestService(iRestService)
+      m_service(NULL),
+      m_restService(NULL)
 {
+    if (m_services->contains(serviceName))
+        m_service = m_services->value(serviceName);
+    else if (m_restServices->contains(serviceName))
+        m_restService = m_restServices->value(serviceName);
 }
 
 /**
@@ -30,9 +30,9 @@ RequestRouter::RequestRouter(IRestService *iRestService, QObject *parent)
 QByteArray *RequestRouter::processRequest(IBus *bus, IRequest *req) const
 {
     QByteArray *response = NULL;
-    if (m_iService) {
-        response = m_iService->processRequest(bus, req);
-    } else if (m_iRestService) {
+    if (m_service) {
+        response = m_service->processRequest(bus, req);
+    } else if (m_restService) {
 
         QVariant *json = processRestRequest(bus, req);
 
@@ -44,12 +44,17 @@ QByteArray *RequestRouter::processRequest(IBus *bus, IRequest *req) const
     }
     if (response)
         return response;
-    return new QByteArray();
+
+    QVariantMap status;
+    status.insert("Status", "FAILED");
+
+    QJson::Serializer serializer;
+    return new QByteArray(serializer.serialize(status));
 }
 
 QVariant *RequestRouter::processRestRequest(IBus *bus, IRequest *req) const
 {
-    if (!m_iRestService)
+    if (!m_restService)
         return NULL;
 
     //get right action, also perserve other actions
@@ -64,38 +69,39 @@ QVariant *RequestRouter::processRestRequest(IBus *bus, IRequest *req) const
 
         //case index
         if (req->id() == -1 && req->requestType() == IRequest::GET)
-            json = m_iRestService->index(bus, req);
+            json = m_restService->index(bus, req);
 
         //case show
         else if (req->requestType() == IRequest::GET)
-            json = m_iRestService->show(bus, req);
+            json = m_restService->show(bus, req);
 
         //case create
         else if (req->requestType() == IRequest::POST)
-            json = m_iRestService->create(bus, req);
+            json = m_restService->create(bus, req);
 
         //case edit
         else if (req->requestType() == IRequest::PUT)
-            json = m_iRestService->edit(bus, req);
+            json = m_restService->edit(bus, req);
 
         //case delete
         else if (req->requestType() == IRequest::DELETE)
-            json = m_iRestService->del(bus, req);
+            json = m_restService->del(bus, req);
 
         //other actions
         else
-            json = m_iRestService->processRequest(bus, req);
+            json = m_restService->processRequest(bus, req);
     }
     else
-        json = m_iRestService->processRequest(bus, req);
+        json = m_restService->processRequest(bus, req);
     return json;
 }
 
-QString RequestRouter::moduleName() const
+void RequestRouter::addRoute(IService *service)
 {
-    if (m_iService)
-        return m_iService->name();
-    if (m_iRestService)
-        return m_iRestService->name();
-    return QString();
+    m_services->insert(service->name(), service);
+}
+
+void RequestRouter::addRoute(IRestService *service)
+{
+    m_restServices->insert(service->name(), service);
 }

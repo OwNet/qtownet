@@ -14,7 +14,7 @@ public:
         UNKNOWN
     };
 
-    virtual QVariantMap postBodyFromJson() const = 0;
+    virtual QVariant postBodyFromJson(bool *ok = NULL) const = 0;
 
     virtual IRequest::RequestType requestType() const = 0;
 

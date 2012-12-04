@@ -13,7 +13,7 @@ class ArtificialRequest : public QObject, public IRequest
 public:
     explicit ArtificialRequest(IRequest::RequestType requestType, const QString &module, const QString &action = QString(), int id = -1, QObject *parent = 0);
 
-    QVariantMap postBodyFromJson() const { return m_postBody; }
+    QVariant postBodyFromJson(bool *ok = NULL) const { return m_postBody; }
 
     IRequest::RequestType requestType() const { return m_requestType; }
 

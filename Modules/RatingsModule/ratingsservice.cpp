@@ -18,7 +18,11 @@ RatingsService::RatingsService(IProxyConnection *proxyConnection, QObject *paren
 // create element
 QVariant *RatingsService::create(IBus *bus, IRequest *req)
 {
-    QVariantMap reqJson = req->postBodyFromJson();
+    bool ok = false;
+    QVariantMap reqJson = req->postBodyFromJson(&ok).toMap();
+    if (!ok)
+        return NULL;
+
     QVariantMap error;
 
     bool missingValue = false;
@@ -126,8 +130,12 @@ QVariant *RatingsService::index(IBus *bus, IRequest *req)
 
 QVariant *RatingsService::show(IBus *bus, IRequest *req)
 {
+    bool ok = false;
+    QVariantMap reqJson = req->postBodyFromJson(&ok).toMap();
+    if (!ok)
+        return NULL;
+
     bool logged = false;
-    QVariantMap reqJson = req->postBodyFromJson();
     QVariantMap error;
 
     QString curUser_id = m_proxyConnection->session()->value("logged").toString();
@@ -176,9 +184,13 @@ QVariant *RatingsService::show(IBus *bus, IRequest *req)
 
 QVariant *RatingsService::del(IBus *bus, IRequest *req)
 {
+    bool ok = false;
+    QVariantMap reqJson = req->postBodyFromJson(&ok).toMap();
+    if (!ok)
+        return NULL;
+
     bool logged = false;
     QVariantMap error;
-    QVariantMap reqJson = req->postBodyFromJson();
 
     QString curUser_id = m_proxyConnection->session()->value("logged").toString();
     if(curUser_id == ""){

@@ -6,12 +6,11 @@
 #include "session.h"
 #include "databaseupdate.h"
 #include "settings.h"
+#include "requestrouter.h"
 
 #include <QBuffer>
 #include <QVariantList>
 #include <QDebug>
-
-QMap<QString, RequestRouter*> *ProxyRequestBus::m_routes = new QMap<QString, RequestRouter*>();
 
 ProxyRequestBus::ProxyRequestBus(ProxyRequest *request, QObject *parent)
     : ProxyInputObject(request, parent), m_request(request)
@@ -24,39 +23,12 @@ ProxyRequestBus::ProxyRequestBus(ProxyRequest *request, QObject *parent)
 
 void ProxyRequestBus::readRequest()
 {
-    // checks if module exists
-    if (m_routes->contains(m_request->module())) {
-        // returning processed request
-        QBuffer *buffer = new QBuffer(m_routes->value(m_request->module())->processRequest(this, m_request));
-        buffer->open(QIODevice::ReadOnly);
-        emit readyRead(buffer);
-    }
-    else {
-
-        QVariantMap status;
-        status.insert("Status", "FAILED");
-
-        QJson::Serializer serializer;
-        QByteArray *json = new QByteArray(serializer.serialize(status));
-
-        QBuffer *buffer = new QBuffer(json);
-        buffer->open(QIODevice::ReadOnly);
-        emit readyRead(buffer);
-    }
+    // returning processed request
+    RequestRouter router(m_request->module());
+    QBuffer *buffer = new QBuffer(router.processRequest(this, m_request));
+    buffer->open(QIODevice::ReadOnly);
+    emit readyRead(buffer);
     emit finished();
-}
-
-/**
- * @brief ProxyRequestBus::callModule Function for modules,
- * they call it when they need to communicate with other modules
- * @param req
- * @return processedRequest from module in byte array
- */
-QVariant *ProxyRequestBus::callModule(IRequest *req)
-{
-    // need to find only first part of url (module url)
-
-    return m_routes->value(req->module())->processRestRequest(this, req);
 }
 
 void ProxyRequestBus::setContentType(const QString &value)
@@ -68,9 +40,4 @@ void ProxyRequestBus::setHttpStatus(int code, const QString &description)
 {
     setHttpStatusCode(code);
     setHttpStatusDescription(description);
-}
-
-void ProxyRequestBus::registerModule(RequestRouter *router)
-{
-    m_routes->insert(router->moduleName(), router);
 }

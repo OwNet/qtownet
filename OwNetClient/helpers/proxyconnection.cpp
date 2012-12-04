@@ -6,7 +6,10 @@
 #include "databaseselectquery.h"
 #include "session.h"
 #include "artificialrequest.h"
+#include "artificialbus.h"
+#include "requestrouter.h"
 #include "qjson/parser.h"
+#include "qjson/serializer.h"
 
 ProxyConnection::ProxyConnection(QObject *parent) :
     QObject(parent)
@@ -43,8 +46,27 @@ IRequest *ProxyConnection::createRequest(IRequest::RequestType requestType, cons
     return new ArtificialRequest(requestType, module, action, id, parent);
 }
 
-QVariant ProxyConnection::fromJson(const QByteArray &content) const
+QVariant ProxyConnection::fromJson(const QByteArray &content, bool *ok) const
 {
     QJson::Parser parser;
-    return parser.parse(content);
+    return parser.parse(content, ok);
+}
+
+QByteArray ProxyConnection::toJson(const QVariant &content) const
+{
+    QJson::Serializer serializer;
+    return serializer.serialize(content);
+}
+
+/**
+ * @brief ProxyConnection::callModule Function for modules,
+ * they call it when they need to communicate with other modules
+ * @param req
+ * @return processedRequest from module in byte array
+ */
+QVariant *ProxyConnection::callModule(IRequest *req)
+{
+    ArtificialBus bus;
+    RequestRouter router(req->module());
+    return router.processRestRequest(&bus, req);
 }

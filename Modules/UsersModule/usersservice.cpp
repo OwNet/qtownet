@@ -18,7 +18,10 @@ UsersService::UsersService(IProxyConnection *proxyConnection, QObject *parent) :
 // create element
 QVariant *UsersService::create(IBus *bus, IRequest *req)
 {
-    QVariantMap reqJson = req->postBodyFromJson();
+    bool ok = false;
+    QVariantMap reqJson = req->postBodyFromJson(&ok).toMap();
+    if (!ok)
+        return NULL;
     QObject parent;
 
     QString login = reqJson["login"].toString();

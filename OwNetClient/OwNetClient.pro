@@ -78,7 +78,8 @@ SOURCES += main.cpp\
     database/databaseselectquery.cpp \
     database/databaseselectqueryjoin.cpp \
     database/databaseselectquerywheregroup.cpp \
-    database/databaseselectquerywhereexpression.cpp
+    database/databaseselectquerywhereexpression.cpp \
+    helpers/artificialbus.cpp
 
 
 HEADERS  += view/mainwindow.h \
@@ -168,7 +169,8 @@ HEADERS  += view/mainwindow.h \
     database/databaseselectquerywheregroup.h \
     database/databaseselectquerywhereexpression.h \
     database/idatabaseselectquerywhere.h \
-    modules/interfaces/idatabaseselectquerywheregroup.h
+    modules/interfaces/idatabaseselectquerywheregroup.h \
+    helpers/artificialbus.h
 
 
 FORMS    += view/mainwindow.ui \

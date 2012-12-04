@@ -34,7 +34,17 @@ IRequest *StubConnection::createRequest(IRequest::RequestType requestType, const
     return NULL;
 }
 
-QVariant StubConnection::fromJson(const QByteArray &content) const
+QVariant StubConnection::fromJson(const QByteArray &content, bool *ok) const
 {
     return QVariant();
+}
+
+QByteArray StubConnection::toJson(const QVariant &content) const
+{
+    return QByteArray();
+}
+
+QVariant *StubConnection::callModule(IRequest *req)
+{
+    return NULL;
 }

@@ -24,7 +24,10 @@ QVariant *SessionService::create(IBus *bus, IRequest *req)
         return new QVariant;
     }
 
-    QVariantMap reqJson = req->postBodyFromJson();
+    bool ok = false;
+    QVariantMap reqJson = req->postBodyFromJson(&ok).toMap();
+    if (!ok)
+        return NULL;
 
     QString login = reqJson["login"].toString();
     QString password = reqJson["password"].toString();

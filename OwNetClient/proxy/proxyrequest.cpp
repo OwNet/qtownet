@@ -55,10 +55,6 @@ bool ProxyRequest::readFromSocket()
             }
         }
     }
-//    for (int i = 0; i < m_requestHeaders.count(); ++i) {
-
-//        qDebug() << m_requestHeaders.at(i).first << m_requestHeaders.at(i).second;
-//    }
 
     analyzeUrl();
 
@@ -86,16 +82,14 @@ ProxyRequest::RequestType ProxyRequest::requestType() const
  * @brief Reads the body of the request as a JSON
  * @return Return the request body as QVariantMap
  */
-QVariantMap ProxyRequest::postBodyFromJson() const
+QVariant ProxyRequest::postBodyFromJson(bool *ok) const
 {
     QVariantMap result;
     if(requestType() != POST && requestType() != PUT)
         return result;
 
-    bool ok;
     QJson::Parser parser;
-    result = parser.parse(m_requestBody, &ok).toMap();
-    return result;
+    return parser.parse(m_requestBody, ok);
 }
 
 /**
@@ -157,6 +151,14 @@ QString ProxyRequest::requestContentType(const QString &defaultContentType, cons
     return defaultContentType.isEmpty() ? "application/octet-stream" : defaultContentType;
 }
 
+QString ProxyRequest::relativeUrl() const
+{
+    QString path = m_qUrl.path(QUrl::FullyEncoded);
+    if (path.startsWith('/'))
+        path.remove(0, 1);
+    return path;
+}
+
 /**
  * @brief Returns path to the requested static file.
  * @return Path to the requested static file
@@ -166,13 +168,18 @@ QString ProxyRequest::staticResourcePath() const
     if (isStaticResourceRequest())
     {
         if (!subDomain().isEmpty()) {
-            QString murl = relativeUrl();
-
             return QString ("static/%1/%2").arg(subDomain()).arg(relativeUrl());
         }
         return QString("static/%1").arg(relativeUrl());
     }
     return "";
+}
+
+bool ProxyRequest::isLocalRequest() const
+{
+    if (m_domain == "ownet")
+        return true;
+    return false;
 }
 
 /**

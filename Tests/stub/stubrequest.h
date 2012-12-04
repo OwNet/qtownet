@@ -11,11 +11,11 @@ class StubRequest : public QObject, public IRequest
 public:
     explicit StubRequest(QObject *parent = 0);
 
-    QVariantMap postBodyFromJson() const;
+    QVariant postBodyFromJson(bool *ok = NULL) const;
     QMap<QString, QString> postBodyFromForm() const;
 
     IRequest::RequestType requestType() const;
-    QVariantMap requestHeaders() const;
+    QVariant requestHeaders() const;
 
     QUrl qUrl() const;
     QString url() const;
