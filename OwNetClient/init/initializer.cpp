@@ -15,10 +15,11 @@ void Initializer::init()
     QCoreApplication::setOrganizationName("The Reconnected");
     QCoreApplication::setApplicationName("OwNet Client");
 
+    SettingsInitializer().init();
+
     // manage proxies to stub network
     QNetworkProxyFactory::setApplicationProxyFactory(new ApplicationProxyFactory());
 
-    SettingsInitializer().init();
     m_databaseInitializer.init();
     m_proxyInitializer.init();
     m_moduleInitializer.init();

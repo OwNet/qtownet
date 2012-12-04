@@ -19,7 +19,6 @@ void SettingsInitializer::init()
     {
         QSettings::setDefaultFormat(QSettings::IniFormat);
         QSettings::setPath(QSettings::IniFormat, QSettings::UserScope, ApplicationEnvironment().value("OWNET_INI_DIR"));
-        QSettings::setPath(QSettings::IniFormat, QSettings::SystemScope, ApplicationEnvironment().value("OWNET_INI_DIR"));
     }
 
     QDir dir;
