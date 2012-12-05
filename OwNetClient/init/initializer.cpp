@@ -1,5 +1,4 @@
 #include "initializer.h"
-#include "applicationproxyfactory.h"
 #include "messagehelper.h"
 #include "settingsinitializer.h"
 #include "applicationdatastorage.h"
@@ -17,18 +16,22 @@ void Initializer::init()
 
     SettingsInitializer().init();
 
-    // manage proxies to stub network
-    QNetworkProxyFactory::setApplicationProxyFactory(new ApplicationProxyFactory());
-
     m_databaseInitializer.init();
     m_proxyInitializer.init();
     m_moduleInitializer.init();
     m_communicationInitializer.init();
     m_jobInitializer.init();
 
-    MessageHelper::debug("Proxy initialized and waiting for requests.");
+    createPidFile();
 
-    // store current pid in pidfile
+    MessageHelper::debug("Proxy initialized and waiting for requests.");
+}
+
+/*
+ * @brief Store current pid in pidfile.
+ */
+void Initializer::createPidFile()
+{
     QFile file(ApplicationDataStorage().appDataDirectory().absoluteFilePath("ownet.pid"));
     file.open(QIODevice::WriteOnly | QIODevice::Text);
     QTextStream out(&file);
