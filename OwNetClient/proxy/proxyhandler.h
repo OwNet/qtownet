@@ -20,8 +20,8 @@ public:
     void setDescriptorAndStart(int handle);
 
 signals:
-    void start();
-    void disposeThread();
+    void start(); ///< Signal to start the download in the ProxyHandler thread
+    void disposeThread(); ///< Signal to dispose the ProxyHandler thread
 
 public slots:
     void proxyHandlerSessionFinished();
