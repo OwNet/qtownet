@@ -9,4 +9,6 @@ SUBDIRS += \
     RecommendationsModule \
     MessagesModule \
     RatingsModule \
-    SyncModule
+    SyncModule \
+    HistoryModule
+
