@@ -7,6 +7,7 @@
 #include "stub/stubbus.h"
 #include "stub/stubrequest.h"
 #include "stub/stubconnection.h"
+#include "helpers/modulehelpers.h"
 
 #include "../OwNetClient/modules/interfaces/imodule.h"
 #include "../OwNetClient/modules/interfaces/irestservice.h"
@@ -38,19 +39,7 @@ TestsSample::TestsSample()
 
 void TestsSample::initTestCase()
 {
-    // load plugin
-    QDir modulesDir = QDir(qApp->applicationDirPath());
-
-#if defined(Q_OS_WIN)
-    if (modulesDir.dirName().toLower() == "debug" || modulesDir.dirName().toLower() == "release")
-        modulesDir.cdUp();
-#endif
-
-    modulesDir.cd("../OwNetClient/modules");
-
-    QPluginLoader loader(modulesDir.absoluteFilePath("libownet_samplemodule.so"));
-    QObject *plugin = loader.instance();
-    m_module = qobject_cast<IModule *>(plugin);
+    m_module = ModuleHelpers::loadModule("ownet_samplemodule");
 
     // initialize stubs
     m_stubBus = new StubBus(this);

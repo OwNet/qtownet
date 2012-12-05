@@ -23,7 +23,8 @@ SOURCES +=  modules/tst_testssample.cpp \
             ../OwNetClient/communication/communicationinstance.cpp \
     main.cpp \
     stub/stubtime.cpp \
-    stub/stubconnection.cpp
+    stub/stubconnection.cpp \
+    helpers/modulehelpers.cpp
 
 HEADERS +=  ../OwNetClient/modules/interfaces/ibus.h \
             ../OwNetClient/modules/interfaces/irequest.h \
@@ -39,7 +40,8 @@ HEADERS +=  ../OwNetClient/modules/interfaces/ibus.h \
             stub/stubrequest.h \
     autotest.h \
     stub/stubtime.h \
-    stub/stubconnection.h
+    stub/stubconnection.h \
+    helpers/modulehelpers.h
 
 INCLUDEPATH += $$_PRO_FILE_PWD_
 
