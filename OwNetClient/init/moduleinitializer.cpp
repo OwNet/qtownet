@@ -59,15 +59,15 @@ void ModuleInitializer::loadPlugins()
 #endif
 
     modulesDir.cd("modules");
+    MessageHelper::debug(QObject::tr("Loading modules from %1")
+                         .arg(modulesDir.absolutePath()));
 
     foreach (QString fileName, modulesDir.entryList(QDir::Files)) {
-        MessageHelper::debug(QObject::tr("Loading %1")
-                             .arg(modulesDir.absoluteFilePath(fileName)));
-
         QPluginLoader loader(modulesDir.absoluteFilePath(fileName));
         QObject *plugin = loader.instance();
 
         if (plugin) {
+
             IModule *module = qobject_cast<IModule *>(plugin);
             if (module)
                 initModule(module);

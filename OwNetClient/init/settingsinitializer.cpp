@@ -2,6 +2,7 @@
 
 #include "settings.h"
 #include "applicationenvironment.h"
+#include "applicationproxyfactory.h"
 #include "messagehelper.h"
 
 #include <QStandardPaths>
@@ -19,7 +20,6 @@ void SettingsInitializer::init()
     {
         QSettings::setDefaultFormat(QSettings::IniFormat);
         QSettings::setPath(QSettings::IniFormat, QSettings::UserScope, ApplicationEnvironment().value("OWNET_INI_DIR"));
-        QSettings::setPath(QSettings::IniFormat, QSettings::SystemScope, ApplicationEnvironment().value("OWNET_INI_DIR"));
     }
 
     QDir dir;
@@ -38,4 +38,7 @@ void SettingsInitializer::init()
     }    
     MessageHelper::debug(QObject::tr("Using resources directory %1")
                          .arg(settings.value("application/resources_folder_path").toString()));
+
+    // manage proxies to stub network
+    QNetworkProxyFactory::setApplicationProxyFactory(new ApplicationProxyFactory());
 }

@@ -24,7 +24,7 @@ HeartbeatServer::HeartbeatServer()
 void HeartbeatServer::start(QHostAddress *groupAddress, int port)
 {
      m_udpSocket = new QUdpSocket(this);
-     m_udpSocket->bind(port, QUdpSocket::ShareAddress);
+     m_udpSocket->bind(QHostAddress::AnyIPv4, port, QUdpSocket::ShareAddress);
      m_udpSocket->joinMulticastGroup(*groupAddress);
 
      connect(m_udpSocket, SIGNAL(readyRead()), this, SLOT(processPendingDatagrams()));
@@ -46,15 +46,10 @@ void HeartbeatServer::processPendingDatagrams()
          QJson::Parser parser;
          bool ok;
 
-         MessageHelper::debug(datagram.data());
+         // MessageHelper::debug(datagram.data());
 
          QVariantMap result = parser.parse(datagram.data(), &ok).toMap();
          if (ok)
             CommunicationManager::getInstance()->processMessage(&result);
      }
-}
-
-void HeartbeatServer::processMessage(QVariantMap &message)
-{
-    MessageHelper::debug(message.value("score").toString());
 }

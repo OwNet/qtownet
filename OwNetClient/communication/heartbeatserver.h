@@ -25,7 +25,6 @@ private:
     static HeartbeatServer *m_heartbeatServer;
 
     explicit HeartbeatServer();
-    void processMessage(QVariantMap &message);
 
     QUdpSocket *m_udpSocket;
 };

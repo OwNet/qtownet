@@ -7,6 +7,7 @@
 #include "stub/stubbus.h"
 #include "stub/stubrequest.h"
 #include "stub/stubconnection.h"
+#include "helpers/modulehelpers.h"
 
 #include "../OwNetClient/modules/interfaces/imodule.h"
 #include "../OwNetClient/modules/interfaces/irestservice.h"
@@ -38,10 +39,7 @@ TestsSample::TestsSample()
 
 void TestsSample::initTestCase()
 {
-    // load plugin
-    QPluginLoader loader("/home/martin/School/TP/QtOwNet-build-desktop-Qt_4_8_1_in_PATH__System__Debug/OwNetClient/modules/libownet_samplemodule.so");
-    QObject *plugin = loader.instance();
-    m_module = qobject_cast<IModule *>(plugin);
+    m_module = ModuleHelpers::loadModule("ownet_samplemodule");
 
     // initialize stubs
     m_stubBus = new StubBus(this);
