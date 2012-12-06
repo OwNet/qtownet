@@ -3,7 +3,6 @@
 #include "imodule.h"
 #include "irestservice.h"
 #include "iservice.h"
-#include "databasemodule.h"
 #include "requestrouter.h"
 #include "messagehelper.h"
 #include "proxyconnection.h"
@@ -22,10 +21,6 @@ ModuleInitializer::ModuleInitializer(QObject *parent) :
 
 void ModuleInitializer::init()
 {
-    // here have to be all the used modules
-
-    RequestRouter::addRoute(new DatabaseModule());
-
     loadPlugins();
 }
 
