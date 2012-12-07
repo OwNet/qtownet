@@ -15,12 +15,12 @@ public:
     JsonDocument(const QJsonDocument &other);
     JsonDocument &operator =(const QJsonDocument &other);
 
-    QByteArray toJson() const;
-    QByteArray toJson(bool compact) const;
+    QByteArray toJson(bool compact = false) const;
     
     static JsonDocument fromJson(const QByteArray & json, bool *ok);
     static JsonDocument fromJson(const QByteArray &json, QJsonParseError *error = 0);
 
+    static JsonDocument fromVariant(const QVariant &varaint);
     static JsonDocument fromVariantList(const QVariantList &list);
     static JsonDocument fromVariantMap(const QVariantMap &map);
 

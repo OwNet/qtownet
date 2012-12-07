@@ -707,6 +707,11 @@ public:
     uint compactionCounter : 31;
     uint ownsData : 1;
 
+    inline Data(char *raw, int a, bool own)
+        : alloc(a), rawData(raw), ownsData(own)
+    {
+    }
+
     inline Data(char *raw, int a)
         : alloc(a), rawData(raw), compactionCounter(0), ownsData(true)
     {
