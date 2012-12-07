@@ -56,6 +56,7 @@ QVariant *SessionService::del(IBus *bus, IRequest *)
     }
 
     m_proxyConnection->session(&parent)->clear();
+    bus->setHttpStatus(204,"No Content");
     response.insert("success", true);
 
     return new QVariant(response);
