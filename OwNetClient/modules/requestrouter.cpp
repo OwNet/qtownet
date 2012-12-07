@@ -4,98 +4,121 @@
 #include "ibus.h"
 #include "iservice.h"
 #include "irestservice.h"
-#include "qjson/serializer.h"
 
-RequestRouter::RequestRouter(IService *iService, QObject *parent)
-    : QObject(parent),
-      m_iService(iService),
-      m_iRestService(NULL)
+QMap<QString, RequestRouter*> *RequestRouter::m_services = new QMap<QString, RequestRouter*>();
+
+void RequestRouter::addService(IService* service)
 {
+    m_services->insert(service->name(), new RequestRouter(service) );
 }
 
-RequestRouter::RequestRouter(IRestService *iRestService, QObject *parent)
-    : QObject(parent),
-      m_iService(NULL),
-      m_iRestService(iRestService)
+void RequestRouter::addService(IRestService *service)
 {
+    m_services->insert(service->name(), new RequestRouter(service) );
 }
 
-/**
- * @brief processRequest Virtual function for Processing request from proxy/
- *        every module derived from IModule has to implement this function in it's own way
- * @param bus
- * @param req
- * @return  response Bytes
- */
-QByteArray *RequestRouter::processRequest(IBus *bus, IRequest *req) const
+QVariant* RequestRouter::processRequest(IBus *bus, IRequest *req)
 {
-    QByteArray *response = NULL;
-    if (m_iService) {
-        response = m_iService->processRequest(bus, req);
-    } else if (m_iRestService) {
+    RequestRouter* router;
+    QString serviceName = req->service();
 
-        QVariant *json = processRestRequest(bus, req);
+    if (m_services->contains(serviceName)) {
+        router = m_services->value(serviceName);
+        return router->routeRequest(bus,req);
+    }
+    else {
+        bus->setHttpStatus(404,"Not Found");
+        return NULL;
+    }
+}
 
-        if (json) {
-            QJson::Serializer serializer;
-            response = new QByteArray(serializer.serialize(*json));
-            delete json;
+RequestRouter::RequestRouter(IService *service, QObject *parent)
+    : QObject(parent),
+      m_service(service),
+      m_restService(NULL),
+      m_hasDefaultRoute(false)
+{
+    service->init(this);
+}
+
+RequestRouter::RequestRouter(IRestService *service, QObject *parent)
+    : QObject(parent),
+      m_service(service),
+      m_restService(service),
+      m_hasDefaultRoute(false)
+{
+    addRoute("/")
+            ->on(IRequest::GET, ROUTE(m_restService->index))
+            ->on(IRequest::POST, ROUTE(m_restService->create));
+
+    addRoute("/:id")
+            ->on(IRequest::GET, ROUTE(m_restService->show, INT(id) ))
+            ->on(IRequest::POST, ROUTE(m_restService->edit, INT(id) ))
+            ->on(IRequest::PUT, ROUTE(m_restService->replace, INT(id) ))
+            ->on(IRequest::DELETE, ROUTE(m_restService->del, INT(id) ));
+
+    service->init(this);
+}
+
+QVariant* RequestRouter::routeRequest(IBus *bus, IRequest *req) const
+{
+    int size = m_routes.size();
+    IRequest::RequestType method = req->requestType();
+
+    QString url = req->relativeUrl();
+    url.remove(0, 4+m_service->name().length()); // "/api/"+name
+
+    if (!url.startsWith("/"))
+        url = "/"+url;
+
+    for (int i=0; i<size; i++) {
+        Route* route =  m_routes[i];
+
+        Route::Match match = route->regexp()->match(url);
+
+        if (  match.hasMatch() ) {
+
+            if ( route->callbacks()->contains(method) )
+                return route->callbacks()->value(method)(bus, req, match);
+            else {
+                bus->setHttpStatus(405, "Method Not Allowed");
+                return NULL;
+            }
         }
     }
-    if (response)
-        return response;
-    return new QByteArray();
+
+
+    if (m_hasDefaultRoute)
+        return m_defaultRoute(bus,req);
+
+
+    bus->setHttpStatus(404, "Not Found");
+    return NULL;
 }
 
-QVariant *RequestRouter::processRestRequest(IBus *bus, IRequest *req) const
+Route* RequestRouter::addRoute(QString url)
 {
-    if (!m_iRestService)
-        return NULL;
+    Route* route = NULL;
 
-    //get right action, also perserve other actions
-    QVariant *json = NULL;
-
-    if (req->action() == "" ||
-            req->action() == "index" ||
-            req->action() == "show" ||
-            req->action() == "edit" ||
-            req->action() == "delete" ||
-            req->action() == "create") {
-
-        //case index
-        if (req->id() == -1 && req->requestType() == IRequest::GET)
-            json = m_iRestService->index(bus, req);
-
-        //case show
-        else if (req->requestType() == IRequest::GET)
-            json = m_iRestService->show(bus, req);
-
-        //case create
-        else if (req->requestType() == IRequest::POST)
-            json = m_iRestService->create(bus, req);
-
-        //case edit
-        else if (req->requestType() == IRequest::PUT)
-            json = m_iRestService->edit(bus, req);
-
-        //case delete
-        else if (req->requestType() == IRequest::DELETE)
-            json = m_iRestService->del(bus, req);
-
-        //other actions
-        else
-            json = m_iRestService->processRequest(bus, req);
+    int size = m_routes.size();
+    for (int i=0; i<size; i++) {
+        if (m_routes[i]->url()==url) {
+            route = m_routes[i];
+            break;
+        }
     }
-    else
-        json = m_iRestService->processRequest(bus, req);
-    return json;
+
+    if (route == NULL) {       
+        route = new Route(url);
+        m_routes.append(route);
+    }
+
+    return route;
 }
 
-QString RequestRouter::moduleName() const
+void RequestRouter:: setDefaultRoute(Callback callback)
 {
-    if (m_iService)
-        return m_iService->name();
-    if (m_iRestService)
-        return m_iRestService->name();
-    return QString();
+
+    m_defaultRoute = callback;
+    m_hasDefaultRoute = true;
 }

@@ -18,21 +18,17 @@ public:
     const QString httpStatusCode() { return QString::number(200); }
     const QString httpStatusDescription() { return "OK"; }
 
-    QVariant *callModule(IRequest *req);
     void setHttpStatus(int code, const QString &description);
 
     QString contentType() const { return ProxyInputObject::contentType(); }
     void setContentType(const QString &value);
 
-    static void registerModule(RequestRouter *router);
-
 protected:
     void readRequest();
 
 private:
+    QByteArray* processResponse(const QVariant *response);
     ProxyRequest *m_request;
-
-    static QMap<QString, RequestRouter*> *m_routes;
 };
 
 #endif // REQUESTBUS_H

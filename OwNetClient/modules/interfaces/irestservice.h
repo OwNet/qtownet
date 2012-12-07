@@ -18,13 +18,16 @@ public:
     virtual QVariant *create(IBus *, IRequest *) { return NULL; }
 
     // show element
-    virtual QVariant *show(IBus *, IRequest *) { return NULL; }
+    virtual QVariant *show(IBus *, IRequest *, int id) { return NULL; }
 
     // delete element
-    virtual QVariant *del(IBus *, IRequest *) { return NULL; }
+    virtual QVariant *del(IBus *, IRequest *, int id) { return NULL; }
 
     // edit element
-    virtual QVariant *edit(IBus *, IRequest *) { return NULL; }    
+    virtual QVariant *edit(IBus *, IRequest *, int id) { return NULL; }
+
+    // replace element
+    virtual QVariant *replace(IBus *, IRequest *, int id) { return NULL; }
 };
 
 #endif // IRESTMODULE_H

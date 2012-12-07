@@ -6,7 +6,13 @@
 #include "databaseselectquery.h"
 #include "session.h"
 #include "artificialrequest.h"
-#include "qjson/parser.h"
+#include "artificialbus.h"
+#include "requestrouter.h"
+#include "jsondocument.h"
+#include "irestservice.h"
+#include "iservice.h"
+#include "ijobaction.h"
+#include "jobs/modulejob.h"
 
 ProxyConnection::ProxyConnection(QObject *parent) :
     QObject(parent)
@@ -43,8 +49,42 @@ IRequest *ProxyConnection::createRequest(IRequest::RequestType requestType, cons
     return new ArtificialRequest(requestType, module, action, id, parent);
 }
 
-QVariant ProxyConnection::fromJson(const QByteArray &content) const
+QVariant ProxyConnection::fromJson(const QByteArray &content, bool *ok) const
 {
-    QJson::Parser parser;
-    return parser.parse(content);
+    return JsonDocument::fromJson(content).toVariant();
+}
+
+QByteArray ProxyConnection::toJson(const QVariant &content) const
+{
+    return JsonDocument::fromVariant(content).toJson();
+}
+
+void ProxyConnection::registerService(IService* service)
+{
+    RequestRouter::addService(service);
+}
+
+void ProxyConnection::registerRestService(IRestService* service)
+{
+    RequestRouter::addService(service);
+}
+
+void ProxyConnection::registerJob(IJobAction* job)
+{
+    new ModuleJob(job, this);
+}
+
+
+/**
+ * @brief ProxyConnection::callModule Function for modules,
+ * they call it when they need to communicate with other modules
+ * @param req
+ * @return processedRequest from module in byte array
+ */
+QVariant *ProxyConnection::callModule(IRequest *req)
+{
+//    ArtificialBus bus;
+//    RequestRouter router(req->service());
+//    return router.processRestRequest(&bus, req);
+    return NULL;
 }
