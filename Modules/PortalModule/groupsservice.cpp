@@ -247,7 +247,7 @@ QVariant* GroupsService::create(IBus *bus, IRequest *req)
 }
 
 // show element
-QVariant* GroupsService::show( IBus *bus, IRequest *req)
+QVariant* GroupsService::show(IBus *bus, IRequest *req, int id)
 {
     QSqlQuery query;
 
@@ -342,7 +342,7 @@ QVariant* GroupsService::index( IBus *bus,  IRequest *req)
 }
 
 
-QVariant* GroupsService::edit(IBus *bus, IRequest *req)
+QVariant* GroupsService::edit(IBus *bus, IRequest *req, int id)
 {
     bool ok = false;
     QVariantMap reqJson = req->postBodyFromJson(&ok).toMap();
@@ -404,7 +404,7 @@ QVariant* GroupsService::edit(IBus *bus, IRequest *req)
 }
 
 
-QVariant* GroupsService::del(IBus *bus, IRequest *req)
+QVariant* GroupsService::del(IBus *bus, IRequest *req, int id)
 {
     bool ok = false;
     QVariantMap reqJson = req->postBodyFromJson(&ok).toMap();

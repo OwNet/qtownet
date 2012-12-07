@@ -1,7 +1,7 @@
 QT             -= gui
 QT             += sql
 
-TARGET          = $$qtLibraryTarget(ownet_samplemodule)
+TARGET          = $$qtLibraryTarget(ownet_portalmodule)
 TEMPLATE        = lib
 CONFIG         += plugin
 

@@ -151,7 +151,7 @@ QVariant *MessagesService::index(IBus *bus, IRequest *req)
     return new QVariant;
 }
 
-QVariant *MessagesService::del(IBus *bus, IRequest *req)
+QVariant *MessagesService::del(IBus *bus, IRequest *req, int id)
 {
     bool ok = false;
     QVariantMap reqJson = req->postBodyFromJson(&ok).toMap();

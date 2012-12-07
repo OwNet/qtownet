@@ -19,15 +19,15 @@ public:
     QVariant *create(IBus *bus, IRequest *req);
 
     // show element
-    QVariant *show(IBus *bus, IRequest *req);
+    QVariant *show(IBus *bus, IRequest *req, int id);
 
     QVariant *index(IBus *bus, IRequest *req);
 
     QVariant *processRequest(IBus *bus, IRequest *req);
 
-    QVariant *edit(IBus *bus, IRequest *req);
+    QVariant *edit(IBus *bus, IRequest *req, int id);
 
-    QVariant *del(IBus *bus, IRequest *req);
+    QVariant *del(IBus *bus, IRequest *req, int id);
 
 private:
 

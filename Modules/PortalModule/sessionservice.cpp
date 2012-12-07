@@ -48,7 +48,7 @@ QVariant *SessionService::create(IBus *bus, IRequest *req)
     return new QVariant(response);
 }
 
-QVariant *SessionService::del(IBus *bus, IRequest *)
+QVariant *SessionService::del(IBus *bus, IRequest *, int id)
 {
     QVariantMap response;
     QObject parent;

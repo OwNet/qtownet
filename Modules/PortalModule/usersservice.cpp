@@ -15,7 +15,60 @@ UsersService::UsersService(IProxyConnection *proxyConnection, QObject *parent) :
 {
 }
 
-// create element
+QVariant *UsersService::index(IBus *bus, IRequest *)
+{
+    QSqlQuery query;
+
+    if (query.exec("SELECT * FROM users")) {
+        QVariantList users;
+
+        while (query.next()) {
+            QVariantMap user;
+            user.insert("id", query.value(query.record().indexOf("id")));
+            user.insert("first_name", query.value(query.record().indexOf("first_name")));
+            user.insert("last_name", query.value(query.record().indexOf("last_name")));
+            user.insert("login", query.value(query.record().indexOf("login")));
+            user.insert("email", query.value(query.record().indexOf("email")));
+            users.append(user);
+        }
+
+        bus->setHttpStatus(200, "OK");
+        return new QVariant(users);
+    }
+    else
+        bus->setHttpStatus(400,"Bad Request");
+
+    return new QVariant;
+}
+
+QVariant *UsersService::show(IBus *bus, IRequest *req, int id)
+{
+    QSqlQuery query;
+
+    query.prepare("SELECT * FROM users WHERE id = :id");
+    query.bindValue(":id",id);
+
+    if (query.exec()) {
+
+        if (query.first()) {
+
+            bus->setHttpStatus(200, "OK");
+
+            QVariantMap user;
+            user.insert("id", query.value(query.record().indexOf("id")));
+            user.insert("first_name", query.value(query.record().indexOf("first_name")));
+            user.insert("last_name", query.value(query.record().indexOf("last_name")));
+            user.insert("login", query.value(query.record().indexOf("login")));
+            user.insert("email", query.value(query.record().indexOf("email")));
+
+            return new QVariant(user);
+        }
+    }
+
+    bus->setHttpStatus(400,"Bad Request");
+    return new QVariant;
+}
+
 QVariant *UsersService::create(IBus *bus, IRequest *req)
 {
     bool ok = false;
@@ -74,57 +127,17 @@ QVariant *UsersService::create(IBus *bus, IRequest *req)
     return new QVariant;
 }
 
-// show element
-QVariant *UsersService::show(IBus *bus, IRequest *req)
+QVariant *UsersService::edit(IBus *, IRequest *, int id)
 {
-    QSqlQuery query;
-
-    query.prepare("SELECT * FROM users WHERE id = :id");
-    query.bindValue(":id",req->id());
-
-    if (query.exec()) {
-
-        if (query.first()) {
-
-            bus->setHttpStatus(200, "OK");
-
-            QVariantMap user;
-            user.insert("id", query.value(query.record().indexOf("id")));
-            user.insert("first_name", query.value(query.record().indexOf("first_name")));
-            user.insert("last_name", query.value(query.record().indexOf("last_name")));
-            user.insert("login", query.value(query.record().indexOf("login")));
-            user.insert("email", query.value(query.record().indexOf("email")));
-
-            return new QVariant(user);
-        }
-    }
-
-    bus->setHttpStatus(400,"Bad Request");
     return new QVariant;
 }
 
-QVariant *UsersService::index(IBus *bus, IRequest *)
+QVariant *UsersService::replace(IBus *, IRequest *, int id)
 {
-    QSqlQuery query;
+    return new QVariant;
+}
 
-    if (query.exec("SELECT * FROM users")) {
-        QVariantList users;
-
-        while (query.next()) {
-            QVariantMap user;
-            user.insert("id", query.value(query.record().indexOf("id")));
-            user.insert("first_name", query.value(query.record().indexOf("first_name")));
-            user.insert("last_name", query.value(query.record().indexOf("last_name")));
-            user.insert("login", query.value(query.record().indexOf("login")));
-            user.insert("email", query.value(query.record().indexOf("email")));
-            users.append(user);
-        }
-
-        bus->setHttpStatus(200, "OK");
-        return new QVariant(users);
-    }
-    else
-        bus->setHttpStatus(400,"Bad Request");
-
+QVariant *UsersService::del(IBus *bus, IRequest *req, int id)
+{
     return new QVariant;
 }

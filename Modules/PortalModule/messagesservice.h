@@ -18,7 +18,7 @@ public:
     QVariant *create(IBus *bus, IRequest *req);
     // QVariant *show(IBus *bus, IRequest *req);
     QVariant *index(IBus *bus, IRequest *);
-    QVariant *del(IBus *bus, IRequest *);
+    QVariant *del(IBus *bus, IRequest *, int id);
 
 private:
     IProxyConnection *m_proxyConnection;

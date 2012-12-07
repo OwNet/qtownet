@@ -15,7 +15,7 @@ public:
 
     QString name() const { return "session"; }
     QVariant *create(IBus *bus, IRequest *req);
-    QVariant *del(IBus *bus, IRequest *);
+    QVariant *del(IBus *bus, IRequest *, int id);
 
 private:
     IProxyConnection *m_proxyConnection;
