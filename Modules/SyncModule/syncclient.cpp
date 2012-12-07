@@ -1,9 +1,9 @@
 #include "syncclient.h"
 
-#include "synclock.h"
 #include "iproxyconnection.h"
 #include "idatabasesettings.h"
 #include "idatabaseselectquery.h"
+#include "syncserver.h"
 
 SyncClient::SyncClient(IProxyConnection *proxyConnection, QObject *parent) :
     QObject(parent),
@@ -11,6 +11,9 @@ SyncClient::SyncClient(IProxyConnection *proxyConnection, QObject *parent) :
 {
 }
 
+/**
+ * @brief Update journal from server.
+ */
 void SyncClient::update()
 {
     QObject parent;
@@ -33,5 +36,10 @@ void SyncClient::update()
     body.insert("client_record_numbers", clientRecordNumbers);
 
     request->setPostBody(body);
-    m_proxyConnection->callModule(request);
+    QVariant *response = m_proxyConnection->callModule(request);
+    if (!response)
+        return;
+
+    SyncServer server(m_proxyConnection);
+    server.saveAndApplyReceivedUpdates(response->toList());
 }
