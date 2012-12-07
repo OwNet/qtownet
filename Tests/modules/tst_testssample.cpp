@@ -60,7 +60,7 @@ void TestsSample::initTestCase()
     // initialize module
     m_proxyConnection = new StubConnection();
     m_module->init(m_proxyConnection);
-    m_restService = m_module->restServices()->first();
+    m_restService = m_proxyConnection->getRestService("sample");
 }
 
 void TestsSample::cleanupTestCase()

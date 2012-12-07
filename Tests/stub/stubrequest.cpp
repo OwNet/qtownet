@@ -8,7 +8,7 @@ StubRequest::StubRequest(QObject *parent) :
 {
 }
 
-QVariantMap StubRequest::postBodyFromJson() const
+QVariant StubRequest::postBodyFromJson(bool *ok) const
 {
     return QVariantMap();
 }
@@ -23,7 +23,7 @@ IRequest::RequestType StubRequest::requestType() const
     return GET;
 }
 
-QVariantMap StubRequest::requestHeaders() const
+QVariant StubRequest::requestHeaders() const
 {
     return QVariantMap();
 
@@ -59,7 +59,7 @@ void StubRequest::setModule(QString m)
     m_module = m;
 }
 
-QString StubRequest::module() const
+QString StubRequest::service() const
 {
     return m_module;
 }

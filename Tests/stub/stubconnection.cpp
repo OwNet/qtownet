@@ -1,4 +1,6 @@
 #include "stubconnection.h"
+#include "../OwNetClient/modules/interfaces/iservice.h"
+#include "../OwNetClient/modules/interfaces/irestservice.h"
 
 StubConnection::StubConnection()
 {
@@ -34,7 +36,39 @@ IRequest *StubConnection::createRequest(IRequest::RequestType requestType, const
     return NULL;
 }
 
-QVariant StubConnection::fromJson(const QByteArray &content) const
+QVariant StubConnection::fromJson(const QByteArray &content, bool *ok) const
 {
     return QVariant();
+}
+
+QByteArray StubConnection::toJson(const QVariant &content) const
+{
+    return QByteArray();
+}
+
+QVariant *StubConnection::callModule(IRequest *req)
+{
+    return NULL;
+}
+
+void StubConnection::registerService(IService *service)
+{
+    m_services.insert(service->name(),service);
+}
+
+void StubConnection::registerRestService(IRestService *service)
+{
+    m_services.insert(service->name(),service);
+    m_restServices.insert(service->name(),service);
+}
+
+IService *StubConnection::getService(QString name)
+{
+    return m_services.value(name);
+}
+
+
+IRestService *StubConnection::getRestService(QString name)
+{
+    return m_restServices.value(name);
 }
