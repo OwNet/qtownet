@@ -1,7 +1,5 @@
 #include "listofstringpairs.h"
 
-#include "qjson/serializer.h"
-
 ListOfStringPairs::ListOfStringPairs()
     : QList< QPair<QString, QString> >()
 {
@@ -28,15 +26,15 @@ void ListOfStringPairs::parse(const QVariantMap &variantMap)
     }
 }
 
-QString ListOfStringPairs::toString()
-{
-    QVariantMap map;
-    for (int i = 0; i < count(); ++i)
-        map.insert(at(i).first, at(i).second);
+//QString ListOfStringPairs::toString()
+//{
+//    QVariantMap map;
+//    for (int i = 0; i < count(); ++i)
+//        map.insert(at(i).first, at(i).second);
 
-    QJson::Serializer serializer;
-    return QString(serializer.serialize(map));
-}
+//    QJson::Serializer serializer;
+//    return QString(serializer.serialize(map));
+//}
 
 QString ListOfStringPairs::valueForKey(const QString &key) const
 {

@@ -23,14 +23,7 @@ SOURCES += main.cpp\
     proxy/input/proxyinputobject.cpp \
     proxy/input/proxywebinputobject.cpp \
     helpers/listofstringpairs.cpp \
-    proxy/input/proxystaticinputobject.cpp \
-    helpers/qjson/json_parser.cc \
-    helpers/qjson/json_scanner.cpp \
-    helpers/qjson/parser.cpp \
-    helpers/qjson/parserrunnable.cpp \
-    helpers/qjson/qobjecthelper.cpp \
-    helpers/qjson/serializer.cpp \
-    helpers/qjson/serializerrunnable.cpp \
+    proxy/input/proxystaticinputobject.cpp \    
     proxy/input/proxyrequestbus.cpp \
     init/moduleinitializer.cpp \
     init/databaseinitializer.cpp \
@@ -78,7 +71,13 @@ SOURCES += main.cpp\
     database/databaseselectquery.cpp \
     database/databaseselectqueryjoin.cpp \
     database/databaseselectquerywheregroup.cpp \
-    database/databaseselectquerywhereexpression.cpp
+    database/databaseselectquerywhereexpression.cpp \
+    helpers/artificialbus.cpp \
+    modules/route.cpp \
+    helpers/jsondocument/jsondocument.cpp \
+    helpers/jsondocument/qjsonwriter.cpp \
+    helpers/jsondocument/qjson.cpp
+
 
 
 HEADERS  += view/mainwindow.h \
@@ -166,7 +165,14 @@ HEADERS  += view/mainwindow.h \
     database/databaseselectquerywheregroup.h \
     database/databaseselectquerywhereexpression.h \
     database/idatabaseselectquerywhere.h \
-    modules/interfaces/idatabaseselectquerywheregroup.h
+    modules/interfaces/idatabaseselectquerywheregroup.h \
+    helpers/artificialbus.h \
+    modules/interfaces/irouter.h \
+    modules/route.h \
+    helpers/jsondocument/jsondocument.h \
+    helpers/jsondocument/qjson_p.h \
+    helpers/jsondocument/qjsonwritter.h \
+
 
 
 FORMS    += view/mainwindow.ui \
@@ -176,7 +182,7 @@ INCLUDEPATH += $$_PRO_FILE_PWD_ \
     proxy \
     init \
     helpers \
-    helpers/qjson \
+    helpers/jsondocument \
     view \
     proxy/input \
     proxy/input/bus \
@@ -191,3 +197,6 @@ INCLUDEPATH += $$_PRO_FILE_PWD_ \
 
 RESOURCES += \
     resources.qrc
+
+
+QMAKE_CXXFLAGS += -std=c++0x

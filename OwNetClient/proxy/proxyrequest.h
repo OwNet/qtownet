@@ -22,7 +22,7 @@ class ProxyRequest : public QObject, public IRequest
 public:
     ProxyRequest(QTcpSocket *socket, QObject *parent = 0);
 
-    QVariantMap postBodyFromJson() const;
+    QVariant postBodyFromJson(bool *ok = NULL) const;
     QMap<QString, QString> postBodyFromForm() const;
 
     bool readFromSocket();
@@ -33,10 +33,12 @@ public:
     QUrl qUrl() const { return m_qUrl; }
     QString url() const { return m_qUrl.toEncoded(QUrl::None); }
     QString requestContentType(const QString &defaultContentType = "", const QString &extension = "") const;
-    QString relativeUrl() const { return m_qUrl.path(QUrl::FullyEncoded); }
-    QString action() const { return m_action; }
-    QString module() const { return isLocalRequest() ? m_module : QString(); }
     QString subDomain() const { return m_subDomain; }
+    QString service() const { return isLocalRequest() ? m_service : QString(); }
+    QString relativeUrl() const;
+    QString action() const { return m_action; }
+
+
 
     int id() const { return m_id; }
     QString parameterValue(const QString &key) const { return m_qUrlQuery.queryItemValue(key); }
@@ -47,7 +49,7 @@ public:
 
     int hashCode() const { return m_hashCode; }
 
-    bool isLocalRequest() const { return m_domain == "ownet"; }
+    bool isLocalRequest() const;
     bool isStaticResourceRequest() const;
     bool isApiRequest() const { return m_isApiRequest; }
 
@@ -72,7 +74,7 @@ private:
     QString m_requestMethod;
     QString m_domain;
     QString m_subDomain;
-    QString m_module;
+    QString m_service;
     QString m_action;
 
     friend class ProxyInitializer;
