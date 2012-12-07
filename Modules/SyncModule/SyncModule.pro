@@ -9,11 +9,17 @@ INCLUDEPATH    += ../../OwNetClient/modules/interfaces
 
 SOURCES        += syncmodule.cpp \
     syncjob.cpp \
-    syncserver.cpp
+    syncserver.cpp \
+    syncservice.cpp \
+    syncclient.cpp \
+    synclock.cpp
 
 HEADERS        += syncmodule.h \
     syncjob.h \
-    syncserver.h
+    syncserver.h \
+    syncservice.h \
+    syncclient.h \
+    synclock.h
 
 TARGET          = $$qtLibraryTarget(ownet_syncmodule)
 macx:DESTDIR    = ../../OwNetClient/OwNetClient.app/Contents/MacOS/modules

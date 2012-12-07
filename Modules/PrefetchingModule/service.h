@@ -17,7 +17,7 @@ public:
     QString name() const { return "prefetch"; }
 //    QVariant *index(IBus *, IRequest *request);
 
-    QByteArray *processRequest(IBus *, IRequest *);
+    QVariant *processRequest(IBus *, IRequest *);
 
 private:
 

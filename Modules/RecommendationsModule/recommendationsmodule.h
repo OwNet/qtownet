@@ -14,10 +14,6 @@ class RecommendationsModule : public QObject, public IModule
 
 public:
     void init(IProxyConnection *proxyConnection);
-    QList<IRestService*> *restServices();
-
-private:
-    QList<IRestService*> m_services;
 };
 
 #endif // RECOMMENDATIONSMODULE_H

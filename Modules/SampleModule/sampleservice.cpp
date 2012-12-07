@@ -2,7 +2,7 @@
 
 #include "irequest.h"
 
-SampleService::SampleService(QObject *parent) :
+SampleService::SampleService(IProxyConnection *proxyConnection, QObject *parent) :
     QObject(parent)
 {
 }
@@ -10,6 +10,6 @@ SampleService::SampleService(QObject *parent) :
 QVariant *SampleService::index(IBus *, IRequest *request)
 {
     QVariantMap values;
-    values.insert("module", request->module());
+    values.insert("module", request->service());
     return new QVariant(values);
 }

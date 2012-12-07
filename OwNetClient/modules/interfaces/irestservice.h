@@ -2,15 +2,15 @@
 #define IRESTMODULE_H
 
 #include <QString>
+#include "iservice.h"
 
 class QVariant;
 class IRequest;
 class IBus;
 
-class IRestService
+class IRestService : public IService
 {
 public:
-    virtual QString name() const = 0;
 
     virtual QVariant *index(IBus *, IRequest *) { return NULL; }
 
@@ -24,10 +24,7 @@ public:
     virtual QVariant *del(IBus *, IRequest *) { return NULL; }
 
     // edit element
-    virtual QVariant *edit(IBus *, IRequest *) { return NULL; }
-
-    // other action
-    virtual QVariant *processRequest(IBus *, IRequest *) { return NULL; }
+    virtual QVariant *edit(IBus *, IRequest *) { return NULL; }    
 };
 
 #endif // IRESTMODULE_H

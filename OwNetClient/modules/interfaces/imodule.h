@@ -14,12 +14,7 @@ class IProxyConnection;
 class IModule
 {
 public:
-    virtual void init(IProxyConnection *) {}
-
-    virtual QList<IService*> *services() { return NULL; }
-    virtual QList<IRestService*> *restServices() { return NULL; }
-
-    virtual QList<IJobAction*> *jobs() { return NULL; }
+    virtual void init(IProxyConnection *) = 0;
 };
 
 Q_DECLARE_INTERFACE(IModule,

@@ -14,14 +14,10 @@ class PrefetchingModule : public QObject, public IModule
     Q_INTERFACES(IModule)
 
 public:
-    void init(IProxyConnection *proxyConnection);
-    QList<IService*> *services();
-    QList<IJobAction*> *jobs();
-    PrefetchJob* prefetchJob();
+    void init(IProxyConnection *proxyConnection);    
+    PrefetchJob* prefetchJob() { return m_prefetchJob; }
 
-private:
-    QList<IService*> m_services;
-    QList<IJobAction*> m_jobs;
+private:    
     PrefetchJob* m_prefetchJob;
 };
 

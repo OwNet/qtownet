@@ -1,11 +1,11 @@
-#ifndef SAMPLEMODULE_H
-#define SAMPLEMODULE_H
+#ifndef PORTALMODULE_H
+#define PORTALMODULE_H
 
 #include <QObject>
 
 #include "imodule.h"
 
-class SampleModule : public QObject, public IModule
+class PortalModule : public QObject, public IModule
 {
     Q_OBJECT
     Q_PLUGIN_METADATA(IID "com.thereconnected.OwNet.IModule/1.0")
@@ -15,4 +15,4 @@ public:
     void init(IProxyConnection *);
 };
 
-#endif // SAMPLEMODULE_H
+#endif // PORTALMODULE_H

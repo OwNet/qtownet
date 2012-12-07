@@ -1,5 +1,5 @@
-#ifndef SERVICE_H
-#define SERVICE_H
+#ifndef USERSERVICE_H
+#define USERSERVICE_H
 
 #include <QObject>
 
@@ -23,4 +23,4 @@ private:
     IProxyConnection *m_proxyConnection;
 };
 
-#endif // SERVICE_H
+#endif // USERSERVICE_H

@@ -1,11 +1,11 @@
-#ifndef SYNCMODULE_H
-#define SYNCMODULE_H
+#ifndef SERVERMODULE_H
+#define SERVERMODULE_H
 
 #include <QObject>
 
 #include "imodule.h"
 
-class SyncModule : public QObject, public IModule
+class ServerModule : public QObject, public IModule
 {
     Q_OBJECT
     Q_PLUGIN_METADATA(IID "com.thereconnected.OwNet.IModule/1.0")
@@ -18,4 +18,4 @@ private:
     IProxyConnection *m_proxyConnection;
 };
 
-#endif // SYNCMODULE_H
+#endif // SERVERMODULE_H

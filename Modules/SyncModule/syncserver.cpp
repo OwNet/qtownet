@@ -4,28 +4,37 @@
 #include "idatabaseselectquery.h"
 #include "idatabaseselectquerywheregroup.h"
 #include "idatabaseupdate.h"
+#include "synclock.h"
 
 #include <QSqlQuery>
+#include <QStringList>
 
-SyncServer *SyncServer::m_instance = 0;
-
-SyncServer::SyncServer()
-    : m_proxyConnection(NULL)
+SyncServer::SyncServer(IProxyConnection *proxyConnection, QObject *parent)
+    : QObject(parent),
+      m_proxyConnection(proxyConnection)
 {
 }
 
+/**
+ * @brief Return updates not present on the client
+ * @param clientRecordNumbers Current state of records on the client
+ * @param syncAllGroups Option to sync all groups or just the ones in clientRecordNumbers
+ * @param clientId ID of the client
+ * @return Updates to be applied on the client
+ */
 QVariantList SyncServer::getUpdates(const QVariantMap &clientRecordNumbers, bool syncAllGroups, int clientId)
 {
-    QMutexLocker locker(&m_syncLock);
+    SyncLock lock;
+    QObject parent;
 
-    IDatabaseSelectQuery *query = m_proxyConnection->databaseSelect("client_sync_records", this);
+    IDatabaseSelectQuery *query = m_proxyConnection->databaseSelect("client_sync_records", &parent);
     if (!syncAllGroups) {
         IDatabaseSelectQueryWhereGroup *baseOr = query->whereGroup(IDatabaseSelectQuery::Or);
         foreach (QString groupId, clientRecordNumbers.keys())
             baseOr->where("group_id", groupId.toInt());
     }
 
-    IDatabaseSelectQuery *journalQuery = m_proxyConnection->databaseSelect("sync_journal", this);
+    IDatabaseSelectQuery *journalQuery = m_proxyConnection->databaseSelect("sync_journal", &parent);
     IDatabaseSelectQueryWhereGroup *journalAnd = journalQuery->whereGroup(IDatabaseSelectQuery::And);
     IDatabaseSelectQueryWhereGroup *journalOr = NULL;
     if (query->next()) {
@@ -67,12 +76,18 @@ QVariantList SyncServer::getUpdates(const QVariantMap &clientRecordNumbers, bool
     return updates;
 }
 
+/**
+ * @brief Find new items on the client to be uploaded to server
+ * @param clientRecordNumbers Current sync records on the client
+ * @return
+ */
 QVariantList SyncServer::getChangesToUpload(const QVariantList &clientRecordNumbers)
 {
     if (!clientRecordNumbers.count())
         return QVariantList();
+    QObject parent;
 
-    IDatabaseSelectQuery *query = m_proxyConnection->databaseSelect("client_sync_records", this);
+    IDatabaseSelectQuery *query = m_proxyConnection->databaseSelect("client_sync_records", &parent);
     IDatabaseSelectQueryWhereGroup *whereOr = query->whereGroup(IDatabaseSelectQuery::Or);
 
     foreach (QVariant values, clientRecordNumbers) {
@@ -110,12 +125,17 @@ QVariantList SyncServer::getChangesToUpload(const QVariantList &clientRecordNumb
     return changes;
 }
 
-void SyncServer::uploadChanges(const QVariantList &changes)
+/**
+ * @brief Save received changes from clients
+ * @param changes Journal of changes
+ */
+void SyncServer::saveAndApplyReceivedUpdates(const QVariantList &changes)
 {
-    QMutexLocker locker(&m_syncLock);
+    SyncLock lock;
+    QObject parent;
 
-    IDatabaseSelectQuery *query = m_proxyConnection->databaseSelect("client_sync_records", this);
-
+    // Load newest record numbers from database to currentLastRecordsMap
+    IDatabaseSelectQuery *query = m_proxyConnection->databaseSelect("client_sync_records", &parent);
     QMap<QString, int> currentLastRecordsMap;
     while (query->next()) {
         currentLastRecordsMap.insert(QString("%1-%2")
@@ -124,29 +144,64 @@ void SyncServer::uploadChanges(const QVariantList &changes)
                              query->value("last_client_rec_num").toInt());
     }
 
+    // Iterate through received changes
+    QMap<QString, int> lastRecords;
     foreach (QVariant change, changes) {
         QVariantMap changeMap = change.toMap();
         QString key = QString("%1-%2")
                 .arg(changeMap.value("group_id").toInt())
                 .arg(changeMap.value("client_id").toInt());
 
+        // Skip if there are newer items in sync journal
         if (currentLastRecordsMap.contains(key) &&
                 currentLastRecordsMap.value(key) >= changeMap.value("client_rec_num").toInt())
             continue;
 
-        IDatabaseUpdate *update = m_proxyConnection->databaseUpdate(this);
+        bool ok = false;
+        QVariant json = m_proxyConnection->fromJson(changeMap.value("content").toByteArray(), &ok);
+        if (ok) {
+            IDatabaseUpdate *update = m_proxyConnection->databaseUpdate(&parent);
+            update->setSync(false);
+
+            int clientRecNum = changeMap.value("client_rec_num").toInt();
+
+            // Save to sync_journal
+            IDatabaseUpdateQuery *updateQuery = update->createUpdateQuery("sync_journal", IDatabaseUpdateQuery::Insert);
+            updateQuery->setColumnValue("client_id", changeMap.value("client_id").toInt());
+            updateQuery->setColumnValue("client_rec_num", clientRecNum);
+            updateQuery->setColumnValue("content", changeMap.value("content").toString());
+            if (!changeMap.value("group_id").isNull())
+                updateQuery->setColumnValue("group_id", changeMap.value("group_id").toInt());
+            if (!changeMap.value("sync_with").isNull())
+                updateQuery->setColumnValue("sync_with", changeMap.value("sync_with").toInt());
+            updateQuery->setUpdateDates(IDatabaseUpdateQuery::DateUpdated);
+
+            // Apply update
+            update->createUpdateQuery(json.toMap());
+
+            update->execute();
+            delete update;
+
+            if (!lastRecords.contains(key) || lastRecords.value(key) < clientRecNum)
+                lastRecords.insert(key, clientRecNum);
+        }
+    }
+
+    // Update client_sync_records
+    foreach (QString key, lastRecords.keys()) {
+        QStringList split = key.split("-");
+        int groupId = split.first().toInt();
+        int clientId = split.last().toInt();
+
+        IDatabaseUpdate *update = m_proxyConnection->databaseUpdate(&parent);
         update->setSync(false);
 
-        IDatabaseUpdateQuery *updateQuery = update->createUpdateQuery("sync_journal", IDatabaseUpdateQuery::Insert);
-        updateQuery->setColumnValue("client_id", changeMap.value("client_id").toInt());
-        updateQuery->setColumnValue("client_rec_num", changeMap.value("client_rec_num").toInt());
-        updateQuery->setColumnValue("content", changeMap.value("content").toString());
-        if (!changeMap.value("group_id").isNull())
-            updateQuery->setColumnValue("group_id", changeMap.value("group_id").toInt());
-        if (!changeMap.value("sync_with").isNull())
-            updateQuery->setColumnValue("sync_with", changeMap.value("sync_with").toInt());
-        updateQuery->setUpdateDates(IDatabaseUpdateQuery::DateUpdated);
+        IDatabaseUpdateQuery *updateQuery = update->createUpdateQuery("client_sync_records", IDatabaseUpdateQuery::Detect);
+        updateQuery->setColumnValue("client_id", clientId);
+        updateQuery->setColumnValue("group_id", groupId);
+        updateQuery->setColumnValue("last_client_rec_num", lastRecords.value(key));
 
-        updateQuery = update->createUpdateQuery(m_proxyConnection->fromJson(changeMap.value("content").toByteArray()).toMap());
+        update->execute();
+        delete update;
     }
 }

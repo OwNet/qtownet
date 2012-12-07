@@ -1,5 +1,5 @@
-#ifndef SERVICE_H
-#define SERVICE_H
+#ifndef MESSAGESSERVICE_H
+#define MESSAGESSERVICE_H
 
 #include <QObject>
 
@@ -24,4 +24,4 @@ private:
     IProxyConnection *m_proxyConnection;
 };
 
-#endif // SERVICE_H
+#endif // MESSAGESSERVICE_H
