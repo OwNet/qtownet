@@ -132,11 +132,6 @@ QVariant *UsersService::edit(IBus *, IRequest *, int id)
     return new QVariant;
 }
 
-QVariant *UsersService::replace(IBus *, IRequest *, int id)
-{
-    return new QVariant;
-}
-
 QVariant *UsersService::del(IBus *bus, IRequest *req, int id)
 {
     return new QVariant;

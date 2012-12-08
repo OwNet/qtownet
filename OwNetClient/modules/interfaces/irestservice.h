@@ -26,8 +26,6 @@ public:
     // edit element
     virtual QVariant *edit(IBus *, IRequest *, int id) { return NULL; }
 
-    // replace element
-    virtual QVariant *replace(IBus *, IRequest *, int id) { return NULL; }
 };
 
 #endif // IRESTMODULE_H

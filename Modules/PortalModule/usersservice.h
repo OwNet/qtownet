@@ -19,7 +19,6 @@ public:
     QVariant *show(IBus *bus, IRequest *req, int id);
     QVariant *create(IBus *bus, IRequest *req);
     QVariant *edit(IBus *, IRequest *, int id);
-    QVariant *replace(IBus *, IRequest *, int id);
     QVariant *del(IBus *bus, IRequest *req, int id);
 
 private:
