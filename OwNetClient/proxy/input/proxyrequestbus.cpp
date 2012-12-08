@@ -51,19 +51,27 @@ QByteArray *ProxyRequestBus::processResponse(IResponse *response)
     if (body.isNull())
         return NULL;
 
+    bool notContentType = (contentType()=="");
+
     switch (body.type()) {
 
     case QMetaType::QVariantList:
     case QMetaType::QVariantMap:
         result = new QByteArray(JsonDocument::fromVariant(body).toJson());
+        if (notContentType)
+            setContentType("text/json");
         break;
 
     case QMetaType::QByteArray:
         result = new QByteArray(body.toByteArray());
+        if (notContentType)
+            setContentType("text");
         break;
 
     case QMetaType::QJsonDocument:
         result = new QByteArray(JsonDocument( body.toJsonDocument() ).toJson());
+        if (notContentType)
+            setContentType("text/json");
         break;
 
     default:
