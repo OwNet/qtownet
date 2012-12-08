@@ -24,3 +24,6 @@ HEADERS        += portalmodule.h \
 TARGET          = $$qtLibraryTarget(ownet_samplemodule)
 macx:DESTDIR    = ../../OwNetClient/OwNetClient.app/Contents/MacOS/modules
 !macx:DESTDIR   = ../../OwNetClient/modules
+
+
+QMAKE_CXXFLAGS += -std=c++0x
