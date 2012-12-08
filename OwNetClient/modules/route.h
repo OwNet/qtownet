@@ -6,28 +6,26 @@
 #include<QRegularExpressionMatch>
 
 #include "irequest.h"
+#include "iroute.h"
+
 
 class IBus;
 
-class Route
+class Route : public IRoute
 {
 public:
     Route(QString url);
 
-    typedef QRegularExpressionMatch Match;
-    typedef std::function<QVariant* (IBus *bus, IRequest *req, Match params)> Callback;
-    typedef QMap<IRequest::RequestType, Callback> CallbackMap;
-
-    Route* on(IRequest::RequestType method, Callback callback);
+    Route* on(IRequest::RequestType method, IRoute::Callback callback);
 
     QString url(){ return m_url; }
     QRegularExpression* regexp(){ return &m_regexp; }
-    CallbackMap* callbacks(){ return &m_callbacks; }
+    IRoute::CallbackMap* callbacks(){ return &m_callbacks; }
 
 private:
     QString m_url;
     QRegularExpression m_regexp;
-    CallbackMap m_callbacks;
+    IRoute::CallbackMap m_callbacks;
 };
 
 #endif // ROUTE_H

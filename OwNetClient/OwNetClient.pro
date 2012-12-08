@@ -172,6 +172,7 @@ HEADERS  += view/mainwindow.h \
     helpers/jsondocument/jsondocument.h \
     helpers/jsondocument/qjson_p.h \
     helpers/jsondocument/qjsonwritter.h \
+    modules/interfaces/iroute.h
 
 
 

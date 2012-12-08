@@ -13,6 +13,8 @@ class GroupsService : public QObject, public IRestService
 public:
     explicit GroupsService(IProxyConnection *proxyConnection, QObject *parent = 0);
 
+    void init(IRouter* router);
+
     QString name() const { return "groups"; }
 
     // create element
@@ -22,8 +24,6 @@ public:
     QVariant *show(IBus *bus, IRequest *req, int id);
 
     QVariant *index(IBus *bus, IRequest *req);
-
-    QVariant *processRequest(IBus *bus, IRequest *req);
 
     QVariant *edit(IBus *bus, IRequest *req, int id);
 
