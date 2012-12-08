@@ -1,6 +1,6 @@
 #include "heartbeatjob.h"
 #include "messagehelper.h"
-#include "qjson/serializer.h"
+#include "jsondocument.h"
 #include "communication/communicationmanager.h"
 
 #include <QUdpSocket>
@@ -31,12 +31,11 @@ void HeartbeatJob::execute()
         break;
     }
 
-    QJson::Serializer serializer;
     QVariantMap map;
     map.insert("id", CommunicationManager::getInstance()->myId());
     map.insert("score", CommunicationManager::getInstance()->myScore());
     map.insert("status", status);
-    QByteArray datagram = serializer.serialize(map);
+    QByteArray datagram = JsonDocument::fromVariant(map).toJson();
 
     udpSocket->writeDatagram(datagram.data(), datagram.size(), *m_groupAddress, m_port);
 }

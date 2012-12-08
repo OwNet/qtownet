@@ -1,7 +1,8 @@
 #include "proxyrequest.h"
+#include "response.h"
 
 #include "messagehelper.h"
-#include "qjson/parser.h"
+#include "jsondocument.h"
 
 #include <QNetworkRequest>
 #include <QStringList>
@@ -11,7 +12,7 @@
 
 ProxyRequest::ProxyRequest(QTcpSocket *socket, QObject *parent)
     : QObject(parent),
-      m_id(-1),
+      // m_id(-1),
       m_hashCode(-1),
       m_isApiRequest(false),
       m_socket(socket)
@@ -88,8 +89,17 @@ QVariant ProxyRequest::postBodyFromJson(bool *ok) const
     if(requestType() != POST && requestType() != PUT)
         return result;
 
-    QJson::Parser parser;
-    return parser.parse(m_requestBody, ok);
+    QJsonParseError err;
+    JsonDocument json = JsonDocument::fromJson(m_requestBody, &err);
+
+    if (ok) {
+        *ok = (err.error == QJsonParseError::NoError);
+
+        if ( !(*ok) )
+            return result;
+    }
+
+    return json.toVariant();
 }
 
 /**
@@ -191,6 +201,21 @@ bool ProxyRequest::isStaticResourceRequest() const
     return isLocalRequest() && !isApiRequest();
 }
 
+IResponse *ProxyRequest::response()
+{
+    return new Response();
+}
+
+IResponse *ProxyRequest::response(const QVariant body, IResponse::Status status)
+{
+    return (new Response())->setBody(body)->setStatus(status);
+}
+
+IResponse *ProxyRequest::response(IResponse::Status status)
+{
+    return (new Response())->setStatus(status);
+}
+
 /**
  * @brief Extracts the extension from the url.
  * @return Url extension
@@ -227,19 +252,19 @@ void ProxyRequest::analyzeUrl()
             m_isApiRequest = true;
 
             if (split.count()) {
-                m_module = split.takeFirst();
+                m_service = split.takeFirst();
 
-                if (split.count()) {
-                    QString idOrAction = split.first();
-                    bool ok;
-                    int id = idOrAction.toInt(&ok);
-                    if (ok) {
-                        m_id = id;
-                        split.takeFirst();
-                    }
-                    if (split.count())
-                        m_action = split.join("/");
-                }
+//                if (split.count()) {
+//                    QString idOrAction = split.first();
+//                    bool ok;
+//                    int id = idOrAction.toInt(&ok);
+//                    if (ok) {
+//                        m_id = id;
+//                        split.takeFirst();
+//                    }
+//                    if (split.count())
+//                        m_action = split.join("/");
+//                }
             }
         }
     }

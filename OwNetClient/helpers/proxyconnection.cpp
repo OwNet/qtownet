@@ -6,10 +6,12 @@
 #include "databaseselectquery.h"
 #include "session.h"
 #include "artificialrequest.h"
-#include "artificialbus.h"
 #include "requestrouter.h"
-#include "qjson/parser.h"
-#include "qjson/serializer.h"
+#include "jsondocument.h"
+#include "irestservice.h"
+#include "iservice.h"
+#include "ijobaction.h"
+#include "modulejob.h"
 
 ProxyConnection::ProxyConnection(QObject *parent) :
     QObject(parent)
@@ -41,24 +43,39 @@ IDatabaseSettings *ProxyConnection::databaseSettings(QObject *parent)
     return new DatabaseSettings(parent);
 }
 
-IRequest *ProxyConnection::createRequest(IRequest::RequestType requestType, const QString &module, const QString &action, int id, QObject *parent)
+IRequest *ProxyConnection::createRequest(IRequest::RequestType requestType, const QString &service, const QString &url, QObject *parent)
 {
-    return new ArtificialRequest(requestType, module, action, id, parent);
+    return new ArtificialRequest(requestType, service, url, parent);
+}
+
+IRequest *ProxyConnection::createRequest(IRequest::RequestType requestType, const QString &service, const int id, QObject *parent)
+{
+    return new ArtificialRequest(requestType, service, id, parent);
 }
 
 QVariant ProxyConnection::fromJson(const QByteArray &content, bool *ok) const
 {
-    QJson::Parser parser;
-    return parser.parse(content, ok);
+    return JsonDocument::fromJson(content,ok).toVariant();
 }
 
 QByteArray ProxyConnection::toJson(const QVariant &content) const
 {
-    if (content.isNull())
-        return QString("{}").toUtf8();
+    return JsonDocument::fromVariant(content).toJson();
+}
 
-    QJson::Serializer serializer;
-    return serializer.serialize(content);
+void ProxyConnection::registerService(IService* service)
+{
+    RequestRouter::addService(service);
+}
+
+void ProxyConnection::registerRestService(IRestService* service)
+{
+    RequestRouter::addService(service);
+}
+
+void ProxyConnection::registerJob(IJobAction* job)
+{
+    new ModuleJob(job, this);
 }
 
 /**
@@ -67,9 +84,7 @@ QByteArray ProxyConnection::toJson(const QVariant &content) const
  * @param req
  * @return processedRequest from module in byte array
  */
-QVariant *ProxyConnection::callModule(IRequest *req)
+IResponse *ProxyConnection::callModule(IRequest *req)
 {
-    ArtificialBus bus;
-    RequestRouter router(req->module());
-    return router.processRestRequest(&bus, req);
+    return RequestRouter::processRequest(req);
 }

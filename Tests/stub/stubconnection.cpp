@@ -1,4 +1,6 @@
 #include "stubconnection.h"
+#include "../OwNetClient/modules/interfaces/iservice.h"
+#include "../OwNetClient/modules/interfaces/irestservice.h"
 
 StubConnection::StubConnection()
 {
@@ -29,7 +31,12 @@ QSettings *StubConnection::settings(QObject *parent)
     return NULL;
 }
 
-IRequest *StubConnection::createRequest(IRequest::RequestType requestType, const QString &module, const QString &action, int id, QObject *parent)
+IRequest *StubConnection::createRequest(IRequest::RequestType requestType, const QString &service, const QString &url, QObject *parent)
+{
+    return NULL;
+}
+
+IRequest *StubConnection::createRequest(IRequest::RequestType requestType, const QString &service, const int id, QObject *parent)
 {
     return NULL;
 }
@@ -44,7 +51,30 @@ QByteArray StubConnection::toJson(const QVariant &content) const
     return QByteArray();
 }
 
-QVariant *StubConnection::callModule(IRequest *req)
+IResponse *StubConnection::callModule(IRequest *req)
 {
     return NULL;
 }
+
+void StubConnection::registerService(IService *service)
+{
+    m_services.insert(service->name(),service);
+}
+
+void StubConnection::registerRestService(IRestService *service)
+{
+    m_services.insert(service->name(),service);
+    m_restServices.insert(service->name(),service);
+}
+
+IService *StubConnection::getService(QString name)
+{
+    return m_services.value(name);
+}
+
+
+IRestService *StubConnection::getRestService(QString name)
+{
+    return m_restServices.value(name);
+}
+>>>>>>> master

@@ -20,3 +20,6 @@ HEADERS        += servermodule.h \
 TARGET          = $$qtLibraryTarget(ownet_servermodule)
 macx:DESTDIR    = ../../OwNetClient/OwNetClient.app/Contents/MacOS/modules
 !macx:DESTDIR   = ../../OwNetClient/modules
+
+macx:QMAKE_CXXFLAGS += -stdlib=libc++
+QMAKE_CXXFLAGS += -std=c++11

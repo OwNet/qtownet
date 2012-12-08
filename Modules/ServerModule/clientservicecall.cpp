@@ -18,9 +18,9 @@ ClientServiceCall::ClientServiceCall(IProxyConnection *proxyConnection, QObject 
 {
 }
 
-QVariant *ClientServiceCall::callClientService(int clientId, IRequest *request)
+QVariant ClientServiceCall::callClientService(int clientId, IRequest *request)
 {
-    QUrlQuery urlQuery(QString("http://external.ownet/api/%1").arg(request->action()));
+    QUrlQuery urlQuery(QString("http://external.ownet/%1").arg(request->relativeUrl()));
     /*foreach (QString key, parameters.keys()) {
         urlQuery.addQueryItem(key, parameters.value(key).toString());
     }*/
@@ -57,6 +57,6 @@ QVariant *ClientServiceCall::callClientService(int clientId, IRequest *request)
     bool ok = false;
     QVariant json = m_proxyConnection->fromJson(reply->readAll(), &ok);
     if (ok)
-        return new QVariant(json);
-    return NULL;
+        return json;
+    return QVariant();
 }

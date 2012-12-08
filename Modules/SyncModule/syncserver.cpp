@@ -95,6 +95,7 @@ QVariantMap SyncServer::clientRecordNumbers()
     QObject parent;
     QVariantMap updates;
     IDatabaseSelectQuery *query = m_proxyConnection->databaseSelect("client_sync_records", &parent);
+
     while (query->next()) {
         QVariantMap groupClients;
         QString groupId = query->value("group_id").toString();

@@ -12,7 +12,7 @@ class SampleModule : public QObject, public IModule
     Q_INTERFACES(IModule)
 
 public:
-    QList<IRestService*> *restServices();
+    void init(IProxyConnection *);
 };
 
 #endif // SAMPLEMODULE_H

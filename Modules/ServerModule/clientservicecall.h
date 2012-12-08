@@ -2,7 +2,7 @@
 #define CLIENTSERVICECALL_H
 
 #include <QObject>
-#include <QVariantMap>
+#include <QVariant>
 #include <QNetworkReply>
 
 class QNetworkAccessManager;
@@ -16,7 +16,7 @@ class ClientServiceCall : public QObject
 public:
     explicit ClientServiceCall(IProxyConnection *proxyConnection, QObject *parent = 0);
 
-    QVariant *callClientService(int clientId, IRequest *request);
+    QVariant callClientService(int clientId, IRequest *request);
 
 private:
     IProxyConnection *m_proxyConnection;

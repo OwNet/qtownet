@@ -1,7 +1,5 @@
 #include "variantmap.h"
-
-#include "qjson/serializer.h"
-#include "qjson/parser.h"
+#include "jsondocument.h"
 
 #include <QDebug>
 
@@ -15,9 +13,8 @@ VariantMap::VariantMap(const QVariantMap &other)
 }
 
 QString VariantMap::toJsonString() const
-{
-    QJson::Serializer serializer;
-    return QString(serializer.serialize(QVariant(*this)));
+{    
+    return QString( JsonDocument::fromVariantMap(*this).toJson() );
 }
 
 void VariantMap::insertCaseInsensitive(const QString &key, const QVariant &value)

@@ -4,104 +4,128 @@
 #include "ibus.h"
 #include "iservice.h"
 #include "irestservice.h"
-#include "qjson/serializer.h"
 
-QMap<QString, IService*> *RequestRouter::m_services = new QMap<QString, IService*>();
-QMap<QString, IRestService*> *RequestRouter::m_restServices = new QMap<QString, IRestService*>();
+QMap<QString, RequestRouter*> *RequestRouter::m_services = new QMap<QString, RequestRouter*>();
 
-RequestRouter::RequestRouter(const QString &serviceName, QObject *parent)
-    : QObject(parent),
-      m_service(NULL),
-      m_restService(NULL)
+void RequestRouter::addService(IService* service)
 {
-    if (m_services->contains(serviceName))
-        m_service = m_services->value(serviceName);
-    else if (m_restServices->contains(serviceName))
-        m_restService = m_restServices->value(serviceName);
+    m_services->insert(service->name(), new RequestRouter(service) );
 }
 
-/**
- * @brief processRequest Virtual function for Processing request from proxy/
- *        every module derived from IModule has to implement this function in it's own way
- * @param bus
- * @param req
- * @return  response Bytes
- */
-QByteArray *RequestRouter::processRequest(IBus *bus, IRequest *req) const
+void RequestRouter::addService(IRestService *service)
 {
-    QByteArray *response = NULL;
-    if (m_service) {
-        response = m_service->processRequest(bus, req);
-    } else if (m_restService) {
+    m_services->insert(service->name(), new RequestRouter(service) );
+}
 
-        QVariant *json = processRestRequest(bus, req);
+IResponse* RequestRouter::processRequest(IRequest *req)
+{
+    RequestRouter* router;
+    QString serviceName = req->service();
 
-        if (json) {
-            QJson::Serializer serializer;
-            response = new QByteArray(serializer.serialize(*json));
-            delete json;
+    if (m_services->contains(serviceName)) {
+        router = m_services->value(serviceName);
+        return router->routeRequest(req);
+    }
+	return req->response(IResponse::NOT_FOUND);
+}
+
+IService *RequestRouter::getSerivce(const QString name)
+{
+    if (m_services->contains(name))
+        return m_services->value(name)->serivce();
+    else
+        return NULL;
+}
+
+IRestService *RequestRouter::getRestSerivce(const QString name)
+{
+    if (m_services->contains(name))
+        return m_services->value(name)->restSerivce();
+    else
+        return NULL;
+}
+
+RequestRouter::RequestRouter(IService *service, QObject *parent)
+    : QObject(parent),
+      m_service(service),
+      m_restService(NULL),
+      m_hasDefaultRoute(false)
+{
+    service->init(this);
+}
+
+RequestRouter::RequestRouter(IRestService *service, QObject *parent)
+    : QObject(parent),
+      m_service(service),
+      m_restService(service),
+      m_hasDefaultRoute(false)
+{
+    addRoute("/")
+            ->on(IRequest::GET, ROUTE(m_restService->index))
+            ->on(IRequest::POST, ROUTE(m_restService->create));
+
+    addRoute("/:id")
+            ->on(IRequest::GET, ROUTE(m_restService->show, INT(id) ))
+            ->on(IRequest::PUT, ROUTE(m_restService->edit, INT(id) ))
+            ->on(IRequest::DELETE, ROUTE(m_restService->del, INT(id) ));
+
+    service->init(this);
+}
+
+IResponse* RequestRouter::routeRequest(IRequest *req) const
+{
+    int size = m_routes.size();
+    IRequest::RequestType method = req->requestType();
+
+    QString url = req->relativeUrl();
+    url.remove(0, 4+m_service->name().length()); // "/api/"+name
+
+    if (!url.startsWith("/"))
+        url = "/"+url;
+
+    for (int i=0; i<size; i++) {
+        Route* route =  m_routes[i];
+
+        Route::Match match = route->regexp()->match(url);
+
+        if (  match.hasMatch() ) {
+
+            if ( route->callbacks()->contains(method) )
+                return route->callbacks()->value(method)(req, match);
+            else {
+                req->response(IResponse::METHOD_NOT_ALLOWED);
+            }
         }
     }
-    if (response)
-        return response;
 
-    QVariantMap status;
-    status.insert("Status", "FAILED");
+    if (m_hasDefaultRoute)
+        return m_defaultRoute(req);
 
-    QJson::Serializer serializer;
-    return new QByteArray(serializer.serialize(status));
+    return req->response(IResponse::NOT_FOUND);
 }
 
-QVariant *RequestRouter::processRestRequest(IBus *bus, IRequest *req) const
+IRoute* RequestRouter::addRoute(QString url)
 {
-    if (!m_restService)
-        return NULL;
+    Route* route = NULL;
 
-    //get right action, also perserve other actions
-    QVariant *json = NULL;
-
-    if (req->action() == "" ||
-            req->action() == "index" ||
-            req->action() == "show" ||
-            req->action() == "edit" ||
-            req->action() == "delete" ||
-            req->action() == "create") {
-
-        //case index
-        if (req->id() == -1 && req->requestType() == IRequest::GET)
-            json = m_restService->index(bus, req);
-
-        //case show
-        else if (req->requestType() == IRequest::GET)
-            json = m_restService->show(bus, req);
-
-        //case create
-        else if (req->requestType() == IRequest::POST)
-            json = m_restService->create(bus, req);
-
-        //case edit
-        else if (req->requestType() == IRequest::PUT)
-            json = m_restService->edit(bus, req);
-
-        //case delete
-        else if (req->requestType() == IRequest::DELETE)
-            json = m_restService->del(bus, req);
-
-        //other actions
-        else
-            json = m_restService->processRequest(bus, req);
+    int size = m_routes.size();
+    for (int i=0; i<size; i++) {
+        if (m_routes[i]->url()==url) {
+            route = m_routes[i];
+            break;
+        }
     }
-    else
-        json = m_restService->processRequest(bus, req);
-    return json;
+
+    if (route == NULL) {
+        route = new Route(url);
+        m_routes.append(route);
+    }
+
+    return route;
 }
 
-void RequestRouter::addRoute(IService *service)
+void RequestRouter:: setDefaultRoute(Callback callback)
 {
-    m_services->insert(service->name(), service);
-}
-
-void RequestRouter::addRoute(IRestService *service)
-{
-    m_restServices->insert(service->name(), service);
+    m_defaultRoute = callback;
+    m_hasDefaultRoute = true;
 }

@@ -24,13 +24,13 @@ void SyncClient::update()
     body.insert("sync_all_groups", true);
     body.insert("client_record_numbers", server.clientRecordNumbers());
 
-    IRequest *request = m_proxyConnection->createRequest(IRequest::POST, "server", "sync/get_updates", -1, this);
+    IRequest *request = m_proxyConnection->createRequest(IRequest::POST, "server", "sync/get_updates", this);
     request->setPostBody(body);
-    QVariant *response = m_proxyConnection->callModule(request);
-    if (!response)
+    IResponse *response = m_proxyConnection->callModule(request);
+    if (response->status() != IResponse::OK)
         return;
 
-    server.saveAndApplyUpdates(response->toList());
+    server.saveAndApplyUpdates(response->body().toList());
 }
 
 /**
@@ -38,17 +38,17 @@ void SyncClient::update()
  */
 void SyncClient::reportToServer()
 {
-    IRequest *request = m_proxyConnection->createRequest(IRequest::GET, "server", "sync/available_records", -1, this);
-    QVariant *response = m_proxyConnection->callModule(request);
-    if (!response)
+    IRequest *request = m_proxyConnection->createRequest(IRequest::GET, "server", "sync/available_records", this);
+    IResponse *response = m_proxyConnection->callModule(request);
+    if (response->status() != IResponse::OK)
         return;
 
-    QVariantMap currentItemsOnServer = response->toMap();
+    QVariantMap currentItemsOnServer = response->body().toMap();
     SyncServer server(m_proxyConnection);
     QVariantList uploadItems = server.updates(currentItemsOnServer, true, 0);
 
     if (uploadItems.count()) {
-        request = m_proxyConnection->createRequest(IRequest::POST, "server", "sync/upload_changes", -1, this);
+        request = m_proxyConnection->createRequest(IRequest::POST, "server", "sync/upload_changes", this);
         request->setPostBody(uploadItems);
         m_proxyConnection->callModule(request);
     }

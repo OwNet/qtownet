@@ -2,6 +2,7 @@
 
 #include "irequest.h"
 #include "clientservicecall.h"
+#include "irouter.h"
 
 ServerService::ServerService(IProxyConnection *proxyConnection, QObject *parent) :
     QObject(parent),
@@ -9,7 +10,7 @@ ServerService::ServerService(IProxyConnection *proxyConnection, QObject *parent)
 {
 }
 
-QVariant *ServerService::processRequest(IBus *, IRequest *request)
+IResponse *ServerService::processRequest(IBus *, IRequest *request)
 {
-    return ClientServiceCall(m_proxyConnection).callClientService(0, request);
+    return request->response(ClientServiceCall(m_proxyConnection).callClientService(0, request));
 }

@@ -4,13 +4,14 @@
 #include <QDebug>
 
 #include "autotest.h"
-#include "stub/stubbus.h"
-#include "stub/stubrequest.h"
-#include "stub/stubconnection.h"
-#include "helpers/modulehelpers.h"
+#include "modulehelpers.h"
 
-#include "../OwNetClient/modules/interfaces/imodule.h"
-#include "../OwNetClient/modules/interfaces/irestservice.h"
+#include "artificialrequest.h"
+#include "proxyconnection.h"
+#include "irequest.h"
+#include "requestrouter.h"
+#include "imodule.h"
+#include "irestservice.h"
 
 class TestsSample : public QObject
 {
@@ -21,10 +22,8 @@ public:
 
 private:
     IRestService *m_restService;
-    IModule *m_module;
-    StubBus *m_stubBus;
-    StubRequest *m_stubRequest;
-    StubConnection *m_proxyConnection;
+    IModule *m_module;    
+    ProxyConnection *m_proxyConnection;
 
 private Q_SLOTS:
     void initTestCase();
@@ -41,15 +40,10 @@ void TestsSample::initTestCase()
 {
     m_module = ModuleHelpers::loadModule("ownet_samplemodule");
 
-    // initialize stubs
-    m_stubBus = new StubBus(this);
-    m_stubRequest = new StubRequest(this);
-    m_stubRequest->setModule("sample");
-
     // initialize module
-    m_proxyConnection = new StubConnection();
+    m_proxyConnection = new ProxyConnection();
     m_module->init(m_proxyConnection);
-    m_restService = m_module->restServices()->first();
+    m_restService = RequestRouter::getRestSerivce("sample");
 }
 
 void TestsSample::cleanupTestCase()
@@ -58,9 +52,11 @@ void TestsSample::cleanupTestCase()
 
 void TestsSample::testIndex()
 {
-    QVariantMap response = m_restService->index(m_stubBus, m_stubRequest)->toMap();
+    IRequest* req = m_proxyConnection->createRequest(IRequest::GET,"sample");
+    IResponse* response = m_restService->index(req);
     QFETCH(QString, module);
-    QCOMPARE(response.value("module").toString(), module);
+    QVariant  body = response->body();
+    QCOMPARE(body.toMap().value("module").toString(), module);
 }
 
 void TestsSample::testIndex_data()

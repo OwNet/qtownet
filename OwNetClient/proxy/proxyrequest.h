@@ -33,12 +33,15 @@ public:
     QUrl qUrl() const { return m_qUrl; }
     QString url() const { return m_qUrl.toEncoded(QUrl::None); }
     QString requestContentType(const QString &defaultContentType = "", const QString &extension = "") const;
-    QString relativeUrl() const;
-    QString action() const { return m_action; }
-    QString module() const { return isLocalRequest() ? m_module : QString(); }
-    QString subDomain() const { return m_subDomain; }
 
-    int id() const { return m_id; }
+    QString subDomain() const { return m_subDomain; }
+    QString service() const { return isLocalRequest() ? m_service : QString(); }
+    QString relativeUrl() const;
+//    QString action() const { return m_action; }
+
+
+
+//    int id() const { return m_id; }
     QString parameterValue(const QString &key) const { return m_qUrlQuery.queryItemValue(key); }
     bool hasParameter(const QString& key) const { return m_qUrlQuery.hasQueryItem(key); }
     QStringList allParameterValues(const QString &key) const { return m_qUrlQuery.allQueryItemValues(key); }
@@ -53,12 +56,16 @@ public:
 
     QTcpSocket *socket() const { return m_socket; }
 
+    IResponse* response();
+    IResponse* response(const QVariant body, IResponse::Status status = IResponse::OK);
+    IResponse* response(IResponse::Status status);
+
 private:
     QString urlExtension() const;
     void analyzeUrl();
     static QMap<QString, QString> initContentTypes();
 
-    int m_id;
+    // int m_id;
     int m_hashCode;
 
     bool m_isApiRequest;
@@ -72,8 +79,8 @@ private:
     QString m_requestMethod;
     QString m_domain;
     QString m_subDomain;
-    QString m_module;
-    QString m_action;
+    QString m_service;
+    // QString m_action;
 
     friend class ProxyInitializer;
 };

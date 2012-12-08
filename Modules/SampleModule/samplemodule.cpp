@@ -1,11 +1,11 @@
 #include "samplemodule.h"
+#include "iproxyconnection.h"
 
 #include "sampleservice.h"
 
-QList<IRestService *> *SampleModule::restServices()
+void SampleModule::init(IProxyConnection *proxyConnection)
 {
-    QList<IRestService *> *list = new QList<IRestService *>;
-    list->append(new SampleService(this));
-    return list;
+    proxyConnection->registerRestService( new SampleService(proxyConnection,this) );
 }
+
 

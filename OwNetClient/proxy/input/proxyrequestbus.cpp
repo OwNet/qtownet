@@ -1,12 +1,14 @@
 #include "proxyrequestbus.h"
 
 #include "proxyrequest.h"
-#include "qjson/serializer.h"
 #include "requestrouter.h"
 #include "session.h"
 #include "databaseupdate.h"
 #include "settings.h"
 #include "requestrouter.h"
+#include "iresponse.h"
+#include "jsondocument.h"
+#include "listofstringpairs.h"
 
 #include <QBuffer>
 #include <QVariantList>
@@ -15,29 +17,67 @@
 ProxyRequestBus::ProxyRequestBus(ProxyRequest *request, QObject *parent)
     : ProxyInputObject(request, parent), m_request(request)
 {
-    m_httpStatusCode = QString::number(200);
-    m_httpStatusDescription = "OK";
-
-    addHeader("Content-type", m_request->requestContentType("application/json"));
 }
 
 void ProxyRequestBus::readRequest()
 {
-    // returning processed request
-    RequestRouter router(m_request->module());
-    QBuffer *buffer = new QBuffer(router.processRequest(this, m_request));
+    IResponse* response = RequestRouter::processRequest(m_request);
+    QByteArray* byteResponse = processResponse(response);
+
+    QBuffer *buffer = new QBuffer( byteResponse );
     buffer->open(QIODevice::ReadOnly);
     emit readyRead(buffer);
     emit finished();
 }
 
-void ProxyRequestBus::setContentType(const QString &value)
+QByteArray *ProxyRequestBus::processResponse(IResponse *response)
 {
-    ProxyInputObject::setContentType(value);
-}
+    QByteArray *result = NULL;
 
-void ProxyRequestBus::setHttpStatus(int code, const QString &description)
-{
-    setHttpStatusCode(code);
-    setHttpStatusDescription(description);
+    if (response == NULL)
+        return NULL;
+
+    setHttpStatusCode(response->status());
+    setHttpStatusDescription(response->statusMessage());
+
+    auto headers = response->headers();
+    QList<QString> keys = headers.keys();
+
+    for (int i = 0; i < keys.count(); ++i)
+        addHeader(keys[i], headers.value(keys[i]));
+
+    QVariant body = response->body();
+
+    if (body.isNull())
+        return NULL;
+
+    bool notContentType = (contentType()=="");
+
+    switch (body.type()) {
+
+    case QMetaType::QVariantList:
+    case QMetaType::QVariantMap:
+        result = new QByteArray(JsonDocument::fromVariant(body).toJson());
+        if (notContentType)
+            setContentType("text/json");
+        break;
+
+    case QMetaType::QByteArray:
+        result = new QByteArray(body.toByteArray());
+        if (notContentType)
+            setContentType("text");
+        break;
+
+    case QMetaType::QJsonDocument:
+        result = new QByteArray(JsonDocument( body.toJsonDocument() ).toJson());
+        if (notContentType)
+            setContentType("text/json");
+        break;
+
+    default:
+        throw "Invalid data type";
+
+    }
+
+    return result;
 }

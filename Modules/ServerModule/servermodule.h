@@ -13,7 +13,6 @@ class ServerModule : public QObject, public IModule
 
 public:
     void init(IProxyConnection *proxyConnection);
-    QList<IRestService*> *restServices();
 
 private:
     IProxyConnection *m_proxyConnection;

@@ -2,6 +2,7 @@
 
 #include "irequest.h"
 #include "syncserver.h"
+#include "irouter.h"
 
 SyncService::SyncService(IProxyConnection *proxyConnection, QObject *parent) :
     QObject(parent),
@@ -9,15 +10,14 @@ SyncService::SyncService(IProxyConnection *proxyConnection, QObject *parent) :
 {
 }
 
-QVariant *SyncService::processRequest(IBus *bus, IRequest *request)
+void SyncService::init(IRouter *router)
 {
-    if (request->action() == "get_updates")
-        return getUpdates(bus, request);
-    if (request->action() == "available_records")
-        return availableRecords(bus, request);
-    if (request->action() == "upload_changes")
-        return uploadChanges(bus, request);
-    return NULL;
+    router->addRoute("/get_updates")
+            ->on(IRequest::POST, ROUTE(getUpdates));
+    router->addRoute("/available_records")
+            ->on(IRequest::GET, ROUTE(availableRecords));
+    router->addRoute("/upload_changes")
+            ->on(IRequest::POST, ROUTE(uploadChanges));
 }
 
 /**
@@ -25,7 +25,7 @@ QVariant *SyncService::processRequest(IBus *bus, IRequest *request)
  * @param request
  * @return
  */
-QVariant *SyncService::getUpdates(IBus *, IRequest *request)
+IResponse *SyncService::getUpdates(IRequest *request)
 {
     bool ok = false;
     QVariantMap requestBody = request->postBodyFromJson(&ok).toMap();
@@ -40,17 +40,19 @@ QVariant *SyncService::getUpdates(IBus *, IRequest *request)
     QVariantMap clientRecordNumbers = requestBody.value("client_record_numbers").toMap();
 
     SyncServer server(m_proxyConnection);
-    return new QVariant(server.updates(clientRecordNumbers, syncAllGroups, clientId));
+
+    return request->response(server.updates(clientRecordNumbers, syncAllGroups, clientId));
 }
 
 /**
  * @brief Get list of changes that are present on the server
  * @return
  */
-QVariant *SyncService::availableRecords(IBus *, IRequest *)
+IResponse *SyncService::availableRecords(IRequest *request)
 {
     SyncServer server(m_proxyConnection);
-    return new QVariant(server.clientRecordNumbers());
+
+    return request->response(server.clientRecordNumbers());
 }
 
 /**
@@ -58,7 +60,7 @@ QVariant *SyncService::availableRecords(IBus *, IRequest *)
  * @param request
  * @return
  */
-QVariant *SyncService::uploadChanges(IBus *, IRequest *request)
+IResponse *SyncService::uploadChanges(IRequest *request)
 {
     bool ok = false;
     QVariantList changes = request->postBodyFromJson(&ok).toList();
@@ -67,7 +69,6 @@ QVariant *SyncService::uploadChanges(IBus *, IRequest *request)
 
     SyncServer server(m_proxyConnection);
     server.saveAndApplyUpdates(changes);
-    QVariantMap success;
-    success.insert("success", true);
-    return new QVariant(success);
+
+    return request->response(IResponse::OK);
 }

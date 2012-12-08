@@ -1,6 +1,5 @@
 #include "listofstringpairs.h"
-
-#include "qjson/serializer.h"
+#include "jsondocument.h"
 
 ListOfStringPairs::ListOfStringPairs()
     : QList< QPair<QString, QString> >()
@@ -34,8 +33,7 @@ QString ListOfStringPairs::toString()
     for (int i = 0; i < count(); ++i)
         map.insert(at(i).first, at(i).second);
 
-    QJson::Serializer serializer;
-    return QString(serializer.serialize(map));
+    return QString(JsonDocument::fromVariantMap(map).toJson());
 }
 
 QString ListOfStringPairs::valueForKey(const QString &key) const

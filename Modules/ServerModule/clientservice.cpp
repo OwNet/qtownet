@@ -11,7 +11,7 @@ ClientService::ClientService(IProxyConnection *proxyConnection, QObject *parent)
 {
 }
 
-QVariant *ClientService::processRequest(IBus *, IRequest *request)
+IResponse *ClientService::processRequest(IBus *, IRequest *request)
 {
-    return ClientServiceCall(m_proxyConnection).callClientService(request->id(), request);
+    return request->response(ClientServiceCall(m_proxyConnection).callClientService(0, request));
 }

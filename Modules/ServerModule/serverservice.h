@@ -3,11 +3,11 @@
 
 #include <QObject>
 
-#include "irestservice.h"
+#include "iservice.h"
 
 class IProxyConnection;
 
-class ServerService : public QObject, public IRestService
+class ServerService : public QObject, public IService
 {
     Q_OBJECT
 public:
@@ -15,7 +15,7 @@ public:
 
     QString name() const { return "server"; }
 
-    QVariant *processRequest(IBus *, IRequest *request);
+    IResponse *processRequest(IBus *, IRequest *request);
 
 private:
     IProxyConnection *m_proxyConnection;

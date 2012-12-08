@@ -27,21 +27,6 @@ void ModuleInitializer::init()
 void ModuleInitializer::initModule(IModule *module)
 {
     module->init(new ProxyConnection(this));
-
-    QList<IService *> *services = module->services();
-    if (services)
-        foreach (IService *service, *services)
-            RequestRouter::addRoute(service);
-
-    QList<IRestService *> *restServices = module->restServices();
-    if (restServices)
-        foreach (IRestService *service, *restServices)
-            RequestRouter::addRoute(service);
-
-    QList<IJobAction *> *jobs = module->jobs();
-    if (jobs)
-        foreach (IJobAction *jobAction, *jobs)
-            new ModuleJob(jobAction, this);
 }
 
 void ModuleInitializer::loadPlugins()

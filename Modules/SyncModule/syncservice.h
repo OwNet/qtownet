@@ -3,22 +3,22 @@
 
 #include <QObject>
 
-#include "irestservice.h"
+#include "iservice.h"
 
 class IProxyConnection;
 
-class SyncService : public QObject, public IRestService
+class SyncService : public QObject, public IService
 {
     Q_OBJECT
 public:
     explicit SyncService(IProxyConnection *proxyConnection, QObject *parent = 0);
 
     virtual QString name() const { return "sync"; }
-    QVariant *processRequest(IBus *bus, IRequest *request);
+    void init(IRouter* router);
 
-    QVariant *getUpdates(IBus *, IRequest *request);
-    QVariant *availableRecords(IBus *, IRequest *);
-    QVariant *uploadChanges(IBus *, IRequest *request);
+    IResponse *getUpdates(IRequest *request);
+    IResponse *availableRecords(IRequest *);
+    IResponse *uploadChanges(IRequest *request);
 
 private:
     IProxyConnection *m_proxyConnection;
