@@ -151,6 +151,7 @@ bool DatabaseUpdateQuery::executeQuery()
     }
 
     if (!query.exec()) {
+        MessageHelper::debug(queryString);
         MessageHelper::debug(query.lastError().text());
         return false;
     } else {

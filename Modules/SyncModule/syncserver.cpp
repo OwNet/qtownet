@@ -32,7 +32,7 @@ QVariantList SyncServer::updates(const QVariantMap &clientRecordNumbers, bool sy
         IDatabaseSelectQueryWhereGroup *baseOr = query->whereGroup(IDatabaseSelectQuery::Or);
         foreach (QString groupId, clientRecordNumbers.keys()) {
             if (groupId.isNull())
-                baseOr->where("group_id", NULL, IDatabaseSelectQuery::Is);
+                baseOr->where("group_id", "NULL", IDatabaseSelectQuery::Is, false);
             else
                 baseOr->where("group_id", groupId.toInt());
         }
@@ -47,7 +47,7 @@ QVariantList SyncServer::updates(const QVariantMap &clientRecordNumbers, bool sy
         do {
             IDatabaseSelectQueryWhereGroup *clientGroupAnd = journalOr->whereGroup(IDatabaseSelectQuery::And);
             if (query->value("group_id").isNull())
-                clientGroupAnd->where("group_id", NULL, IDatabaseSelectQuery::Is);
+                clientGroupAnd->where("group_id", "NULL", IDatabaseSelectQuery::Is, false);
             else
                 clientGroupAnd->where("group_id", query->value("group_id"));
 
@@ -114,6 +114,9 @@ QVariantMap SyncServer::clientRecordNumbers()
  */
 void SyncServer::saveAndApplyUpdates(const QVariantList &changes)
 {
+    if (!changes.count())
+        return;
+
     SyncLock lock;
     QObject parent;
 
@@ -184,16 +187,44 @@ void SyncServer::saveAndApplyUpdates(const QVariantList &changes)
         QString groupId = split.first();
         QString clientId = split.last();
 
-        IDatabaseUpdate *update = m_proxyConnection->databaseUpdate(&parent);
-        update->setSync(false);
+        QString where;
+        if (groupId.isEmpty())
+            where += "group_id IS NULL";
+        else
+            QString("group_id = %1").arg(groupId.toInt());
+        where += " AND ";
+        if (clientId.isEmpty())
+            where += "client_id IS NULL";
+        else
+            where += QString("client_id = %1").arg(clientId.toInt());
 
-        IDatabaseUpdateQuery *updateQuery = update->createUpdateQuery("client_sync_records", IDatabaseUpdateQuery::Detect);
-        if (!clientId.isEmpty())
-            updateQuery->setColumnValue("client_id", clientId.toInt());
-        if (!groupId.isEmpty())
-            updateQuery->setColumnValue("group_id", groupId.toInt());
-        updateQuery->setColumnValue("last_client_rec_num", lastRecords.value(key));
+        QSqlQuery query;
+        query.prepare(QString("SELECT * FROM client_sync_records WHERE %1").arg(where));
 
-        update->execute();
+        if (query.exec() && query.first()) {
+            QSqlQuery update;
+            update.prepare(QString("UPDATE client_sync_records SET last_client_rec_num = %1 WHERE %2")
+                           .arg(lastRecords.value(key))
+                           .arg(where));
+            update.exec();
+        } else {
+            QStringList columns;
+            QStringList values;
+            if (!groupId.isEmpty()) {
+                columns.append("group_id");
+                values.append(QString::number(groupId.toInt()));
+            } if (!clientId.isEmpty()) {
+                columns.append("client_id");
+                values.append(QString::number(clientId.toInt()));
+            }
+            columns.append("last_client_rec_num");
+            values.append(QString::number(lastRecords.value(key)));
+
+            QSqlQuery insert;
+            insert.prepare(QString("INSERT INTO client_sync_records (%1) VALUES (%2)")
+                    .arg(columns.join(", "))
+                    .arg(values.join(", ")));
+            insert.exec();
+        }
     }
 }
