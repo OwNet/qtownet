@@ -20,6 +20,8 @@ private:
     ModuleInitializer m_moduleInitializer;
     JobInitializer m_jobInitializer;
     CommunicationInitializer m_communicationInitializer;
+
+    void createPidFile();
 };
 
 #endif // INITIALIZER_H

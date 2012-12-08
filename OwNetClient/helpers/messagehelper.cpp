@@ -37,7 +37,7 @@ void MessageHelper::debug(QString message)
 {
     qDebug() << message;
 
-    writeToLogFile(message);
+    //writeToLogFile(message);
 }
 
 void MessageHelper::writeToLogFile(const QString &log)

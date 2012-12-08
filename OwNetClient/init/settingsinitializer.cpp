@@ -2,6 +2,7 @@
 
 #include "settings.h"
 #include "applicationenvironment.h"
+#include "applicationproxyfactory.h"
 #include "messagehelper.h"
 
 #include <QStandardPaths>
@@ -37,4 +38,7 @@ void SettingsInitializer::init()
     }    
     MessageHelper::debug(QObject::tr("Using resources directory %1")
                          .arg(settings.value("application/resources_folder_path").toString()));
+
+    // manage proxies to stub network
+    QNetworkProxyFactory::setApplicationProxyFactory(new ApplicationProxyFactory());
 }

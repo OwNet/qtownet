@@ -27,7 +27,6 @@ SOURCES += main.cpp\
     proxy/input/proxyrequestbus.cpp \
     init/moduleinitializer.cpp \
     init/databaseinitializer.cpp \
-    modules/databasemodule.cpp \
     proxy/downloads/proxydownloads.cpp \
     proxy/downloads/proxydownload.cpp \
     proxy/output/proxyoutputwriter.cpp \
@@ -96,7 +95,6 @@ HEADERS  += view/mainwindow.h \
     init/moduleinitializer.h \
     modules/interfaces/ibus.h \
     init/databaseinitializer.h \
-    modules/databasemodule.h \
     proxy/downloads/proxydownloads.h \
     proxy/downloads/proxydownload.h \
     proxy/output/proxyoutputwriter.h \

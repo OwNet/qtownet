@@ -6,3 +6,4 @@ object_script.*
 *.qm
 ui/include
 *.swp
+documentation/output

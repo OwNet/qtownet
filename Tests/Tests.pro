@@ -43,8 +43,10 @@ SOURCES +=  ../OwNetClient/helpers/messagehelper.cpp \
             ../OwNetClient/communication/communicationinstance.cpp \
     main.cpp \
     stub/stubtime.cpp \
+    helpers/modulehelpers.cpp \
     modules/tst_testssample.cpp \
     classes/tst_testscommunicationmanager.cpp
+
 
 HEADERS +=  ../OwNetClient/helpers/messagehelper.h \
             ../OwNetClient/helpers/listofstringpairs.h \
@@ -95,10 +97,12 @@ HEADERS +=  ../OwNetClient/helpers/messagehelper.h \
             ../OwNetClient/modules/response.h \
     autotest.h \
     stub/stubtime.h \
+    helpers/modulehelpers.h
 
 
 INCLUDEPATH += $$_PRO_FILE_PWD_ \
     stub \
+    helpers \
     ../OwNetClient/database \
     ../OwNetClient/helpers \
     ../OwNetClient/helpers/jsondocument \

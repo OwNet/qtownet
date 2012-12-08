@@ -4,13 +4,14 @@
 #include <QDebug>
 
 #include "autotest.h"
+#include "modulehelpers.h"
+
 #include "artificialrequest.h"
 #include "proxyconnection.h"
 #include "irequest.h"
 #include "requestrouter.h"
-
-#include "../OwNetClient/modules/interfaces/imodule.h"
-#include "../OwNetClient/modules/interfaces/irestservice.h"
+#include "imodule.h"
+#include "irestservice.h"
 
 class TestsSample : public QObject
 {
@@ -37,20 +38,7 @@ TestsSample::TestsSample()
 
 void TestsSample::initTestCase()
 {
-    // load plugin
-    QDir modulesDir = QDir(qApp->applicationDirPath());
-
-#if defined(Q_OS_WIN)
-    if (modulesDir.dirName().toLower() == "debug" || modulesDir.dirName().toLower() == "release")
-        modulesDir.cdUp();
-#endif
-
-    modulesDir.cd("../OwNetClient/modules");
-
-    QPluginLoader loader(modulesDir.absoluteFilePath("libownet_samplemodule.so"));
-    QObject *plugin = loader.instance();
-    m_module = qobject_cast<IModule *>(plugin);
-
+    m_module = ModuleHelpers::loadModule("ownet_samplemodule");
 
     // initialize module
     m_proxyConnection = new ProxyConnection();
