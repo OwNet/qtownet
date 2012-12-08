@@ -19,10 +19,10 @@ public:
     virtual IRequest::RequestType requestType() const = 0;
     virtual QString relativeUrl() const = 0;
 
-    virtual QString action() const = 0;
+    // virtual QString action() const = 0;
     virtual QString service() const = 0;
     virtual QString subDomain() const = 0;
-    virtual int id() const = 0;
+    // virtual int id() const = 0;
     virtual bool hasParameter(const QString& key) const = 0;
 
     virtual QString parameterValue(const QString &key) const = 0;

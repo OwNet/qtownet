@@ -11,7 +11,7 @@
 
 ProxyRequest::ProxyRequest(QTcpSocket *socket, QObject *parent)
     : QObject(parent),
-      m_id(-1),
+      // m_id(-1),
       m_hashCode(-1),
       m_isApiRequest(false),
       m_socket(socket)
@@ -236,17 +236,17 @@ void ProxyRequest::analyzeUrl()
             if (split.count()) {
                 m_service = split.takeFirst();
 
-                if (split.count()) {
-                    QString idOrAction = split.first();
-                    bool ok;
-                    int id = idOrAction.toInt(&ok);
-                    if (ok) {
-                        m_id = id;
-                        split.takeFirst();
-                    }
-                    if (split.count())
-                        m_action = split.join("/");
-                }
+//                if (split.count()) {
+//                    QString idOrAction = split.first();
+//                    bool ok;
+//                    int id = idOrAction.toInt(&ok);
+//                    if (ok) {
+//                        m_id = id;
+//                        split.takeFirst();
+//                    }
+//                    if (split.count())
+//                        m_action = split.join("/");
+//                }
             }
         }
     }

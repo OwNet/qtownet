@@ -26,7 +26,6 @@ void ProxyRequestBus::readRequest()
     QVariant* response = RequestRouter::processRequest(this, m_request);
     QByteArray* byteResponse = processResponse(response);
 
-    // TODO
     QBuffer *buffer = new QBuffer( byteResponse );
     buffer->open(QIODevice::ReadOnly);
     emit readyRead(buffer);

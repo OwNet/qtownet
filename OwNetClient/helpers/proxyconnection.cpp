@@ -44,14 +44,19 @@ IDatabaseSettings *ProxyConnection::databaseSettings(QObject *parent)
     return new DatabaseSettings(parent);
 }
 
-IRequest *ProxyConnection::createRequest(IRequest::RequestType requestType, const QString &module, const QString &action, int id, QObject *parent)
+IRequest *ProxyConnection::createRequest(IRequest::RequestType requestType, const QString &service, const QString &url, QObject *parent)
 {
-    return new ArtificialRequest(requestType, module, action, id, parent);
+    return new ArtificialRequest(requestType, service, url, parent);
+}
+
+IRequest *ProxyConnection::createRequest(IRequest::RequestType requestType, const QString &service, const int id, QObject *parent)
+{
+    return new ArtificialRequest(requestType, service, id, parent);
 }
 
 QVariant ProxyConnection::fromJson(const QByteArray &content, bool *ok) const
 {
-    return JsonDocument::fromJson(content).toVariant();
+    return JsonDocument::fromJson(content,ok).toVariant();
 }
 
 QByteArray ProxyConnection::toJson(const QVariant &content) const
@@ -83,8 +88,6 @@ void ProxyConnection::registerJob(IJobAction* job)
  */
 QVariant *ProxyConnection::callModule(IRequest *req)
 {
-//    ArtificialBus bus;
-//    RequestRouter router(req->service());
-//    return router.processRestRequest(&bus, req);
-    return NULL;
+    ArtificialBus bus;
+    return RequestRouter::processRequest(&bus,req);
 }

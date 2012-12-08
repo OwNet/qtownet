@@ -31,10 +31,16 @@ QSettings *StubConnection::settings(QObject *parent)
     return NULL;
 }
 
-IRequest *StubConnection::createRequest(IRequest::RequestType requestType, const QString &module, const QString &action, int id, QObject *parent)
+IRequest *StubConnection::createRequest(IRequest::RequestType requestType, const QString &service, const QString &url, QObject *parent)
 {
     return NULL;
 }
+
+IRequest *StubConnection::createRequest(IRequest::RequestType requestType, const QString &service, const int id, QObject *parent)
+{
+    return NULL;
+}
+
 
 QVariant StubConnection::fromJson(const QByteArray &content, bool *ok) const
 {

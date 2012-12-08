@@ -36,11 +36,11 @@ public:
     QString subDomain() const { return m_subDomain; }
     QString service() const { return isLocalRequest() ? m_service : QString(); }
     QString relativeUrl() const;
-    QString action() const { return m_action; }
+//    QString action() const { return m_action; }
 
 
 
-    int id() const { return m_id; }
+//    int id() const { return m_id; }
     QString parameterValue(const QString &key) const { return m_qUrlQuery.queryItemValue(key); }
     bool hasParameter(const QString& key) const { return m_qUrlQuery.hasQueryItem(key); }
     QStringList allParameterValues(const QString &key) const { return m_qUrlQuery.allQueryItemValues(key); }
@@ -60,7 +60,7 @@ private:
     void analyzeUrl();
     static QMap<QString, QString> initContentTypes();
 
-    int m_id;
+    // int m_id;
     int m_hashCode;
 
     bool m_isApiRequest;
@@ -75,7 +75,7 @@ private:
     QString m_domain;
     QString m_subDomain;
     QString m_service;
-    QString m_action;
+    // QString m_action;
 
     friend class ProxyInitializer;
 };
