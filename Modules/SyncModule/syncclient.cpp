@@ -38,7 +38,7 @@ void SyncClient::update()
  */
 void SyncClient::reportToServer()
 {
-    IRequest *request = m_proxyConnection->createRequest(IRequest::POST, "server", "sync/available_records", -1, this);
+    IRequest *request = m_proxyConnection->createRequest(IRequest::GET, "server", "sync/available_records", -1, this);
     QVariant *response = m_proxyConnection->callModule(request);
     if (!response)
         return;
@@ -47,7 +47,9 @@ void SyncClient::reportToServer()
     SyncServer server(m_proxyConnection);
     QVariantList uploadItems = server.updates(currentItemsOnServer, true, 0);
 
-    request = m_proxyConnection->createRequest(IRequest::POST, "server", "sync/upload_changes", -1, this);
-    request->setPostBody(uploadItems);
-    m_proxyConnection->callModule(request);
+    if (uploadItems.count()) {
+        request = m_proxyConnection->createRequest(IRequest::POST, "server", "sync/upload_changes", -1, this);
+        request->setPostBody(uploadItems);
+        m_proxyConnection->callModule(request);
+    }
 }

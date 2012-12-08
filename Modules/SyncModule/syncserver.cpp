@@ -30,8 +30,12 @@ QVariantList SyncServer::updates(const QVariantMap &clientRecordNumbers, bool sy
     IDatabaseSelectQuery *query = m_proxyConnection->databaseSelect("client_sync_records", &parent);
     if (!syncAllGroups) {
         IDatabaseSelectQueryWhereGroup *baseOr = query->whereGroup(IDatabaseSelectQuery::Or);
-        foreach (QString groupId, clientRecordNumbers.keys())
-            baseOr->where("group_id", groupId.toInt());
+        foreach (QString groupId, clientRecordNumbers.keys()) {
+            if (groupId.isNull())
+                baseOr->where("group_id", NULL, IDatabaseSelectQuery::Is);
+            else
+                baseOr->where("group_id", groupId.toInt());
+        }
     }
 
     IDatabaseSelectQuery *journalQuery = m_proxyConnection->databaseSelect("sync_journal", &parent);
@@ -42,7 +46,11 @@ QVariantList SyncServer::updates(const QVariantMap &clientRecordNumbers, bool sy
 
         do {
             IDatabaseSelectQueryWhereGroup *clientGroupAnd = journalOr->whereGroup(IDatabaseSelectQuery::And);
-            clientGroupAnd->where("group_id", query->value("group_id"));
+            if (query->value("group_id").isNull())
+                clientGroupAnd->where("group_id", NULL, IDatabaseSelectQuery::Is);
+            else
+                clientGroupAnd->where("group_id", query->value("group_id"));
+
             clientGroupAnd->where("client_id", query->value("client_id"));
 
             QString groupId = query->value("group_id").toString();
@@ -114,8 +122,8 @@ void SyncServer::saveAndApplyUpdates(const QVariantList &changes)
     QMap<QString, int> currentLastRecordsMap;
     while (query->next()) {
         currentLastRecordsMap.insert(QString("%1-%2")
-                             .arg(query->value("group_id").toInt())
-                             .arg(query->value("client_id").toInt()),
+                             .arg(query->value("group_id").toString())
+                             .arg(query->value("client_id").toString()),
                              query->value("last_client_rec_num").toInt());
     }
 
@@ -124,8 +132,8 @@ void SyncServer::saveAndApplyUpdates(const QVariantList &changes)
     foreach (QVariant change, changes) {
         QVariantMap changeMap = change.toMap();
         QString key = QString("%1-%2")
-                .arg(changeMap.value("group_id").toInt())
-                .arg(changeMap.value("client_id").toInt());
+                .arg(changeMap.value("group_id").toString())
+                .arg(changeMap.value("client_id").toString());
 
         /// Skip if there are newer items in sync journal
         if (currentLastRecordsMap.contains(key) &&
@@ -142,13 +150,19 @@ void SyncServer::saveAndApplyUpdates(const QVariantList &changes)
 
             /// Save to sync_journal
             IDatabaseUpdateQuery *updateQuery = update->createUpdateQuery("sync_journal", IDatabaseUpdateQuery::Insert);
-            updateQuery->setColumnValue("client_id", changeMap.value("client_id").toInt());
+
+            if (!changeMap.value("client_id").isNull())
+                updateQuery->setColumnValue("client_id", changeMap.value("client_id").toInt());
+
             updateQuery->setColumnValue("client_rec_num", clientRecNum);
             updateQuery->setColumnValue("content", changeMap.value("content").toString());
+
             if (!changeMap.value("group_id").isNull())
                 updateQuery->setColumnValue("group_id", changeMap.value("group_id").toInt());
+
             if (!changeMap.value("sync_with").isNull())
                 updateQuery->setColumnValue("sync_with", changeMap.value("sync_with").toInt());
+
             updateQuery->setUpdateDates(IDatabaseUpdateQuery::DateCreated);
 
             /// Apply update
@@ -167,15 +181,17 @@ void SyncServer::saveAndApplyUpdates(const QVariantList &changes)
     /// Update client_sync_records
     foreach (QString key, lastRecords.keys()) {
         QStringList split = key.split("-");
-        int groupId = split.first().toInt();
-        int clientId = split.last().toInt();
+        QString groupId = split.first();
+        QString clientId = split.last();
 
         IDatabaseUpdate *update = m_proxyConnection->databaseUpdate(&parent);
         update->setSync(false);
 
         IDatabaseUpdateQuery *updateQuery = update->createUpdateQuery("client_sync_records", IDatabaseUpdateQuery::Detect);
-        updateQuery->setColumnValue("client_id", clientId);
-        updateQuery->setColumnValue("group_id", groupId);
+        if (!clientId.isEmpty())
+            updateQuery->setColumnValue("client_id", clientId.toInt());
+        if (!groupId.isEmpty())
+            updateQuery->setColumnValue("group_id", groupId.toInt());
         updateQuery->setColumnValue("last_client_rec_num", lastRecords.value(key));
 
         update->execute();

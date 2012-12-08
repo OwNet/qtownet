@@ -14,7 +14,7 @@ public:
     explicit ArtificialRequest(IRequest::RequestType requestType, const QString &module, const QString &action = QString(), int id = -1, QObject *parent = 0);
 
     QVariant postBodyFromJson(bool *ok = NULL) const { return m_postBody; }
-    void setPostBody(const QVariantMap &body) { m_postBody = body; }
+    void setPostBody(const QVariant &body) { m_postBody = body; }
 
     IRequest::RequestType requestType() const { return m_requestType; }
 

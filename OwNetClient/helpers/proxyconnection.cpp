@@ -54,6 +54,9 @@ QVariant ProxyConnection::fromJson(const QByteArray &content, bool *ok) const
 
 QByteArray ProxyConnection::toJson(const QVariant &content) const
 {
+    if (content.isNull())
+        return QString("{}").toUtf8();
+
     QJson::Serializer serializer;
     return serializer.serialize(content);
 }
