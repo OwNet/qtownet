@@ -11,6 +11,7 @@
 #include <QDebug>
 #include <QEventLoop>
 #include <QBuffer>
+#include <QStringList>
 
 ClientServiceCall::ClientServiceCall(IProxyConnection *proxyConnection, QObject *parent) :
     QObject(parent),
@@ -18,9 +19,9 @@ ClientServiceCall::ClientServiceCall(IProxyConnection *proxyConnection, QObject 
 {
 }
 
-QVariant ClientServiceCall::callClientService(int clientId, IRequest *request)
+QVariant ClientServiceCall::callClientService(int clientId, const QString &apiUrl, IRequest *request)
 {
-    QUrlQuery urlQuery(QString("http://external.ownet/%1").arg(request->relativeUrl()));
+    QUrlQuery urlQuery(QString("http://external.ownet/api/%1").arg(apiUrl));
     /*foreach (QString key, parameters.keys()) {
         urlQuery.addQueryItem(key, parameters.value(key).toString());
     }*/

@@ -14,8 +14,7 @@ public:
     explicit ClientService(IProxyConnection *proxyConnection, QObject *parent = 0);
 
     QString name() const { return "clients"; }
-
-    IResponse *processRequest(IBus *, IRequest *request);
+    void init(IRouter *router);
 
 private:
     IProxyConnection *m_proxyConnection;

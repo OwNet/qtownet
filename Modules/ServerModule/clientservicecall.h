@@ -16,7 +16,7 @@ class ClientServiceCall : public QObject
 public:
     explicit ClientServiceCall(IProxyConnection *proxyConnection, QObject *parent = 0);
 
-    QVariant callClientService(int clientId, IRequest *request);
+    QVariant callClientService(int clientId, const QString &apiUrl, IRequest *request);
 
 private:
     IProxyConnection *m_proxyConnection;

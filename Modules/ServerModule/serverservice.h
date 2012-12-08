@@ -14,8 +14,7 @@ public:
     ServerService(IProxyConnection *proxyConnection, QObject *parent = NULL);
 
     QString name() const { return "server"; }
-
-    IResponse *processRequest(IBus *, IRequest *request);
+    void init(IRouter *router);
 
 private:
     IProxyConnection *m_proxyConnection;

@@ -2,6 +2,7 @@
 
 #include "irequest.h"
 #include "clientservicecall.h"
+#include "irouter.h"
 
 #include <QStringList>
 
@@ -11,7 +12,17 @@ ClientService::ClientService(IProxyConnection *proxyConnection, QObject *parent)
 {
 }
 
-IResponse *ClientService::processRequest(IBus *, IRequest *request)
+void ClientService::init(IRouter *router)
 {
-    return request->response(ClientServiceCall(m_proxyConnection).callClientService(0, request));
+    router->setDefaultRoute(DEFAULT_ROUTE_FN {
+        QStringList urlSplit = req->relativeUrl().split("/");
+        if (urlSplit.isEmpty()) return req->response();
+        urlSplit.takeFirst();
+        if (urlSplit.isEmpty()) return req->response();
+        urlSplit.takeFirst();
+        if (urlSplit.isEmpty()) return req->response();
+        int id = urlSplit.takeFirst().toInt();
+
+        return req->response(ClientServiceCall(m_proxyConnection).callClientService(id, urlSplit.join("/"), req));
+    });
 }
