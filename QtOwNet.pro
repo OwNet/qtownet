@@ -5,5 +5,4 @@ SUBDIRS += \
     Modules \
     Tests
 
-INCLUDEPATH += "helpers/qjson/"
 

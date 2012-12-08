@@ -1,12 +1,9 @@
 TEMPLATE = subdirs
 
 SUBDIRS += \
+    PortalModule \
     SampleModule \
-    PrefetchingModule \
-    SessionModule \
-    UsersModule \
-    GroupsModule \
-    RecommendationsModule \
-    MessagesModule \
-    RatingsModule \
-    SyncModule
+#    PrefetchingModule \
+#    RecommendationsModule \
+#    SyncModule \
+#    ServerModule

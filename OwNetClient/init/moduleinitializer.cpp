@@ -1,6 +1,5 @@
 #include "moduleinitializer.h"
 
-#include "proxyrequestbus.h"
 #include "imodule.h"
 #include "irestservice.h"
 #include "iservice.h"
@@ -28,21 +27,6 @@ void ModuleInitializer::init()
 void ModuleInitializer::initModule(IModule *module)
 {
     module->init(new ProxyConnection(this));
-
-    QList<IService *> *services = module->services();
-    if (services)
-        foreach (IService *service, *services)
-            ProxyRequestBus::registerModule(new RequestRouter(service, this));
-
-    QList<IRestService *> *restServices = module->restServices();
-    if (restServices)
-        foreach (IRestService *service, *restServices)
-            ProxyRequestBus::registerModule(new RequestRouter(service, this));
-
-    QList<IJobAction *> *jobs = module->jobs();
-    if (jobs)
-        foreach (IJobAction *jobAction, *jobs)
-            new ModuleJob(jobAction, this);
 }
 
 void ModuleInitializer::loadPlugins()

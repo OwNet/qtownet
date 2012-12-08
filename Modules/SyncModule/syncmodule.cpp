@@ -1,18 +1,11 @@
 #include "syncmodule.h"
 
+#include "iproxyconnection.h"
 #include "syncjob.h"
 #include "syncserver.h"
 
 void SyncModule::init(IProxyConnection *proxyConnection)
 {
     m_proxyConnection = proxyConnection;
-    SyncServer::instance()->setProxyConnection(m_proxyConnection);
+    proxyConnection->registerJob( new SyncJob(proxyConnection,this) );
 }
-
-QList<IJobAction *> *SyncModule::jobs()
-{
-    QList<IJobAction *> *jobs = new QList<IJobAction *>;
-    jobs->append(new SyncJob(m_proxyConnection, this));
-    return jobs;
-}
-

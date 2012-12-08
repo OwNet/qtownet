@@ -5,13 +5,17 @@
 
 class IBus;
 class IRequest;
+class IResponse;
+class IRouter;
 
 class IService
 {
 public:
     virtual QString name() const = 0;
 
-    virtual QByteArray *processRequest(IBus *bus, IRequest *req) = 0;
+    virtual void init(IRouter* router){}
+
+    virtual IResponse *processRequest(IBus *bus, IRequest *req){ return NULL; }
 };
 
 #endif // ISERVICES_H

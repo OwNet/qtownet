@@ -13,13 +13,6 @@ class IBus
 {
 
 public:
-    /**
-     * @brief CallModule to enable calls between modules
-     * @param req
-     * @return response byte array
-     */
-    virtual QVariant *callModule(IRequest *req) = 0;
-
     virtual QString contentType() const = 0;
     virtual void setContentType(const QString &value) = 0;
 

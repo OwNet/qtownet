@@ -1,7 +1,7 @@
 #include "databaseupdate.h"
 
 #include "databasesettings.h"
-#include "qjson/serializer.h"
+#include "jsondocument.h"
 
 #include <QDebug>
 
@@ -74,8 +74,7 @@ void DatabaseUpdate::saveToJournal()
 
     QVariantList content;
     foreach (IDatabaseUpdateQuery *query, m_updateQueries)
-        content.append(query->content());
-    QJson::Serializer serializer;
+        content.append(query->content());    
 
     DatabaseUpdate update(false);
     IDatabaseUpdateQuery *query = update.createUpdateQuery("sync_journal", IDatabaseUpdateQuery::Insert);
@@ -83,7 +82,7 @@ void DatabaseUpdate::saveToJournal()
 
     query->setColumnValue("client_id", DatabaseSettings().clientId());
     query->setColumnValue("client_rec_num", DatabaseSettings().nextClientSyncRecordNumber());
-    query->setColumnValue("content", serializer.serialize(content));
+    query->setColumnValue("content", JsonDocument::fromVariantList(content).toJson());
     if (m_syncWith != -1)
         query->setColumnValue("sync_with", m_syncWith);
     if (m_groupId != -1)

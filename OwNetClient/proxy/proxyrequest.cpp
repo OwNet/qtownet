@@ -1,7 +1,8 @@
 #include "proxyrequest.h"
+#include "response.h"
 
 #include "messagehelper.h"
-#include "qjson/parser.h"
+#include "jsondocument.h"
 
 #include <QNetworkRequest>
 #include <QStringList>
@@ -11,7 +12,7 @@
 
 ProxyRequest::ProxyRequest(QTcpSocket *socket, QObject *parent)
     : QObject(parent),
-      m_id(-1),
+      // m_id(-1),
       m_hashCode(-1),
       m_isApiRequest(false),
       m_socket(socket)
@@ -55,10 +56,6 @@ bool ProxyRequest::readFromSocket()
             }
         }
     }
-//    for (int i = 0; i < m_requestHeaders.count(); ++i) {
-
-//        qDebug() << m_requestHeaders.at(i).first << m_requestHeaders.at(i).second;
-//    }
 
     analyzeUrl();
 
@@ -86,16 +83,21 @@ ProxyRequest::RequestType ProxyRequest::requestType() const
  * @brief Reads the body of the request as a JSON
  * @return Return the request body as QVariantMap
  */
-QVariantMap ProxyRequest::postBodyFromJson() const
+QVariant ProxyRequest::postBodyFromJson(bool *ok) const
 {
     QVariantMap result;
     if(requestType() != POST && requestType() != PUT)
         return result;
 
-    bool ok;
-    QJson::Parser parser;
-    result = parser.parse(m_requestBody, &ok).toMap();
-    return result;
+    QJsonParseError err;
+    JsonDocument json = JsonDocument::fromJson(m_requestBody, &err);
+
+    *ok = (err.error == QJsonParseError::NoError);
+
+    if ( !(*ok) )
+        return result;
+
+    return json.toVariant();
 }
 
 /**
@@ -157,6 +159,14 @@ QString ProxyRequest::requestContentType(const QString &defaultContentType, cons
     return defaultContentType.isEmpty() ? "application/octet-stream" : defaultContentType;
 }
 
+QString ProxyRequest::relativeUrl() const
+{
+    QString path = m_qUrl.path(QUrl::FullyEncoded);
+    if (path.startsWith('/'))
+        path.remove(0, 1);
+    return path;
+}
+
 /**
  * @brief Returns path to the requested static file.
  * @return Path to the requested static file
@@ -166,13 +176,18 @@ QString ProxyRequest::staticResourcePath() const
     if (isStaticResourceRequest())
     {
         if (!subDomain().isEmpty()) {
-            QString murl = relativeUrl();
-
             return QString ("static/%1/%2").arg(subDomain()).arg(relativeUrl());
         }
         return QString("static/%1").arg(relativeUrl());
     }
     return "";
+}
+
+bool ProxyRequest::isLocalRequest() const
+{
+    if (m_domain == "ownet")
+        return true;
+    return false;
 }
 
 /**
@@ -182,6 +197,21 @@ QString ProxyRequest::staticResourcePath() const
 bool ProxyRequest::isStaticResourceRequest() const
 {
     return isLocalRequest() && !isApiRequest();
+}
+
+IResponse *ProxyRequest::response()
+{
+    return new Response();
+}
+
+IResponse *ProxyRequest::response(const QVariant body, IResponse::Status status)
+{
+    return (new Response())->setBody(body)->setStatus(status);
+}
+
+IResponse *ProxyRequest::response(IResponse::Status status)
+{
+    return (new Response())->setStatus(status);
 }
 
 /**
@@ -220,19 +250,19 @@ void ProxyRequest::analyzeUrl()
             m_isApiRequest = true;
 
             if (split.count()) {
-                m_module = split.takeFirst();
+                m_service = split.takeFirst();
 
-                if (split.count()) {
-                    QString idOrAction = split.first();
-                    bool ok;
-                    int id = idOrAction.toInt(&ok);
-                    if (ok) {
-                        m_id = id;
-                        split.takeFirst();
-                    }
-                    if (split.count())
-                        m_action = split.join("/");
-                }
+//                if (split.count()) {
+//                    QString idOrAction = split.first();
+//                    bool ok;
+//                    int id = idOrAction.toInt(&ok);
+//                    if (ok) {
+//                        m_id = id;
+//                        split.takeFirst();
+//                    }
+//                    if (split.count())
+//                        m_action = split.join("/");
+//                }
             }
         }
     }
