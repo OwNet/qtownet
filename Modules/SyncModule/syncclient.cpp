@@ -17,29 +17,37 @@ SyncClient::SyncClient(IProxyConnection *proxyConnection, QObject *parent) :
 void SyncClient::update()
 {
     QObject parent;
-    IRequest *request = m_proxyConnection->createRequest(IRequest::POST, "server", "sync/get_updates", -1, this);
+    SyncServer server(m_proxyConnection);
 
     QVariantMap body;
     body.insert("client_id", m_proxyConnection->databaseSettings(this)->value("client_id"));
     body.insert("sync_all_groups", true);
+    body.insert("client_record_numbers", server.clientRecordNumbers());
 
-    QVariantMap clientRecordNumbers;
-    IDatabaseSelectQuery *query = m_proxyConnection->databaseSelect("client_sync_records", &parent);
-    while (query->next()) {
-        QVariantMap groupClients;
-        if (clientRecordNumbers.contains(query->value("group_id").toString()))
-            groupClients = clientRecordNumbers.value(query->value("group_id").toString()).toMap();
-
-        groupClients.insert(query->value("client_id").toString(), query->value("last_client_rec_num").toInt());
-        clientRecordNumbers.insert(query->value("group_id").toString(), groupClients);
-    }
-    body.insert("client_record_numbers", clientRecordNumbers);
-
+    IRequest *request = m_proxyConnection->createRequest(IRequest::POST, "server", "sync/get_updates", -1, this);
     request->setPostBody(body);
     QVariant *response = m_proxyConnection->callModule(request);
     if (!response)
         return;
 
+    server.saveAndApplyUpdates(response->toList());
+}
+
+/**
+ * @brief Send new updates to server.
+ */
+void SyncClient::reportToServer()
+{
+    IRequest *request = m_proxyConnection->createRequest(IRequest::POST, "server", "sync/available_records", -1, this);
+    QVariant *response = m_proxyConnection->callModule(request);
+    if (!response)
+        return;
+
+    QVariantMap currentItemsOnServer = response->toMap();
     SyncServer server(m_proxyConnection);
-    server.saveAndApplyReceivedUpdates(response->toList());
+    QVariantList uploadItems = server.updates(currentItemsOnServer, true, 0);
+
+    request = m_proxyConnection->createRequest(IRequest::POST, "server", "sync/upload_changes", -1, this);
+    request->setPostBody(uploadItems);
+    m_proxyConnection->callModule(request);
 }

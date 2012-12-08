@@ -14,6 +14,7 @@ public:
     explicit ArtificialRequest(IRequest::RequestType requestType, const QString &module, const QString &action = QString(), int id = -1, QObject *parent = 0);
 
     QVariant postBodyFromJson(bool *ok = NULL) const { return m_postBody; }
+    void setPostBody(const QVariantMap &body) { m_postBody = body; }
 
     IRequest::RequestType requestType() const { return m_requestType; }
 
@@ -25,8 +26,6 @@ public:
     QString parameterValue(const QString &key) const { return m_parameters.value(key); }
     void setParamater(const QString &key, const QString &value) { m_parameters.insert(key, value); }
 
-    void setPostBody(const QVariantMap &body) { m_postBody = body; }
-
 private:
     int m_id;
     QString m_action;
@@ -34,7 +33,7 @@ private:
     QString m_submodule;
     RequestType m_requestType;
     QMap<QString, QString> m_parameters;
-    QVariantMap m_postBody;
+    QVariant m_postBody;
 };
 
 #endif // ARTIFICIALREQUEST_H

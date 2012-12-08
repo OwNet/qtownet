@@ -15,6 +15,7 @@ public:
     };
 
     virtual QVariant postBodyFromJson(bool *ok = NULL) const = 0;
+    virtual void setPostBody(const QVariant &) {}
 
     virtual IRequest::RequestType requestType() const = 0;
 
@@ -26,8 +27,6 @@ public:
 
     virtual QString parameterValue(const QString &key) const = 0;
     virtual void setParamater(const QString &, const QString &) {}
-
-    virtual void setPostBody(const QVariantMap &) {}
 };
 
 #endif // IREQUEST_H

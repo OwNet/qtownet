@@ -17,7 +17,7 @@ public:
     QVariant *processRequest(IBus *bus, IRequest *request);
 
     QVariant *getUpdates(IBus *, IRequest *request);
-    QVariant *getChangesToUpload(IBus *, IRequest *request);
+    QVariant *availableRecords(IBus *, IRequest *);
     QVariant *uploadChanges(IBus *, IRequest *request);
 
 private:

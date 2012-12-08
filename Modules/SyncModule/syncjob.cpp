@@ -15,7 +15,9 @@ void SyncJob::execute()
     if (!m_syncMutex.tryLock())
         return;
 
-    SyncClient(m_proxyConnection).update();
+    SyncClient client(m_proxyConnection);
+    client.reportToServer();
+    client.update();
 
     m_syncMutex.unlock();
 }

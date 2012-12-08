@@ -12,6 +12,7 @@ public:
     explicit SyncClient(IProxyConnection *proxyConnection, QObject *parent = 0);
 
     void update();
+    void reportToServer();
 
 private:
     IProxyConnection *m_proxyConnection;
