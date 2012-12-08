@@ -11,6 +11,7 @@ SyncJob::SyncJob(IProxyConnection *proxyConnection, QObject *parent) :
 
 void SyncJob::execute()
 {
+    return;
     if (!m_syncMutex.tryLock())
         return;
 

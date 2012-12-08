@@ -13,6 +13,7 @@ class SyncService : public QObject, public IRestService
 public:
     explicit SyncService(IProxyConnection *proxyConnection, QObject *parent = 0);
 
+    virtual QString name() const { return "sync"; }
     QVariant *processRequest(IBus *bus, IRequest *request);
 
     QVariant *getUpdates(IBus *, IRequest *request);

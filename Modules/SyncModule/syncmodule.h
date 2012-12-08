@@ -14,6 +14,7 @@ class SyncModule : public QObject, public IModule
 public:
     void init(IProxyConnection *proxyConnection);
     QList<IJobAction *> *jobs();
+    QList<IRestService *> *restServices();
 
 private:
     IProxyConnection *m_proxyConnection;

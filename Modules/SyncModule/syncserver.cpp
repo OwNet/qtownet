@@ -174,13 +174,15 @@ void SyncServer::saveAndApplyReceivedUpdates(const QVariantList &changes)
                 updateQuery->setColumnValue("group_id", changeMap.value("group_id").toInt());
             if (!changeMap.value("sync_with").isNull())
                 updateQuery->setColumnValue("sync_with", changeMap.value("sync_with").toInt());
-            updateQuery->setUpdateDates(IDatabaseUpdateQuery::DateUpdated);
+            updateQuery->setUpdateDates(IDatabaseUpdateQuery::DateCreated);
 
             // Apply update
-            update->createUpdateQuery(json.toMap());
+            QVariantList updateQueries = json.toList();
+            foreach (QVariant updateQuery, updateQueries) {
+                update->createUpdateQuery(updateQuery.toMap());
+            }
 
             update->execute();
-            delete update;
 
             if (!lastRecords.contains(key) || lastRecords.value(key) < clientRecNum)
                 lastRecords.insert(key, clientRecNum);
@@ -202,6 +204,5 @@ void SyncServer::saveAndApplyReceivedUpdates(const QVariantList &changes)
         updateQuery->setColumnValue("last_client_rec_num", lastRecords.value(key));
 
         update->execute();
-        delete update;
     }
 }
