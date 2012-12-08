@@ -5,6 +5,7 @@
 #include "idatabaseupdate.h"
 #include "iproxyconnection.h"
 #include "isession.h"
+#include "irouter.h"
 
 #include <QDebug>
 #include <QSqlQuery>
@@ -16,6 +17,27 @@ GroupsService::GroupsService(IProxyConnection *proxyConnection, QObject *parent)
     QObject(parent),
     m_proxyConnection(proxyConnection)
 {
+}
+
+void GroupsService::init(IRouter *router)
+{
+    router->addRoute("/approveUser")->on(IRequest::POST, ROUTE(approveUser) );
+    router->addRoute("/joinGroup")->on(IRequest::POST, ROUTE(joinGroup) );
+    router->addRoute("/addAdmin")->on(IRequest::POST, ROUTE(addAdmin) );
+    router->addRoute("/getUsersGroups")->on(IRequest::POST, ROUTE(getUsersGroups) );
+    router->addRoute("/getApprovements")->on(IRequest::POST, ROUTE(getApprovements) );
+    router->addRoute("/getGroupUsers")->on(IRequest::POST, ROUTE(getGroupUsers) );
+    router->addRoute("/deleteUser")->on(IRequest::POST, ROUTE(deleteUser) );
+    router->addRoute("/getGroupTypes")->on(IRequest::POST, ROUTE(getGroupTypes) );
+
+    router->addRoute("/isMember")->on(IRequest::POST, ROUTE_FN {
+        return new QVariant(this->isMember(req->parameterValue("user_id").toInt(),req->parameterValue("group_id").toInt()));
+    });
+
+
+    router->addRoute("/isAdmin")->on(IRequest::POST, ROUTE_FN {
+        return new QVariant(this->isAdmin(req->parameterValue("user_id").toInt(),req->parameterValue("group_id").toInt()));
+    });
 }
 
 bool GroupsService::isMember(int user_id, int group_id)
@@ -252,7 +274,7 @@ QVariant* GroupsService::show(IBus *bus, IRequest *req, int id)
     QSqlQuery query;
 
     query.prepare("SELECT * FROM groups WHERE id = :id");
-    query.bindValue(":id",req->id());
+    query.bindValue(":id",id);
 
     if( query.exec()) {
         QVariantList groupDetail;
@@ -284,7 +306,7 @@ QVariant* GroupsService::show(IBus *bus, IRequest *req, int id)
             QSqlQuery q_inner_groups;
 
             q_inner_groups.prepare("SELECT * FROM groups WHERE parent = :id");
-            q_inner_groups.bindValue(":id",req->id());
+            q_inner_groups.bindValue(":id",id);
 
             if(!q_inner_groups.exec()){
                 bus->setHttpStatus(500,"Internal Server error");
@@ -431,47 +453,6 @@ QVariant* GroupsService::del(IBus *bus, IRequest *req, int id)
             bus->setHttpStatus(400, "Bad Request");
             return new QVariant;
      }
-
-}
-
-
-QVariant* GroupsService::processRequest(IBus *bus, IRequest *req)
-{
-
-    if(req->action() == "approveUser")
-        return this->approveUser(bus, req);
-
-    if(req->action() == "joinGroup")
-        return this->joinGroup(bus, req);
-
-    if(req->action() == "addAdmin")
-        return this->addAdmin(bus, req);
-
-    if(req->action() == "getUsersGroups")
-        return this->getUsersGroups(bus, req);
-
-    if(req->action() == "getApprovements")
-        return this->getApprovements(bus, req);
-
-    if(req->action() == "getGroupUsers")
-        return this->getGroupUsers(bus, req);
-
-    if(req->action() == "deleteUser")
-        return this->deleteUser(bus, req);
-
-    if(req->action() == "getGroupTypes")
-        return this->getGroupTypes(bus, req);
-
-
-
-    if(req->action() == "isMember")
-        return new QVariant(this->isMember(req->parameterValue("user_id").toInt(),req->parameterValue("group_id").toInt()));
-
-    if(req->action() == "isAdmin"){
-        return new QVariant(this->isAdmin(req->parameterValue("user_id").toInt(),req->parameterValue("group_id").toInt()));
-    }
-
-    return NULL;
 
 }
 
