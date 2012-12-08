@@ -4,6 +4,7 @@
 #include <QObject>
 
 #include "irestservice.h"
+#include "iresponse.h"
 
 class IProxyConnection;
 
@@ -14,8 +15,8 @@ public:
     SessionService(IProxyConnection *proxyConnection, QObject *parent = NULL);
 
     QString name() const { return "session"; }
-    QVariant *create(IBus *bus, IRequest *req);
-    QVariant *del(IBus *bus, IRequest *, int id);
+    IResponse *create(IRequest *req);
+    IResponse *del(IRequest *req, int id);
 
 private:
     IProxyConnection *m_proxyConnection;

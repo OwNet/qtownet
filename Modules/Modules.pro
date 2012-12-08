@@ -2,7 +2,7 @@ TEMPLATE = subdirs
 
 SUBDIRS += \
     PortalModule \
-#    SampleModule \
+    SampleModule \
 #    PrefetchingModule \
 #    RecommendationsModule \
 #    SyncModule \

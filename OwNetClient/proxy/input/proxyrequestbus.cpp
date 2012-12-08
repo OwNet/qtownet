@@ -6,7 +6,9 @@
 #include "databaseupdate.h"
 #include "settings.h"
 #include "requestrouter.h"
+#include "iresponse.h"
 #include "jsondocument.h"
+#include "listofstringpairs.h"
 
 #include <QBuffer>
 #include <QVariantList>
@@ -14,16 +16,12 @@
 
 ProxyRequestBus::ProxyRequestBus(ProxyRequest *request, QObject *parent)
     : ProxyInputObject(request, parent), m_request(request)
-{
-    m_httpStatusCode = QString::number(200);
-    m_httpStatusDescription = "OK";
-
-    addHeader("Content-type", m_request->requestContentType("application/json"));
+{    
 }
 
 void ProxyRequestBus::readRequest()
 {
-    QVariant* response = RequestRouter::processRequest(this, m_request);
+    IResponse* response = RequestRouter::processRequest(m_request);
     QByteArray* byteResponse = processResponse(response);
 
     QBuffer *buffer = new QBuffer( byteResponse );
@@ -32,26 +30,40 @@ void ProxyRequestBus::readRequest()
     emit finished();
 }
 
-QByteArray *ProxyRequestBus::processResponse(const QVariant *response)
+QByteArray *ProxyRequestBus::processResponse(IResponse *response)
 {        
-    QByteArray *result = NULL;    
+    QByteArray *result = NULL;        
 
     if (response == NULL)
         return NULL;
 
-    switch (response->type()) {
+    setHttpStatusCode(response->status());
+    setHttpStatusDescription(response->statusMessage());
+
+    auto headers = response->headers();
+    QList<QString> keys = headers.keys();
+
+    for (int i = 0; i < keys.count(); ++i)
+        addHeader(keys[i], headers.value(keys[i]));
+
+    QVariant body = response->body();
+
+    if (body.isNull())
+        return NULL;
+
+    switch (body.type()) {
 
     case QMetaType::QVariantList:
     case QMetaType::QVariantMap:
-        result = new QByteArray(JsonDocument::fromVariant(*response).toJson());
+        result = new QByteArray(JsonDocument::fromVariant(body).toJson());
         break;
 
     case QMetaType::QByteArray:
-        result = new QByteArray(response->toByteArray());
+        result = new QByteArray(body.toByteArray());
         break;
 
     case QMetaType::QJsonDocument:
-        result = new QByteArray(JsonDocument( response->toJsonDocument() ).toJson());
+        result = new QByteArray(JsonDocument( body.toJsonDocument() ).toJson());
         break;
 
     default:
@@ -60,15 +72,4 @@ QByteArray *ProxyRequestBus::processResponse(const QVariant *response)
     }
 
     return result;
-}
-
-void ProxyRequestBus::setContentType(const QString &value)
-{
-    ProxyInputObject::setContentType(value);
-}
-
-void ProxyRequestBus::setHttpStatus(int code, const QString &description)
-{
-    setHttpStatusCode(code);
-    setHttpStatusDescription(description);
 }

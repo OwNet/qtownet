@@ -55,6 +55,10 @@ public:
 
     QTcpSocket *socket() const { return m_socket; }
 
+    IResponse* response();
+    IResponse* response(const QVariant body, IResponse::Status status = IResponse::OK);
+    IResponse* response(IResponse::Status status);
+
 private:
     QString urlExtension() const;
     void analyzeUrl();

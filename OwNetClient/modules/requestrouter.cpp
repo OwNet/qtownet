@@ -17,19 +17,34 @@ void RequestRouter::addService(IRestService *service)
     m_services->insert(service->name(), new RequestRouter(service) );
 }
 
-QVariant* RequestRouter::processRequest(IBus *bus, IRequest *req)
+IResponse* RequestRouter::processRequest(IRequest *req)
 {
     RequestRouter* router;
     QString serviceName = req->service();
 
     if (m_services->contains(serviceName)) {
         router = m_services->value(serviceName);
-        return router->routeRequest(bus,req);
+        return router->routeRequest(req);
     }
     else {
-        bus->setHttpStatus(404,"Not Found");
-        return NULL;
+        return req->response(IResponse::NOT_FOUND);
     }
+}
+
+IService *RequestRouter::getSerivce(const QString name)
+{
+    if (m_services->contains(name))
+        return m_services->value(name)->serivce();
+    else
+        return NULL;
+}
+
+IRestService *RequestRouter::getRestSerivce(const QString name)
+{
+    if (m_services->contains(name))
+        return m_services->value(name)->restSerivce();
+    else
+        return NULL;
 }
 
 RequestRouter::RequestRouter(IService *service, QObject *parent)
@@ -59,7 +74,7 @@ RequestRouter::RequestRouter(IRestService *service, QObject *parent)
     service->init(this);
 }
 
-QVariant* RequestRouter::routeRequest(IBus *bus, IRequest *req) const
+IResponse* RequestRouter::routeRequest(IRequest *req) const
 {
     int size = m_routes.size();
     IRequest::RequestType method = req->requestType();
@@ -78,21 +93,17 @@ QVariant* RequestRouter::routeRequest(IBus *bus, IRequest *req) const
         if (  match.hasMatch() ) {
 
             if ( route->callbacks()->contains(method) )
-                return route->callbacks()->value(method)(bus, req, match);
+                return route->callbacks()->value(method)(req, match);
             else {
-                bus->setHttpStatus(405, "Method Not Allowed");
-                return NULL;
+                req->response(IResponse::METHOD_NOT_ALLOWED);
             }
         }
     }
 
-
     if (m_hasDefaultRoute)
-        return m_defaultRoute(bus,req);
+        return m_defaultRoute(req);
 
-
-    bus->setHttpStatus(404, "Not Found");
-    return NULL;
+    return req->response(IResponse::NOT_FOUND);
 }
 
 Route* RequestRouter::addRoute(QString url)

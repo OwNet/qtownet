@@ -5,7 +5,7 @@
 
 class IBus;
 class IRequest;
-class QVariant;
+class IResponse;
 class IRouter;
 
 class IService
@@ -15,7 +15,7 @@ public:
 
     virtual void init(IRouter* router){}
 
-    virtual QVariant *processRequest(IBus *bus, IRequest *req){ return NULL; }
+    virtual IResponse *processRequest(IBus *bus, IRequest *req){ return NULL; }
 };
 
 #endif // ISERVICES_H

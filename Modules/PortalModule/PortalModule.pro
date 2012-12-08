@@ -9,19 +9,18 @@ INCLUDEPATH    += ../../OwNetClient/modules/interfaces
 
 SOURCES        += portalmodule.cpp \
     usersservice.cpp \
-    groupsservice.cpp \
+#    groupsservice.cpp \
     sessionservice.cpp \
-    messagesservice.cpp \
-    ratingsservice.cpp
+#    messagesservice.cpp \
+#    ratingsservice.cpp
 
 HEADERS        += portalmodule.h \
     usersservice.h \
-    groupsservice.h \
+#    groupsservice.h \
     sessionservice.h \
-    messagesservice.h \
-    ratingsservice.h
+#    messagesservice.h \
+#    ratingsservice.h
 
-TARGET          = $$qtLibraryTarget(ownet_samplemodule)
 macx:DESTDIR    = ../../OwNetClient/OwNetClient.app/Contents/MacOS/modules
 !macx:DESTDIR   = ../../OwNetClient/modules
 

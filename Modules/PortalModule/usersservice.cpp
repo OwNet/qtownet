@@ -1,6 +1,7 @@
 #include "usersservice.h"
 
 #include "irequest.h"
+#include "iresponse.h"
 #include "idatabaseupdate.h"
 #include "ibus.h"
 #include "iproxyconnection.h"
@@ -15,7 +16,7 @@ UsersService::UsersService(IProxyConnection *proxyConnection, QObject *parent) :
 {
 }
 
-QVariant *UsersService::index(IBus *bus, IRequest *)
+IResponse *UsersService::index(IRequest * req)
 {
     QSqlQuery query;
 
@@ -32,16 +33,13 @@ QVariant *UsersService::index(IBus *bus, IRequest *)
             users.append(user);
         }
 
-        bus->setHttpStatus(200, "OK");
-        return new QVariant(users);
+        return req->response(QVariant(users));
     }
     else
-        bus->setHttpStatus(400,"Bad Request");
-
-    return new QVariant;
+        return req->response(IResponse::BAD_REQUEST);
 }
 
-QVariant *UsersService::show(IBus *bus, IRequest *req, int id)
+IResponse *UsersService::show(IRequest *req, int id)
 {
     QSqlQuery query;
 
@@ -52,8 +50,6 @@ QVariant *UsersService::show(IBus *bus, IRequest *req, int id)
 
         if (query.first()) {
 
-            bus->setHttpStatus(200, "OK");
-
             QVariantMap user;
             user.insert("id", query.value(query.record().indexOf("id")));
             user.insert("first_name", query.value(query.record().indexOf("first_name")));
@@ -61,15 +57,14 @@ QVariant *UsersService::show(IBus *bus, IRequest *req, int id)
             user.insert("login", query.value(query.record().indexOf("login")));
             user.insert("email", query.value(query.record().indexOf("email")));
 
-            return new QVariant(user);
+            return req->response( QVariant(user) );
         }
     }
 
-    bus->setHttpStatus(400,"Bad Request");
-    return new QVariant;
+    return req->response(IResponse::BAD_REQUEST);
 }
 
-QVariant *UsersService::create(IBus *bus, IRequest *req)
+IResponse *UsersService::create(IRequest *req)
 {
     bool ok = false;
     QVariantMap reqJson = req->postBodyFromJson(&ok).toMap();
@@ -86,12 +81,11 @@ QVariant *UsersService::create(IBus *bus, IRequest *req)
     q_check.bindValue(":login",login);
     q_check.exec();
 
-    if(q_check.first()){
-        bus->setHttpStatus(409, "Conflict");
+    if(q_check.first()){        
         // create answer
         QVariantMap status;
-        status.insert("error", login);
-        return new QVariant(status);
+        status.insert("error", login);                
+        return req->response( QVariant(status), IResponse::CONFLICT );
     }
 
     QString last_name = reqJson["last_name"].toString();
@@ -118,21 +112,17 @@ QVariant *UsersService::create(IBus *bus, IRequest *req)
 
     int a = update->execute();
     if(!a)
-        bus->setHttpStatus(201, "Created");
+        return req->response(IResponse::CREATED);
     else
-        bus->setHttpStatus(400,"Bad Request");
-
-
-    // create answer
-    return new QVariant;
+        return req->response(IResponse::BAD_REQUEST);
 }
 
-QVariant *UsersService::edit(IBus *, IRequest *, int id)
-{
-    return new QVariant;
-}
+//IResponse *UsersService::edit(IRequest *, int id)
+//{
 
-QVariant *UsersService::del(IBus *bus, IRequest *req, int id)
-{
-    return new QVariant;
-}
+//}
+
+//IResponse *UsersService::del(IRequest *req, int id)
+//{
+
+//}

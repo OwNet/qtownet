@@ -7,27 +7,21 @@
 class RequestRouter;
 class ProxyRequest;
 class QIODevice;
+class IResponse;
 
-class ProxyRequestBus : public ProxyInputObject, public IBus
+class ProxyRequestBus : public ProxyInputObject
 {
     Q_OBJECT
 
 public:
     ProxyRequestBus(ProxyRequest *request, QObject *parent = 0);
 
-    const QString httpStatusCode() { return QString::number(200); }
-    const QString httpStatusDescription() { return "OK"; }
-
-    void setHttpStatus(int code, const QString &description);
-
-    QString contentType() const { return ProxyInputObject::contentType(); }
-    void setContentType(const QString &value);
-
 protected:
     void readRequest();
 
 private:
-    QByteArray* processResponse(const QVariant *response);
+    QByteArray* processResponse(IResponse *response);
+
     ProxyRequest *m_request;
 };
 

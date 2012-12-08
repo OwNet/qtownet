@@ -1,4 +1,5 @@
 #include "proxyrequest.h"
+#include "response.h"
 
 #include "messagehelper.h"
 #include "jsondocument.h"
@@ -196,6 +197,21 @@ bool ProxyRequest::isLocalRequest() const
 bool ProxyRequest::isStaticResourceRequest() const
 {
     return isLocalRequest() && !isApiRequest();
+}
+
+IResponse *ProxyRequest::response()
+{
+    return new Response();
+}
+
+IResponse *ProxyRequest::response(const QVariant body, IResponse::Status status)
+{
+    return (new Response())->setBody(body)->setStatus(status);
+}
+
+IResponse *ProxyRequest::response(IResponse::Status status)
+{
+    return (new Response())->setStatus(status);
 }
 
 /**

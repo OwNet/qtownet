@@ -6,6 +6,7 @@
 #include "irestservice.h"
 
 class IProxyConnection;
+class IResponse;
 
 class UsersService : public QObject, public IRestService
 {
@@ -15,11 +16,11 @@ public:
 
     QString name() const { return "users"; }
 
-    QVariant *index(IBus *bus, IRequest *);
-    QVariant *show(IBus *bus, IRequest *req, int id);
-    QVariant *create(IBus *bus, IRequest *req);
-    QVariant *edit(IBus *, IRequest *, int id);
-    QVariant *del(IBus *bus, IRequest *req, int id);
+    IResponse *index(IRequest *req);
+    IResponse *show(IRequest *req, int id);
+    IResponse *create(IRequest *req);
+//    IResponse *edit(IRequest *, int id);
+//    IResponse *del(IRequest *req, int id);
 
 private:
     IProxyConnection *m_proxyConnection;

@@ -52,7 +52,7 @@ QByteArray StubConnection::toJson(const QVariant &content) const
     return QByteArray();
 }
 
-QVariant *StubConnection::callModule(IRequest *req)
+IResponse *StubConnection::callModule(IRequest *req)
 {
     return NULL;
 }

@@ -6,13 +6,12 @@
 #include "databaseselectquery.h"
 #include "session.h"
 #include "artificialrequest.h"
-#include "artificialbus.h"
 #include "requestrouter.h"
 #include "jsondocument.h"
 #include "irestservice.h"
 #include "iservice.h"
 #include "ijobaction.h"
-#include "jobs/modulejob.h"
+#include "modulejob.h"
 
 ProxyConnection::ProxyConnection(QObject *parent) :
     QObject(parent)
@@ -86,8 +85,7 @@ void ProxyConnection::registerJob(IJobAction* job)
  * @param req
  * @return processedRequest from module in byte array
  */
-QVariant *ProxyConnection::callModule(IRequest *req)
-{
-    ArtificialBus bus;
-    return RequestRouter::processRequest(&bus,req);
+IResponse *ProxyConnection::callModule(IRequest *req)
+{    
+    return RequestRouter::processRequest(req);
 }

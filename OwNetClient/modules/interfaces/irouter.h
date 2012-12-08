@@ -3,10 +3,10 @@
 
 #include "iroute.h"
 
-#define ROUTE(func, rest...) [&](IBus *bus, IRequest *req, IRoute::Match params) -> QVariant* { return func(bus,req,##rest); }
+#define ROUTE(func, rest...) [&](IRequest *req, IRoute::Match params) -> IResponse* { return func(req,##rest); }
 #define INT(x) params.captured(#x).toInt()
 #define STR(x) params.captured(#x)
-#define ROUTE_FN [&](IBus *bus, IRequest *req, IRoute::Match params) -> QVariant*
+#define ROUTE_FN [&](IRequest *req, IRoute::Match params) -> IResponse*
 
 
 

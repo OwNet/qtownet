@@ -2,6 +2,7 @@
 #define IREQUEST_H
 
 #include <QVariantMap>
+#include "iresponse.h"
 
 class IRequest
 {
@@ -28,6 +29,10 @@ public:
     virtual QString parameterValue(const QString &key) const = 0;
     virtual void setParamater(const QString &, const QString &) {}
     virtual void setPostBody(const QVariantMap &) {}
+
+    virtual IResponse* response() = 0;
+    virtual IResponse* response(const QVariant body, IResponse::Status status = IResponse::OK) = 0;
+    virtual IResponse* response(IResponse::Status status) = 0;
 };
 
 #endif // IREQUEST_H

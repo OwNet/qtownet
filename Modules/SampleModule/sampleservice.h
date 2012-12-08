@@ -4,6 +4,7 @@
 #include <QObject>
 
 #include "irestservice.h"
+#include "iresponse.h"
 
 class IProxyConnection;
 
@@ -14,7 +15,7 @@ public:
     explicit SampleService(IProxyConnection *proxyConnection, QObject *parent = 0);
 
     QString name() const { return "sample"; }
-    QVariant *index(IBus *, IRequest *request);
+    IResponse *index(IRequest *req);
 };
 
 #endif // SERVICES_H

@@ -72,11 +72,11 @@ SOURCES += main.cpp\
     database/databaseselectqueryjoin.cpp \
     database/databaseselectquerywheregroup.cpp \
     database/databaseselectquerywhereexpression.cpp \
-    helpers/artificialbus.cpp \
     modules/route.cpp \
     helpers/jsondocument/jsondocument.cpp \
     helpers/jsondocument/qjsonwriter.cpp \
-    helpers/jsondocument/qjson.cpp
+    helpers/jsondocument/qjson.cpp \
+    modules/response.cpp
 
 
 
@@ -90,19 +90,7 @@ HEADERS  += view/mainwindow.h \
     proxy/input/proxyinputobject.h \
     proxy/input/proxywebinputobject.h \
     helpers/listofstringpairs.h \
-    proxy/input/proxystaticinputobject.h \
-    helpers/qjson/json_parser.hh \
-    helpers/qjson/json_scanner.h \
-    helpers/qjson/location.hh \
-    helpers/qjson/parser_p.h \
-    helpers/qjson/parser.h \
-    helpers/qjson/parserrunnable.h \
-    helpers/qjson/position.hh \
-    helpers/qjson/qjson_debug.h \
-    helpers/qjson/qobjecthelper.h \
-    helpers/qjson/serializer.h \
-    helpers/qjson/serializerrunnable.h \
-    helpers/qjson/stack.hh \
+    proxy/input/proxystaticinputobject.h \    
     proxy/input/proxyrequestbus.h \
     modules/interfaces/imodule.h \
     init/moduleinitializer.h \
@@ -166,13 +154,13 @@ HEADERS  += view/mainwindow.h \
     database/databaseselectquerywhereexpression.h \
     database/idatabaseselectquerywhere.h \
     modules/interfaces/idatabaseselectquerywheregroup.h \
-    helpers/artificialbus.h \
     modules/interfaces/irouter.h \
     modules/route.h \
     helpers/jsondocument/jsondocument.h \
-    helpers/jsondocument/qjson_p.h \
-    helpers/jsondocument/qjsonwritter.h \
-    modules/interfaces/iroute.h
+    helpers/jsondocument/qjson_p.h \    
+    modules/interfaces/iroute.h \
+    modules/interfaces/iresponse.h \
+    modules/response.h
 
 
 

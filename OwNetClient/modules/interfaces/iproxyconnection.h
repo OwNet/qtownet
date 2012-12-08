@@ -36,7 +36,7 @@ public:
      * @param req
      * @return response byte array
      */
-    virtual QVariant *callModule(IRequest *req) = 0;
+    virtual IResponse *callModule(IRequest *req) = 0;
 };
 
 #endif // IPROXYCONNECTION_H

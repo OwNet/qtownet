@@ -3,6 +3,8 @@
 
 #include "../OwNetClient/modules/interfaces/iproxyconnection.h"
 
+class IReponse;
+
 class StubConnection : public IProxyConnection
 {
 public:
@@ -17,7 +19,7 @@ public:
     IRequest *createRequest(IRequest::RequestType requestType, const QString &service, const int id, QObject *parent = 0);
     QVariant fromJson(const QByteArray &content, bool *ok = NULL) const;
     QByteArray toJson(const QVariant &content) const;
-    QVariant *callModule(IRequest *req);
+    IResponse *callModule(IRequest *req);
 
     void registerService(IService* service);
     void registerRestService(IRestService* service);

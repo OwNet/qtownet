@@ -11,8 +11,9 @@ class IRestService;
 class IService;
 class IBus;
 class IRequest;
+class IResponse;
 
-typedef std::function<QVariant* (IBus *bus, IRequest *req)> Callback;
+typedef std::function<IResponse* (IRequest *req)> Callback;
 
 class RequestRouter : public QObject, public IRouter
 {
@@ -24,8 +25,14 @@ public:
     Route* addRoute(QString url);
     void   setDefaultRoute(Callback);
 
-    QVariant *routeRequest(IBus *bus, IRequest *req) const;
-    static QVariant *processRequest(IBus *bus, IRequest *req);
+    IService* serivce() { return m_service; }
+    IRestService* restSerivce() { return m_restService; }
+
+    IResponse *routeRequest(IRequest *req) const;
+    static IResponse *processRequest(IRequest *req);
+
+    static IService* getSerivce(const QString name);
+    static IRestService* getRestSerivce(const QString name);
 
 private:
     IService* m_service;

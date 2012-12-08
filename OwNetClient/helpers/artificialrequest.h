@@ -28,6 +28,9 @@ public:
     void setParamater(const QString &key, const QString &value) { m_parameters.insert(key, value); }
     void setPostBody(const QVariantMap &body) { m_postBody = body; }
 
+    IResponse* response();
+    IResponse* response(const QVariant body, IResponse::Status status = IResponse::OK);
+    IResponse* response(IResponse::Status status);
 
 private:
     QString m_url;
