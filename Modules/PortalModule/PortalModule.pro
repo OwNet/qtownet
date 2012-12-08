@@ -24,5 +24,5 @@ HEADERS        += portalmodule.h \
 macx:DESTDIR    = ../../OwNetClient/OwNetClient.app/Contents/MacOS/modules
 !macx:DESTDIR   = ../../OwNetClient/modules
 
-
-QMAKE_CXXFLAGS += -std=c++0x
+macx:QMAKE_CXXFLAGS += -stdlib=libc++
+QMAKE_CXXFLAGS += -std=c++11

@@ -185,5 +185,5 @@ INCLUDEPATH += $$_PRO_FILE_PWD_ \
 RESOURCES += \
     resources.qrc
 
-
-QMAKE_CXXFLAGS += -std=c++0x
+macx:QMAKE_CXXFLAGS += -stdlib=libc++
+QMAKE_CXXFLAGS += -std=c++11

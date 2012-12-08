@@ -114,5 +114,5 @@ INCLUDEPATH += $$_PRO_FILE_PWD_ \
 
 DEFINES += SRCDIR=\\\"$$_PRO_FILE_PWD_\\\" TEST
 
-
-QMAKE_CXXFLAGS += -std=c++0x
+macx:QMAKE_CXXFLAGS += -stdlib=libc++
+QMAKE_CXXFLAGS += -std=c++11
