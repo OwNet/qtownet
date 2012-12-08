@@ -13,8 +13,6 @@ class IBus;
 class IRequest;
 class IResponse;
 
-typedef std::function<IResponse* (IRequest *req)> Callback;
-
 class RequestRouter : public QObject, public IRouter
 {
     Q_OBJECT
@@ -23,16 +21,16 @@ public:
     RequestRouter(IRestService* service, QObject *parent = 0);
 
     IRoute* addRoute(QString url);
-    void   setDefaultRoute(Callback);
+    void setDefaultRoute(DefaultCallback);
 
-    IService* serivce() { return m_service; }
-    IRestService* restSerivce() { return m_restService; }
+    IService* service() { return m_service; }
+    IRestService* restService() { return m_restService; }
 
     IResponse *routeRequest(IRequest *req) const;
     static IResponse *processRequest(IRequest *req);
 
-    static IService* getSerivce(const QString name);
-    static IRestService* getRestSerivce(const QString name);
+    static IService* getService(const QString name);
+    static IRestService* getRestService(const QString name);
 
 private:
     IService* m_service;
@@ -40,7 +38,7 @@ private:
     QVector<Route*> m_routes;    
 
     bool m_hasDefaultRoute;
-    Callback m_defaultRoute;
+    DefaultCallback m_defaultRoute;
 
     static void addService(IService *service);
     static void addService(IRestService *service);

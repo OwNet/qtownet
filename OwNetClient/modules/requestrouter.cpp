@@ -29,18 +29,18 @@ IResponse* RequestRouter::processRequest(IRequest *req)
 	return req->response(IResponse::NOT_FOUND);
 }
 
-IService *RequestRouter::getSerivce(const QString name)
+IService *RequestRouter::getService(const QString name)
 {
     if (m_services->contains(name))
-        return m_services->value(name)->serivce();
+        return m_services->value(name)->service();
     else
         return NULL;
 }
 
-IRestService *RequestRouter::getRestSerivce(const QString name)
+IRestService *RequestRouter::getRestService(const QString name)
 {
     if (m_services->contains(name))
-        return m_services->value(name)->restSerivce();
+        return m_services->value(name)->restService();
     else
         return NULL;
 }
@@ -124,7 +124,7 @@ IRoute* RequestRouter::addRoute(QString url)
     return route;
 }
 
-void RequestRouter:: setDefaultRoute(Callback callback)
+void RequestRouter::setDefaultRoute(DefaultCallback callback)
 {
     m_defaultRoute = callback;
     m_hasDefaultRoute = true;

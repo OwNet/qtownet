@@ -43,7 +43,7 @@ void TestsSample::initTestCase()
     // initialize module
     m_proxyConnection = new ProxyConnection();
     m_module->init(m_proxyConnection);
-    m_restService = RequestRouter::getRestSerivce("sample");
+    m_restService = RequestRouter::getRestService("sample");
 }
 
 void TestsSample::cleanupTestCase()
