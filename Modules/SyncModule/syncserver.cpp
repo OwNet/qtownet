@@ -38,6 +38,7 @@ QVariantList SyncServer::updates(const QVariantMap &clientRecordNumbers, bool sy
         }
     }
 
+    bool foundUpdates = false;
     IDatabaseSelectQuery *journalQuery = m_proxyConnection->databaseSelect("sync_journal", &parent);
     IDatabaseSelectQueryWhereGroup *journalAnd = journalQuery->whereGroup(IDatabaseSelectQuery::And);
     IDatabaseSelectQueryWhereGroup *journalOr = NULL;
@@ -72,15 +73,21 @@ QVariantList SyncServer::updates(const QVariantMap &clientRecordNumbers, bool sy
             clientGroupAnd->where("client_id", query->value("client_id"));
             if (last_client_rec_num > -1)
                 clientGroupAnd->where("client_rec_num", last_client_rec_num, IDatabaseSelectQuery::GreaterThan);
+
+            foundUpdates = true;
         } while (query->next());
     }
+
+    QVariantList updates;
+    if (!foundUpdates)
+        return updates;
+
     journalOr = journalAnd->whereGroup(IDatabaseSelectQuery::Or);
     journalOr->where("sync_with", "NULL", IDatabaseSelectQuery::Is, false);
     journalOr->where("sync_with", requestingClientId);
 
     journalAnd->where("client_id", requestingClientId, IDatabaseSelectQuery::NotEqual);
 
-    QVariantList updates;
     while (journalQuery->next()) {
         QVariantMap update;
         update.insert("client_id", journalQuery->value("client_id"));

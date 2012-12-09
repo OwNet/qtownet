@@ -129,16 +129,16 @@ void DatabaseUpdate::saveToJournal()
     query->setUpdateDates(IDatabaseUpdateQuery::DateCreated);
 
     DatabaseSettings databaseSettings;
-    int client_rec_num = databaseSettings.nextClientSyncRecordNumber();
+    int clientRecNum = databaseSettings.nextClientSyncRecordNumber();
     query->setColumnValue("client_id", databaseSettings.clientId());
-    query->setColumnValue("client_rec_num", client_rec_num);
+    query->setColumnValue("client_rec_num", clientRecNum);
     query->setColumnValue("content", JsonDocument::fromVariantList(content).toJson());
     if (m_syncWith != -1)
         query->setColumnValue("sync_with", m_syncWith);
     if (m_groupId != -1)
         query->setColumnValue("group_id", m_groupId);
 
-    m_lastRecordNumbers->insert(m_groupId, client_rec_num);
+    m_lastRecordNumbers->insert(m_groupId, clientRecNum);
 
     update.execute();
 }
