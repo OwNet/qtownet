@@ -4,6 +4,7 @@
 #include<QString>
 #include<QMap>
 #include<QRegularExpressionMatch>
+#include <functional>
 
 #include "irequest.h"
 
