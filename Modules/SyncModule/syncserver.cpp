@@ -45,24 +45,33 @@ QVariantList SyncServer::updates(const QVariantMap &clientRecordNumbers, bool sy
         journalOr = journalAnd->whereGroup(IDatabaseSelectQuery::Or);
 
         do {
+            QString groupId = query->value("group_id").toString();
+            QString clientId = query->value("client_id").toString();
+            int last_client_rec_num = -1;
+
+            if (clientRecordNumbers.contains(groupId)) {
+                QVariantMap groupClients = clientRecordNumbers.value(groupId).toMap();
+                if (groupClients.contains(clientId)) {
+                    if (query->value("last_client_rec_num").toInt() > groupClients.value(clientId).toInt()) {
+                        /// Sync newer
+                        last_client_rec_num = groupClients.value(clientId).toInt();
+                    } else {
+                        /// Do not sync, client has newer items
+                        continue;
+                    }
+                }
+            }
+
             IDatabaseSelectQueryWhereGroup *clientGroupAnd = journalOr->whereGroup(IDatabaseSelectQuery::And);
+
             if (query->value("group_id").isNull())
                 clientGroupAnd->where("group_id", "NULL", IDatabaseSelectQuery::Is, false);
             else
                 clientGroupAnd->where("group_id", query->value("group_id"));
 
             clientGroupAnd->where("client_id", query->value("client_id"));
-
-            QString groupId = query->value("group_id").toString();
-            QString clientId = query->value("client_id").toString();
-
-            if (clientRecordNumbers.contains(groupId)) {
-                QVariantMap groupClients = clientRecordNumbers.value(groupId).toMap();
-                if (groupClients.contains(clientId) &&
-                        query->value("last_client_rec_num").toInt() > groupClients.value(clientId).toInt()) {
-                    clientGroupAnd->where("client_rec_num", groupClients.value(clientId).toInt(), IDatabaseSelectQuery::GreaterThan);
-                }
-            }
+            if (last_client_rec_num > -1)
+                clientGroupAnd->where("client_rec_num", last_client_rec_num, IDatabaseSelectQuery::GreaterThan);
         } while (query->next());
     }
     journalOr = journalAnd->whereGroup(IDatabaseSelectQuery::Or);
