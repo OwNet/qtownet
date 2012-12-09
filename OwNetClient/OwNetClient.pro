@@ -184,4 +184,4 @@ RESOURCES += \
     resources.qrc
 
 macx:QMAKE_CXXFLAGS += -stdlib=libc++
-QMAKE_CXXFLAGS += -std=c++11
+QMAKE_CXXFLAGS += -std=c++0x
