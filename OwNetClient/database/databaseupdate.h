@@ -31,6 +31,8 @@ public:
     int groupId() { return m_groupId; }
     void setGroupId(int groupId) { m_groupId = groupId; }
 
+    void saveLastRecordNumbers();
+
 private:
     void saveToJournal();
 
@@ -38,6 +40,7 @@ private:
     bool m_sync;
     int m_syncWith;
     int m_groupId;
+    static QMap<int, int> *m_lastRecordNumbers;
 };
 
 #endif // DATABASEUPDATE_H

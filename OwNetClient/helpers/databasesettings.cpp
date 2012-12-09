@@ -34,7 +34,7 @@ QString DatabaseSettings::value(const QString &key, const QString &defaultValue)
 
     QSqlQuery query;
     query.prepare("SELECT value FROM settings WHERE key = :key");
-    query.bindValue("key", key);
+    query.bindValue(":key", key);
 
     if (query.exec() && query.first()) {
         QString value = query.value(query.record().indexOf("value")).toString();
