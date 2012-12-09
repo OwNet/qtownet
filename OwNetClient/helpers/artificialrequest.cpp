@@ -6,7 +6,7 @@ ArtificialRequest::ArtificialRequest(IRequest::RequestType requestType, const QS
     m_requestType(requestType),
     m_service(service)
 {
-    m_url = "/"+service+"/"+url;
+    m_url = "/api/"+service+"/"+url;
 }
 
 ArtificialRequest::ArtificialRequest(IRequest::RequestType requestType, const QString &service, const int id, QObject* parent) :
@@ -14,7 +14,7 @@ ArtificialRequest::ArtificialRequest(IRequest::RequestType requestType, const QS
     m_requestType(requestType),
     m_service(service)
 {
-    m_url = "/"+service+"/"+QString::number(id);
+    m_url = "/api/"+service+"/"+QString::number(id);
 }
 
 QString ArtificialRequest::relativeUrl() const
