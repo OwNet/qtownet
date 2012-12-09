@@ -18,7 +18,7 @@ public:
     QString value(const QString &key, const QString &defaultValue = QString()) const;
 
     bool hasClientId() const;
-    int clientId() const;
+    uint clientId() const;
     void createClientId();
 
     int nextClientSyncRecordNumber();

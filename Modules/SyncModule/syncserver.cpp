@@ -172,7 +172,7 @@ void SyncServer::saveAndApplyUpdates(const QVariantList &changes)
             IDatabaseUpdateQuery *updateQuery = update->createUpdateQuery("sync_journal", IDatabaseUpdateQuery::Insert);
 
             if (!changeMap.value("client_id").isNull())
-                updateQuery->setColumnValue("client_id", changeMap.value("client_id").toInt());
+                updateQuery->setColumnValue("client_id", changeMap.value("client_id").toUInt());
 
             updateQuery->setColumnValue("client_rec_num", clientRecNum);
             updateQuery->setColumnValue("content", changeMap.value("content").toString());
@@ -213,7 +213,7 @@ void SyncServer::saveAndApplyUpdates(const QVariantList &changes)
         if (clientId.isEmpty())
             where += "client_id IS NULL";
         else
-            where += QString("client_id = %1").arg(clientId.toInt());
+            where += QString("client_id = %1").arg(clientId.toUInt());
 
         QSqlQuery query;
         query.prepare(QString("SELECT * FROM client_sync_records WHERE %1").arg(where));
