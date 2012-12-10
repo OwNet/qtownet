@@ -11,13 +11,12 @@ SyncJob::SyncJob(IProxyConnection *proxyConnection, QObject *parent) :
 
 void SyncJob::execute()
 {
-    return;
     if (!m_syncMutex.tryLock())
         return;
 
     SyncClient client(m_proxyConnection);
-    client.updateFromServer();
-    client.updateFromClients();
+    //client.updateFromServer();
+    //client.updateFromClients();
 
     m_syncMutex.unlock();
 }

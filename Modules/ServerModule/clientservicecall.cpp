@@ -27,7 +27,7 @@ QVariant ClientServiceCall::callClientService(int clientId, const QString &apiUr
     }*/
 
     QNetworkAccessManager *manager = new QNetworkAccessManager(this);
-    manager->setProxy(QNetworkProxy(QNetworkProxy::HttpProxy, "localhost", 8081));
+    manager->setProxy(QNetworkProxy(QNetworkProxy::HttpProxy, "10.211.55.13", 8081));
     QNetworkReply *reply = NULL;
     QNetworkRequest networkRequest(QUrl(urlQuery.toString(QUrl::FullyEncoded)));
 

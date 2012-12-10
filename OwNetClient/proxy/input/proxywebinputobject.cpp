@@ -3,6 +3,8 @@
 #include "proxyrequest.h"
 #include "proxydownloads.h"
 #include "proxytrafficcounter.h"
+#include "databaseselectquery.h"
+#include "databasesettings.h"
 
 #include <QNetworkAccessManager>
 #include <QNetworkReply>
@@ -11,47 +13,21 @@
 #include <QBuffer>
 
 ProxyWebInputObject::ProxyWebInputObject(ProxyRequest *request, QObject *parent)
-    : ProxyInputObject(request, parent), m_readHeaders(false)
+    : ProxyInputObject(request, parent), m_readHeaders(false), m_retryIfFailed(false)
 {
 }
 
 void ProxyWebInputObject::readRequest()
 {
-    QNetworkAccessManager *manager = new QNetworkAccessManager(parent());
-    QNetworkReply *reply = NULL;
-    QNetworkRequest request;
+    int myId = DatabaseSettings().clientId();
 
-    request.setUrl(m_request->qUrl());
-    foreach (QString headerName, m_request->requestHeaders().keys())
-        request.setRawHeader(headerName.toUtf8(),
-                             m_request->requestHeaders().value(headerName).toString().toUtf8());
-    request.setRawHeader("X-Proxied-By", "OwNet");
+    DatabaseSelectQuery query("client_caches");
+    query.singleWhere("cache_id", m_request->hashCode());
+    while (query.next())
+        if (query.value("client_id").toInt() != myId && isClientOnline(query.value("client_id").toInt()))
+            m_clientsToTry.append(query.value("client_id").toInt());
 
-    switch (m_request->requestType()) {
-    case ProxyRequest::GET:
-        reply = manager->get(request);
-        break;
-    case ProxyRequest::POST:
-        reply = manager->post(request, new QBuffer(new QByteArray(m_request->requestBody()), this));
-        break;
-    case ProxyRequest::PUT:
-        reply = manager->put(request, new QBuffer(new QByteArray(m_request->requestBody()), this));
-        break;
-    case ProxyRequest::DELETE:
-        reply = manager->deleteResource(request);
-        break;
-    case ProxyRequest::UNKNOWN:
-        break;
-    }
-
-    if (reply == NULL) {
-        emit finished();
-        return;
-    }
-
-    connect(reply, SIGNAL(finished()), this, SLOT(downloadFinished()));
-    connect(reply, SIGNAL(readyRead()), this, SLOT(readReply()));
-    connect(reply, SIGNAL(error(QNetworkReply::NetworkError)), this, SLOT(error(QNetworkReply::NetworkError)));
+    createReply();
 
     ProxyDownloads::instance()->trafficCounter()->increaseCurrentTraffic();
 }
@@ -69,6 +45,14 @@ void ProxyWebInputObject::readReply()
 void ProxyWebInputObject::error(QNetworkReply::NetworkError)
 {
     QNetworkReply *reply = qobject_cast<QNetworkReply*>(sender());
+
+    if (m_retryIfFailed) {
+        reply->deleteLater();
+        m_retryIfFailed = false;
+        createReply();
+        return;
+    }
+
     if (!m_readHeaders) {
         readResponseHeaders(reply);
 
@@ -105,4 +89,58 @@ void ProxyWebInputObject::readResponseHeaders(QNetworkReply *reply)
     QList<QNetworkReply::RawHeaderPair> headers = reply->rawHeaderPairs();
     for (int i = 0; i < headers.count(); ++i)
         addHeader(headers.at(i).first, headers.at(i).second);
+}
+
+void ProxyWebInputObject::createReply()
+{
+    QNetworkAccessManager *manager = new QNetworkAccessManager(parent());
+    QNetworkReply *reply = NULL;
+    QNetworkRequest request;
+
+    if (m_clientsToTry.count()) {
+        manager->setProxy(QNetworkProxy(QNetworkProxy::HttpProxy, clientIp(m_clientsToTry.takeFirst()), 8081));
+        m_retryIfFailed = true;
+    }
+
+    request.setUrl(m_request->qUrl());
+    foreach (QString headerName, m_request->requestHeaders().keys())
+        request.setRawHeader(headerName.toUtf8(),
+                             m_request->requestHeaders().value(headerName).toString().toUtf8());
+    request.setRawHeader("X-Proxied-By", "OwNet");
+
+    switch (m_request->requestType()) {
+    case ProxyRequest::GET:
+        reply = manager->get(request);
+        break;
+    case ProxyRequest::POST:
+        reply = manager->post(request, new QBuffer(new QByteArray(m_request->requestBody()), this));
+        break;
+    case ProxyRequest::PUT:
+        reply = manager->put(request, new QBuffer(new QByteArray(m_request->requestBody()), this));
+        break;
+    case ProxyRequest::DELETE:
+        reply = manager->deleteResource(request);
+        break;
+    case ProxyRequest::UNKNOWN:
+        break;
+    }
+
+    if (reply == NULL) {
+        emit finished();
+        return;
+    }
+
+    connect(reply, SIGNAL(finished()), this, SLOT(downloadFinished()));
+    connect(reply, SIGNAL(readyRead()), this, SLOT(readReply()));
+    connect(reply, SIGNAL(error(QNetworkReply::NetworkError)), this, SLOT(error(QNetworkReply::NetworkError)));
+}
+
+bool ProxyWebInputObject::isClientOnline(int clientId) const
+{
+    return false;
+}
+
+QString ProxyWebInputObject::clientIp(int clientId) const
+{
+    return "10.212.55.13";
 }
