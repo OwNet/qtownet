@@ -14,7 +14,7 @@ class SyncJob : public QObject, public IJobAction
 public:
     explicit SyncJob(IProxyConnection *proxyConnection, QObject *parent = 0);
 
-    int interval() { return 60 * 1000; }
+    int interval() { return 30 * 1000; }
 
     void execute();
 
