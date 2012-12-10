@@ -17,8 +17,6 @@ public:
     void init(IRouter* router);
 
     IResponse *getUpdates(IRequest *request);
-    IResponse *availableRecords(IRequest *);
-    IResponse *uploadChanges(IRequest *request);
 
 private:
     IProxyConnection *m_proxyConnection;

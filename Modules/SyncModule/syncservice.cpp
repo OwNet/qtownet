@@ -14,10 +14,6 @@ void SyncService::init(IRouter *router)
 {
     router->addRoute("/get_updates")
             ->on(IRequest::POST, ROUTE(getUpdates));
-    router->addRoute("/available_records")
-            ->on(IRequest::GET, ROUTE(availableRecords));
-    router->addRoute("/upload_changes")
-            ->on(IRequest::POST, ROUTE(uploadChanges));
 }
 
 /**
@@ -42,33 +38,4 @@ IResponse *SyncService::getUpdates(IRequest *request)
     SyncServer server(m_proxyConnection);
 
     return request->response(server.updates(clientRecordNumbers, syncAllGroups, clientId));
-}
-
-/**
- * @brief Get list of changes that are present on the server
- * @return
- */
-IResponse *SyncService::availableRecords(IRequest *request)
-{
-    SyncServer server(m_proxyConnection);
-
-    return request->response(server.clientRecordNumbers());
-}
-
-/**
- * @brief Upload new changes from client to server.
- * @param request
- * @return
- */
-IResponse *SyncService::uploadChanges(IRequest *request)
-{
-    bool ok = false;
-    QVariantList changes = request->postBodyFromJson(&ok).toList();
-    if (!ok)
-        return NULL;
-
-    SyncServer server(m_proxyConnection);
-    server.saveAndApplyUpdates(changes);
-
-    return request->response(IResponse::OK);
 }
