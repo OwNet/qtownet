@@ -34,8 +34,11 @@ QByteArray *ProxyRequestBus::processResponse(IResponse *response)
 {
     QByteArray *result = NULL;
 
-    if (response == NULL)
+    if (response == NULL) {
+        setHttpStatusCode(500);
+        setHttpStatusDescription("Internal Server Error");
         return NULL;
+    }
 
     setHttpStatusCode(response->status());
     setHttpStatusDescription(response->statusMessage());
