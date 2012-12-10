@@ -47,7 +47,7 @@ QVariant ClientServiceCall::callClientService(int clientId, const QString &apiUr
         reply = manager->deleteResource(networkRequest);
         break;
     case IRequest::UNKNOWN:
-        return;
+        return QVariant();
     }
 
     // Wait for the request to finish
