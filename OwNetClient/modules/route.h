@@ -9,8 +9,6 @@
 #include "iroute.h"
 
 
-class IBus;
-
 class Route : public IRoute
 {
 public:

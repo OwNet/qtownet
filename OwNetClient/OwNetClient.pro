@@ -93,7 +93,6 @@ HEADERS  += view/mainwindow.h \
     proxy/input/proxyrequestbus.h \
     modules/interfaces/imodule.h \
     init/moduleinitializer.h \
-    modules/interfaces/ibus.h \
     init/databaseinitializer.h \
     proxy/downloads/proxydownloads.h \
     proxy/downloads/proxydownload.h \

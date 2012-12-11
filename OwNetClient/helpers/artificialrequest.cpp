@@ -17,6 +17,14 @@ ArtificialRequest::ArtificialRequest(IRequest::RequestType requestType, const QS
     m_url = "/api/"+service+"/"+QString::number(id);
 }
 
+QVariant ArtificialRequest::postBodyFromJson(bool *ok) const
+{
+    if (ok)
+        *ok = true;
+
+    return m_postBody;
+}
+
 QString ArtificialRequest::relativeUrl() const
 {
     QString path = m_url;

@@ -2,10 +2,9 @@
 #define ISERVICES_H
 
 #include <QString>
+#include "irequest.h"
+#include "iresponse.h"
 
-class IBus;
-class IRequest;
-class IResponse;
 class IRouter;
 
 class IService

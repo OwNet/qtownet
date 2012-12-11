@@ -14,7 +14,7 @@ public:
     explicit ArtificialRequest(IRequest::RequestType requestType, const QString &service, const QString &url = QString(), QObject *parent = 0);
     explicit ArtificialRequest(IRequest::RequestType requestType, const QString &service, const int id, QObject *parent = 0);
 
-    QVariant postBodyFromJson(bool *ok = NULL) const { return m_postBody; }
+    QVariant postBodyFromJson(bool *ok = NULL) const;
 
     IRequest::RequestType requestType() const { return m_requestType; }
     QString relativeUrl() const;
