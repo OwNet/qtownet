@@ -1,9 +1,9 @@
 #include "portalmodule.h"
 #include "iproxyconnection.h"
 
-#include "groupsservice.h"
-#include "messagesservice.h"
-#include "ratingsservice.h"
+//#include "groupsservice.h"
+//#include "messagesservice.h"
+//#include "ratingsservice.h"
 #include "sessionservice.h"
 #include "usersservice.h"
 
