@@ -37,17 +37,17 @@ QVariant ClientServiceCall::callClientService(int clientId, const QString &apiUr
         break;
     case IRequest::POST:
         networkRequest.setRawHeader("Content-type", "application/json");
-        reply = manager->post(networkRequest, new QBuffer(new QByteArray(m_proxyConnection->toJson(request->postBodyFromJson())), this));
+        reply = manager->post(networkRequest, m_proxyConnection->toJson(request->postBodyFromJson()));
         break;
     case IRequest::PUT:
         networkRequest.setRawHeader("Content-type", "application/json");
-        reply = manager->put(networkRequest, new QBuffer(new QByteArray(m_proxyConnection->toJson(request->postBodyFromJson())), this));
+        reply = manager->put(networkRequest, m_proxyConnection->toJson(request->postBodyFromJson()));
         break;
     case IRequest::DELETE:
         reply = manager->deleteResource(networkRequest);
         break;
     case IRequest::UNKNOWN:
-        break;
+        return QVariant();
     }
 
     // Wait for the request to finish

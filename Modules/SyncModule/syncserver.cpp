@@ -38,6 +38,7 @@ QVariantList SyncServer::updates(const QVariantMap &clientRecordNumbers, bool sy
         }
     }
 
+    bool foundUpdates = false;
     IDatabaseSelectQuery *journalQuery = m_proxyConnection->databaseSelect("sync_journal", &parent);
     IDatabaseSelectQueryWhereGroup *journalAnd = journalQuery->whereGroup(IDatabaseSelectQuery::And);
     IDatabaseSelectQueryWhereGroup *journalOr = NULL;
@@ -72,15 +73,21 @@ QVariantList SyncServer::updates(const QVariantMap &clientRecordNumbers, bool sy
             clientGroupAnd->where("client_id", query->value("client_id"));
             if (last_client_rec_num > -1)
                 clientGroupAnd->where("client_rec_num", last_client_rec_num, IDatabaseSelectQuery::GreaterThan);
+
+            foundUpdates = true;
         } while (query->next());
     }
+
+    QVariantList updates;
+    if (!foundUpdates)
+        return updates;
+
     journalOr = journalAnd->whereGroup(IDatabaseSelectQuery::Or);
     journalOr->where("sync_with", "NULL", IDatabaseSelectQuery::Is, false);
     journalOr->where("sync_with", requestingClientId);
 
     journalAnd->where("client_id", requestingClientId, IDatabaseSelectQuery::NotEqual);
 
-    QVariantList updates;
     while (journalQuery->next()) {
         QVariantMap update;
         update.insert("client_id", journalQuery->value("client_id"));
@@ -165,7 +172,7 @@ void SyncServer::saveAndApplyUpdates(const QVariantList &changes)
             IDatabaseUpdateQuery *updateQuery = update->createUpdateQuery("sync_journal", IDatabaseUpdateQuery::Insert);
 
             if (!changeMap.value("client_id").isNull())
-                updateQuery->setColumnValue("client_id", changeMap.value("client_id").toInt());
+                updateQuery->setColumnValue("client_id", changeMap.value("client_id").toUInt());
 
             updateQuery->setColumnValue("client_rec_num", clientRecNum);
             updateQuery->setColumnValue("content", changeMap.value("content").toString());
@@ -206,7 +213,7 @@ void SyncServer::saveAndApplyUpdates(const QVariantList &changes)
         if (clientId.isEmpty())
             where += "client_id IS NULL";
         else
-            where += QString("client_id = %1").arg(clientId.toInt());
+            where += QString("client_id = %1").arg(clientId.toUInt());
 
         QSqlQuery query;
         query.prepare(QString("SELECT * FROM client_sync_records WHERE %1").arg(where));

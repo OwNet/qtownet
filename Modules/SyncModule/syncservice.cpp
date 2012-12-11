@@ -32,7 +32,7 @@ IResponse *SyncService::getUpdates(IRequest *request)
     if (!ok)
         return NULL;
 
-    int clientId = requestBody.value("client_id", -1).toInt();
+    int clientId = requestBody.value("client_id", -1).toUInt();
     if (clientId == -1)
         return NULL;
 
