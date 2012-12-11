@@ -1,7 +1,6 @@
 #include "sessionservice.h"
 
 #include "irequest.h"
-#include "ibus.h"
 #include "isession.h"
 #include "iproxyconnection.h"
 
