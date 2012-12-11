@@ -55,9 +55,9 @@ public:
 
 private:
 
-    bool isMember(int user_id, int group_id);
+    bool isMember(uint user_id, uint group_id);
 
-    bool isAdmin(int user_id, int group_id);
+    bool isAdmin(uint user_id, uint group_id);
 
     bool checkGroupPassword(QString password, QString group_id);
 

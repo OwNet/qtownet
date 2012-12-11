@@ -43,7 +43,7 @@ void GroupsService::init(IRouter *router)
     });*/
 }
 
-bool GroupsService::isMember(int user_id, int group_id)
+bool GroupsService::isMember(uint user_id, uint group_id)
 {
 
     QSqlQuery q_check;
@@ -60,7 +60,7 @@ bool GroupsService::isMember(int user_id, int group_id)
 
 }
 
-bool GroupsService::isAdmin(int user_id, int group_id)
+bool GroupsService::isAdmin(uint user_id, uint group_id)
 {
 
     QSqlQuery q_check;
@@ -381,7 +381,7 @@ IResponse *GroupsService::edit(IRequest *req, uint id)
     QString salt = "";
     QString password = "";
 
-    if(this->isAdmin(curUser_id.toInt(), id)){
+    if(this->isAdmin(curUser_id.toUInt(), id)){
 
             IDatabaseUpdate *update = m_proxyConnection->databaseUpdate();
             IDatabaseUpdateQuery *query = update->createUpdateQuery("groups", IDatabaseUpdateQuery::Update);
@@ -441,7 +441,7 @@ IResponse *GroupsService::del(IRequest *req, uint id)
 
     QString curUser_id = m_proxyConnection->session()->value("logged").toString();
 
-    if(this->isAdmin(curUser_id.toInt(), id)){
+    if(this->isAdmin(curUser_id.toUInt(), id)){
 
             IDatabaseUpdate *update = m_proxyConnection->databaseUpdate();
             IDatabaseUpdateQuery *query = update->createUpdateQuery("groups", IDatabaseUpdateQuery::Delete);
@@ -485,7 +485,7 @@ IResponse *GroupsService::joinGroup(IRequest *req)
     if(!query.exec())
         req->response(IResponse::INTERNAL_SERVER_ERROR);
 
-    if(this->isMember(user_id.toInt(),group_id.toInt()) || query.value(query.record().indexOf("status")).toString() == "0" ){
+    if(this->isMember(user_id.toUInt(),group_id.toUInt()) || query.value(query.record().indexOf("status")).toString() == "0" ){
        req->response(IResponse::CONFLICT);
     }
 
@@ -587,7 +587,7 @@ IResponse * GroupsService::approveUser( IRequest *req)
 
 
 
-    if(!this->isMember(user_id.toInt(),group_id.toInt())){
+    if(!this->isMember(user_id.toUInt(),group_id.toUInt())){
         QVariantMap error;
         error.insert("error", "group or user does not exist, or user is not awaiting for approvement");
         return req->response(QVariant(error),IResponse::BAD_REQUEST);
@@ -629,13 +629,13 @@ IResponse * GroupsService::addAdmin(IRequest *req)
     QString user_id = reqJson["user_id"].toString();
 
 
-    if(!this->isMember(user_id.toInt(),group_id.toInt())){
+    if(!this->isMember(user_id.toUInt(),group_id.toUInt())){
             QVariantMap error;
             error.insert("error","User must be a member of the group");
             return req->response(error,IResponse::BAD_REQUEST);
     }
 
-    if( this->isAdmin(m_proxyConnection->session()->value("logged").toInt(),group_id.toInt()))
+    if( this->isAdmin(m_proxyConnection->session()->value("logged").toUInt(),group_id.toUInt()))
     {
         IDatabaseUpdate *group_user = m_proxyConnection->databaseUpdate();
         IDatabaseUpdateQuery *q = group_user->createUpdateQuery("group_admins", IDatabaseUpdateQuery::Insert);
@@ -666,7 +666,7 @@ IResponse *GroupsService::getApprovements(IRequest *req)
     QSqlQuery query;
 
 
-    if(this->isAdmin(m_proxyConnection->session()->value("logged").toInt(), group_id.toInt())){
+    if(this->isAdmin(m_proxyConnection->session()->value("logged").toUInt(), group_id.toUInt())){
         query.prepare("SELECT user_id FROM group_users WHERE group_id = :group_id AND status = 0");
         query.bindValue(":group_id", group_id);
         if(!query.exec())
@@ -694,7 +694,7 @@ IResponse *GroupsService::getGroupUsers( IRequest *req)
     QSqlQuery query;
 
 
-    if(this->isMember(m_proxyConnection->session()->value("logged").toInt(), group_id.toInt())){
+    if(this->isMember(m_proxyConnection->session()->value("logged").toUInt(), group_id.toUInt())){
 
         query.prepare("SELECT * FROM users"
                       "INNER JOIN group_users ON users.id = group_users.user_id"
@@ -708,7 +708,7 @@ IResponse *GroupsService::getGroupUsers( IRequest *req)
            QVariantMap user;
            user.insert("first_name",query.value(query.record().indexOf("first_name")));
            user.insert("last_name",query.value(query.record().indexOf("last_name")));
-           if(this->isAdmin(query.value(query.record().indexOf("id")).toInt(),group_id.toInt()))
+           if(this->isAdmin(query.value(query.record().indexOf("id")).toUInt(),group_id.toUInt()))
                user.insert("isAdmin","1");
            else
                user.insert("isAdmin","0");
@@ -793,7 +793,7 @@ IResponse *GroupsService::deleteUser( IRequest *req)
     if(curUser_id == reqJson["user_id"] )
         allowDelete = true;
     else{
-        if(this->isAdmin(curUser_id.toInt(), reqJson["group_id"].toInt()))
+        if(this->isAdmin(curUser_id.toUInt(), reqJson["group_id"].toUInt()))
           allowDelete = true;
     }
     if(allowDelete){
