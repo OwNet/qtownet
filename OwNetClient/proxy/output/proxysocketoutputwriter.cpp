@@ -126,7 +126,7 @@ void ProxySocketOutputWriter::read(QIODevice *ioDevice)
 
                 m_socket->write(listx.at(1).toLatin1());
 
-                m_socket->write(QString("<script type=\"text/javascript\" src=\"http://inject.ownet/inject.js\"></script>")
+                m_socket->write(QString("<script type=\"text/javascript\" src=\"http://inject.ownet/js/tabframeinject.js\"></script>")
                                 .toLatin1());
                 m_socket->write(listx.at(2).toLatin1());
                 m_socket->write(lineBytes);
