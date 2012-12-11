@@ -16,12 +16,12 @@ public:
 
     QString name() const { return "session"; }
     IResponse *create(IRequest *req);
-    IResponse *del(IRequest *req, int id);
+    IResponse *del(IRequest *req, uint id);
 
 private:
     IProxyConnection *m_proxyConnection;
 
-    bool checkUserPassword(QString password, QString user_id);
+    bool checkUserPassword(QString password, uint user_id);
 };
 
 #endif // SESSIONSERVICE_H

@@ -17,13 +17,13 @@ public:
     virtual IResponse *create(IRequest *) { return NULL; }
 
     // show element
-    virtual IResponse *show(IRequest *, int id) { return NULL; }
+    virtual IResponse *show(IRequest *, uint id) { return NULL; }
 
     // delete element
-    virtual IResponse *del(IRequest *, int id) { return NULL; }
+    virtual IResponse *del(IRequest *, uint id) { return NULL; }
 
     // edit element
-    virtual IResponse *edit(IRequest *, int id) { return NULL; }
+    virtual IResponse *edit(IRequest *, uint id) { return NULL; }
 
 };
 

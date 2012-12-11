@@ -65,9 +65,9 @@ RequestRouter::RequestRouter(IRestService *service, QObject *parent)
             ->on(IRequest::POST, ROUTE(m_restService->create));
 
     addRoute("/:id")
-            ->on(IRequest::GET, ROUTE(m_restService->show, INT(id) ))
-            ->on(IRequest::PUT, ROUTE(m_restService->edit, INT(id) ))
-            ->on(IRequest::DELETE, ROUTE(m_restService->del, INT(id) ));
+            ->on(IRequest::GET, ROUTE(m_restService->show, UINT(id) ))
+            ->on(IRequest::PUT, ROUTE(m_restService->edit, UINT(id) ))
+            ->on(IRequest::DELETE, ROUTE(m_restService->del, UINT(id) ));
 
     service->init(this);
 }

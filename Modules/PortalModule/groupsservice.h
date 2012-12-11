@@ -5,8 +5,12 @@
 
 #include "irestservice.h"
 
+
 class IProxyConnection;
 
+/**
+ * @brief The GroupsService class
+ */
 class GroupsService : public QObject, public IRestService
 {
     Q_OBJECT
@@ -30,7 +34,7 @@ public:
      * @param id
      * @return
      */
-    IResponse *show(IRequest *req, int id);
+    IResponse *show(IRequest *req, uint id);
 
     /**
      * @brief index returns list of groups
@@ -45,9 +49,9 @@ public:
      * @param id
      * @return
      */
-    IResponse *edit( IRequest *req, int id);
+    IResponse *edit( IRequest *req, uint id);
 
-    IResponse *del( IRequest *req, int id);
+    IResponse *del( IRequest *req, uint id);
 
 private:
 

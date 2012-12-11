@@ -16,7 +16,7 @@ SessionService::SessionService(IProxyConnection *proxyConnection, QObject *paren
 {
 }
 
-bool SessionService::checkUserPassword(QString password, QString user_id){
+bool SessionService::checkUserPassword(QString password, uint user_id){
     QSqlQuery query;
 
     query.prepare("SELECT * FROM users WHERE id = :group_id");
@@ -36,7 +36,6 @@ bool SessionService::checkUserPassword(QString password, QString user_id){
     else
         return false;
 }
-
 
 IResponse *SessionService::create(IRequest *req)
 {
@@ -65,7 +64,7 @@ IResponse *SessionService::create(IRequest *req)
 
     if (q.first()) {
         QString i = q.value(q.record().indexOf("id")).toString();
-        if(this->checkUserPassword(password, i)){
+        if(this->checkUserPassword(password, i.toUInt())){
             m_proxyConnection->session(&parent)->setValue("logged", q.value(0));
             response.insert("user_id", q.value(0));
         }
@@ -78,7 +77,7 @@ IResponse *SessionService::create(IRequest *req)
     return req->response( QVariant(response), IResponse::CREATED);
 }
 
-IResponse *SessionService::del(IRequest * req, int id)
+IResponse *SessionService::del(IRequest * req, uint id)
 {    
     QObject parent;
 

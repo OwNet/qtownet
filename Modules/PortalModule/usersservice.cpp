@@ -40,7 +40,7 @@ IResponse *UsersService::index(IRequest * req)
         return req->response(IResponse::BAD_REQUEST);
 }
 
-IResponse *UsersService::show(IRequest *req, int id)
+IResponse *UsersService::show(IRequest *req, uint id)
 {
     QSqlQuery query;
 

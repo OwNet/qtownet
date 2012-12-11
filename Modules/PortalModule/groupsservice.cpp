@@ -285,7 +285,7 @@ IResponse *GroupsService::create( IRequest *req)
 }
 
 // show element
-IResponse *GroupsService::show(IRequest *req, int id)
+IResponse *GroupsService::show(IRequest *req, uint id)
 {
     QSqlQuery query;
 
@@ -373,7 +373,7 @@ IResponse *GroupsService::index(IRequest *req)
 }
 
 
-IResponse *GroupsService::edit(IRequest *req, int id)
+IResponse *GroupsService::edit(IRequest *req, uint id)
 {
 
     QVariantMap reqJson = req->postBodyFromJson().toMap();
@@ -436,7 +436,7 @@ IResponse *GroupsService::edit(IRequest *req, int id)
 }
 
 
-IResponse *GroupsService::del(IRequest *req, int id)
+IResponse *GroupsService::del(IRequest *req, uint id)
 {
 
     QString curUser_id = m_proxyConnection->session()->value("logged").toString();

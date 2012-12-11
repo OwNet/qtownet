@@ -17,7 +17,7 @@ public:
     QString name() const { return "users"; }
 
     IResponse *index(IRequest *req);
-    IResponse *show(IRequest *req, int id);
+    IResponse *show(IRequest *req, uint id);
     IResponse *create(IRequest *req);
 //    IResponse *edit(IRequest *, int id);
 //    IResponse *del(IRequest *req, int id);
