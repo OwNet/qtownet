@@ -44,8 +44,8 @@ IResponse *Response::setStatus(IResponse::Status status)
     case CONFLICT :
         return setStatus(CONFLICT,"Conflict");
 
-    case INTERNAL_SERVCER_ERROR :
-        return setStatus(INTERNAL_SERVCER_ERROR,"Internal Server Error");
+    case INTERNAL_SERVER_ERROR :
+        return setStatus(INTERNAL_SERVER_ERROR,"Internal Server Error");
 
     case NOT_IMPLEMENTED :
         return setStatus(NOT_IMPLEMENTED,"Not Implemented");
