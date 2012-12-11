@@ -16,7 +16,7 @@ TEMPLATE = app
 
 
 SOURCES +=  ../OwNetClient/helpers/messagehelper.cpp \
-            ../OwNetClient/helpers/listofstringpairs.cpp \
+            ../OwNetClient/helpers/listofstringpairs.cpp \            
             ../OwNetClient/helpers/applicationdatastorage.cpp \
             ../OwNetClient/jobs/job.cpp \
             ../OwNetClient/database/databaseupdatequery.cpp \
@@ -45,11 +45,13 @@ SOURCES +=  ../OwNetClient/helpers/messagehelper.cpp \
     stub/stubtime.cpp \
     helpers/modulehelpers.cpp \
     modules/tst_testssample.cpp \
-    classes/tst_testscommunicationmanager.cpp
+    classes/tst_testscommunicationmanager.cpp \
+    modules/tst_testsusersservice.cpp \
+    stub/stubdatabase.cpp
 
 
 HEADERS +=  ../OwNetClient/helpers/messagehelper.h \
-            ../OwNetClient/helpers/listofstringpairs.h \
+            ../OwNetClient/helpers/listofstringpairs.h \                        
             ../OwNetClient/modules/interfaces/imodule.h \
             ../OwNetClient/modules/interfaces/ibus.h \
             ../OwNetClient/modules/databasemodule.h \
@@ -97,7 +99,8 @@ HEADERS +=  ../OwNetClient/helpers/messagehelper.h \
             ../OwNetClient/modules/response.h \
     autotest.h \
     stub/stubtime.h \
-    helpers/modulehelpers.h
+    helpers/modulehelpers.h \
+    stub/stubdatabase.h
 
 
 INCLUDEPATH += $$_PRO_FILE_PWD_ \
@@ -106,6 +109,7 @@ INCLUDEPATH += $$_PRO_FILE_PWD_ \
     ../OwNetClient/database \
     ../OwNetClient/helpers \
     ../OwNetClient/helpers/jsondocument \
+    ../OwNetClient/init \
     ../OwNetClient/modules \
     ../OwNetClient/modules/interfaces \
     ../OwNetClient/jobs

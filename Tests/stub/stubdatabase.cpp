@@ -1,56 +1,52 @@
-#include "databaseinitializer.h"
-#include "messagehelper.h"
+#include "stubdatabase.h"
 
-#include "applicationdatastorage.h"
-#include "applicationenvironment.h"
-#include "databasesettings.h"
-
-#include <QtCore/QVariant>
+#include <QCoreApplication>
+#include <QSettings>
+#include <QDir>
 #include <QSqlDatabase>
 #include <QSqlError>
 #include <QSqlQuery>
 #include <QTextStream>
-#include <QCoreApplication>
-#include <QDebug>
-#include <QDateTime>
 
-DatabaseInitializer::DatabaseInitializer()
-{
-}
+#include "settings.h"
+#include "messagehelper.h"
+#include "applicationenvironment.h"
+#include "applicationdatastorage.h"
 
-void DatabaseInitializer::init()
-{
-    openDatabase();
-    runMigrations();
-    createClientName();
-}
 
-/**
- * @brief Opens singleton application database.
- */
-void DatabaseInitializer::openDatabase()
-{
-    // configure stub database name
-    QString databaseName = ApplicationDataStorage().appDataDirectory().absoluteFilePath("ownet.sqlite");
 
-    MessageHelper::debug(QObject::tr("Opening database %1")
-                         .arg(databaseName));
+void StubDatabase::init()
+{    
+    if ( QSqlDatabase::database().isOpen() ) {
+        close();
+        QSqlDatabase::removeDatabase(QSqlDatabase::defaultConnection);
+    }
 
     QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE");
-    db.setDatabaseName(databaseName);
+    db.setDatabaseName(":memory:");
 
     if (!db.open()) {
         MessageHelper::error(QObject::tr("Failed to open database"),
                              QObject::tr("Unable to open the database: %1.")
                              .arg(db.lastError().text()));
-    }
+    }    
+
+    db.exec("DROP ALL TABLES");
+    runMigrations();
 }
 
-/**
- * @brief Runs all new migrations from migrations directory.
- */
-void DatabaseInitializer::runMigrations()
+void StubDatabase::close()
 {
+    QSqlDatabase::database().close();
+}
+
+void StubDatabase::runMigrations()
+{
+    // set where QSettings will look for config file
+    QCoreApplication::setOrganizationName("The Reconnected");
+    QCoreApplication::setApplicationName("OwNet Client");
+
+
     QSqlDatabase db = QSqlDatabase::database();
     QSqlQuery query;
     QMap<QString, bool> migrations;
@@ -78,8 +74,8 @@ void DatabaseInitializer::runMigrations()
             bool success = true;
             if (! migrations.contains(list.at(i).fileName()))
             {
-                MessageHelper::debug(QObject::tr("Migration %1")
-                                     .arg(list.at(i).fileName()));
+                //MessageHelper::debug(QObject::tr("Migration %1")
+                //                     .arg(list.at(i).fileName()));
 
                 // read file
                 QFile file(list.at(i).absoluteFilePath());
@@ -126,14 +122,4 @@ void DatabaseInitializer::runMigrations()
                 break;
         }
     }
-}
-
-/**
- * @brief Generate client name and save it to database if it doesnt already exist.
- */
-void DatabaseInitializer::createClientName()
-{
-    DatabaseSettings settings;
-    if (!settings.hasClientId())
-        settings.createClientId();
 }

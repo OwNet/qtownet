@@ -12,6 +12,12 @@ VariantMap::VariantMap(const QVariantMap &other)
 {
 }
 
+VariantMap *VariantMap::set(const QString &key, const QVariant &value)
+{
+    this->insert(key,value);
+    return this;
+}
+
 QString VariantMap::toJsonString() const
 {    
     return QString( JsonDocument::fromVariantMap(*this).toJson() );
