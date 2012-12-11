@@ -5,6 +5,7 @@
 #include "idatabaseupdate.h"
 #include "ibus.h"
 #include "iproxyconnection.h"
+#include "portalhelper.h"
 
 #include <QSqlQuery>
 #include <QSqlRecord>
@@ -66,11 +67,10 @@ IResponse *UsersService::show(IRequest *req, int id)
 
 IResponse *UsersService::create(IRequest *req)
 {
-    bool ok = false;
-    QVariantMap reqJson = req->postBodyFromJson(&ok).toMap();
-    if (!ok)
-        return NULL;
+    QVariantMap reqJson = req->postBodyFromJson().toMap();
+
     QObject parent;
+    QString salt = "";
 
     QString login = reqJson["login"].toString();
 
@@ -91,7 +91,11 @@ IResponse *UsersService::create(IRequest *req)
     QString last_name = reqJson["last_name"].toString();
     QString first_name = reqJson["first_name"].toString();
     QString email = reqJson["email"].toString();
+
     QString password = reqJson["password"].toString();
+
+    //ad salt
+    PortalHelper::addSalt(&password,&salt);
 
     //creating user ID
     uint id = qHash(QString("%1-%2").arg(login).arg(QDateTime::currentDateTime().toString(Qt::ISODate)));
@@ -109,6 +113,7 @@ IResponse *UsersService::create(IRequest *req)
     query->setColumnValue("email", email);
     query->setColumnValue("role_id", 1);
     query->setColumnValue("password", password);
+    query->setColumnValue("salt", salt);
 
     int a = update->execute();
     if(!a)

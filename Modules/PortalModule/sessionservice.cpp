@@ -6,12 +6,37 @@
 #include "iproxyconnection.h"
 
 #include <QSqlQuery>
+#include <QSqlRecord>
+#include <QCryptographicHash>
+#include <QString>
 
 SessionService::SessionService(IProxyConnection *proxyConnection, QObject *parent) :
     QObject(parent),
     m_proxyConnection(proxyConnection)
 {
 }
+
+bool SessionService::checkUserPassword(QString password, QString user_id){
+    QSqlQuery query;
+
+    query.prepare("SELECT * FROM users WHERE id = :group_id");
+    query.bindValue(":group_id",user_id);
+    if(!query.exec()){
+        return false;
+    }
+    query.first();
+    QString salt = query.value(query.record().indexOf("salt")).toString();
+    QString user_password = query.value(query.record().indexOf("password")).toString();
+
+    QByteArray pass_plus_salt = (password+salt).toLatin1();
+    QString salted_pass(QCryptographicHash::hash(pass_plus_salt,QCryptographicHash::Sha1).toHex());
+
+    if(salted_pass == user_password)
+        return true;
+    else
+        return false;
+}
+
 
 IResponse *SessionService::create(IRequest *req)
 {
@@ -32,14 +57,22 @@ IResponse *SessionService::create(IRequest *req)
     QString password = reqJson["password"].toString();
 
     QSqlQuery q;
-    q.prepare("SELECT id FROM users WHERE login = :login AND password = :password");
+    q.prepare("SELECT id FROM users WHERE login = :login");
     q.bindValue(":login", login);
-    q.bindValue(":password", password);
 
-    if (q.exec() && q.first()) {
-        m_proxyConnection->session(&parent)->setValue("logged", q.value(0));
-        response.insert("user_id", q.value(0));
-    } else {
+    if(!q.exec())
+        return req->response(IResponse::INTERNAL_SERVER_ERROR);
+
+    if (q.first()) {
+        QString i = q.value(q.record().indexOf("id")).toString();
+        if(this->checkUserPassword(password, i)){
+            m_proxyConnection->session(&parent)->setValue("logged", q.value(0));
+            response.insert("user_id", q.value(0));
+        }
+        else{
+          return req->response(IResponse::BAD_REQUEST);
+        }
+    }else {
         return req->response(IResponse::BAD_REQUEST);
     }
     return req->response( QVariant(response), IResponse::CREATED);

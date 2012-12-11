@@ -6,12 +6,15 @@
 #include "iproxyconnection.h"
 #include "isession.h"
 #include "irouter.h"
+#include "portalhelper.h"
 
 #include <QDebug>
 #include <QSqlQuery>
 #include <QSqlRecord>
 #include <QDateTime>
 #include <QVariant>
+#include <QCryptographicHash>
+
 
 GroupsService::GroupsService(IProxyConnection *proxyConnection, QObject *parent) :
     QObject(parent),
@@ -70,12 +73,36 @@ bool GroupsService::isAdmin(int user_id, int group_id)
     return q_check.first();
 }
 
+bool GroupsService::checkGroupPassword(QString password, QString group_id)
+{
+
+    QSqlQuery query;
+
+    query.prepare("SELECT * FROM groups WHERE id = :group_id");
+    query.bindValue(":group_id",group_id);
+    if(!query.exec()){
+        return false;
+    }
+    QString salt = query.value(query.record().indexOf("salt")).toString();
+    QString group_password = query.value(query.record().indexOf("password")).toString();
+
+    QByteArray pass_plus_salt = (password+salt).toLatin1();
+    QString salted_pass(QCryptographicHash::hash(pass_plus_salt,QCryptographicHash::Sha1).toHex());
+
+    if(salted_pass == group_password)
+        return true;
+    else
+        return false;
+
+}
+
 // create element
 IResponse *GroupsService::create( IRequest *req)
 {
     QVariantMap reqJson = req->postBodyFromJson().toMap();
 
     QVariantMap error;
+    QString salt = "";
 
     bool missingValue = false;
 
@@ -103,9 +130,10 @@ IResponse *GroupsService::create( IRequest *req)
         }
     }
 
+
     QString user_id = m_proxyConnection->session()->value("logged").toString();
     if(user_id==""){
-        req->response(IResponse::FORBIDDEN);
+        return req->response(IResponse::FORBIDDEN);
 
     }
 
@@ -131,6 +159,13 @@ IResponse *GroupsService::create( IRequest *req)
     if(password == "" && has_password!="0" ){
         missingValue = true;
         error.insert("password","required");
+    }
+    if(has_password == "0")
+        password = "";
+
+    // create salt and has password
+    else{
+        PortalHelper::addSalt(&password, &salt);
     }
 
     QString parent = reqJson["parent"].toString();
@@ -187,6 +222,7 @@ IResponse *GroupsService::create( IRequest *req)
         query->setColumnValue("has_password", has_password);
         query->setColumnValue("has_approvement", has_approvement);
         query->setColumnValue("parent",parent);
+        query->setColumnValue("salt", salt);
 
         if(createGroup->execute()){
              return req->response(IResponse::INTERNAL_SERVER_ERROR);
@@ -342,6 +378,8 @@ IResponse *GroupsService::edit(IRequest *req, int id)
 
     QVariantMap reqJson = req->postBodyFromJson().toMap();
     QString curUser_id = m_proxyConnection->session()->value("logged").toString();
+    QString salt = "";
+    QString password = "";
 
     if(this->isAdmin(curUser_id.toInt(), id)){
 
@@ -359,10 +397,13 @@ IResponse *GroupsService::edit(IRequest *req, int id)
             if(reqJson["has_approvement"] != "")
                 query->setColumnValue("has_approvement", reqJson["has_approvement"]);
 
-            if(reqJson["password"] != "")
-                query->setColumnValue("password", reqJson["password"]);
+            if(reqJson["password"] != ""){
+                password = reqJson["password"].toString();
+                PortalHelper::addSalt(&password,&salt);
+                query->setColumnValue("password", password);
+                query->setColumnValue("salt", salt);
 
-
+            }
             if(reqJson["has_password"] != ""){
                 query->setColumnValue("has_password", reqJson["has_password"]);
                 if(reqJson["has_password"] == "1"){
@@ -472,7 +513,7 @@ IResponse *GroupsService::joinGroup(IRequest *req)
                  return req->response(QVariant(error),IResponse::BAD_REQUEST);
              }
 
-             if(password ==  query.value(query.record().indexOf("password") )){
+             if(this->checkGroupPassword(password,group_id)){
                    //vytvorime zaznam so statusom 1
                  IDatabaseUpdate *group_user = m_proxyConnection->databaseUpdate();
 

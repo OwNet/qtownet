@@ -55,6 +55,8 @@ private:
 
     bool isAdmin(int user_id, int group_id);
 
+    bool checkGroupPassword(QString password, QString group_id);
+
     IResponse *joinGroup(IRequest *req);
 
     IResponse *approveUser(IRequest *req);

@@ -20,6 +20,8 @@ public:
 
 private:
     IProxyConnection *m_proxyConnection;
+
+    bool checkUserPassword(QString password, QString user_id);
 };
 
 #endif // SESSIONSERVICE_H

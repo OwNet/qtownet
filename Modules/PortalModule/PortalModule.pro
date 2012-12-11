@@ -13,6 +13,7 @@ SOURCES        += portalmodule.cpp \
     sessionservice.cpp \
    # messagesservice.cpp \
    # ratingsservice.cpp
+    portalhelper.cpp
 
 HEADERS        += portalmodule.h \
     usersservice.h \
@@ -20,6 +21,7 @@ HEADERS        += portalmodule.h \
     sessionservice.h \
    # messagesservice.h \
    # ratingsservice.h
+    portalhelper.h
 
 macx:DESTDIR    = ../../OwNetClient/OwNetClient.app/Contents/MacOS/modules
 !macx:DESTDIR   = ../../OwNetClient/modules
