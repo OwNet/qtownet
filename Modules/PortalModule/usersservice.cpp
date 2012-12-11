@@ -70,9 +70,6 @@ IResponse *UsersService::show(IRequest *req, uint id)
 IResponse *UsersService::create(IRequest *req)
 {
 
-    QVariantMap reqJson = req->postBodyFromJson().toMap();
-
-    QObject parent;
     QString salt = "";
 
     bool ok = false;

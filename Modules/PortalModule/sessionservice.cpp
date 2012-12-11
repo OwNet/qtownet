@@ -16,6 +16,14 @@ SessionService::SessionService(IProxyConnection *proxyConnection, QObject *paren
 {
 }
 
+
+void SessionService::init(IRouter *router)
+{
+    router->addRoute("/")
+            ->on(IRequest::DELETE, ROUTE(logout) );
+
+}
+
 bool SessionService::checkUserPassword(QString password, uint user_id){
     QSqlQuery query;
 
@@ -35,12 +43,6 @@ bool SessionService::checkUserPassword(QString password, uint user_id){
         return true;
     else
         return false;
-
-void SessionService::init(IRouter *router)
-{
-    router->addRoute("/")
-            ->on(IRequest::DELETE, ROUTE(logout) );
-
 }
 
 IResponse *SessionService::create(IRequest *req)

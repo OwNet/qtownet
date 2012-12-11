@@ -1,7 +1,6 @@
 #include "groupsservice.h"
 
 #include "irequest.h"
-#include "ibus.h"
 #include "idatabaseupdate.h"
 #include "iproxyconnection.h"
 #include "isession.h"
