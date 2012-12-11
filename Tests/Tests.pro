@@ -53,7 +53,6 @@ SOURCES +=  ../OwNetClient/helpers/messagehelper.cpp \
 HEADERS +=  ../OwNetClient/helpers/messagehelper.h \
             ../OwNetClient/helpers/listofstringpairs.h \                        
             ../OwNetClient/modules/interfaces/imodule.h \
-            ../OwNetClient/modules/interfaces/ibus.h \
             ../OwNetClient/modules/databasemodule.h \
             ../OwNetClient/helpers/applicationdatastorage.h \
             ../OwNetClient/jobs/job.h \

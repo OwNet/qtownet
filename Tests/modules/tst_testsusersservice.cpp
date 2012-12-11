@@ -19,6 +19,7 @@
 #include "imodule.h"
 #include "irestservice.h"
 #include "variantmap.h"
+#include "isession.h"
 
 
 class TestsUsersService : public QObject
@@ -198,9 +199,11 @@ void TestsUsersService::testEdit()
     QVariantMap user = createUser();
     int id = user.value("id").toInt();
 
-
     QFETCH(QString, login);
     user.insert("login",login);
+
+    QObject parent;
+    m_proxyConnection->session(&parent)->setValue("logged", id);
 
     IRequest* req = m_proxyConnection->createRequest(IRequest::PUT,"users", id);
     req->setPostBody(user);
@@ -229,6 +232,9 @@ void TestsUsersService::testDel()
     StubDatabase::init();
     QVariantMap user = createUser();
     int id = user.value("id").toInt();
+
+    QObject parent;
+    m_proxyConnection->session(&parent)->setValue("logged", id);
 
     IRequest* req = m_proxyConnection->createRequest(IRequest::DELETE,"users", id);
     IResponse* resp = m_proxyConnection->callModule(req);
