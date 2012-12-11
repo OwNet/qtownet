@@ -2,6 +2,7 @@
 
 #include "irequest.h"
 #include "isession.h"
+#include "irouter.h"
 #include "iproxyconnection.h"
 
 #include <QSqlQuery>
@@ -10,6 +11,12 @@ SessionService::SessionService(IProxyConnection *proxyConnection, QObject *paren
     QObject(parent),
     m_proxyConnection(proxyConnection)
 {
+}
+
+void SessionService::init(IRouter *router)
+{
+    router->addRoute("/")
+            ->on(IRequest::DELETE, ROUTE(logout) );
 }
 
 IResponse *SessionService::create(IRequest *req)
@@ -44,7 +51,7 @@ IResponse *SessionService::create(IRequest *req)
     return req->response( QVariant(response), IResponse::CREATED);
 }
 
-IResponse *SessionService::del(IRequest * req, int id)
+IResponse *SessionService::logout(IRequest * req)
 {    
     QObject parent;
 
@@ -53,4 +60,18 @@ IResponse *SessionService::del(IRequest * req, int id)
 
     m_proxyConnection->session(&parent)->clear();
     return req->response(IResponse::NO_CONTENT);
+}
+
+IResponse *SessionService::index(IRequest *req)
+{
+    QObject parent;
+    ISession* sess = m_proxyConnection->session(&parent);
+
+    if (!sess->isLoggedIn())
+        return req->response(IResponse::NOT_FOUND);
+
+    QVariantMap ret;
+    ret.insert("user_id",sess->value("logged"));
+
+    return req->response(QVariant(ret),IResponse::OK);
 }
