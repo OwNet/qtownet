@@ -31,15 +31,43 @@ void GroupsService::init(IRouter *router)
     router->addRoute("/getGroupUsers")->on(IRequest::POST, ROUTE(getGroupUsers) );
     router->addRoute("/deleteUser")->on(IRequest::POST, ROUTE(deleteUser) );
     router->addRoute("/getGroupTypes")->on(IRequest::POST, ROUTE(getGroupTypes) );
+    router->addRoute("/isAdmin")->on(IRequest::POST, ROUTE(getIsMember));
+    router->addRoute("/isMember")->on(IRequest::POST, ROUTE(getIsAdmin));
+ }
 
-  /*  router->addRoute("/isMember")->on(IRequest::POST, ROUTE_FN {
-        return new QVariant(this->isMember(req->parameterValue("user_id").toInt(),req->parameterValue("group_id").toInt()));
-    });
+
+IResponse *GroupsService::getIsAdmin(IRequest *req){
 
 
-    router->addRoute("/isAdmin")->on(IRequest::POST, ROUTE_FN {
-        return new QVariant(this->isAdmin(req->parameterValue("user_id").toInt(),req->parameterValue("group_id").toInt()));
-    });*/
+         QVariantMap reqJson = req->postBodyFromJson().toMap();
+         QString user_id = reqJson["user_id"].toString();
+         QString group_id = reqJson["group_id"].toString();
+
+         QVariantMap res;
+
+         if(isAdmin(user_id.toUInt(), group_id.toUInt()))
+             res.insert("admin","1");
+         else
+             res.insert("admin","0");
+
+         return req->response(QVariant(res),IResponse::OK);
+}
+
+IResponse *GroupsService::getIsMember(IRequest *req){
+
+
+         QVariantMap reqJson = req->postBodyFromJson().toMap();
+         QString user_id = reqJson["user_id"].toString();
+         QString group_id = reqJson["group_id"].toString();
+
+         QVariantMap res;
+
+         if(isMember(user_id.toUInt(), group_id.toUInt()))
+             res.insert("member","1");
+         else
+             res.insert("member","0");
+
+         return req->response(QVariant(res),IResponse::OK);
 }
 
 bool GroupsService::isMember(uint user_id, uint group_id)

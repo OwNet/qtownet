@@ -61,6 +61,10 @@ private:
 
     bool checkGroupPassword(QString password, QString group_id);
 
+    IResponse *getIsAdmin( IRequest *req );
+
+     IResponse *getIsMember( IRequest *req );
+
     IResponse *joinGroup(IRequest *req);
 
     IResponse *approveUser(IRequest *req);
