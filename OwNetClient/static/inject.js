@@ -226,7 +226,7 @@ owNetGLOBAL = {
         reportPrimary: function () {
             try {
                 if (this.hasReportedPrimary == 0) {
-                    owNetGLOBAL.loadScript(owNetGLOBAL.localUri + "visit?page=" + owNetGLOBAL.encodedPageUri + "&ref=" + owNetGLOBAL.encodedReferrerUri + "&gid=" + Math.floor((Math.random() * 1000) + 1), function () {
+                    owNetGLOBAL.loadScript(owNetGLOBAL.localUri + "visit/?page=" + owNetGLOBAL.encodedPageUri + "&ref=" + owNetGLOBAL.encodedReferrerUri + "&gid=" + Math.floor((Math.random() * 1000) + 1), function () {
                         if (owNetPAGEID !== null)
                         {
                             owNetGLOBAL.ProxyContact.pageId = owNetPAGEID;
