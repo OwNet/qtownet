@@ -31,8 +31,8 @@ void GroupsService::init(IRouter *router)
     router->addRoute("/getGroupUsers")->on(IRequest::POST, ROUTE(getGroupUsers) );
     router->addRoute("/deleteUser")->on(IRequest::POST, ROUTE(deleteUser) );
     router->addRoute("/getGroupTypes")->on(IRequest::POST, ROUTE(getGroupTypes) );
-    router->addRoute("/isAdmin")->on(IRequest::POST, ROUTE(getIsMember));
-    router->addRoute("/isMember")->on(IRequest::POST, ROUTE(getIsAdmin));
+    router->addRoute("/isAdmin")->on(IRequest::POST, ROUTE(getIsAdmin));
+    router->addRoute("/isMember")->on(IRequest::POST, ROUTE(getIsMember));
  }
 
 
