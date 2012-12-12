@@ -2,7 +2,6 @@
 
 #include "cleancachejob.h"
 #include "proxytrafficcounterjob.h"
-#include "heartbeatjob.h"
 #include "updaterecordssavejob.h"
 
 JobInitializer::JobInitializer()

@@ -57,11 +57,6 @@ SOURCES += main.cpp\
     helpers/variantmap.cpp \
     modules/requestrouter.cpp \
     helpers/session.cpp \
-    jobs/heartbeatjob.cpp \
-    init/communicationinitializer.cpp \
-    communication/heartbeatserver.cpp \
-    communication/communicationmanager.cpp \
-    communication/communicationinstance.cpp \
     helpers/proxyconnection.cpp \
     jobs/modulejob.cpp \
     helpers/artificialrequest.cpp \
@@ -126,11 +121,6 @@ HEADERS  += view/mainwindow.h \
     modules/requestrouter.h \
     modules/interfaces/isession.h \
     helpers/session.h \
-    jobs/heartbeatjob.h \
-    init/communicationinitializer.h \
-    communication/heartbeatserver.h \
-    communication/communicationmanager.h \
-    communication/communicationinstance.h \
     modules/interfaces/idatabaseupdate.h \
     modules/interfaces/idatabaseupdatequery.h \
     modules/interfaces/ijobaction.h \

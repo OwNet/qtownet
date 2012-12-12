@@ -7,13 +7,17 @@ class QUdpSocket;
 #include <QObject>
 #include <QVariantMap>
 
-class HeartbeatServer : public QObject
+class MulticastProtocol;
+class IProxyConnection;
+
+class MulticastServer : public QObject
 {
     Q_OBJECT
 
 public:
-    static HeartbeatServer *getInstance();
-    void start(QHostAddress *, int);
+    explicit MulticastServer(IProxyConnection *connection, QObject *parent = 0);
+
+    void start(QHostAddress *groupAddress, int port);
     void stop();
     
 signals:
@@ -22,11 +26,10 @@ public slots:
     void processPendingDatagrams();
 
 private:
-    static HeartbeatServer *m_heartbeatServer;
-
-    explicit HeartbeatServer();
 
     QUdpSocket *m_udpSocket;
+    MulticastProtocol *m_protocol;
+    IProxyConnection *m_proxyConnection;
 };
 
 #endif // HEARTBEATSERVER_H

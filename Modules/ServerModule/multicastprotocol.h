@@ -3,10 +3,13 @@
 
 #include <QVariantMap>
 
-class CommunicationInstance;
+class IProxyConnection;
 
-class CommunicationManager
+class MulticastProtocolNode;
+
+class MulticastProtocol : public QObject
 {
+    Q_OBJECT
 
 public:
     enum Status {
@@ -17,30 +20,27 @@ public:
     };
     static const int expirationTimeInSeconds;
 
-    static CommunicationManager *getInstance();
-
-    // not private due to unit tests
-    CommunicationManager();
+    MulticastProtocol(IProxyConnection *connection, QObject *parent = 0);
 
     void processMessage(QVariantMap *);
-    QList<CommunicationInstance *> &getCommunicationInstances();
-    CommunicationInstance *getServer();
+    QList<MulticastProtocolNode *> &getCommunicationInstances();
+    MulticastProtocolNode *getServer();
 
     QString myId() const;
     int myScore() const;
-    CommunicationManager::Status myStatus();
+    MulticastProtocol::Status myStatus();
 
     void initialized();
 
 private:
-    static CommunicationManager *m_communicationManager;
-
     void cleanAndSortInstances();
 
-    QList<CommunicationInstance *> m_instances;
+    QList<MulticastProtocolNode *> m_instances;
     QString m_myId;
     int m_myScore;
     bool m_initializing;
+
+    IProxyConnection *m_proxyConnection;
 };
 
 #endif // COMMUNICATIONMANAGER_H

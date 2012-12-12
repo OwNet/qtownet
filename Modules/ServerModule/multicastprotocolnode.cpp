@@ -1,21 +1,21 @@
-#include "communicationinstance.h"
+#include "multicastprotocolnode.h"
 
 #ifdef TEST
 #include "stub/stubtime.h"
 #endif
 
-CommunicationInstance::CommunicationInstance(const QString &id, QObject *parent) :
+MulticastProtocolNode::MulticastProtocolNode(const QString &id, QObject *parent) :
     m_id(id), m_lastUpdated(QDateTime()), QObject(parent)
 {
 }
 
-bool CommunicationInstance::lessThan(const CommunicationInstance *first,
-                                     const CommunicationInstance *second)
+bool MulticastProtocolNode::lessThan(const MulticastProtocolNode *first,
+                                     const MulticastProtocolNode *second)
 {
     return first->score() > second->score();
 }
 
-void CommunicationInstance::update(int score, CommunicationManager::Status status)
+void MulticastProtocolNode::update(int score, MulticastProtocol::Status status)
 {
     m_score = score;
     m_status = status;
@@ -31,22 +31,22 @@ void CommunicationInstance::update(int score, CommunicationManager::Status statu
     m_lastUpdated = currentDateTime;
 }
 
-QString CommunicationInstance::id() const
+QString MulticastProtocolNode::id() const
 {
     return m_id;
 }
 
-int CommunicationInstance::score() const
+int MulticastProtocolNode::score() const
 {
     return m_score;
 }
 
-CommunicationManager::Status CommunicationInstance::status() const
+MulticastProtocol::Status MulticastProtocolNode::status() const
 {
     return m_status;
 }
 
-bool CommunicationInstance::isExpired() const
+bool MulticastProtocolNode::isExpired() const
 {
     QDateTime currentDateTime;
 
@@ -56,5 +56,5 @@ bool CommunicationInstance::isExpired() const
     currentDateTime = QDateTime::currentDateTime();
 #endif
 
-    return m_lastUpdated.addSecs(CommunicationManager::expirationTimeInSeconds) < currentDateTime;
+    return m_lastUpdated.addSecs(MulticastProtocol::expirationTimeInSeconds) < currentDateTime;
 }

@@ -1,43 +1,35 @@
-#include "communicationmanager.h"
-#include "communicationinstance.h"
+#include "multicastprotocol.h"
+#include "multicastprotocolnode.h"
+#include "iproxyconnection.h"
 
 #include <QDebug>
 
-CommunicationManager *CommunicationManager::m_communicationManager = NULL;
-const int CommunicationManager::expirationTimeInSeconds = 15;
+const int MulticastProtocol::expirationTimeInSeconds = 15;
 
-CommunicationManager *CommunicationManager::getInstance()
-{
-    if (m_communicationManager == NULL)
-        m_communicationManager = new CommunicationManager();
-
-    return m_communicationManager;
-}
-
-CommunicationManager::CommunicationManager()
-    : m_initializing(true)
+MulticastProtocol::MulticastProtocol(IProxyConnection *connection, QObject *parent)
+    : m_proxyConnection(connection), QObject(parent), m_initializing(true)
 {
     m_myId = "unique-client-id";
     m_myScore = 1;
 
     // add self as first instance
-    CommunicationInstance *communicationInstance;
-    communicationInstance = new CommunicationInstance(m_myId);
+    MulticastProtocolNode *communicationInstance;
+    communicationInstance = new MulticastProtocolNode(m_myId);
     m_instances.append(communicationInstance);
     communicationInstance->update(m_myScore, NONE);
 }
 
-QString CommunicationManager::myId() const
+QString MulticastProtocol::myId() const
 {
     return m_myId;
 }
 
-int CommunicationManager::myScore() const
+int MulticastProtocol::myScore() const
 {
     return m_myScore;
 }
 
-CommunicationManager::Status CommunicationManager::myStatus()
+MulticastProtocol::Status MulticastProtocol::myStatus()
 {
     cleanAndSortInstances();
 
@@ -59,14 +51,14 @@ CommunicationManager::Status CommunicationManager::myStatus()
     return SERVER;
 }
 
-void CommunicationManager::initialized()
+void MulticastProtocol::initialized()
 {
     m_initializing = false;
 }
 
-void CommunicationManager::processMessage(QVariantMap *message)
+void MulticastProtocol::processMessage(QVariantMap *message)
 {
-    CommunicationInstance *communicationInstance = NULL;
+    MulticastProtocolNode *communicationInstance = NULL;
 
     QString id = message->value("id").toString();
     int score = message->value("score").toInt();
@@ -92,7 +84,7 @@ void CommunicationManager::processMessage(QVariantMap *message)
     // or create new
     if (! communicationInstance)
     {
-        communicationInstance = new CommunicationInstance(id);
+        communicationInstance = new MulticastProtocolNode(id);
         m_instances.append(communicationInstance);
     }
 
@@ -100,14 +92,14 @@ void CommunicationManager::processMessage(QVariantMap *message)
     communicationInstance->update(score, status);
 }
 
-QList<CommunicationInstance *> &CommunicationManager::getCommunicationInstances()
+QList<MulticastProtocolNode *> &MulticastProtocol::getCommunicationInstances()
 {
     cleanAndSortInstances();
 
     return m_instances;
 }
 
-CommunicationInstance *CommunicationManager::getServer()
+MulticastProtocolNode *MulticastProtocol::getServer()
 {
     cleanAndSortInstances();
 
@@ -122,15 +114,15 @@ CommunicationInstance *CommunicationManager::getServer()
     }
 }
 
-void CommunicationManager::cleanAndSortInstances()
+void MulticastProtocol::cleanAndSortInstances()
 {
     // clean expired proxies
-    QMutableListIterator<CommunicationInstance *> i(m_instances);
+    QMutableListIterator<MulticastProtocolNode *> i(m_instances);
     while (i.hasNext()) {
         if (i.next()->isExpired())
             i.remove();
     }
 
     // sort proxies by score
-    qSort(m_instances.begin(), m_instances.end(), CommunicationInstance::lessThan);
+    qSort(m_instances.begin(), m_instances.end(), MulticastProtocolNode::lessThan);
 }
