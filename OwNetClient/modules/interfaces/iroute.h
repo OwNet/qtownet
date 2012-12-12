@@ -8,7 +8,6 @@
 
 #include "irequest.h"
 
-class IBus;
 
 class IRoute
 {

@@ -9,7 +9,6 @@
 
 class IRestService;
 class IService;
-class IBus;
 class IRequest;
 class IResponse;
 

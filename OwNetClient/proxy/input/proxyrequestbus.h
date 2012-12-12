@@ -2,7 +2,6 @@
 #define REQUESTBUS_H
 
 #include "proxyinputobject.h"
-#include "ibus.h"
 
 class RequestRouter;
 class ProxyRequest;

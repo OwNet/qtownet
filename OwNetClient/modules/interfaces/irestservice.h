@@ -11,19 +11,19 @@ class IRestService : public IService
 {
 public:
 
-    virtual IResponse *index(IRequest *) { return NULL; }
+    virtual IResponse *index(IRequest *req) { return req->response(IResponse::METHOD_NOT_ALLOWED); }
 
     // create element
-    virtual IResponse *create(IRequest *) { return NULL; }
+    virtual IResponse *create(IRequest *req) { return req->response(IResponse::METHOD_NOT_ALLOWED); }
 
     // show element
-    virtual IResponse *show(IRequest *, int id) { return NULL; }
+    virtual IResponse *show(IRequest *req, int id) { return req->response(IResponse::METHOD_NOT_ALLOWED); }
 
     // delete element
-    virtual IResponse *del(IRequest *, int id) { return NULL; }
+    virtual IResponse *del(IRequest *req, int id) { return req->response(IResponse::METHOD_NOT_ALLOWED); }
 
     // edit element
-    virtual IResponse *edit(IRequest *, int id) { return NULL; }
+    virtual IResponse *edit(IRequest *req, int id) { return req->response(IResponse::METHOD_NOT_ALLOWED); }
 
 };
 

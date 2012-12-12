@@ -1,11 +1,12 @@
 #include "portalmodule.h"
 #include "iproxyconnection.h"
 
-#include "groupsservice.h"
-#include "messagesservice.h"
-#include "ratingsservice.h"
+//#include "groupsservice.h"
+//#include "messagesservice.h"
+//#include "ratingsservice.h"
 #include "sessionservice.h"
 #include "usersservice.h"
+#include "historyservice.h"
 
 void PortalModule::init(IProxyConnection *proxyConnection)
 {            
@@ -14,5 +15,6 @@ void PortalModule::init(IProxyConnection *proxyConnection)
 //    proxyConnection->registerRestService( new RatingsService(proxyConnection,this) );
     proxyConnection->registerRestService( new UsersService(proxyConnection,this) );
     proxyConnection->registerRestService( new SessionService(proxyConnection,this) );
+    proxyConnection->registerService( new HistoryService(proxyConnection,this) );
 
 }

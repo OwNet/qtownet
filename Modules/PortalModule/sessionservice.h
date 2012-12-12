@@ -15,8 +15,12 @@ public:
     SessionService(IProxyConnection *proxyConnection, QObject *parent = NULL);
 
     QString name() const { return "session"; }
+
+    void init(IRouter *router);
+
     IResponse *create(IRequest *req);
-    IResponse *del(IRequest *req, int id);
+    IResponse *logout(IRequest *req);
+    IResponse *index(IRequest *req);
 
 private:
     IProxyConnection *m_proxyConnection;
