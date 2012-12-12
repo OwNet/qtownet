@@ -16,6 +16,7 @@ SyncClient::SyncClient(IProxyConnection *proxyConnection, QObject *parent) :
  */
 void SyncClient::updateFromServer()
 {
+    return;
     downloadUpdatesFromClient(1);
 }
 

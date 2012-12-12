@@ -3,6 +3,7 @@
 
 #include "preferencesdialog.h"
 #include "proxysocketoutputwriter.h"
+#include "proxyconnection.h"
 
 #include <QSystemTrayIcon>
 #include <QAction>
@@ -19,6 +20,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     connect(ui->actionPreferences, SIGNAL(triggered()), this, SLOT(showPreferences()));
     connect(ui->btnPreferences, SIGNAL(clicked()), this, SLOT(showPreferences()));
+    connect(ui->btnSync, SIGNAL(clicked()), this, SLOT(sync()));
 
     createTrayIcon();
 
@@ -51,6 +53,12 @@ void MainWindow::dumpOpenSockets()
         qDebug() << url;
 
     qDebug() << tr("--- Open Sockets ---");
+}
+
+void MainWindow::sync()
+{
+    ProxyConnection connection;
+    connection.callModule(connection.createRequest(IRequest::GET, "sync", "now", &connection));
 }
 
 void MainWindow::createTrayIcon()

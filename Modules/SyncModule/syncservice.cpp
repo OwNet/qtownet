@@ -2,6 +2,7 @@
 
 #include "irequest.h"
 #include "syncserver.h"
+#include "syncclient.h"
 #include "irouter.h"
 
 SyncService::SyncService(IProxyConnection *proxyConnection, QObject *parent) :
@@ -14,6 +15,8 @@ void SyncService::init(IRouter *router)
 {
     router->addRoute("/get_updates")
             ->on(IRequest::POST, ROUTE(getUpdates));
+    router->addRoute("/now")
+            ->on(IRequest::GET, ROUTE(syncNow));
 }
 
 /**
@@ -38,4 +41,17 @@ IResponse *SyncService::getUpdates(IRequest *request)
     SyncServer server(m_proxyConnection);
 
     return request->response(server.updates(clientRecordNumbers, syncAllGroups, clientId));
+}
+
+/**
+ * @brief Sync to server and sync with other clients
+ * @param request
+ * @return
+ */
+IResponse *SyncService::syncNow(IRequest *request)
+{
+    SyncClient client(m_proxyConnection);
+    client.updateFromServer();
+    client.updateFromClients();
+    return request->response(IResponse::OK);
 }
