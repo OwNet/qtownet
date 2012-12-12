@@ -1,7 +1,7 @@
 #ifndef STUBTIME_H
 #define STUBTIME_H
 
-#include <QDateTime>;
+#include <QDateTime>
 
 class StubTime
 {
