@@ -5,7 +5,9 @@
 
 #include "imodule.h"
 
-class ServerModule : public QObject, public IModule
+class MulticastServer;
+
+class MulticastModule : public QObject, public IModule
 {
     Q_OBJECT
     Q_PLUGIN_METADATA(IID "com.thereconnected.OwNet.IModule/1.0")
@@ -16,6 +18,7 @@ public:
 
 private:
     IProxyConnection *m_proxyConnection;
+    MulticastServer *m_multicastServer;
 };
 
 #endif // SERVERMODULE_H

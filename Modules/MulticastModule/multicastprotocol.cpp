@@ -13,10 +13,10 @@ MulticastProtocol::MulticastProtocol(IProxyConnection *connection, QObject *pare
     m_myScore = 1;
 
     // add self as first instance
-    MulticastProtocolNode *communicationInstance;
-    communicationInstance = new MulticastProtocolNode(m_myId);
-    m_instances.append(communicationInstance);
-    communicationInstance->update(m_myScore, NONE);
+    MulticastProtocolNode *node;
+    node = new MulticastProtocolNode(m_myId);
+    m_instances.append(node);
+    node->update(m_myScore, NONE);
 }
 
 QString MulticastProtocol::myId() const

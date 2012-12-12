@@ -6,4 +6,5 @@ SUBDIRS += \
 #    PrefetchingModule \
 #    RecommendationsModule \
     SyncModule \
-    ServerModule
+    ServerModule \
+    MulticastModule

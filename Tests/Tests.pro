@@ -39,8 +39,8 @@ SOURCES +=  ../OwNetClient/helpers/messagehelper.cpp \
             ../OwNetClient/helpers/jsondocument/qjsonwriter.cpp \
             ../OwNetClient/helpers/jsondocument/qjson.cpp \
             ../OwNetClient/modules/response.cpp \
-            ../Modules/ServerModule/multicastprotocol.cpp \
-            ../Modules/ServerModule/multicastprotocolnode.cpp \
+            ../Modules/MulticastModule/multicastprotocol.cpp \
+            ../Modules/MulticastModule/multicastprotocolnode.cpp \
     main.cpp \
     stub/stubtime.cpp \
     helpers/modulehelpers.cpp \
@@ -94,8 +94,8 @@ HEADERS +=  ../OwNetClient/helpers/messagehelper.h \
             ../OwNetClient/modules/interfaces/iroute.h \
             ../OwNetClient/modules/interfaces/iresponse.h \
             ../OwNetClient/modules/response.h \
-            ../Modules/ServerModule/multicastprotocol.h \
-            ../Modules/ServerModule/multicastprotocolnode.h \
+            ../Modules/MulticastModule/multicastprotocol.h \
+            ../Modules/MulticastModule/multicastprotocolnode.h \
     autotest.h \
     stub/stubtime.h \
     helpers/modulehelpers.h \

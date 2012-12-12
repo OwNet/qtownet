@@ -8,8 +8,8 @@
 #include "proxyconnection.h"
 #include "session.h"
 
-#include "../Modules/ServerModule/multicastprotocol.h"
-#include "../Modules/ServerModule/multicastprotocolnode.h"
+#include "../Modules/MulticastModule/multicastprotocol.h"
+#include "../Modules/MulticastModule/multicastprotocolnode.h"
 
 class MulticastProtocolTests : public QObject
 {
