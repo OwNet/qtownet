@@ -1,0 +1,2 @@
+ALTER TABLE groups
+ADD salt TEXT;

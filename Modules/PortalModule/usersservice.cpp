@@ -4,7 +4,10 @@
 #include "iresponse.h"
 #include "idatabaseupdate.h"
 #include "iproxyconnection.h"
+
+#include "portalhelper.h"
 #include "isession.h"
+
 
 #include <QSqlQuery>
 #include <QSqlRecord>
@@ -40,7 +43,7 @@ IResponse *UsersService::index(IRequest * req)
         return req->response(IResponse::BAD_REQUEST);
 }
 
-IResponse *UsersService::show(IRequest *req, int id)
+IResponse *UsersService::show(IRequest *req, uint id)
 {
     QSqlQuery query;
 
@@ -66,6 +69,9 @@ IResponse *UsersService::show(IRequest *req, int id)
 
 IResponse *UsersService::create(IRequest *req)
 {
+
+    QString salt = "";
+
     bool ok = false;
     QVariantMap reqJson = req->postBodyFromJson(&ok).toMap();
 
@@ -91,7 +97,11 @@ IResponse *UsersService::create(IRequest *req)
     QString last_name = reqJson["last_name"].toString();
     QString first_name = reqJson["first_name"].toString();
     QString email = reqJson["email"].toString();
+
     QString password = reqJson["password"].toString();
+
+    //ad salt
+    PortalHelper::addSalt(&password,&salt);
 
     //creating user ID
     uint id = qHash(QString("%1-%2").arg(login).arg(QDateTime::currentDateTime().toString(Qt::ISODate)));
@@ -110,6 +120,7 @@ IResponse *UsersService::create(IRequest *req)
     query->setColumnValue("email", email);
     query->setColumnValue("role_id", 1);
     query->setColumnValue("password", password);
+    query->setColumnValue("salt", salt);
 
     if( update->execute() == 0 )
         return req->response(IResponse::CREATED);
@@ -117,10 +128,10 @@ IResponse *UsersService::create(IRequest *req)
         return req->response(IResponse::BAD_REQUEST);
 }
 
-IResponse *UsersService::edit(IRequest *req, int id)
+IResponse *UsersService::edit(IRequest *req, uint id)
 {
     ISession* sess = m_proxyConnection->session();
-    if ( !sess->isLoggedIn()  ||  (sess->value("logged").toInt() != id) )
+    if ( !sess->isLoggedIn()  ||  (sess->value("logged").toUInt() != id) )
         return req->response(IResponse::UNAUTHORIEZED);
 
 
@@ -151,10 +162,10 @@ IResponse *UsersService::edit(IRequest *req, int id)
         return req->response(IResponse::INTERNAL_SERVER_ERROR);
 }
 
-IResponse *UsersService::del(IRequest *req, int id)
+IResponse *UsersService::del(IRequest *req, uint id)
 {
     ISession* sess = m_proxyConnection->session();
-    if ( !sess->isLoggedIn()  ||  (sess->value("logged").toInt() != id) )
+    if ( !sess->isLoggedIn()  ||  (sess->value("logged").toUInt() != id) )
         return req->response(IResponse::UNAUTHORIEZED);
 
     QObject parent;

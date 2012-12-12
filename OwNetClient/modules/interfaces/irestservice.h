@@ -16,14 +16,15 @@ public:
     // create element
     virtual IResponse *create(IRequest *req) { return req->response(IResponse::METHOD_NOT_ALLOWED); }
 
-    // show element
-    virtual IResponse *show(IRequest *req, int id) { return req->response(IResponse::METHOD_NOT_ALLOWED); }
+   //show element
+    virtual IResponse *show(IRequest *req, uint id) { return req->response(IResponse::METHOD_NOT_ALLOWED); }
 
     // delete element
-    virtual IResponse *del(IRequest *req, int id) { return req->response(IResponse::METHOD_NOT_ALLOWED); }
+    virtual IResponse *del(IRequest *req, uint id) { return req->response(IResponse::METHOD_NOT_ALLOWED); }
 
     // edit element
-    virtual IResponse *edit(IRequest *req, int id) { return req->response(IResponse::METHOD_NOT_ALLOWED); }
+    virtual IResponse *edit(IRequest *req, uint id) { return req->response(IResponse::METHOD_NOT_ALLOWED); }
+
 
 };
 
