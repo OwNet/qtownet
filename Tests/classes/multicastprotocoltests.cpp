@@ -5,6 +5,8 @@
 
 #include "autotest.h"
 #include "stub/stubtime.h"
+#include "proxyconnection.h"
+#include "session.h"
 
 #include "../Modules/ServerModule/multicastprotocol.h"
 #include "../Modules/ServerModule/multicastprotocolnode.h"
@@ -23,28 +25,10 @@ private Q_SLOTS:
     void initTestCase();
     void cleanupTestCase();
 
-    /*
-    void testGetInstance();
+    void testFirstNode();
 
-    void testGetCommunicationInstancesWhenCreated();
-    void testGetCommunicationInstancesWhenOneHearbeatIsReceived();
-    void testGetCommunicationInstancesWhenMultipleHearbeatsAreReceived();
-    void testGetCommunicationInstancesWhenOneHearbeatWithChangedInfoAreReceived();
-    void testGetCommunicationInstancesWhenMultipleHearbeatsWithChangedInfoAreReceived();
-    void testGetCommunicationInstancesWhenNoHearbeatsAreReceived();
-
-    void testGetServerWhenCreated();
-    void testGetServerWhenOneHeartbeatIsReceived();
-    void testGetServerWhenMultipleHeartbeatsAreReceived();
-    void testGetServerWhenInitializing();
-    void testGetServerWhenNoHeartbeatsAreReceived();
-
-    void testMyStatusInitializing();
-    void testMyStatusClient();
-    void testMyStatusServer();
-    void testMyStatusServerAfterCreated();
-    void testMyStatusServerWhenNoHeartbeatsAreReceived();
-    */
+private:
+    ProxyConnection *m_proxyConnection;
 };
 
 const int MulticastProtocolTests::period = 5;
@@ -56,10 +40,23 @@ MulticastProtocolTests::MulticastProtocolTests()
 
 void MulticastProtocolTests::initTestCase()
 {
+    m_proxyConnection = new ProxyConnection();
 }
 
 void MulticastProtocolTests::cleanupTestCase()
 {
+}
+
+void MulticastProtocolTests::testFirstNode()
+{
+    MulticastProtocol protocol(m_proxyConnection, this);
+    MulticastProtocolNode *node;
+
+    QVERIFY(protocol.getCommunicationInstances().count() == 1);
+
+    node = protocol.getCommunicationInstances().first();
+    QCOMPARE(node->id(), protocol.myId());
+    QCOMPARE(node->score(), protocol.myScore());
 }
 
 /*
