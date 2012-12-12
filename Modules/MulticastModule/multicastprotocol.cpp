@@ -1,6 +1,7 @@
 #include "multicastprotocol.h"
 #include "multicastprotocolnode.h"
 #include "iproxyconnection.h"
+#include "idatabasesettings.h"
 
 #include <QDebug>
 
@@ -9,7 +10,7 @@ const int MulticastProtocol::expirationTimeInSeconds = 15;
 MulticastProtocol::MulticastProtocol(IProxyConnection *connection, QObject *parent)
     : m_proxyConnection(connection), QObject(parent), m_initializing(true)
 {
-    m_myId = "unique-client-id";
+    m_myId = connection->databaseSettings(this)->clientId();
     m_myScore = 1;
 
     // add self as first instance
@@ -17,6 +18,8 @@ MulticastProtocol::MulticastProtocol(IProxyConnection *connection, QObject *pare
     node = new MulticastProtocolNode(m_myId);
     m_nodeList.append(node);
     node->update(m_myScore, NONE);
+
+    updateNodes();
 }
 
 QString MulticastProtocol::myId() const
