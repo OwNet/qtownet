@@ -52,9 +52,9 @@ void MulticastProtocolTests::testFirstNode()
     MulticastProtocol protocol(m_proxyConnection, this);
     MulticastProtocolNode *node;
 
-    QVERIFY(protocol.getCommunicationInstances().count() == 1);
+    QVERIFY(protocol.getNodeList().count() == 1);
 
-    node = protocol.getCommunicationInstances().first();
+    node = protocol.getNodeList().first();
     QCOMPARE(node->id(), protocol.myId());
     QCOMPARE(node->score(), protocol.myScore());
 }

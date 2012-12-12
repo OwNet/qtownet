@@ -6,6 +6,7 @@
 #include "imodule.h"
 
 class MulticastServer;
+class MulticastProtocol;
 
 class MulticastModule : public QObject, public IModule
 {
@@ -19,6 +20,7 @@ public:
 private:
     IProxyConnection *m_proxyConnection;
     MulticastServer *m_multicastServer;
+    MulticastProtocol *m_multicastProtocol;
 };
 
 #endif // SERVERMODULE_H

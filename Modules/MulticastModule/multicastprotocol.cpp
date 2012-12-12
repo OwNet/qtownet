@@ -15,7 +15,7 @@ MulticastProtocol::MulticastProtocol(IProxyConnection *connection, QObject *pare
     // add self as first instance
     MulticastProtocolNode *node;
     node = new MulticastProtocolNode(m_myId);
-    m_instances.append(node);
+    m_nodeList.append(node);
     node->update(m_myScore, NONE);
 }
 
@@ -31,17 +31,15 @@ int MulticastProtocol::myScore() const
 
 MulticastProtocol::Status MulticastProtocol::myStatus()
 {
-    cleanAndSortInstances();
-
     if (m_initializing)
         return INITIALIZING; // not initialized yet
 
     // find first after INITIALIZING
-    for (int i = 0; i < m_instances.size(); ++i)
+    for (int i = 0; i < m_nodeList.size(); ++i)
     {
-        if (m_instances.at(i)->status() != INITIALIZING)
+        if (m_nodeList.at(i)->status() != INITIALIZING)
         {
-            if (m_instances.at(i)->id() == myId())
+            if (m_nodeList.at(i)->id() == myId())
                 return SERVER; // top score or still server
             else
                 return CLIENT;
@@ -72,11 +70,11 @@ void MulticastProtocol::processMessage(QVariantMap *message)
         status = SERVER;
 
     // find proxy by id
-    for (int i = 0; i < m_instances.size(); ++i)
+    for (int i = 0; i < m_nodeList.size(); ++i)
     {
-        if (m_instances.at(i)->id() == id)
+        if (m_nodeList.at(i)->id() == id)
         {
-            communicationInstance = m_instances.at(i);
+            communicationInstance = m_nodeList.at(i);
             break;
         }
     }
@@ -85,44 +83,58 @@ void MulticastProtocol::processMessage(QVariantMap *message)
     if (! communicationInstance)
     {
         communicationInstance = new MulticastProtocolNode(id);
-        m_instances.append(communicationInstance);
+        m_nodeList.append(communicationInstance);
     }
 
     // update info
     communicationInstance->update(score, status);
+
+    updateNodes();
 }
 
-QList<MulticastProtocolNode *> &MulticastProtocol::getCommunicationInstances()
+QList<MulticastProtocolNode *> &MulticastProtocol::getNodeList()
 {
-    cleanAndSortInstances();
+    return m_nodeList;
+}
 
-    return m_instances;
+QMap<QString, MulticastProtocolNode *> &MulticastProtocol::getNodeMap()
+{
+    return m_nodeMap;
 }
 
 MulticastProtocolNode *MulticastProtocol::getServer()
 {
-    cleanAndSortInstances();
-
-    if (m_instances.empty())
+    if (m_nodeList.empty())
         return NULL; // no other proxies
     else
     {
-        if (m_instances.first()->status() == INITIALIZING)
+        if (m_nodeList.first()->status() == INITIALIZING)
             return NULL; // future server initializing
         else
-            return m_instances.first(); // best is the server
+            return m_nodeList.first(); // best is the server
     }
 }
 
-void MulticastProtocol::cleanAndSortInstances()
+void MulticastProtocol::updateNodes()
 {
-    // clean expired proxies
-    QMutableListIterator<MulticastProtocolNode *> i(m_instances);
-    while (i.hasNext()) {
-        if (i.next()->isExpired())
+    // clean expired proxies and build proxy map
+    QMutableListIterator<MulticastProtocolNode *> i(m_nodeList);
+
+    m_nodeMap.clear();
+    while (i.hasNext())
+    {
+        MulticastProtocolNode *node;
+
+        node = i.next();
+
+        if (node->isExpired())
             i.remove();
+        else
+        {
+            m_nodeMap.insert(node->id(), node);
+        }
     }
 
     // sort proxies by score
-    qSort(m_instances.begin(), m_instances.end(), MulticastProtocolNode::lessThan);
+    qSort(m_nodeList.begin(), m_nodeList.end(), MulticastProtocolNode::lessThan);
 }

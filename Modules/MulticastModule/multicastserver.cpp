@@ -7,10 +7,10 @@
 #include <QUdpSocket>
 #include <QVariantMap>
 
-MulticastServer::MulticastServer(IProxyConnection *connection, QObject *parent)
-    : m_proxyConnection(connection), QObject(parent)
+MulticastServer::MulticastServer(IProxyConnection *connection, MulticastProtocol *protocol,
+                                 QObject *parent)
+    : m_proxyConnection(connection), m_protocol(protocol), QObject(parent)
 {
-    m_protocol = new MulticastProtocol(connection, this);
 }
 
 void MulticastServer::start(QHostAddress *groupAddress, int port)

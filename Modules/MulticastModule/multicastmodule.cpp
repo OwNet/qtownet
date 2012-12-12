@@ -2,6 +2,7 @@
 
 #include "iproxyconnection.h"
 #include "multicastserver.h"
+#include "multicastprotocol.h"
 #include "multicastjob.h"
 
 #include <QHostAddress>
@@ -12,12 +13,15 @@ void MulticastModule::init(IProxyConnection *proxyConnection)
     m_proxyConnection = proxyConnection;
 
     QHostAddress *groupAddress = new QHostAddress(
-                proxyConnection->settings()->value("application/multicast_group_address", "227.227.227.1").toString()
+        proxyConnection->settings()->value("application/multicast_group_address",
+                                           "227.227.227.1").toString()
     );
     int port = proxyConnection->settings()->value("application/multicast_port", "8081").toInt();
 
-    m_multicastServer = new MulticastServer(proxyConnection);
+    m_multicastProtocol = new MulticastProtocol(proxyConnection, this);
+
+    m_multicastServer = new MulticastServer(proxyConnection, m_multicastProtocol, this);
     m_multicastServer->start(groupAddress, port);
 
-    proxyConnection->registerJob(new MulticastJob(groupAddress, port, this));
+    proxyConnection->registerJob(new MulticastJob(groupAddress, port, m_multicastProtocol, this));
 }

@@ -23,7 +23,8 @@ public:
     MulticastProtocol(IProxyConnection *connection, QObject *parent = 0);
 
     void processMessage(QVariantMap *);
-    QList<MulticastProtocolNode *> &getCommunicationInstances();
+    QList<MulticastProtocolNode *> &getNodeList();
+    QMap<QString, MulticastProtocolNode *> &getNodeMap();
     MulticastProtocolNode *getServer();
 
     QString myId() const;
@@ -33,9 +34,11 @@ public:
     void initialized();
 
 private:
-    void cleanAndSortInstances();
+    void updateNodes();
 
-    QList<MulticastProtocolNode *> m_instances;
+    QList<MulticastProtocolNode *> m_nodeList;
+    QMap<QString, MulticastProtocolNode *> m_nodeMap;
+
     QString m_myId;
     int m_myScore;
     bool m_initializing;

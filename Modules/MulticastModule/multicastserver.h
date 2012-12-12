@@ -15,7 +15,8 @@ class MulticastServer : public QObject
     Q_OBJECT
 
 public:
-    explicit MulticastServer(IProxyConnection *connection, QObject *parent = 0);
+    explicit MulticastServer(IProxyConnection *connection, MulticastProtocol *protocol,
+                             QObject *parent = 0);
 
     void start(QHostAddress *groupAddress, int port);
     void stop();

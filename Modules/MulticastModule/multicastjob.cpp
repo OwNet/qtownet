@@ -4,8 +4,9 @@
 
 #include <QUdpSocket>
 
-MulticastJob::MulticastJob(QHostAddress *groupAddress, int port, QObject *parent)
-    : m_groupAddress(groupAddress), m_port(port)
+MulticastJob::MulticastJob(QHostAddress *groupAddress, int port,  MulticastProtocol *protocol,
+                           QObject *parent)
+    : m_groupAddress(groupAddress), m_protocol(protocol), m_port(port)
 {
 }
 
