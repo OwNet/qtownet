@@ -13,31 +13,9 @@ MulticastJob::MulticastJob(QHostAddress *groupAddress, int port,  MulticastProto
 void MulticastJob::execute()
 {
     // this should be done after first synchronisation
-    /*
-    MulticastProtocol::getInstance()->initialized();
+    m_protocol->initialized();
 
     QUdpSocket *udpSocket = new QUdpSocket(this);
-
-    QString status;
-    switch (MulticastProtocol::getInstance()->myStatus())
-    {
-    case MulticastProtocol::INITIALIZING:
-        status = "initializing";
-        break;
-    case MulticastProtocol::CLIENT:
-        status = "client";
-        break;
-    case MulticastProtocol::SERVER:
-        status = "server";
-        break;
-    }
-
-    QVariantMap map;
-    map.insert("id", MulticastProtocol::getInstance()->myId());
-    map.insert("score", MulticastProtocol::getInstance()->myScore());
-    map.insert("status", status);
-    QByteArray datagram = JsonDocument::fromVariant(map).toJson();
-
+    QByteArray datagram = JsonDocument::fromVariant(m_protocol->getMessage()).toJson();
     udpSocket->writeDatagram(datagram.data(), datagram.size(), *m_groupAddress, m_port);
-    */
 }

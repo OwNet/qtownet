@@ -4,11 +4,12 @@
 #include "idatabasesettings.h"
 
 #include <QDebug>
+#include <QDateTime>
 
 const int MulticastProtocol::expirationTimeInSeconds = 15;
 
 MulticastProtocol::MulticastProtocol(IProxyConnection *connection, QObject *parent)
-    : m_proxyConnection(connection), QObject(parent), m_initializing(true)
+    : m_proxyConnection(connection), QObject(parent)
 {
     m_myId = connection->databaseSettings(this)->clientId();
     m_myScore = 1;
@@ -22,19 +23,19 @@ MulticastProtocol::MulticastProtocol(IProxyConnection *connection, QObject *pare
     updateNodes();
 }
 
-QString MulticastProtocol::myId() const
+uint MulticastProtocol::myId() const
 {
     return m_myId;
 }
 
-int MulticastProtocol::myScore() const
+uint MulticastProtocol::myScore() const
 {
     return m_myScore;
 }
 
 MulticastProtocol::Status MulticastProtocol::myStatus()
 {
-    if (m_initializing)
+    if (m_initialized.isNull())
         return INITIALIZING; // not initialized yet
 
     // find first after INITIALIZING
@@ -54,15 +55,15 @@ MulticastProtocol::Status MulticastProtocol::myStatus()
 
 void MulticastProtocol::initialized()
 {
-    m_initializing = false;
+    m_initialized = QDateTime::currentDateTime();
 }
 
 void MulticastProtocol::processMessage(QVariantMap *message)
 {
     MulticastProtocolNode *communicationInstance = NULL;
 
-    QString id = message->value("id").toString();
-    int score = message->value("score").toInt();
+    uint id = message->value("id").toUInt();
+    uint score = message->value("score").toUInt();
 
     Status status;
     if (message->value("status") == "initializing")
@@ -100,7 +101,7 @@ QList<MulticastProtocolNode *> &MulticastProtocol::getNodeList()
     return m_nodeList;
 }
 
-QMap<QString, MulticastProtocolNode *> &MulticastProtocol::getNodeMap()
+QMap<uint, MulticastProtocolNode *> &MulticastProtocol::getNodeMap()
 {
     return m_nodeMap;
 }
@@ -140,4 +141,31 @@ void MulticastProtocol::updateNodes()
 
     // sort proxies by score
     qSort(m_nodeList.begin(), m_nodeList.end(), MulticastProtocolNode::lessThan);
+}
+
+QVariantMap MulticastProtocol::getMessage()
+{
+    QVariantMap message;
+
+    QString status;
+    switch (myStatus())
+    {
+    case MulticastProtocol::INITIALIZING:
+        status = "initializing";
+        break;
+    case MulticastProtocol::CLIENT:
+        status = "client";
+        break;
+    case MulticastProtocol::SERVER:
+        status = "server";
+        break;
+    }
+
+    message.insert("id", myId());
+    message.insert("score", myScore());
+    message.insert("status", status);
+    message.insert("port", 8081);
+    message.insert("initialized", m_initialized);
+
+    return message;
 }

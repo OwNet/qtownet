@@ -2,9 +2,9 @@
 #define COMMUNICATIONMANAGER_H
 
 #include <QVariantMap>
+#include <QDateTime>
 
 class IProxyConnection;
-
 class MulticastProtocolNode;
 
 class MulticastProtocol : public QObject
@@ -24,12 +24,14 @@ public:
 
     void processMessage(QVariantMap *);
     QList<MulticastProtocolNode *> &getNodeList();
-    QMap<QString, MulticastProtocolNode *> &getNodeMap();
+    QMap<uint, MulticastProtocolNode *> &getNodeMap();
     MulticastProtocolNode *getServer();
 
-    QString myId() const;
-    int myScore() const;
+    uint myId() const;
+    uint myScore() const;
     MulticastProtocol::Status myStatus();
+
+    QVariantMap getMessage();
 
     void initialized();
 
@@ -37,11 +39,11 @@ private:
     void updateNodes();
 
     QList<MulticastProtocolNode *> m_nodeList;
-    QMap<QString, MulticastProtocolNode *> m_nodeMap;
+    QMap<uint, MulticastProtocolNode *> m_nodeMap;
 
-    QString m_myId;
-    int m_myScore;
-    bool m_initializing;
+    uint m_myId;
+    uint m_myScore;
+    QDateTime m_initialized;
 
     IProxyConnection *m_proxyConnection;
 };

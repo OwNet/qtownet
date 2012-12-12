@@ -4,7 +4,7 @@
 #include "stub/stubtime.h"
 #endif
 
-MulticastProtocolNode::MulticastProtocolNode(const QString &id, QObject *parent) :
+MulticastProtocolNode::MulticastProtocolNode(const uint &id, QObject *parent) :
     m_id(id), m_lastUpdated(QDateTime()), QObject(parent)
 {
 }
@@ -15,7 +15,7 @@ bool MulticastProtocolNode::lessThan(const MulticastProtocolNode *first,
     return first->score() > second->score();
 }
 
-void MulticastProtocolNode::update(int score, MulticastProtocol::Status status)
+void MulticastProtocolNode::update(uint score, MulticastProtocol::Status status)
 {
     m_score = score;
     m_status = status;
@@ -31,12 +31,12 @@ void MulticastProtocolNode::update(int score, MulticastProtocol::Status status)
     m_lastUpdated = currentDateTime;
 }
 
-QString MulticastProtocolNode::id() const
+uint MulticastProtocolNode::id() const
 {
     return m_id;
 }
 
-int MulticastProtocolNode::score() const
+uint MulticastProtocolNode::score() const
 {
     return m_score;
 }

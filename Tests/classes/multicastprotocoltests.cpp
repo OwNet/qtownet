@@ -5,8 +5,10 @@
 
 #include "autotest.h"
 #include "stub/stubtime.h"
+#include "stub/stubdatabase.h"
 #include "proxyconnection.h"
 #include "session.h"
+#include "databasesettings.h"
 
 #include "../Modules/MulticastModule/multicastprotocol.h"
 #include "../Modules/MulticastModule/multicastprotocolnode.h"
@@ -49,14 +51,34 @@ void MulticastProtocolTests::cleanupTestCase()
 
 void MulticastProtocolTests::testFirstNode()
 {
+    StubDatabase::init();
+    DatabaseSettings databaseSettings;
+    databaseSettings.createClientId();
+
     MulticastProtocol protocol(m_proxyConnection, this);
     MulticastProtocolNode *node;
+    QVariantMap message;
 
     QVERIFY(protocol.getNodeList().count() == 1);
+    QVERIFY(protocol.getNodeMap().count() == 1);
 
+    // node list
     node = protocol.getNodeList().first();
-    QCOMPARE(node->id(), protocol.myId());
+    QCOMPARE(node->id(), databaseSettings.clientId());
     QCOMPARE(node->score(), protocol.myScore());
+
+    // node map
+    node = protocol.getNodeMap().value(protocol.myId());
+    QVERIFY(node != NULL);
+    QCOMPARE(node->id(), databaseSettings.clientId());
+    QCOMPARE(node->score(), protocol.myScore());
+
+    // message
+    message = protocol.getMessage();
+    QCOMPARE(message.value("id").toUInt(), databaseSettings.clientId());
+    QCOMPARE(message.value("score").toUInt(), protocol.myScore());
+    QCOMPARE(message.value("port").toInt(), 8081);
+    QVERIFY(message.value("initialized").isNull());
 }
 
 /*
