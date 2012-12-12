@@ -25,7 +25,7 @@ Service::Service(IProxyConnection *proxyConnection, PrefetchingModule* parent) :
 }
 
 
-QByteArray *Service::processRequest(IBus *bus, IRequest *req)
+QVariant *Service::processRequest(IBus *bus, IRequest *req)
 {
  //   MessageHelper::debug(QString("PREFETCH %1").arg(req->relativeUrl()));
 
@@ -44,10 +44,10 @@ QByteArray *Service::processRequest(IBus *bus, IRequest *req)
     }
 
     if (ret) {
-        return ret;
+        return new QVariant(*ret);
     }
 
-    return new QByteArray("{ ERROR : 'PROBLEM'}");
+    return new QVariant("{ ERROR : 'PROBLEM'}");
 }
 
 QByteArray *Service::link(IBus *, IRequest *req)

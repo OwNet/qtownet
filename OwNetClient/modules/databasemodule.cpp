@@ -1,5 +1,4 @@
 #include "databasemodule.h"
-#include "qjson/serializer.h"
 
 #include <QBuffer>
 #include <QVariantList>

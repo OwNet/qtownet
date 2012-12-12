@@ -13,7 +13,6 @@ class SyncModule : public QObject, public IModule
 
 public:
     void init(IProxyConnection *proxyConnection);
-    QList<IJobAction *> *jobs();
 
 private:
     IProxyConnection *m_proxyConnection;

@@ -4,6 +4,7 @@
 class CleanCacheJob;
 class ProxyTrafficCounterJob;
 class HeartbeatJob;
+class UpdateRecordsSaveJob;
 
 class JobInitializer
 {
@@ -16,6 +17,7 @@ public:
 private:
     CleanCacheJob *m_cleanCacheJob;
     ProxyTrafficCounterJob *m_trafficCounterJob;
+    UpdateRecordsSaveJob *m_updateRecordsSaveJob;
 };
 
 #endif // JOBINITIALIZER_H

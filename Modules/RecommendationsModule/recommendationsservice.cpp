@@ -19,7 +19,11 @@ RecommendationsService::RecommendationsService(IProxyConnection *proxyConnection
 // create element
 QVariant *RecommendationsService::create(IBus *bus, IRequest *req)
 {
-    QVariantMap reqJson = req->postBodyFromJson();
+    bool ok = false;
+    QVariantMap reqJson = req->postBodyFromJson(&ok).toMap();
+    if (!ok)
+        return NULL;
+
     QVariantMap error;
 
     bool missingValue = false;
@@ -64,7 +68,7 @@ QVariant *RecommendationsService::create(IBus *bus, IRequest *req)
     IRequest *request = m_proxyConnection->createRequest(IRequest::GET, "groups", "isMember");
     request->setParamater("user_id", curUser_id);
     request->setParamater("group_id", group_id);
-    bool member = bus->callModule(request)->toBool();
+    bool member = m_proxyConnection->callModule(request)->toBool();
 
     // overit ci je userom skupiny do ktorej chce pridat recomm
     if(member){
@@ -103,9 +107,10 @@ QVariant *RecommendationsService::create(IBus *bus, IRequest *req)
 
 QVariant *RecommendationsService::index(IBus *bus, IRequest *req)
 {
-
-    QVariantMap reqJson = req->postBodyFromJson();
-
+    bool ok = false;
+    QVariantMap reqJson = req->postBodyFromJson(&ok).toMap();
+    if (!ok)
+        return NULL;
 
     QString group_id = reqJson["group_id"].toString();
     QString curUser_id = m_proxyConnection->session()->value("logged").toString();
@@ -113,7 +118,7 @@ QVariant *RecommendationsService::index(IBus *bus, IRequest *req)
     IRequest *request = m_proxyConnection->createRequest(IRequest::GET, "groups", "isMember");
     request->setParamater("user_id", curUser_id);
     request->setParamater("group_id", group_id);
-    bool member = bus->callModule(request)->toBool();
+    bool member = m_proxyConnection->callModule(request)->toBool();
 
     // overit ci je userom skupiny do ktorej chce pridat recomm
     if(member){
@@ -146,13 +151,15 @@ QVariant *RecommendationsService::index(IBus *bus, IRequest *req)
 
 QVariant *RecommendationsService::edit(IBus *bus, IRequest *req)
 {
-
-    QVariantMap reqJson = req->postBodyFromJson();
+    bool ok = true;
+    QVariantMap reqJson = req->postBodyFromJson(&ok).toMap();
+    if (!ok)
+        return NULL;
 
     IRequest *request = m_proxyConnection->createRequest(IRequest::GET, "groups", "isAdmin");
     request->setParamater("user_id", reqJson["user_id"].toString());
     request->setParamater("group_id", reqJson["group_id"].toString());
-    bool admin = bus->callModule(request)->toBool();
+    bool admin = m_proxyConnection->callModule(request)->toBool();
 
     QSqlQuery q;
     q.prepare("SELECT * FROM recommendations WHERE id=:id AND user_id=:user_id AND group_id =:group_id");
@@ -193,13 +200,15 @@ QVariant *RecommendationsService::edit(IBus *bus, IRequest *req)
 
 QVariant *RecommendationsService::del(IBus *bus, IRequest *req)
 {
-
-    QVariantMap reqJson = req->postBodyFromJson();
+    bool ok = false;
+    QVariantMap reqJson = req->postBodyFromJson(&ok).toMap();
+    if (!ok)
+        return NULL;
 
     IRequest *request = m_proxyConnection->createRequest(IRequest::GET, "groups", "isAdmin");
     request->setParamater("user_id", reqJson["user_id"].toString());
     request->setParamater("group_id", reqJson["group_id"].toString());
-    bool admin = bus->callModule(request)->toBool();
+    bool admin = m_proxyConnection->callModule(request)->toBool();
 
     QSqlQuery q;
     q.prepare("SELECT * FROM recommendations WHERE id=:id AND user_id=:user_id AND group_id =:group_id");

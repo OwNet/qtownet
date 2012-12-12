@@ -13,6 +13,7 @@ QMap<QString, QString> *DatabaseSettings::m_cachedSettings = new QMap<QString, Q
 DatabaseSettings::DatabaseSettings(QObject *parent) :
     QObject(parent)
 {
+    clientId();
 }
 
 void DatabaseSettings::setValue(const QString &key, const QString &value)
@@ -34,7 +35,7 @@ QString DatabaseSettings::value(const QString &key, const QString &defaultValue)
 
     QSqlQuery query;
     query.prepare("SELECT value FROM settings WHERE key = :key");
-    query.bindValue("key", key);
+    query.bindValue(":key", key);
 
     if (query.exec() && query.first()) {
         QString value = query.value(query.record().indexOf("value")).toString();
@@ -51,9 +52,10 @@ bool DatabaseSettings::hasClientId() const
     return !clientName.isEmpty();
 }
 
-int DatabaseSettings::clientId() const
+uint DatabaseSettings::clientId() const
 {
-    return value("client_id").toInt();
+    uint id = value("client_id").toUInt();
+    return id;
 }
 
 void DatabaseSettings::createClientId()

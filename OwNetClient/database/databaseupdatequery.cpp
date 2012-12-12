@@ -153,6 +153,7 @@ bool DatabaseUpdateQuery::executeQuery()
 //  for debugging purposes:
 //    qDebug() << queryString;
     if (!query.exec()) {
+        MessageHelper::debug(queryString);
         MessageHelper::debug(query.lastError().text());
         return false;
     } else {

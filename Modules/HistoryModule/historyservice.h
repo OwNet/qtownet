@@ -14,19 +14,18 @@ class HistoryService : public QObject, public IService
 {
     Q_OBJECT
 public:
-    HistoryService(IProxyConnection *proxyConnection, HistoryModule* pm);
+    HistoryService(IProxyConnection *proxyConnection, QObject *parent = 0);
+
+    void init(IRouter *router);
 
     QString name() const { return "history"; }
 
-    QByteArray *processRequest(IBus *, IRequest *);
+    IResponse *visit(IRequest *req);
 
 private:
 
-   HistoryModule* m_module;
    IProxyConnection *m_proxyConnection;
 
-   QByteArray *visit(IBus *, IRequest *);
-   QByteArray *close(IBus *, IRequest *);
 
 
    int registerPageQuery(IDatabaseUpdate *update, QString url, QString title);

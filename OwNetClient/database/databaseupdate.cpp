@@ -1,9 +1,13 @@
 #include "databaseupdate.h"
 
 #include "databasesettings.h"
-#include "qjson/serializer.h"
+#include "jsondocument.h"
 
 #include <QDebug>
+#include <QSqlQuery>
+#include <QStringList>
+
+QMap<int, int> *DatabaseUpdate::m_lastRecordNumbers = new QMap<int, int>;
 
 DatabaseUpdate::DatabaseUpdate(QObject *parent)
     : QObject(parent), m_sync(true), m_syncWith(-1), m_groupId(-1)
@@ -64,6 +68,50 @@ int DatabaseUpdate::execute()
     return numFailed;
 }
 
+void DatabaseUpdate::saveLastRecordNumbers()
+{
+    QMap<int, int> recordNumbers(*m_lastRecordNumbers);
+    m_lastRecordNumbers->clear();
+    DatabaseSettings databaseSettings;
+
+    for (auto i = recordNumbers.begin(); i != recordNumbers.end(); ++i) {
+        QString where;
+        if (i.key() == -1)
+            where += "group_id IS NULL";
+        else
+            where += QString("group_id = %1").arg(i.key());
+        where += QString(" AND client_id = %1").arg(databaseSettings.clientId());
+
+        QSqlQuery query;
+        query.prepare(QString("SELECT 1 FROM client_sync_records WHERE %1").arg(where));
+        if (query.exec() && query.next()) {
+            QSqlQuery update;
+            update.prepare(QString("UPDATE client_sync_records SET last_client_rec_num = %1 WHERE %2")
+                           .arg(i.value())
+                           .arg(where));
+            update.exec();
+        } else {
+            QStringList columns;
+            QStringList values;
+            if (i.key() != -1) {
+                columns.append("group_id");
+                values.append(QString::number(i.key()));
+            }
+            columns.append("client_id");
+            values.append(QString::number(databaseSettings.clientId()));
+
+            columns.append("last_client_rec_num");
+            values.append(QString::number(i.value()));
+
+            QSqlQuery insert;
+            insert.prepare(QString("INSERT INTO client_sync_records (%1) VALUES (%2)")
+                    .arg(columns.join(", "))
+                    .arg(values.join(", ")));
+            insert.exec();
+        }
+    }
+}
+
 /**
  * @brief Save queries to sync journal
  */
@@ -74,20 +122,23 @@ void DatabaseUpdate::saveToJournal()
 
     QVariantList content;
     foreach (IDatabaseUpdateQuery *query, m_updateQueries)
-        content.append(query->content());
-    QJson::Serializer serializer;
+        content.append(query->content());    
 
     DatabaseUpdate update(false);
     IDatabaseUpdateQuery *query = update.createUpdateQuery("sync_journal", IDatabaseUpdateQuery::Insert);
     query->setUpdateDates(IDatabaseUpdateQuery::DateCreated);
 
-    query->setColumnValue("client_id", DatabaseSettings().clientId());
-    query->setColumnValue("client_rec_num", DatabaseSettings().nextClientSyncRecordNumber());
-    query->setColumnValue("content", serializer.serialize(content));
+    DatabaseSettings databaseSettings;
+    int clientRecNum = databaseSettings.nextClientSyncRecordNumber();
+    query->setColumnValue("client_id", databaseSettings.clientId());
+    query->setColumnValue("client_rec_num", clientRecNum);
+    query->setColumnValue("content", JsonDocument::fromVariantList(content).toJson());
     if (m_syncWith != -1)
         query->setColumnValue("sync_with", m_syncWith);
     if (m_groupId != -1)
         query->setColumnValue("group_id", m_groupId);
+
+    m_lastRecordNumbers->insert(m_groupId, clientRecNum);
 
     update.execute();
 }

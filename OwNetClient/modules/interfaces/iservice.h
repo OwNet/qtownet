@@ -2,16 +2,16 @@
 #define ISERVICES_H
 
 #include <QString>
+#include "irequest.h"
+#include "iresponse.h"
 
-class IBus;
-class IRequest;
+class IRouter;
 
 class IService
 {
 public:
     virtual QString name() const = 0;
-
-    virtual QByteArray *processRequest(IBus *bus, IRequest *req) = 0;
+    virtual void init(IRouter* router){}
 };
 
 #endif // ISERVICES_H

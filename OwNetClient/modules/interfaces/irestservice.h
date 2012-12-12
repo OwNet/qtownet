@@ -2,32 +2,29 @@
 #define IRESTMODULE_H
 
 #include <QString>
+#include "iservice.h"
+#include "iresponse.h"
+#include "irequest.h"
 
-class QVariant;
-class IRequest;
-class IBus;
 
-class IRestService
+class IRestService : public IService
 {
 public:
-    virtual QString name() const = 0;
 
-    virtual QVariant *index(IBus *, IRequest *) { return NULL; }
+    virtual IResponse *index(IRequest *req) { return req->response(IResponse::METHOD_NOT_ALLOWED); }
 
     // create element
-    virtual QVariant *create(IBus *, IRequest *) { return NULL; }
+    virtual IResponse *create(IRequest *req) { return req->response(IResponse::METHOD_NOT_ALLOWED); }
 
     // show element
-    virtual QVariant *show(IBus *, IRequest *) { return NULL; }
+    virtual IResponse *show(IRequest *req, int id) { return req->response(IResponse::METHOD_NOT_ALLOWED); }
 
     // delete element
-    virtual QVariant *del(IBus *, IRequest *) { return NULL; }
+    virtual IResponse *del(IRequest *req, int id) { return req->response(IResponse::METHOD_NOT_ALLOWED); }
 
     // edit element
-    virtual QVariant *edit(IBus *, IRequest *) { return NULL; }
+    virtual IResponse *edit(IRequest *req, int id) { return req->response(IResponse::METHOD_NOT_ALLOWED); }
 
-    // other action
-    virtual QVariant *processRequest(IBus *, IRequest *) { return NULL; }
 };
 
 #endif // IRESTMODULE_H

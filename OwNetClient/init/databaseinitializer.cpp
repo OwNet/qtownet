@@ -3,7 +3,6 @@
 
 #include "applicationdatastorage.h"
 #include "applicationenvironment.h"
-#include "proxydownloads.h"
 #include "databasesettings.h"
 
 #include <QtCore/QVariant>

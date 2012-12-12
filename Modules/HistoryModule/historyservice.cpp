@@ -14,30 +14,35 @@
 #include <QSqlRecord>
 #include <QDateTime>
 
-HistoryService::HistoryService(IProxyConnection *proxyConnection, HistoryModule* parent) :
-    QObject((QObject*)parent),
-    m_proxyConnection(proxyConnection),
-    m_module(parent)
+HistoryService::HistoryService(IProxyConnection *proxyConnection, QObject* parent) :
+    QObject(parent),
+    m_proxyConnection(proxyConnection)
 {
 }
 
-
-QByteArray *HistoryService::processRequest(IBus *bus, IRequest *req)
+void HistoryService::init(IRouter *router)
 {
- //   MessageHelper::debug(QString("PREFETCH %1").arg(req->relativeUrl()));
-
-    //QVariantMap response;
-    QByteArray *ret = NULL;
-    if (req->action() == "visit") {
-        ret = visit(bus,req);
-    }
-
-    if (ret) {
-        return ret;
-    }
-
-    return new QByteArray("{ ERROR : 'PROBLEM'}");
+    router->addRoute("/")
+            ->on(IRequest::GET, ROUTE(visit) );
 }
+
+
+//QByteArray *HistoryService::processRequest(IBus *bus, IRequest *req)
+//{
+// //   MessageHelper::debug(QString("PREFETCH %1").arg(req->relativeUrl()));
+
+//    //QVariantMap response;
+//    QByteArray *ret = NULL;
+//    if (req->action() == "visit") {
+//        ret = visit(bus,req);
+//    }
+
+//    if (ret) {
+//        return ret;
+//    }
+
+//    return new QByteArray("{ ERROR : 'PROBLEM'}");
+//}
 
 int HistoryService::registerPageQuery(IDatabaseUpdate *update, QString url, QString title)
 {
@@ -153,7 +158,7 @@ void HistoryService::registerTraverseQuery(IDatabaseUpdate *update, int user_id,
     query->setColumnValue("frequency", freq);
 }
 
-QByteArray *HistoryService::visit(IBus *, IRequest *req)
+IResponse *HistoryService::visit(IRequest *req)
 {
     QObject parent;
     int idfrom = -1;
@@ -165,7 +170,7 @@ QByteArray *HistoryService::visit(IBus *, IRequest *req)
 
         QString page = req->parameterValue("page");
         if (page.contains("prefetch.ownet/api"))
-            return NULL;
+            return req->response(IResponse::NOT_FOUND);
 
         int user_id = -1;
         bool t = false;
@@ -209,10 +214,10 @@ QByteArray *HistoryService::visit(IBus *, IRequest *req)
 
                 update->execute();
             }
-            return new QByteArray(QString("owNetPAGEID = %1;").arg(QString::number(idto)).toLatin1());
+            return req->response(QString("owNetPAGEID = %1;").arg(QString::number(idto)).toLatin1());
         }
     }
-    return NULL;
+    return req->response(IResponse::NOT_FOUND);
 }
 
 

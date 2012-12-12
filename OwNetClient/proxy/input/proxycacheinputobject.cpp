@@ -6,7 +6,7 @@
 
 #include "proxyrequest.h"
 #include "cachefolder.h"
-#include "qjson/json_parser.hh"
+#include "jsondocument.h"
 #include "gdsfclock.h"
 #include "proxydownloads.h"
 
@@ -24,10 +24,10 @@ ProxyCacheInputObject::ProxyCacheInputObject(ProxyRequest *request, QObject *par
         setHttpStatusDescription(query.value(query.record().indexOf("status_description")).toString());
 
         bool ok;
-        QJson::Parser parser;
-        QVariantMap result = parser.parse(query.value(query.record().indexOf("response_headers"))
-                                          .toByteArray(), &ok)
-                .toMap();
+        QVariantMap result = JsonDocument::fromJson(query.value(query.record().indexOf("response_headers"))
+                                                    .toByteArray(), &ok)
+                .object().toVariantMap();
+
         if (ok)
             m_responseHeaders = VariantMap(result);
 

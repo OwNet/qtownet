@@ -1,6 +1,6 @@
 #include "heartbeatserver.h"
 #include "messagehelper.h"
-#include "qjson/parser.h"
+#include "jsondocument.h"
 #include "communicationmanager.h"
 
 #include <QHostAddress>
@@ -24,7 +24,7 @@ HeartbeatServer::HeartbeatServer()
 void HeartbeatServer::start(QHostAddress *groupAddress, int port)
 {
      m_udpSocket = new QUdpSocket(this);
-     m_udpSocket->bind(port, QUdpSocket::ShareAddress);
+     m_udpSocket->bind(QHostAddress::AnyIPv4, port, QUdpSocket::ShareAddress);
      m_udpSocket->joinMulticastGroup(*groupAddress);
 
      connect(m_udpSocket, SIGNAL(readyRead()), this, SLOT(processPendingDatagrams()));
@@ -41,20 +41,15 @@ void HeartbeatServer::processPendingDatagrams()
          QByteArray datagram;
 
          datagram.resize(m_udpSocket->pendingDatagramSize());
-         m_udpSocket->readDatagram(datagram.data(), datagram.size());
+         m_udpSocket->readDatagram(datagram.data(), datagram.size());         
 
-         QJson::Parser parser;
-         bool ok;
+         // MessageHelper::debug(datagram.data());
 
-         MessageHelper::debug(datagram.data());
-
-         QVariantMap result = parser.parse(datagram.data(), &ok).toMap();
-         if (ok)
+         QJsonParseError ok;
+         JsonDocument json = JsonDocument::fromJson(datagram.data(),&ok);
+         if (ok.error == QJsonParseError::NoError ) {
+            QVariantMap result = json.object().toVariantMap();
             CommunicationManager::getInstance()->processMessage(&result);
+         }
      }
-}
-
-void HeartbeatServer::processMessage(QVariantMap &message)
-{
-    MessageHelper::debug(message.value("score").toString());
 }

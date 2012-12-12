@@ -1,6 +1,6 @@
 #include "syncjob.h"
 
-#include <QDebug>
+#include "syncclient.h"
 
 SyncJob::SyncJob(IProxyConnection *proxyConnection, QObject *parent) :
     QObject(parent),
@@ -11,8 +11,13 @@ SyncJob::SyncJob(IProxyConnection *proxyConnection, QObject *parent) :
 
 void SyncJob::execute()
 {
+    return;
     if (!m_syncMutex.tryLock())
         return;
+
+    SyncClient client(m_proxyConnection);
+    client.reportToServer();
+    client.update();
 
     m_syncMutex.unlock();
 }
