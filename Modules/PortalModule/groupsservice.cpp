@@ -767,7 +767,7 @@ IResponse *GroupsService::getUsersGroups( IRequest *req)
 
            QVariantMap group;
            group.insert("first_name",query.value(query.record().indexOf("user_id")));
-           group.insert("lastn_name",query.value(query.record().indexOf("last_name")));
+           group.insert("last_name",query.value(query.record().indexOf("last_name")));
 
            groups.append(group);
         }
