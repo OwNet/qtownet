@@ -113,7 +113,8 @@ void ProxySocketOutputWriter::read(QIODevice *ioDevice)
         os.flush();
     }
     QRegularExpression rx("(.*<body[^>]*>)(.*)");
-    if (!m_foundBody && m_proxyDownload->inputObject()->contentType().toLower().contains("text/html")) {
+    ProxyInputObject *inputObject = m_proxyDownload->inputObject();
+    if (!m_foundBody && !inputObject->request()->isLocalRequest() && inputObject->contentType().toLower().contains("text/html")) {
         while (!ioDevice->atEnd()) {
             QByteArray lineBytes = ioDevice->readLine();
             QString line = QString::fromLatin1(lineBytes);
