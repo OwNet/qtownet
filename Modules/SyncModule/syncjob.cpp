@@ -6,7 +6,6 @@ SyncJob::SyncJob(IProxyConnection *proxyConnection, QObject *parent) :
     QObject(parent),
     m_proxyConnection(proxyConnection)
 {
-    execute();
 }
 
 void SyncJob::execute()
