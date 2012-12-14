@@ -14,11 +14,22 @@ DatabaseUpdate::DatabaseUpdate(QObject *parent)
 {
 }
 
+/**
+ * @brief Create a new DatabaseUpdate object
+ * @param sync True if the query should be saved in journal
+ * @param parent
+ */
 DatabaseUpdate::DatabaseUpdate(bool sync, QObject *parent)
     : QObject(parent), m_sync(sync), m_syncWith(-1), m_groupId(-1)
 {
 }
 
+/**
+ * @brief Construct a DatabaseUpdate object from a JSON representation of the queries
+ * @param content
+ * @param sync
+ * @param parent
+ */
 DatabaseUpdate::DatabaseUpdate(const QVariantList &content, bool sync, QObject *parent)
     : QObject(parent), m_sync(sync), m_syncWith(-1), m_groupId(-1)
 {
@@ -68,6 +79,11 @@ int DatabaseUpdate::execute()
     return numFailed;
 }
 
+/**
+ * @brief Save record numbers of the last created queries of the client in sync journal to client_sync_records.
+ *
+ * Called periodically.
+ */
 void DatabaseUpdate::saveLastRecordNumbers()
 {
     QMap<int, int> recordNumbers(*m_lastRecordNumbers);

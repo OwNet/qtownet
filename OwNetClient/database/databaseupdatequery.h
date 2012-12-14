@@ -23,19 +23,19 @@ public:
     void setType(EntryType type);
     void setReturningId(const QString &useColumnAs, const QVariantList &queries);
     void setColumnValue(const QString &name, const QVariant &value);
-    void setTemporaryBinding(const QString &name, const QVariant &value);
     void setWhere(const QString &name, const QVariant &value);
     void setUpdateDates(bool setDates);
     void setUpdateDates(IDatabaseUpdateQuery::UpdateDates updateDates);
-    void save();
     bool executeQuery();
 
     QString table() const;
     EntryType type() const;
     QVariantMap content() const;
-    QVariant bindingValue(const QString &name, const QVariant &value) const;
     
 private:
+    void save();
+    void setTemporaryBinding(const QString &name, const QVariant &value);
+    QVariant bindingValue(const QString &name, const QVariant &value) const;
     QString timestamp() const;
 
     void appendWhere(QString &queryString, QSqlQuery &query);
