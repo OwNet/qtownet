@@ -11,59 +11,49 @@ const int MulticastProtocol::expirationTimeInSeconds = 15;
 MulticastProtocol::MulticastProtocol(IProxyConnection *connection, QObject *parent)
     : m_proxyConnection(connection), QObject(parent)
 {
-    m_myId = connection->databaseSettings(this)->clientId();
-    m_myScore = 1;
+    uint myId = connection->databaseSettings(this)->clientId();
 
     // add self as first instance
-    MulticastProtocolNode *node;
-    node = new MulticastProtocolNode(m_myId);
-    m_nodeList.append(node);
-    node->update(m_myScore, NONE);
+    m_currentNode = new MulticastProtocolNode(myId);
+    m_currentNode->update(1, INITIALIZING, 8081, 0);
+    m_nodeList.append(m_currentNode);
+}
 
+MulticastProtocolNode *MulticastProtocol::currentNode()
+{
     updateNodes();
+
+    return m_currentNode;
 }
 
-uint MulticastProtocol::myId() const
+MulticastProtocolNode *MulticastProtocol::serverNode()
 {
-    return m_myId;
-}
+    updateNodes();
 
-uint MulticastProtocol::myScore() const
-{
-    return m_myScore;
-}
-
-MulticastProtocol::Status MulticastProtocol::myStatus()
-{
-    if (m_initialized.isNull())
-        return INITIALIZING; // not initialized yet
-
-    // find first after INITIALIZING
-    for (int i = 0; i < m_nodeList.size(); ++i)
+    if (m_nodeList.count() <= 1)
+        return NULL; // no other proxies
+    else
     {
-        if (m_nodeList.at(i)->status() != INITIALIZING)
-        {
-            if (m_nodeList.at(i)->id() == myId())
-                return SERVER; // top score or still server
-            else
-                return CLIENT;
-        }
+        if (m_nodeList.first()->status() == INITIALIZING)
+            return NULL; // future server initializing
+        else
+            return m_nodeList.first(); // best is the server
     }
-
-    return SERVER;
 }
 
 void MulticastProtocol::initialized()
 {
-    m_initialized = QDateTime::currentDateTime();
+    m_currentNode->setInitialized(QDateTime::currentDateTime().toString(Qt::ISODate).toUInt());
 }
 
 void MulticastProtocol::processMessage(QVariantMap *message)
 {
-    MulticastProtocolNode *communicationInstance = NULL;
+    MulticastProtocolNode *node = NULL;
 
     uint id = message->value("id").toUInt();
     uint score = message->value("score").toUInt();
+    uint port = message->value("port").toUInt();
+    uint initialized = message->value("initialized").toUInt();
 
     Status status;
     if (message->value("status") == "initializing")
@@ -78,45 +68,35 @@ void MulticastProtocol::processMessage(QVariantMap *message)
     {
         if (m_nodeList.at(i)->id() == id)
         {
-            communicationInstance = m_nodeList.at(i);
+            node = m_nodeList.at(i);
             break;
         }
     }
 
     // or create new
-    if (! communicationInstance)
+    if (! node)
     {
-        communicationInstance = new MulticastProtocolNode(id);
-        m_nodeList.append(communicationInstance);
+        node = new MulticastProtocolNode(id);
+        m_nodeList.append(node);
     }
 
     // update info
-    communicationInstance->update(score, status);
-
-    updateNodes();
+    if (node != m_currentNode)
+        node->update(score, status, port, initialized);
 }
 
-QList<MulticastProtocolNode *> &MulticastProtocol::getNodeList()
+QList<MulticastProtocolNode *> &MulticastProtocol::nodeList()
 {
+    updateNodes();
+
     return m_nodeList;
 }
 
-QMap<uint, MulticastProtocolNode *> &MulticastProtocol::getNodeMap()
+QMap<uint, MulticastProtocolNode *> &MulticastProtocol::nodeMap()
 {
-    return m_nodeMap;
-}
+    updateNodes();
 
-MulticastProtocolNode *MulticastProtocol::getServer()
-{
-    if (m_nodeList.empty())
-        return NULL; // no other proxies
-    else
-    {
-        if (m_nodeList.first()->status() == INITIALIZING)
-            return NULL; // future server initializing
-        else
-            return m_nodeList.first(); // best is the server
-    }
+    return m_nodeMap;
 }
 
 void MulticastProtocol::updateNodes()
@@ -131,7 +111,7 @@ void MulticastProtocol::updateNodes()
 
         node = i.next();
 
-        if (node->isExpired())
+        if (node->id() != m_currentNode->id() && node->isExpired())
             i.remove();
         else
         {
@@ -141,14 +121,39 @@ void MulticastProtocol::updateNodes()
 
     // sort proxies by score
     qSort(m_nodeList.begin(), m_nodeList.end(), MulticastProtocolNode::lessThan);
+
+    // se status
+    m_currentNode->setStatus(currentNodesStatus());
 }
 
-QVariantMap MulticastProtocol::getMessage()
+MulticastProtocol::Status MulticastProtocol::currentNodesStatus() const
+{
+    if (m_currentNode->initialized() == 0)
+        return INITIALIZING; // not initialized yet
+
+    // find first after INITIALIZING
+    for (int i = 0; i < m_nodeList.size(); ++i)
+    {
+        if (m_nodeList.at(i)->status() != INITIALIZING)
+        {
+            if (m_nodeList.at(i)->id() == m_currentNode->id())
+                return SERVER; // top score or still server
+            else
+                return CLIENT;
+        }
+    }
+
+    return SERVER;
+}
+
+QVariantMap MulticastProtocol::message()
 {
     QVariantMap message;
 
+    updateNodes();
+
     QString status;
-    switch (myStatus())
+    switch (m_currentNode->status())
     {
     case MulticastProtocol::INITIALIZING:
         status = "initializing";
@@ -161,11 +166,11 @@ QVariantMap MulticastProtocol::getMessage()
         break;
     }
 
-    message.insert("id", myId());
-    message.insert("score", myScore());
+    message.insert("id", m_currentNode->id());
+    message.insert("score", m_currentNode->score());
     message.insert("status", status);
     message.insert("port", 8081);
-    message.insert("initialized", m_initialized);
+    message.insert("initialized", m_currentNode->initialized());
 
     return message;
 }

@@ -15,20 +15,32 @@ bool MulticastProtocolNode::lessThan(const MulticastProtocolNode *first,
     return first->score() > second->score();
 }
 
-void MulticastProtocolNode::update(uint score, MulticastProtocol::Status status)
+void MulticastProtocolNode::update(uint score, MulticastProtocol::Status status,
+                                   uint port, uint initialized)
 {
     m_score = score;
     m_status = status;
+    m_port = port;
+    m_initialized = initialized;
 
+    // last update
     QDateTime currentDateTime;
-
 #ifdef TEST
     currentDateTime = StubTime::currentDateTime();
 #else
     currentDateTime = QDateTime::currentDateTime();
 #endif
-
     m_lastUpdated = currentDateTime;
+}
+
+void MulticastProtocolNode::setStatus(MulticastProtocol::Status status)
+{
+    m_status = status;
+}
+
+void MulticastProtocolNode::setInitialized(uint port)
+{
+    m_port = port;
 }
 
 uint MulticastProtocolNode::id() const
@@ -39,6 +51,16 @@ uint MulticastProtocolNode::id() const
 uint MulticastProtocolNode::score() const
 {
     return m_score;
+}
+
+uint MulticastProtocolNode::port() const
+{
+    return m_port;
+}
+
+uint MulticastProtocolNode::initialized() const
+{
+    return m_initialized;
 }
 
 MulticastProtocol::Status MulticastProtocolNode::status() const

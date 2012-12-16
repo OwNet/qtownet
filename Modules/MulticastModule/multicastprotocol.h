@@ -13,7 +13,6 @@ class MulticastProtocol : public QObject
 
 public:
     enum Status {
-        NONE,
         INITIALIZING,
         CLIENT,
         SERVER
@@ -23,27 +22,22 @@ public:
     MulticastProtocol(IProxyConnection *connection, QObject *parent = 0);
 
     void processMessage(QVariantMap *);
-    QList<MulticastProtocolNode *> &getNodeList();
-    QMap<uint, MulticastProtocolNode *> &getNodeMap();
-    MulticastProtocolNode *getServer();
+    QList<MulticastProtocolNode *> &nodeList();
+    QMap<uint, MulticastProtocolNode *> &nodeMap();
+    MulticastProtocolNode *serverNode();
+    MulticastProtocolNode *currentNode();
 
-    uint myId() const;
-    uint myScore() const;
-    MulticastProtocol::Status myStatus();
-
-    QVariantMap getMessage();
+    QVariantMap message();
 
     void initialized();
 
 private:
     void updateNodes();
+    MulticastProtocol::Status currentNodesStatus() const;
 
+    MulticastProtocolNode *m_currentNode;
     QList<MulticastProtocolNode *> m_nodeList;
     QMap<uint, MulticastProtocolNode *> m_nodeMap;
-
-    uint m_myId;
-    uint m_myScore;
-    QDateTime m_initialized;
 
     IProxyConnection *m_proxyConnection;
 };

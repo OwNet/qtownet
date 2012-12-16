@@ -16,6 +16,6 @@ void MulticastJob::execute()
     m_protocol->initialized();
 
     QUdpSocket *udpSocket = new QUdpSocket(this);
-    QByteArray datagram = JsonDocument::fromVariant(m_protocol->getMessage()).toJson();
+    QByteArray datagram = JsonDocument::fromVariant(m_protocol->message()).toJson();
     udpSocket->writeDatagram(datagram.data(), datagram.size(), *m_groupAddress, m_port);
 }

@@ -59,26 +59,26 @@ void MulticastProtocolTests::testFirstNode()
     MulticastProtocolNode *node;
     QVariantMap message;
 
-    QVERIFY(protocol.getNodeList().count() == 1);
-    QVERIFY(protocol.getNodeMap().count() == 1);
+    QVERIFY(protocol.nodeList().count() == 1);
+    QVERIFY(protocol.nodeMap().count() == 1);
 
     // node list
-    node = protocol.getNodeList().first();
+    node = protocol.nodeList().first();
     QCOMPARE(node->id(), databaseSettings.clientId());
-    QCOMPARE(node->score(), protocol.myScore());
+    QCOMPARE(node->score(), protocol.currentNode()->score());
 
     // node map
-    node = protocol.getNodeMap().value(protocol.myId());
+    node = protocol.nodeMap().value(protocol.currentNode()->id());
     QVERIFY(node != NULL);
     QCOMPARE(node->id(), databaseSettings.clientId());
-    QCOMPARE(node->score(), protocol.myScore());
+    QCOMPARE(node->score(), protocol.currentNode()->score());
 
     // message
-    message = protocol.getMessage();
+    message = protocol.message();
     QCOMPARE(message.value("id").toUInt(), databaseSettings.clientId());
-    QCOMPARE(message.value("score").toUInt(), protocol.myScore());
+    QCOMPARE(message.value("score").toUInt(), protocol.currentNode()->score());
     QCOMPARE(message.value("port").toInt(), 8081);
-    QVERIFY(message.value("initialized").isNull());
+    QCOMPARE(message.value("initialized").toUInt(), (uint) 0);
 }
 
 /*
