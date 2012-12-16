@@ -34,7 +34,9 @@ MulticastProtocolNode *MulticastProtocol::serverNode()
         return NULL; // no other proxies
     else
     {
-        if (m_nodeList.first()->status() == INITIALIZING)
+        if (m_nodeList.first() == m_currentNode)
+                    return NULL; // this is server
+        else if (m_nodeList.first()->status() == INITIALIZING)
             return NULL; // future server initializing
         else
             return m_nodeList.first(); // best is the server
