@@ -51,6 +51,8 @@ void MulticastProtocolTests::cleanupTestCase()
 
 void MulticastProtocolTests::testFirstNode()
 {
+    StubTime::setCurrentDateTime(QDateTime::currentDateTime());
+
     StubDatabase::init();
     DatabaseSettings databaseSettings;
     databaseSettings.createClientId();
@@ -73,12 +75,69 @@ void MulticastProtocolTests::testFirstNode()
     QCOMPARE(node->id(), databaseSettings.clientId());
     QCOMPARE(node->score(), protocol.currentNode()->score());
 
+    // status
+    node->status() == MulticastProtocol::INITIALIZING;
+
     // message
     message = protocol.message();
     QCOMPARE(message.value("id").toUInt(), databaseSettings.clientId());
     QCOMPARE(message.value("score").toUInt(), protocol.currentNode()->score());
     QCOMPARE(message.value("port").toInt(), 8081);
     QCOMPARE(message.value("initialized").toUInt(), (uint) 0);
+    QCOMPARE(message.value("status").toString(), QString("initializing"));
+
+    // wait!
+    StubTime::addSecs(5 * period);
+
+    QVERIFY(protocol.nodeList().count() == 1);
+    QVERIFY(protocol.nodeMap().count() == 1);
+
+    // status
+    node->status() == MulticastProtocol::INITIALIZING;
+
+    // message
+    message = protocol.message();
+    QCOMPARE(message.value("id").toUInt(), databaseSettings.clientId());
+    QCOMPARE(message.value("score").toUInt(), protocol.currentNode()->score());
+    QCOMPARE(message.value("port").toInt(), 8081);
+    QCOMPARE(message.value("initialized").toUInt(), (uint) 0);
+    QCOMPARE(message.value("status").toString(), QString("initializing"));
+
+    // initialized!
+    protocol.initialized();
+
+    QVERIFY(protocol.nodeList().count() == 1);
+    QVERIFY(protocol.nodeMap().count() == 1);
+
+    // status
+    node->status() == MulticastProtocol::SERVER;
+
+    // message
+    message = protocol.message();
+    QCOMPARE(message.value("id").toUInt(), databaseSettings.clientId());
+    QCOMPARE(message.value("score").toUInt(), protocol.currentNode()->score());
+    QCOMPARE(message.value("port").toInt(), 8081);
+    QVERIFY(message.value("initialized").toUInt() > (uint) 0);
+    QCOMPARE(message.value("status").toString(), QString("server"));
+
+    // wait!
+    StubTime::addSecs(5 * period);
+
+    QVERIFY(protocol.nodeList().count() == 1);
+    QVERIFY(protocol.nodeMap().count() == 1);
+
+    // status
+    node->status() == MulticastProtocol::SERVER;
+
+    // message
+    message = protocol.message();
+    QCOMPARE(message.value("id").toUInt(), databaseSettings.clientId());
+    QCOMPARE(message.value("score").toUInt(), protocol.currentNode()->score());
+    QCOMPARE(message.value("port").toInt(), 8081);
+    QVERIFY(message.value("initialized").toUInt() > (uint) 0);
+    QCOMPARE(message.value("status").toString(), QString("server"));
+
+    StubTime::cleanCurrentDateTime();
 }
 
 /*

@@ -38,9 +38,15 @@ void MulticastProtocolNode::setStatus(MulticastProtocol::Status status)
     m_status = status;
 }
 
-void MulticastProtocolNode::setInitialized(uint port)
+void MulticastProtocolNode::setInitialized()
 {
-    m_port = port;
+    QDateTime currentDateTime;
+#ifdef TEST
+    currentDateTime = StubTime::currentDateTime();
+#else
+    currentDateTime = QDateTime::currentDateTime();
+#endif
+    m_initialized = currentDateTime.toTime_t();
 }
 
 uint MulticastProtocolNode::id() const

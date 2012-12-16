@@ -43,7 +43,7 @@ MulticastProtocolNode *MulticastProtocol::serverNode()
 
 void MulticastProtocol::initialized()
 {
-    m_currentNode->setInitialized(QDateTime::currentDateTime().toString(Qt::ISODate).toUInt());
+    m_currentNode->setInitialized();
 }
 
 void MulticastProtocol::processMessage(QVariantMap *message)

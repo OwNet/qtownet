@@ -24,7 +24,7 @@ public:
     bool isExpired() const;
 
     void setStatus(MulticastProtocol::Status);
-    void setInitialized(uint);
+    void setInitialized();
 
 private:
 
