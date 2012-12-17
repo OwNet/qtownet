@@ -12,7 +12,10 @@ MulticastProtocolNode::MulticastProtocolNode(const uint &id, QObject *parent) :
 bool MulticastProtocolNode::lessThan(const MulticastProtocolNode *first,
                                      const MulticastProtocolNode *second)
 {
-    return first->score() > second->score();
+    if (first->score() != second->score())
+        return first->score() > second->score();                // descending by score
+    else
+        return first->initialized() < second->initialized();    // ascending by initialized
 }
 
 void MulticastProtocolNode::update(uint score, MulticastProtocol::Status status,

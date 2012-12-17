@@ -628,18 +628,21 @@ void MulticastProtocolTests::testMultipleWeakerNodes()
     sendMessage->insert("id", "1");
     sendMessage->insert("score", "0");
     sendMessage->insert("status", "client");
+    sendMessage->insert("initialized", "3");
     protocol.processMessage(sendMessage);
 
     sendMessage = new QVariantMap();
     sendMessage->insert("id", "2");
     sendMessage->insert("score", "0");
     sendMessage->insert("status", "client");
+    sendMessage->insert("initialized", "2");
     protocol.processMessage(sendMessage);
 
     sendMessage = new QVariantMap();
     sendMessage->insert("id", "3");
     sendMessage->insert("score", "0");
     sendMessage->insert("status", "server");
+    sendMessage->insert("initialized", "1");
     protocol.processMessage(sendMessage);
 
     QVERIFY(protocol.nodeList().count() == 4);
@@ -652,18 +655,21 @@ void MulticastProtocolTests::testMultipleWeakerNodes()
     QVERIFY(node == protocol.nodeMap().value(node->id()));
 
     node = protocol.nodeList().at(1);
-    QCOMPARE(node->id(), (uint) 1);
+    QCOMPARE(node->id(), (uint) 3);
     QCOMPARE(node->score(), (uint) 0);
+    QCOMPARE(node->initialized(), (uint) 1);
     QVERIFY(node == protocol.nodeMap().value(node->id()));
 
     node = protocol.nodeList().at(2);
     QCOMPARE(node->id(), (uint) 2);
     QCOMPARE(node->score(), (uint) 0);
+    QCOMPARE(node->initialized(), (uint) 2);
     QVERIFY(node == protocol.nodeMap().value(node->id()));
 
     node = protocol.nodeList().at(3);
-    QCOMPARE(node->id(), (uint) 3);
+    QCOMPARE(node->id(), (uint) 1);
     QCOMPARE(node->score(), (uint) 0);
+    QCOMPARE(node->initialized(), (uint) 3);
     QVERIFY(node == protocol.nodeMap().value(node->id()));
 
     // status
