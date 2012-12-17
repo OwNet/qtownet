@@ -104,6 +104,19 @@ QMap<uint, MulticastProtocolNode *> &MulticastProtocol::nodeMap()
 void MulticastProtocol::updateNodes()
 {
     // clean expired proxies and build proxy map
+    cleanExpiredNodes();
+
+    // sort proxies by score
+    qSort(m_nodeList.begin(), m_nodeList.end(), MulticastProtocolNode::lessThan);
+
+    // set status
+    m_currentNode->setStatus(currentNodesStatus());
+    //qDebug() << "updateNodes() currentNodesStatus()" << currentNodesStatus();
+    //qDebug() << "updateNodes() m_currentNode->status()" << m_currentNode->status();
+}
+
+void MulticastProtocol::cleanExpiredNodes()
+{
     QMutableListIterator<MulticastProtocolNode *> i(m_nodeList);
 
     m_nodeMap.clear();
@@ -120,12 +133,6 @@ void MulticastProtocol::updateNodes()
             m_nodeMap.insert(node->id(), node);
         }
     }
-
-    // sort proxies by score
-    qSort(m_nodeList.begin(), m_nodeList.end(), MulticastProtocolNode::lessThan);
-
-    // se status
-    m_currentNode->setStatus(currentNodesStatus());
 }
 
 MulticastProtocol::Status MulticastProtocol::currentNodesStatus() const
@@ -151,10 +158,14 @@ MulticastProtocol::Status MulticastProtocol::currentNodesStatus() const
 QVariantMap MulticastProtocol::message()
 {
     QVariantMap message;
+    QString status;
 
     updateNodes();
+    //TODO: m_currentNode->status() not set in updateNodes???
+    m_currentNode->setStatus(currentNodesStatus());
+    //qDebug() << "message() currentNodesStatus()" << currentNodesStatus();
+    //qDebug() << "message() m_currentNode->status()" << m_currentNode->status();
 
-    QString status;
     switch (m_currentNode->status())
     {
     case MulticastProtocol::INITIALIZING:
@@ -173,6 +184,14 @@ QVariantMap MulticastProtocol::message()
     message.insert("status", status);
     message.insert("port", 8081);
     message.insert("initialized", m_currentNode->initialized());
+
+    qSort(m_nodeList.begin(), m_nodeList.end(), MulticastProtocolNode::lessThan);
+    for (int i = 0; i < m_nodeList.size(); ++i)
+    {
+        message.insert(QString("node_").append(QString::number(m_nodeList.at(i)->id())),
+                       m_nodeList.at(i)->score());
+    }
+    message.insert("first_node_id", QString::number(m_nodeList.first()->id()));
 
     return message;
 }

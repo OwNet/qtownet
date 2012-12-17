@@ -33,6 +33,7 @@ public:
 
 private:
     void updateNodes();
+    void cleanExpiredNodes();
     MulticastProtocol::Status currentNodesStatus() const;
 
     MulticastProtocolNode *m_currentNode;
