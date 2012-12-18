@@ -3,6 +3,7 @@
 
 #include <QVariantMap>
 #include <QDateTime>
+#include <QMutex>
 
 class IProxyConnection;
 class MulticastProtocolNode;
@@ -38,6 +39,8 @@ private:
     QList<MulticastProtocolNode *> m_nodes;
 
     IProxyConnection *m_proxyConnection;
+
+    QMutex m_nodesMutex;
 };
 
 #endif // COMMUNICATIONMANAGER_H

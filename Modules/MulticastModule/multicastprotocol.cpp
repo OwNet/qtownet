@@ -6,6 +6,7 @@
 
 #include <QDebug>
 #include <QDateTime>
+#include <QMutexLocker>
 
 const int MulticastProtocol::expirationTimeInSeconds = 15;
 
@@ -42,11 +43,15 @@ MulticastProtocolNode *MulticastProtocol::serverNode() const
 
 void MulticastProtocol::initialized()
 {
+    QMutexLocker locker(&m_nodesMutex);
+
     m_currentNode->setInitialized();
 }
 
 void MulticastProtocol::processMessage(QVariantMap *message)
 {
+    QMutexLocker locker(&m_nodesMutex);
+
     MulticastProtocolNode *node = NULL;
 
     uint id = message->value("id").toUInt();
@@ -93,6 +98,8 @@ QList<MulticastProtocolNode *> &MulticastProtocol::nodes()
 
 void MulticastProtocol::update()
 {
+    QMutexLocker locker(&m_nodesMutex);
+
     // clean expired nodes
     QMutableListIterator<MulticastProtocolNode *> i(m_nodes);
 
