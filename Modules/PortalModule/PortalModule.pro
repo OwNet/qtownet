@@ -11,6 +11,7 @@ SOURCES        += portalmodule.cpp \
     usersservice.cpp \
 #    groupsservice.cpp \
     sessionservice.cpp \
+    historyservice.cpp \
 #    messagesservice.cpp \
 #    ratingsservice.cpp
 
@@ -18,6 +19,7 @@ HEADERS        += portalmodule.h \
     usersservice.h \
 #    groupsservice.h \
     sessionservice.h \
+    historyservice.h \
 #    messagesservice.h \
 #    ratingsservice.h
 

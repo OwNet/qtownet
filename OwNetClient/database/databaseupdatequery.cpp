@@ -7,6 +7,7 @@
 #include <QSqlRecord>
 #include <QStringList>
 #include <QDateTime>
+//#include <QDebug>
 
 DatabaseUpdateQuery::DatabaseUpdateQuery(const QString &table, EntryType type, QObject *parent) :
     QObject(parent), m_needsSave(true)
@@ -149,7 +150,8 @@ bool DatabaseUpdateQuery::executeQuery()
             query.bindValue(":v_" + columnKeys.at(i),
                             bindingValue(columnKeys.at(i), columns.value(columnKeys.at(i))));
     }
-
+//  for debugging purposes:
+//    qDebug() << queryString;
     if (!query.exec()) {
         MessageHelper::debug(queryString);
         MessageHelper::debug(query.lastError().text());
