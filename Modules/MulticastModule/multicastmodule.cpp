@@ -4,6 +4,7 @@
 #include "multicastserver.h"
 #include "multicastprotocol.h"
 #include "multicastjob.h"
+#include "updatejob.h"
 #include "multicastservice.h"
 
 #include <QHostAddress>
@@ -25,6 +26,7 @@ void MulticastModule::init(IProxyConnection *proxyConnection)
     m_multicastServer->start(groupAddress, port);
 
     proxyConnection->registerJob(new MulticastJob(groupAddress, port, m_multicastProtocol, this));
+    proxyConnection->registerJob(new UpdateJob(m_multicastProtocol, this));
 
     m_proxyConnection->registerService(new MulticastService(m_proxyConnection, m_multicastProtocol, this));
 }

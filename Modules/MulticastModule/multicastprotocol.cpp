@@ -121,14 +121,14 @@ void MulticastProtocol::update()
     }
 
     // save nodes to session
-    for (int i = 0; i < nodes().size(); i++) {
+    for (int i = 0; i < m_nodes.size(); i++) {
         m_proxyConnection->session()->setValue(
-            QString("multicast_node_").append(QString::number(nodes().at(i)->id())).append("_ip"),
-            nodes().at(i)->address()
+            QString("multicast_node_").append(QString::number(m_nodes.at(i)->id())).append("_ip"),
+            m_nodes.at(i)->address()
         );
         m_proxyConnection->session()->setValue(
-            QString("multicast_node_").append(QString::number(nodes().at(i)->id())).append("_port"),
-            nodes().at(i)->port()
+            QString("multicast_node_").append(QString::number(m_nodes.at(i)->id())).append("_port"),
+            m_nodes.at(i)->port()
         );
     }
 }
