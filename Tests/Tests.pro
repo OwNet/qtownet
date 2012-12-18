@@ -39,15 +39,15 @@ SOURCES +=  ../OwNetClient/helpers/messagehelper.cpp \
             ../OwNetClient/helpers/jsondocument/qjsonwriter.cpp \
             ../OwNetClient/helpers/jsondocument/qjson.cpp \
             ../OwNetClient/modules/response.cpp \
-            ../OwNetClient/communication/communicationmanager.cpp \
-            ../OwNetClient/communication/communicationinstance.cpp \
+            ../Modules/MulticastModule/multicastprotocol.cpp \
+            ../Modules/MulticastModule/multicastprotocolnode.cpp \
     main.cpp \
     stub/stubtime.cpp \
     helpers/modulehelpers.cpp \
-    modules/tst_testssample.cpp \
-    classes/tst_testscommunicationmanager.cpp \
-    modules/tst_testsusersservice.cpp \
-    stub/stubdatabase.cpp
+    stub/stubdatabase.cpp \
+    classes/multicastprotocoltests.cpp \
+    modules/usersservicetests.cpp \
+    modules/sampleservicetests.cpp
 
 
 HEADERS +=  ../OwNetClient/helpers/messagehelper.h \
@@ -68,8 +68,6 @@ HEADERS +=  ../OwNetClient/helpers/messagehelper.h \
             ../OwNetClient/modules/requestrouter.h \
             ../OwNetClient/modules/interfaces/isession.h \
             ../OwNetClient/helpers/session.h \
-            ../OwNetClient/communication/communicationmanager.h \
-            ../OwNetClient/communication/communicationinstance.h \
             ../OwNetClient/modules/interfaces/idatabaseupdate.h \
             ../OwNetClient/modules/interfaces/idatabaseupdatequery.h \
             ../OwNetClient/modules/interfaces/ijobaction.h \
@@ -96,6 +94,8 @@ HEADERS +=  ../OwNetClient/helpers/messagehelper.h \
             ../OwNetClient/modules/interfaces/iroute.h \
             ../OwNetClient/modules/interfaces/iresponse.h \
             ../OwNetClient/modules/response.h \
+            ../Modules/MulticastModule/multicastprotocol.h \
+            ../Modules/MulticastModule/multicastprotocolnode.h \
     autotest.h \
     stub/stubtime.h \
     helpers/modulehelpers.h \

@@ -22,12 +22,12 @@
 #include "isession.h"
 
 
-class TestsUsersService : public QObject
+class UsersServiceTests : public QObject
 {
     Q_OBJECT
 
 public:
-    TestsUsersService();
+    UsersServiceTests();
 
 private:    
     IModule *m_module;
@@ -57,11 +57,11 @@ private Q_SLOTS:
 
 };
 
-TestsUsersService::TestsUsersService()
+UsersServiceTests::UsersServiceTests()
 {
 }
 
-QVariantMap TestsUsersService::createUser(bool insert)
+QVariantMap UsersServiceTests::createUser(bool insert)
 {
     VariantMap user;
 
@@ -86,7 +86,7 @@ QVariantMap TestsUsersService::createUser(bool insert)
     return user;
 }
 
-QSqlRecord TestsUsersService::getUser()
+QSqlRecord UsersServiceTests::getUser()
 {
     QSqlQuery q;
     q.exec("SELECT * FROM users LIMIT 1");
@@ -99,7 +99,7 @@ QSqlRecord TestsUsersService::getUser()
 
 
 
-void TestsUsersService::initTestCase()
+void UsersServiceTests::initTestCase()
 {
     StubDatabase::init();
 
@@ -110,13 +110,13 @@ void TestsUsersService::initTestCase()
     m_module->init(m_proxyConnection);    
 }
 
-void TestsUsersService::cleanupTestCase()
+void UsersServiceTests::cleanupTestCase()
 {
     StubDatabase::close();
 }
 
 // Test Create
-void TestsUsersService::testCreate()
+void UsersServiceTests::testCreate()
 {
     StubDatabase::init();
 
@@ -137,7 +137,7 @@ void TestsUsersService::testCreate()
     QCOMPARE(row.value("login").toString(), login);
 }
 
-void TestsUsersService::testCreate_data()
+void UsersServiceTests::testCreate_data()
 {
     QTest::addColumn<int>("http_create");
     QTest::addColumn<QString>("login");
@@ -145,7 +145,7 @@ void TestsUsersService::testCreate_data()
 }
 
 // Test Index
-void TestsUsersService::testIndex()
+void UsersServiceTests::testIndex()
 {
     StubDatabase::init();
     createUser();
@@ -160,7 +160,7 @@ void TestsUsersService::testIndex()
     QCOMPARE((int) resp->body().type(), type);
 }
 
-void TestsUsersService::testIndex_data()
+void UsersServiceTests::testIndex_data()
 {
     QTest::addColumn<int>("http_ok");
     QTest::addColumn<int>("type");
@@ -168,7 +168,7 @@ void TestsUsersService::testIndex_data()
 }
 
 // Test Show
-void TestsUsersService::testShow()
+void UsersServiceTests::testShow()
 {
     StubDatabase::init();
     QVariantMap user = createUser();
@@ -184,7 +184,7 @@ void TestsUsersService::testShow()
     QCOMPARE(resp->body().toMap().value("login").toString(), login);
 }
 
-void TestsUsersService::testShow_data()
+void UsersServiceTests::testShow_data()
 {
     QTest::addColumn<int>("http_ok");
     QTest::addColumn<QString>("login");
@@ -193,7 +193,7 @@ void TestsUsersService::testShow_data()
 
 
 // Test Edit
-void TestsUsersService::testEdit()
+void UsersServiceTests::testEdit()
 {
     StubDatabase::init();
     QVariantMap user = createUser();
@@ -219,7 +219,7 @@ void TestsUsersService::testEdit()
 
 }
 
-void TestsUsersService::testEdit_data()
+void UsersServiceTests::testEdit_data()
 {
     QTest::addColumn<int>("http_ok");
     QTest::addColumn<QString>("login");
@@ -227,7 +227,7 @@ void TestsUsersService::testEdit_data()
 }
 
 // Test Delete
-void TestsUsersService::testDel()
+void UsersServiceTests::testDel()
 {
     StubDatabase::init();
     QVariantMap user = createUser();
@@ -250,13 +250,13 @@ void TestsUsersService::testDel()
 
 }
 
-void TestsUsersService::testDel_data()
+void UsersServiceTests::testDel_data()
 {
     QTest::addColumn<int>("http_no_content");
     QTest::addColumn<int>("count");
     QTest::newRow("status") << (int) IResponse::NO_CONTENT << 0;
 }
 
-DECLARE_TEST(TestsUsersService)
+DECLARE_TEST(UsersServiceTests)
 
-#include "tst_testsusersservice.moc"
+#include "usersservicetests.moc"

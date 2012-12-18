@@ -13,12 +13,12 @@
 #include "imodule.h"
 #include "irestservice.h"
 
-class TestsSample : public QObject
+class SampleServiceTests : public QObject
 {
     Q_OBJECT
 
 public:
-    TestsSample();
+    SampleServiceTests();
 
 private:
     IRestService *m_restService;
@@ -32,11 +32,11 @@ private Q_SLOTS:
     void testIndex_data();
 };
 
-TestsSample::TestsSample()
+SampleServiceTests::SampleServiceTests()
 {
 }
 
-void TestsSample::initTestCase()
+void SampleServiceTests::initTestCase()
 {
     m_module = ModuleHelpers::loadModule("ownet_samplemodule");
 
@@ -46,11 +46,11 @@ void TestsSample::initTestCase()
     m_restService = RequestRouter::getRestService("sample");
 }
 
-void TestsSample::cleanupTestCase()
+void SampleServiceTests::cleanupTestCase()
 {
 }
 
-void TestsSample::testIndex()
+void SampleServiceTests::testIndex()
 {
     IRequest* req = m_proxyConnection->createRequest(IRequest::GET,"sample");
     IResponse* response = m_restService->index(req);
@@ -59,12 +59,12 @@ void TestsSample::testIndex()
     QCOMPARE(body.toMap().value("module").toString(), module);
 }
 
-void TestsSample::testIndex_data()
+void SampleServiceTests::testIndex_data()
 {
     QTest::addColumn<QString>("module");
     QTest::newRow("name") << QString("sample");
 }
 
-DECLARE_TEST(TestsSample)
+DECLARE_TEST(SampleServiceTests)
 
-#include "tst_testssample.moc"
+#include "sampleservicetests.moc"
