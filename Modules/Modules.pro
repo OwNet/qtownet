@@ -7,4 +7,5 @@ SUBDIRS += \
    # HistoryModule
 #    RecommendationsModule \
     SyncModule \
-    ServerModule
+    ServerModule \
+    MulticastModule
