@@ -62,8 +62,10 @@ void SyncClient::downloadUpdatesFromClient(uint clientId)
                                                          .arg(clientId), this);
     request->setPostBody(body);
     IResponse *response = m_proxyConnection->callModule(request);
-    if (response->status() != IResponse::OK)
+    if (response->status() != IResponse::OK) {
+        qDebug() << "Sync with client " << clientId << " failed";
         return;
+    }
 
     server.saveAndApplyUpdates(response->body().toList());
     qDebug() << "Sync with client " << clientId << " finished";

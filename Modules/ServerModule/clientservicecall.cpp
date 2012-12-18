@@ -20,7 +20,7 @@ ClientServiceCall::ClientServiceCall(IProxyConnection *proxyConnection, QObject 
 {
 }
 
-IResponse *ClientServiceCall::callClientService(int clientId, const QString &apiUrl, IRequest *request)
+IResponse *ClientServiceCall::callClientService(uint clientId, const QString &apiUrl, IRequest *request)
 {
     QObject parent;
     ISession *session = m_proxyConnection->session(&parent);

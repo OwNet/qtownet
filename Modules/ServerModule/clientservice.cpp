@@ -21,8 +21,8 @@ void ClientService::init(IRouter *router)
         if (urlSplit.isEmpty()) return req->response();
         urlSplit.takeFirst();
         if (urlSplit.isEmpty()) return req->response();
-        int id = urlSplit.takeFirst().toUInt();
 
-        return ClientServiceCall(m_proxyConnection).callClientService(id, urlSplit.join("/"), req);
+        return ClientServiceCall(m_proxyConnection).callClientService(urlSplit.takeFirst().toUInt(),
+                                urlSplit.join("/"), req);
     });
 }
