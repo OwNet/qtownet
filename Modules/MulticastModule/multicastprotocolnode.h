@@ -14,11 +14,12 @@ public:
 
     static bool lessThan(const MulticastProtocolNode *, const MulticastProtocolNode *);
     void update(uint score, MulticastProtocol::Status status,
-                uint port, uint initialized);
+                uint port, QString address, uint initialized);
 
     uint id() const;
     uint score() const;
     uint port() const;
+    QString address() const;
     uint initialized() const;
     MulticastProtocol::Status status() const;
     bool isExpired() const;
@@ -31,6 +32,7 @@ private:
     uint m_id;
     uint m_score;
     uint m_port;
+    QString m_address;
     uint m_initialized;
     MulticastProtocol::Status m_status;
     QDateTime m_lastUpdated;

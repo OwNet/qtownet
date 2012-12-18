@@ -22,23 +22,20 @@ public:
     MulticastProtocol(IProxyConnection *connection, QObject *parent = 0);
 
     void processMessage(QVariantMap *);
-    QList<MulticastProtocolNode *> &nodeList();
-    QMap<uint, MulticastProtocolNode *> &nodeMap();
-    MulticastProtocolNode *serverNode();
-    MulticastProtocolNode *currentNode();
+    QList<MulticastProtocolNode *> &nodes();
+    MulticastProtocolNode *serverNode() const;
+    MulticastProtocolNode *currentNode() const;
 
-    QVariantMap message();
+    QVariantMap message() const;
 
     void initialized();
+    void update();
 
 private:
-    void updateNodes();
-    void cleanExpiredNodes();
     MulticastProtocol::Status currentNodesStatus() const;
 
     MulticastProtocolNode *m_currentNode;
-    QList<MulticastProtocolNode *> m_nodeList;
-    QMap<uint, MulticastProtocolNode *> m_nodeMap;
+    QList<MulticastProtocolNode *> m_nodes;
 
     IProxyConnection *m_proxyConnection;
 };

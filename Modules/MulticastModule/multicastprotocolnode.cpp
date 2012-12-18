@@ -19,11 +19,12 @@ bool MulticastProtocolNode::lessThan(const MulticastProtocolNode *first,
 }
 
 void MulticastProtocolNode::update(uint score, MulticastProtocol::Status status,
-                                   uint port, uint initialized)
+                                   uint port, QString address, uint initialized)
 {
     m_score = score;
     m_status = status;
     m_port = port;
+    m_address = address;
     m_initialized = initialized;
 
     // last update
@@ -65,6 +66,11 @@ uint MulticastProtocolNode::score() const
 uint MulticastProtocolNode::port() const
 {
     return m_port;
+}
+
+QString MulticastProtocolNode::address() const
+{
+    return m_address;
 }
 
 uint MulticastProtocolNode::initialized() const

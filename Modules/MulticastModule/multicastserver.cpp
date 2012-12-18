@@ -2,6 +2,8 @@
 #include "multicastprotocol.h"
 #include "jsondocument.h"
 #include "iproxyconnection.h"
+#include "isession.h"
+#include "multicastprotocolnode.h"
 
 #include <QHostAddress>
 #include <QUdpSocket>
@@ -31,14 +33,17 @@ void MulticastServer::processPendingDatagrams()
 {
     while (m_udpSocket->hasPendingDatagrams()) {
         QByteArray datagram;
+        QHostAddress fromAddress;
 
         datagram.resize(m_udpSocket->pendingDatagramSize());
-        m_udpSocket->readDatagram(datagram.data(), datagram.size());
+        m_udpSocket->readDatagram(datagram.data(), datagram.size(), &fromAddress);
 
         QJsonParseError ok;
-        JsonDocument json = JsonDocument::fromJson(datagram.data(),&ok);
+        JsonDocument json = JsonDocument::fromJson(datagram.data(), &ok);
         if (ok.error == QJsonParseError::NoError ) {
            QVariantMap result = json.object().toVariantMap();
+           result.insert("address", fromAddress.toString());
+
            m_protocol->processMessage(&result);
         }
     }

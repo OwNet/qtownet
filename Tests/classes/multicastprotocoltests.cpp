@@ -66,19 +66,15 @@ void MulticastProtocolTests::testFirstNode()
     MulticastProtocolNode *node;
     QVariantMap message;
 
-    QCOMPARE(protocol.nodeList().count(), 1);
-    QCOMPARE(protocol.nodeMap().count(), 1);
+    QCOMPARE(protocol.nodes().count(), 1);
 
     // node list
-    node = protocol.nodeList().first();
+    node = protocol.nodes().first();
     QCOMPARE(node->id(), databaseSettings.clientId());
     QCOMPARE(node->score(), protocol.currentNode()->score());
     QCOMPARE(node->initialized(), (uint) 0);
     QCOMPARE(node->status(), MulticastProtocol::INITIALIZING);
     QCOMPARE(node->port(), (uint) 8081);
-
-    // node map
-    QVERIFY(node == protocol.nodeMap().value(protocol.currentNode()->id()));
 
     // status
     QVERIFY(protocol.currentNode()->status() == MulticastProtocol::INITIALIZING);
@@ -96,9 +92,9 @@ void MulticastProtocolTests::testFirstNode()
 
     // wait!
     StubTime::addSecs(5 * period);
+    protocol.update();
 
-    QCOMPARE(protocol.nodeList().count(), 1);
-    QCOMPARE(protocol.nodeMap().count(), 1);
+    QCOMPARE(protocol.nodes().count(), 1);
 
     // status
     QVERIFY(protocol.currentNode()->status() == MulticastProtocol::INITIALIZING);
@@ -113,9 +109,9 @@ void MulticastProtocolTests::testFirstNode()
 
     // initialized!
     protocol.initialized();
+    protocol.update();
 
-    QCOMPARE(protocol.nodeList().count(), 1);
-    QCOMPARE(protocol.nodeMap().count(), 1);
+    QCOMPARE(protocol.nodes().count(), 1);
 
     // status
     QVERIFY(protocol.currentNode()->status() == MulticastProtocol::SERVER);
@@ -133,9 +129,9 @@ void MulticastProtocolTests::testFirstNode()
 
     // wait!
     StubTime::addSecs(5 * period);
+    protocol.update();
 
-    QCOMPARE(protocol.nodeList().count(), 1);
-    QCOMPARE(protocol.nodeMap().count(), 1);
+    QCOMPARE(protocol.nodes().count(), 1);
 
     // status
     QVERIFY(protocol.currentNode()->status() == MulticastProtocol::SERVER);
@@ -173,27 +169,40 @@ void MulticastProtocolTests::testWeakerNode()
     sendMessage->insert("port", "5000");
     sendMessage->insert("initialized", "10");
     sendMessage->insert("status", "client");
-    protocol.processMessage(sendMessage);
+    sendMessage->insert("address", "10.10.10.10"); // test IPs
 
-    QVERIFY(protocol.nodeList().count() == 2);
-    QVERIFY(protocol.nodeMap().count() == 2);
+    protocol.processMessage(sendMessage);
+    protocol.update();
+
+    QVERIFY(protocol.nodes().count() == 2);
 
     // node list and map
-    node = protocol.nodeList().first();
+    node = protocol.nodes().first();
     QCOMPARE(node->id(), databaseSettings.clientId());
     QCOMPARE(node->score(), protocol.currentNode()->score());
     QCOMPARE(node->initialized(), (uint) 0);
     QCOMPARE(node->status(), MulticastProtocol::INITIALIZING);
     QCOMPARE(node->port(), (uint) 8081);
-    QVERIFY(node == protocol.nodeMap().value(node->id()));
+    QCOMPARE(node->address(), QString("127.0.0.1"));
 
-    node = protocol.nodeList().at(1);
+    node = protocol.nodes().at(1);
     QCOMPARE(node->id(), (uint) 1);
     QCOMPARE(node->score(), (uint) 0);
     QCOMPARE(node->initialized(), (uint) 10);
     QCOMPARE(node->status(), MulticastProtocol::CLIENT);
     QCOMPARE(node->port(), (uint) 5000);
-    QVERIFY(node == protocol.nodeMap().value(node->id()));
+    QCOMPARE(node->address(), QString("10.10.10.10"));
+
+    // session
+    QCOMPARE(m_proxyConnection->session()->value("multicast_server_ip").toString(),
+             QString(""));
+    QCOMPARE(m_proxyConnection->session()->value("multicast_server_port").toUInt(),
+             (uint) 0);
+
+    QCOMPARE(m_proxyConnection->session()->value("multicast_node_1_ip").toString(),
+             QString("10.10.10.10"));
+    QCOMPARE(m_proxyConnection->session()->value("multicast_node_1_port").toUInt(),
+             (uint) 5000);
 
     // status
     QVERIFY(protocol.currentNode()->status() == MulticastProtocol::INITIALIZING);
@@ -211,12 +220,9 @@ void MulticastProtocolTests::testWeakerNode()
 
     // initialized!
     protocol.initialized();
+    protocol.update();
 
-    QCOMPARE(protocol.nodeList().count(), 2);
-    QCOMPARE(protocol.nodeMap().count(), 2);
-
-    // status
-    QVERIFY(protocol.currentNode()->status() == MulticastProtocol::SERVER);
+    QCOMPARE(protocol.nodes().count(), 2);
 
     // message
     message = protocol.message();
@@ -226,14 +232,17 @@ void MulticastProtocolTests::testWeakerNode()
     QVERIFY(message.value("initialized").toUInt() > (uint) 0);
     QCOMPARE(message.value("status").toString(), QString("server"));
 
+    // status
+    QVERIFY(protocol.currentNode()->status() == MulticastProtocol::SERVER);
+
     // server
     QVERIFY(protocol.serverNode() == NULL);
 
     // wait!
     StubTime::addSecs(5 * period);
+    protocol.update();
 
-    QCOMPARE(protocol.nodeList().count(), 1);
-    QCOMPARE(protocol.nodeMap().count(), 1);
+    QCOMPARE(protocol.nodes().count(), 1);
 
     // status
     QVERIFY(protocol.currentNode()->status() == MulticastProtocol::SERVER);
@@ -271,27 +280,28 @@ void MulticastProtocolTests::testStrongerNode()
     sendMessage->insert("port", "5000");
     sendMessage->insert("initialized", "10");
     sendMessage->insert("status", "server");
-    protocol.processMessage(sendMessage);
+    sendMessage->insert("address", "10.10.10.10");
 
-    QVERIFY(protocol.nodeList().count() == 2);
-    QVERIFY(protocol.nodeMap().count() == 2);
+    protocol.processMessage(sendMessage);
+    protocol.update();
+
+    QVERIFY(protocol.nodes().count() == 2);
 
     // node list and map
-    node = protocol.nodeList().first();
+    node = protocol.nodes().first();
     QCOMPARE(node->id(), (uint) 1);
     QCOMPARE(node->score(), (uint) 1000000);
     QCOMPARE(node->initialized(), (uint) 10);
     QCOMPARE(node->status(), MulticastProtocol::SERVER);
     QCOMPARE(node->port(), (uint) 5000);
-    QVERIFY(node == protocol.nodeMap().value(node->id()));
+    QCOMPARE(node->address(), QString("10.10.10.10"));
 
-    node = protocol.nodeList().at(1);
+    node = protocol.nodes().at(1);
     QCOMPARE(node->id(), databaseSettings.clientId());
     QCOMPARE(node->score(), protocol.currentNode()->score());
     QCOMPARE(node->initialized(), (uint) 0);
     QCOMPARE(node->status(), MulticastProtocol::INITIALIZING);
     QCOMPARE(node->port(), (uint) 8081);
-    QVERIFY(node == protocol.nodeMap().value(node->id()));
 
     // status
     QVERIFY(protocol.currentNode()->status() == MulticastProtocol::INITIALIZING);
@@ -307,11 +317,23 @@ void MulticastProtocolTests::testStrongerNode()
     // server
     QVERIFY(protocol.serverNode() != NULL);
 
-    // initialized!
-    protocol.initialized();
+    // session
+    QCOMPARE(m_proxyConnection->session()->value("multicast_server_ip").toString(),
+             QString("10.10.10.10"));
+    QCOMPARE(m_proxyConnection->session()->value("multicast_server_port").toUInt(),
+             (uint) 5000);
 
-    QCOMPARE(protocol.nodeList().count(), 2);
-    QCOMPARE(protocol.nodeMap().count(), 2);
+    QCOMPARE(m_proxyConnection->session()->value("multicast_node_1_ip").toString(),
+             QString("10.10.10.10"));
+    QCOMPARE(m_proxyConnection->session()->value("multicast_node_1_port").toUInt(),
+             (uint) 5000);
+
+    // initialized!
+
+    protocol.initialized();
+    protocol.update();;
+
+    QCOMPARE(protocol.nodes().count(), 2);
 
     // status
     QVERIFY(protocol.currentNode()->status() == MulticastProtocol::CLIENT);
@@ -325,13 +347,13 @@ void MulticastProtocolTests::testStrongerNode()
     QCOMPARE(message.value("status").toString(), QString("client"));
 
     // server
-    QVERIFY(protocol.serverNode() == protocol.nodeList().first());
+    QVERIFY(protocol.serverNode() == protocol.nodes().first());
 
     // wait!
     StubTime::addSecs(5 * period);
+    protocol.update();
 
-    QCOMPARE(protocol.nodeList().count(), 1);
-    QCOMPARE(protocol.nodeMap().count(), 1);
+    QCOMPARE(protocol.nodes().count(), 1);
 
     // status
     QVERIFY(protocol.currentNode()->status() == MulticastProtocol::SERVER);
@@ -369,27 +391,26 @@ void MulticastProtocolTests::testInitializingNode()
     sendMessage->insert("port", "5000");
     sendMessage->insert("initialized", "0");
     sendMessage->insert("status", "initializing");
-    protocol.processMessage(sendMessage);
 
-    QVERIFY(protocol.nodeList().count() == 2);
-    QVERIFY(protocol.nodeMap().count() == 2);
+    protocol.processMessage(sendMessage);
+    protocol.update();
+
+    QVERIFY(protocol.nodes().count() == 2);
 
     // node list and map
-    node = protocol.nodeList().first();
+    node = protocol.nodes().first();
     QCOMPARE(node->id(), (uint) 1);
     QCOMPARE(node->score(), (uint) 1000000);
     QCOMPARE(node->initialized(), (uint) 0);
     QCOMPARE(node->status(), MulticastProtocol::INITIALIZING);
     QCOMPARE(node->port(), (uint) 5000);
-    QVERIFY(node == protocol.nodeMap().value(node->id()));
 
-    node = protocol.nodeList().at(1);
+    node = protocol.nodes().at(1);
     QCOMPARE(node->id(), databaseSettings.clientId());
     QCOMPARE(node->score(), protocol.currentNode()->score());
     QCOMPARE(node->initialized(), (uint) 0);
     QCOMPARE(node->status(), MulticastProtocol::INITIALIZING);
     QCOMPARE(node->port(), (uint) 8081);
-    QVERIFY(node == protocol.nodeMap().value(node->id()));
 
     // status
     QVERIFY(protocol.currentNode()->status() == MulticastProtocol::INITIALIZING);
@@ -406,10 +427,11 @@ void MulticastProtocolTests::testInitializingNode()
     QVERIFY(protocol.serverNode() == NULL);
 
     // initialized!
-    protocol.initialized();
 
-    QCOMPARE(protocol.nodeList().count(), 2);
-    QCOMPARE(protocol.nodeMap().count(), 2);
+    protocol.initialized();
+    protocol.update();;
+
+    QCOMPARE(protocol.nodes().count(), 2);
 
     // status
     QVERIFY(protocol.currentNode()->status() == MulticastProtocol::SERVER);
@@ -433,10 +455,11 @@ void MulticastProtocolTests::testInitializingNode()
     sendMessage->insert("port", "5000");
     sendMessage->insert("initialized", "10");
     sendMessage->insert("status", "server");
-    protocol.processMessage(sendMessage);
 
-    QCOMPARE(protocol.nodeList().count(), 2);
-    QCOMPARE(protocol.nodeMap().count(), 2);
+    protocol.processMessage(sendMessage);
+    protocol.update();
+
+    QCOMPARE(protocol.nodes().count(), 2);
 
     // status
     QVERIFY(protocol.currentNode()->status() == MulticastProtocol::CLIENT);
@@ -450,7 +473,7 @@ void MulticastProtocolTests::testInitializingNode()
     QCOMPARE(message.value("status").toString(), QString("client"));
 
     // server
-    QVERIFY(protocol.serverNode() == protocol.nodeList().first());
+    QVERIFY(protocol.serverNode() == protocol.nodes().first());
 
     StubTime::cleanCurrentDateTime();
 }
@@ -474,7 +497,9 @@ void MulticastProtocolTests::testMultipleNodes()
     sendMessage->insert("port", "5000");
     sendMessage->insert("initialized", "10");
     sendMessage->insert("status", "server");
+
     protocol.processMessage(sendMessage);
+    protocol.update();
 
     sendMessage = new QVariantMap();
     sendMessage->insert("id", "2");
@@ -482,35 +507,33 @@ void MulticastProtocolTests::testMultipleNodes()
     sendMessage->insert("port", "5000");
     sendMessage->insert("initialized", "9");
     sendMessage->insert("status", "client");
-    protocol.processMessage(sendMessage);
 
-    QVERIFY(protocol.nodeList().count() == 3);
-    QVERIFY(protocol.nodeMap().count() == 3);
+    protocol.processMessage(sendMessage);
+    protocol.update();
+
+    QVERIFY(protocol.nodes().count() == 3);
 
     // node list and map
-    node = protocol.nodeList().first();
+    node = protocol.nodes().first();
     QCOMPARE(node->id(), (uint) 1);
     QCOMPARE(node->score(), (uint) 2000000);
     QCOMPARE(node->initialized(), (uint) 10);
     QCOMPARE(node->status(), MulticastProtocol::SERVER);
     QCOMPARE(node->port(), (uint) 5000);
-    QVERIFY(node == protocol.nodeMap().value(node->id()));
 
-    node = protocol.nodeList().at(1);
+    node = protocol.nodes().at(1);
     QCOMPARE(node->id(), (uint) 2);
     QCOMPARE(node->score(), (uint) 1000000);
     QCOMPARE(node->initialized(), (uint) 9);
     QCOMPARE(node->status(), MulticastProtocol::CLIENT);
     QCOMPARE(node->port(), (uint) 5000);
-    QVERIFY(node == protocol.nodeMap().value(node->id()));
 
-    node = protocol.nodeList().at(2);
+    node = protocol.nodes().at(2);
     QCOMPARE(node->id(), databaseSettings.clientId());
     QCOMPARE(node->score(), protocol.currentNode()->score());
     QCOMPARE(node->initialized(), (uint) 0);
     QCOMPARE(node->status(), MulticastProtocol::INITIALIZING);
     QCOMPARE(node->port(), (uint) 8081);
-    QVERIFY(node == protocol.nodeMap().value(node->id()));
 
     // status
     QVERIFY(protocol.currentNode()->status() == MulticastProtocol::INITIALIZING);
@@ -527,10 +550,11 @@ void MulticastProtocolTests::testMultipleNodes()
     QVERIFY(protocol.serverNode() != NULL);
 
     // initialized!
-    protocol.initialized();
 
-    QCOMPARE(protocol.nodeList().count(), 3);
-    QCOMPARE(protocol.nodeMap().count(), 3);
+    protocol.initialized();
+    protocol.update();;
+
+    QCOMPARE(protocol.nodes().count(), 3);
 
     // status
     QVERIFY(protocol.currentNode()->status() == MulticastProtocol::CLIENT);
@@ -548,9 +572,9 @@ void MulticastProtocolTests::testMultipleNodes()
 
     // wait!
     StubTime::addSecs(2 * period + 1);
+    protocol.update();
 
-    QCOMPARE(protocol.nodeList().count(), 3);
-    QCOMPARE(protocol.nodeMap().count(), 3);
+    QCOMPARE(protocol.nodes().count(), 3);
 
     // status
     QVERIFY(protocol.currentNode()->status() == MulticastProtocol::CLIENT);
@@ -572,30 +596,30 @@ void MulticastProtocolTests::testMultipleNodes()
     sendMessage->insert("port", "5000");
     sendMessage->insert("initialized", "9");
     sendMessage->insert("status", "server"); // changed
+
     protocol.processMessage(sendMessage);
+    protocol.update();
 
     // wait!
     StubTime::addSecs(1 * period);
+    protocol.update();
 
-    QVERIFY(protocol.nodeList().count() == 2);
-    QVERIFY(protocol.nodeMap().count() == 2);
+    QVERIFY(protocol.nodes().count() == 2);
 
     // node list and map
-    node = protocol.nodeList().first();
+    node = protocol.nodes().first();
     QCOMPARE(node->id(), (uint) 2);
     QCOMPARE(node->score(), (uint) 3000000);
     QCOMPARE(node->initialized(), (uint) 9);
     QCOMPARE(node->status(), MulticastProtocol::SERVER);
     QCOMPARE(node->port(), (uint) 5000);
-    QVERIFY(node == protocol.nodeMap().value(node->id()));
 
-    node = protocol.nodeList().at(1);
+    node = protocol.nodes().at(1);
     QCOMPARE(node->id(), databaseSettings.clientId());
     QCOMPARE(node->score(), protocol.currentNode()->score());
     QVERIFY(node->initialized() > (uint) 0);
     QCOMPARE(node->status(), MulticastProtocol::CLIENT);
     QCOMPARE(node->port(), (uint) 8081);
-    QVERIFY(node == protocol.nodeMap().value(node->id()));
 
     // status
     QVERIFY(protocol.currentNode()->status() == MulticastProtocol::CLIENT);
@@ -628,49 +652,50 @@ void MulticastProtocolTests::testMultipleWeakerNodes()
     sendMessage->insert("id", "1");
     sendMessage->insert("score", "0");
     sendMessage->insert("status", "client");
-    sendMessage->insert("initialized", "3");
+    sendMessage->insert("initialized", "3");    // test sort by initialized
+
     protocol.processMessage(sendMessage);
+    protocol.update();
 
     sendMessage = new QVariantMap();
     sendMessage->insert("id", "2");
     sendMessage->insert("score", "0");
     sendMessage->insert("status", "client");
-    sendMessage->insert("initialized", "2");
+    sendMessage->insert("initialized", "2");    // test sort by initialized
+
     protocol.processMessage(sendMessage);
+    protocol.update();
 
     sendMessage = new QVariantMap();
     sendMessage->insert("id", "3");
     sendMessage->insert("score", "0");
     sendMessage->insert("status", "server");
-    sendMessage->insert("initialized", "1");
-    protocol.processMessage(sendMessage);
+    sendMessage->insert("initialized", "1");    // test sort by initialized
 
-    QVERIFY(protocol.nodeList().count() == 4);
-    QVERIFY(protocol.nodeMap().count() == 4);
+    protocol.processMessage(sendMessage);
+    protocol.update();
+
+    QVERIFY(protocol.nodes().count() == 4);
 
     // node list and map
-    node = protocol.nodeList().first();
+    node = protocol.nodes().first();
     QCOMPARE(node->id(), databaseSettings.clientId());
     QCOMPARE(node->score(), protocol.currentNode()->score());
-    QVERIFY(node == protocol.nodeMap().value(node->id()));
 
-    node = protocol.nodeList().at(1);
+    node = protocol.nodes().at(1);
     QCOMPARE(node->id(), (uint) 3);
     QCOMPARE(node->score(), (uint) 0);
     QCOMPARE(node->initialized(), (uint) 1);
-    QVERIFY(node == protocol.nodeMap().value(node->id()));
 
-    node = protocol.nodeList().at(2);
+    node = protocol.nodes().at(2);
     QCOMPARE(node->id(), (uint) 2);
     QCOMPARE(node->score(), (uint) 0);
     QCOMPARE(node->initialized(), (uint) 2);
-    QVERIFY(node == protocol.nodeMap().value(node->id()));
 
-    node = protocol.nodeList().at(3);
+    node = protocol.nodes().at(3);
     QCOMPARE(node->id(), (uint) 1);
     QCOMPARE(node->score(), (uint) 0);
     QCOMPARE(node->initialized(), (uint) 3);
-    QVERIFY(node == protocol.nodeMap().value(node->id()));
 
     // status
     QVERIFY(protocol.currentNode()->status() == MulticastProtocol::INITIALIZING);
@@ -687,12 +712,13 @@ void MulticastProtocolTests::testMultipleWeakerNodes()
     QVERIFY(protocol.serverNode() == NULL);
 
     // initialized!
+
     protocol.initialized();
+    protocol.update();;
 
-    QCOMPARE(protocol.nodeList().count(), 4);
-    QCOMPARE(protocol.nodeMap().count(), 4);
+    QCOMPARE(protocol.nodes().count(), 4);
 
-    // status
+    // status 1
     QVERIFY(protocol.currentNode()->status() == MulticastProtocol::SERVER);
 
     // message
@@ -702,6 +728,9 @@ void MulticastProtocolTests::testMultipleWeakerNodes()
     QCOMPARE(message.value("port").toInt(), 8081);
     QVERIFY(message.value("initialized").toUInt() > (uint) 0);
     QCOMPARE(message.value("status").toString(), QString("server"));
+
+    // status 2
+    QVERIFY(protocol.currentNode()->status() == MulticastProtocol::SERVER);
 
     // server
     QVERIFY(protocol.serverNode() == NULL);
