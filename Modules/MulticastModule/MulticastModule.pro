@@ -11,9 +11,6 @@ INCLUDEPATH    += ../../OwNetClient/modules/interfaces \
 SOURCES        += multicastmodule.cpp \
     multicastserver.cpp \
     multicastjob.cpp \
-    helpers/jsondocument/jsondocument.cpp \
-    helpers/jsondocument/qjsonwriter.cpp \
-    helpers/jsondocument/qjson.cpp \
     multicastprotocolnode.cpp \
     multicastprotocol.cpp \
     multicastservice.cpp \
@@ -23,9 +20,6 @@ SOURCES        += multicastmodule.cpp \
 HEADERS        += multicastmodule.h \
     multicastserver.h \
     multicastjob.h \
-    helpers/jsondocument/jsondocument.h \
-    helpers/jsondocument/qjsonwriter_p.h \
-    helpers/jsondocument/qjson_p.h \
     multicastprotocolnode.h \
     multicastprotocol.h \
     multicastservice.h \
