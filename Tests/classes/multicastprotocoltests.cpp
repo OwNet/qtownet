@@ -47,11 +47,13 @@ MulticastProtocolTests::MulticastProtocolTests()
 
 void MulticastProtocolTests::initTestCase()
 {
+    StubDatabase::init();
     m_proxyConnection = new ProxyConnection();
 }
 
 void MulticastProtocolTests::cleanupTestCase()
 {
+    StubDatabase::close();
 }
 
 void MulticastProtocolTests::testFirstNode()
@@ -265,7 +267,6 @@ void MulticastProtocolTests::testStrongerNode()
 {
     StubTime::setCurrentDateTime(QDateTime::currentDateTime());
 
-    StubDatabase::init();
     DatabaseSettings databaseSettings;
     databaseSettings.createClientId();
 

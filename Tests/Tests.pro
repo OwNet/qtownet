@@ -44,10 +44,10 @@ SOURCES +=  ../OwNetClient/helpers/messagehelper.cpp \
     main.cpp \
     stub/stubtime.cpp \
     helpers/modulehelpers.cpp \
-    modules/tst_testssample.cpp \
-    modules/tst_testsusersservice.cpp \
     stub/stubdatabase.cpp \
-    classes/multicastprotocoltests.cpp
+    classes/multicastprotocoltests.cpp \
+    modules/usersservicetests.cpp \
+    modules/sampleservicetests.cpp
 
 
 HEADERS +=  ../OwNetClient/helpers/messagehelper.h \
