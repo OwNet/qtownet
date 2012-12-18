@@ -15,7 +15,8 @@ SOURCES        += multicastmodule.cpp \
     helpers/jsondocument/qjsonwriter.cpp \
     helpers/jsondocument/qjson.cpp \
     multicastprotocolnode.cpp \
-    multicastprotocol.cpp
+    multicastprotocol.cpp \
+    multicastservice.cpp
 
 
 HEADERS        += multicastmodule.h \
@@ -25,7 +26,8 @@ HEADERS        += multicastmodule.h \
     helpers/jsondocument/qjsonwriter_p.h \
     helpers/jsondocument/qjson_p.h \
     multicastprotocolnode.h \
-    multicastprotocol.h
+    multicastprotocol.h \
+    multicastservice.h
 
 TARGET          = $$qtLibraryTarget(ownet_multicastmodule)
 macx:DESTDIR    = ../../OwNetClient/OwNetClient.app/Contents/MacOS/modules
