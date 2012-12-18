@@ -15,7 +15,7 @@ public:
     void updateFromClients();
 
 private:
-    void downloadUpdatesFromClient(int clientId);
+    void downloadUpdatesFromClient(uint clientId);
 
     IProxyConnection *m_proxyConnection;
 };

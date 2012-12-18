@@ -14,10 +14,14 @@ public:
 
     void setValue(const QString &key, const QVariant &value);
     QVariant value(const QString &key) const;
+    bool contains(const QString &key) const;
 
     void clear();
 
     bool isLoggedIn() const;
+    QVariantMap availableClients() const;
+    uint serverId() const;
+    bool isServer() const;
 
 private:
     static QVariantMap *m_sessionData;

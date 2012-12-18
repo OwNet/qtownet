@@ -23,12 +23,12 @@ private slots:
 
 private:
     void createReply();
-    bool isClientOnline(int clientId) const;
-    QString clientIp(int clientId) const;
+    bool isClientOnline(uint clientId) const;
+    QString clientIp(uint clientId) const;
 
     bool m_readHeaders;
     bool m_retryIfFailed;
-    QList<int> m_clientsToTry;
+    QList<uint> m_clientsToTry;
 };
 
 #endif // PROXYWEBINPUTOBJECT_H

@@ -5,6 +5,7 @@
 #include "proxytrafficcounter.h"
 #include "databaseselectquery.h"
 #include "databasesettings.h"
+#include "session.h"
 
 #include <QNetworkAccessManager>
 #include <QNetworkReply>
@@ -19,13 +20,13 @@ ProxyWebInputObject::ProxyWebInputObject(ProxyRequest *request, QObject *parent)
 
 void ProxyWebInputObject::readRequest()
 {
-    int myId = DatabaseSettings().clientId();
+    uint myId = DatabaseSettings().clientId();
 
     DatabaseSelectQuery query("client_caches");
     query.singleWhere("cache_id", m_request->hashCode());
     while (query.next())
-        if (query.value("client_id").toInt() != myId && isClientOnline(query.value("client_id").toInt()))
-            m_clientsToTry.append(query.value("client_id").toInt());
+        if (query.value("client_id").toUInt() != myId && isClientOnline(query.value("client_id").toUInt()))
+            m_clientsToTry.append(query.value("client_id").toUInt());
 
     createReply();
 
@@ -135,12 +136,12 @@ void ProxyWebInputObject::createReply()
     connect(reply, SIGNAL(error(QNetworkReply::NetworkError)), this, SLOT(error(QNetworkReply::NetworkError)));
 }
 
-bool ProxyWebInputObject::isClientOnline(int clientId) const
+bool ProxyWebInputObject::isClientOnline(uint clientId) const
 {
-    return false;
+    return Session().availableClients().contains(QString::number(clientId));
 }
 
-QString ProxyWebInputObject::clientIp(int clientId) const
+QString ProxyWebInputObject::clientIp(uint clientId) const
 {
-    return "10.212.55.13";
+    return Session().availableClients().value(QString::number(clientId)).toString();
 }

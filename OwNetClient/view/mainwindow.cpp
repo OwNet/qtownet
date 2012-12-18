@@ -4,6 +4,7 @@
 #include "preferencesdialog.h"
 #include "proxysocketoutputwriter.h"
 #include "proxyconnection.h"
+#include "session.h"
 
 #include <QSystemTrayIcon>
 #include <QAction>
@@ -27,6 +28,10 @@ MainWindow::MainWindow(QWidget *parent) :
     QShortcut *dumpSockets = new QShortcut(QKeySequence(tr("Ctrl+L", "Dump Open Socket")), this);
     dumpSockets->setContext(Qt::ApplicationShortcut);
     connect(dumpSockets, SIGNAL(activated()), this, SLOT(dumpOpenSockets()));
+
+    QShortcut *dumpAvailableClients = new QShortcut(QKeySequence(tr("Ctrl+K", "Dump Available Socket")), this);
+    dumpAvailableClients->setContext(Qt::ApplicationShortcut);
+    connect(dumpAvailableClients, SIGNAL(activated()), this, SLOT(dumpAvailableClients()));
 }
 
 MainWindow::~MainWindow()
@@ -53,6 +58,20 @@ void MainWindow::dumpOpenSockets()
         qDebug() << url;
 
     qDebug() << tr("--- Open Sockets ---");
+}
+
+void MainWindow::dumpAvailableClients()
+{
+    qDebug() << tr("+++ Available Clients +++");
+
+    Session session;
+    qDebug() << "Server ID: " << session.serverId();
+
+    QVariantMap availableClients = session.availableClients();
+    foreach (QString clientId, availableClients.keys())
+        qDebug() << "ID: " << clientId << ", IP: " << availableClients.value(clientId).toString();
+
+    qDebug() << tr("--- Available Clients ---");
 }
 
 void MainWindow::sync()

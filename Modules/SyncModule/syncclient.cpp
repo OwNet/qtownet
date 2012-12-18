@@ -4,6 +4,9 @@
 #include "idatabasesettings.h"
 #include "idatabaseselectquery.h"
 #include "syncserver.h"
+#include "isession.h"
+
+#include <QDebug>
 
 SyncClient::SyncClient(IProxyConnection *proxyConnection, QObject *parent) :
     QObject(parent),
@@ -16,8 +19,12 @@ SyncClient::SyncClient(IProxyConnection *proxyConnection, QObject *parent) :
  */
 void SyncClient::updateFromServer()
 {
-    return;
-    downloadUpdatesFromClient(1);
+    QObject parent;
+    ISession *session = m_proxyConnection->session(&parent);
+    if (session->isServer())
+        return;
+
+    downloadUpdatesFromClient(session->serverId());
 }
 
 /**
@@ -25,16 +32,25 @@ void SyncClient::updateFromServer()
  */
 void SyncClient::updateFromClients()
 {
-    downloadUpdatesFromClient(1);
+    QObject parent;
+    ISession *session = m_proxyConnection->session(&parent);
+
+    foreach (QString clientId, session->availableClients().keys())
+        downloadUpdatesFromClient(clientId.toUInt());
 }
 
 /**
  * @brief Download sync updates from the specified client
  * @param clientId ID of the client
  */
-void SyncClient::downloadUpdatesFromClient(int clientId)
+void SyncClient::downloadUpdatesFromClient(uint clientId)
 {
     QObject parent;
+    if (clientId == m_proxyConnection->databaseSettings(&parent)->clientId())
+        return;
+
+    qDebug() << "Sync with client " << clientId << " started";
+
     SyncServer server(m_proxyConnection);
 
     QVariantMap body;
@@ -50,4 +66,5 @@ void SyncClient::downloadUpdatesFromClient(int clientId)
         return;
 
     server.saveAndApplyUpdates(response->body().toList());
+    qDebug() << "Sync with client " << clientId << " finished";
 }
