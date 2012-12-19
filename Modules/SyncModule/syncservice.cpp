@@ -51,7 +51,10 @@ IResponse *SyncService::getUpdates(IRequest *request)
 IResponse *SyncService::syncNow(IRequest *request)
 {
     SyncClient client(m_proxyConnection);
-    client.updateFromServer();
-    client.updateFromClients();
-    return request->response(IResponse::OK);
+    QVariantMap json;
+
+    json.insert("updated_from_server", client.updateFromServer());
+    json.insert("updates_from_clients", client.updateFromClients());
+
+    return request->response(json);
 }

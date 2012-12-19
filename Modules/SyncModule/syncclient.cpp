@@ -17,37 +17,41 @@ SyncClient::SyncClient(IProxyConnection *proxyConnection, QObject *parent) :
 /**
  * @brief Update journal from server.
  */
-void SyncClient::updateFromServer()
+bool SyncClient::updateFromServer()
 {
     QObject parent;
     ISession *session = m_proxyConnection->session(&parent);
     if (session->isServer())
-        return;
+        return false;
 
-    downloadUpdatesFromClient(session->serverId());
+    return downloadUpdatesFromClient(session->serverId());
 }
 
 /**
  * @brief Used by the server to download updates from all online clients
  */
-void SyncClient::updateFromClients()
+int SyncClient::updateFromClients()
 {
     QObject parent;
     ISession *session = m_proxyConnection->session(&parent);
+    int clients = 0;
 
     foreach (QString clientId, session->availableClients().keys())
-        downloadUpdatesFromClient(clientId.toUInt());
+        if (downloadUpdatesFromClient(clientId.toUInt()))
+            clients++;
+
+    return clients;
 }
 
 /**
  * @brief Download sync updates from the specified client
  * @param clientId ID of the client
  */
-void SyncClient::downloadUpdatesFromClient(uint clientId)
+bool SyncClient::downloadUpdatesFromClient(uint clientId)
 {
     QObject parent;
     if (clientId == m_proxyConnection->databaseSettings(&parent)->clientId())
-        return;
+        return false;
 
     qDebug() << "Sync with client " << clientId << " started";
 
@@ -64,9 +68,11 @@ void SyncClient::downloadUpdatesFromClient(uint clientId)
     IResponse *response = m_proxyConnection->callModule(request);
     if (response->status() != IResponse::OK) {
         qDebug() << "Sync with client " << clientId << " failed";
-        return;
+        return false;
     }
 
     server.saveAndApplyUpdates(response->body().toList());
     qDebug() << "Sync with client " << clientId << " finished";
+
+    return true;
 }

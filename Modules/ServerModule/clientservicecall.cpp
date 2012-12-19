@@ -24,7 +24,14 @@ IResponse *ClientServiceCall::callClientService(uint clientId, const QString &ap
 {
     QObject parent;
     ISession *session = m_proxyConnection->session(&parent);
-    QString ip = session->availableClients().value(QString::number(clientId)).toString();
+    QStringList ipPort = session->availableClients().value(QString::number(clientId)).toString().split(":");
+
+    if (ipPort.count() < 2)
+        return request->response(IResponse::SERVICE_UNAVAILABLE);
+
+    QString ip = ipPort.takeFirst();
+    int port = ipPort.takeFirst().toInt();
+
     if (ip.isEmpty())
         return request->response(IResponse::SERVICE_UNAVAILABLE);
 
@@ -34,7 +41,8 @@ IResponse *ClientServiceCall::callClientService(uint clientId, const QString &ap
     }*/
 
     QNetworkAccessManager *manager = new QNetworkAccessManager(this);
-    manager->setProxy(QNetworkProxy(QNetworkProxy::HttpProxy, ip, 8081));
+    manager->setProxy(QNetworkProxy(QNetworkProxy::HttpProxy, ip, port));
+
     QNetworkReply *reply = NULL;
     QNetworkRequest networkRequest(QUrl(urlQuery.toString(QUrl::FullyEncoded)));
 

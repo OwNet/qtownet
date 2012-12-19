@@ -22,7 +22,10 @@ void ClientService::init(IRouter *router)
         urlSplit.takeFirst();
         if (urlSplit.isEmpty()) return req->response();
 
-        return ClientServiceCall(m_proxyConnection).callClientService(urlSplit.takeFirst().toUInt(),
-                                urlSplit.join("/"), req);
+        uint clientId = urlSplit.takeFirst().toUInt();
+        QString apiUrl = urlSplit.join("/");
+
+        return ClientServiceCall(m_proxyConnection).callClientService(
+                                clientId, apiUrl, req);
     });
 }

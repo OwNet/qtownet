@@ -7,6 +7,7 @@
 #include <QDebug>
 #include <QDateTime>
 #include <QMutexLocker>
+#include <QProcessEnvironment>
 
 const int MulticastProtocol::expirationTimeInSeconds = 15;
 
@@ -128,7 +129,8 @@ void MulticastProtocol::update()
     // save nodes to session
     QVariantMap availableClients;
     for (int i = 0; i < m_nodes.size(); i++) {
-        availableClients.insert(QString::number(m_nodes.at(i)->id()), m_nodes.at(i)->address());
+        availableClients.insert(QString::number(m_nodes.at(i)->id()),
+                                QString("%1:%2").arg(m_nodes.at(i)->address()).arg(m_nodes.at(i)->port()));
     }
     session->setValue("available_clients", availableClients);
 }
@@ -171,10 +173,12 @@ QVariantMap MulticastProtocol::message() const
         break;
     }
 
+    int port = QProcessEnvironment::systemEnvironment().value("OWNET_LISTEN_PORT", "8081").toInt();
+
     message.insert("id", m_currentNode->id());
     message.insert("score", m_currentNode->score());
     message.insert("status", status);
-    message.insert("port", 8081);
+    message.insert("port", port);
     message.insert("initialized", m_currentNode->initialized());
 
     return message;
