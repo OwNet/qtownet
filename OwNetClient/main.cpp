@@ -4,9 +4,11 @@
 #include "proxyrequestbus.h"
 #include "applicationenvironment.h"
 
+// 24.12.2012: Stastne a vesele prajem :-)
+
 int main(int argc, char *argv[])
 {
-    QApplication a(argc, argv);
+    QApplication a(argc, argv);	
 
     MainWindow w;
 
