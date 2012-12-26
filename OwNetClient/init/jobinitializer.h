@@ -5,6 +5,7 @@ class CleanCacheJob;
 class ProxyTrafficCounterJob;
 class MulticastJob;
 class UpdateRecordsSaveJob;
+class DumpLogFileJob;
 
 class JobInitializer
 {
@@ -18,6 +19,7 @@ private:
     CleanCacheJob *m_cleanCacheJob;
     ProxyTrafficCounterJob *m_trafficCounterJob;
     UpdateRecordsSaveJob *m_updateRecordsSaveJob;
+    DumpLogFileJob *m_dumpLogFileJob;
 };
 
 #endif // JOBINITIALIZER_H

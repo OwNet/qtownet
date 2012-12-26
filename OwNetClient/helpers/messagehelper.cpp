@@ -8,8 +8,10 @@
 
 #include <QDebug>
 #include <QFile>
+#include <QQueue>
 
 QFile *MessageHelper::m_logFile = NULL;
+QQueue<QString> *MessageHelper::m_logsToBeWrittenToDisk = new QQueue<QString>();
 
 MessageHelper::MessageHelper()
 {
@@ -37,15 +39,25 @@ void MessageHelper::debug(QString message)
 {
     qDebug() << message;
 
-    //writeToLogFile(message);
+    writeToLogFile(message);
 }
 
-void MessageHelper::writeToLogFile(const QString &log)
+void MessageHelper::writeLogFileToDisk()
 {
+    if (m_logsToBeWrittenToDisk->isEmpty())
+        return;
+
     if (!m_logFile) {
         m_logFile = new QFile(ApplicationDataStorage().appDataDirectory().absoluteFilePath("ownet.log"));
         m_logFile->open(QIODevice::WriteOnly | QIODevice::Text);
     }
 
-    QTextStream(m_logFile) << log << endl;
+    do {
+        QTextStream(m_logFile) << m_logsToBeWrittenToDisk->dequeue() << endl;
+    } while (!m_logsToBeWrittenToDisk->isEmpty());
+}
+
+void MessageHelper::writeToLogFile(const QString &log)
+{
+    m_logsToBeWrittenToDisk->enqueue(log);
 }

@@ -3,8 +3,8 @@
 
 #include <QString>
 
-class QMutex;
 class QFile;
+class QMutex;
 
 class MessageHelper
 {
@@ -15,9 +15,13 @@ public:
     static void information(QString title, QString body);
     static void debug(QString message);
 
+    static void writeLogFileToDisk();
+
 private:
     static void writeToLogFile(const QString &log);
+
     static QFile *m_logFile;
+    static QQueue<QString> *m_logsToBeWrittenToDisk;
 };
 
 #endif // MESSAGEHELPER_H
