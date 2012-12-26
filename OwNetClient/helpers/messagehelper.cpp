@@ -11,33 +11,33 @@
 #include <QQueue>
 
 QFile *MessageHelper::m_logFile = NULL;
-QQueue<QString> *MessageHelper::m_logsToBeWrittenToDisk = new QQueue<QString>();
+QQueue<QVariant> *MessageHelper::m_logsToBeWrittenToDisk = new QQueue<QVariant>();
 
 MessageHelper::MessageHelper()
 {
 }
 
-void MessageHelper::error(QString title, QString body)
+void MessageHelper::error(const QString &title, const QVariant &body)
 {
 #ifdef TEST
     qDebug() << title << body;
 #else
-    QMessageBox::critical(NULL, title, body);
+    QMessageBox::critical(NULL, title, body.toString());
 #endif
 }
 
-void MessageHelper::information(QString title, QString body)
+void MessageHelper::information(const QString &title, const QVariant &body)
 {
 #ifdef TEST
-    qDebug() << title << body;
+    qDebug() << title << body.toString();
 #else
-    QMessageBox::information(NULL, title, body);
+    QMessageBox::information(NULL, title, body.toString());
 #endif
 }
 
-void MessageHelper::debug(QString message)
+void MessageHelper::debug(const QVariant &message)
 {
-    qDebug() << message;
+    qDebug() << message.toString();
 
     writeToLogFile(message);
 }
@@ -53,11 +53,11 @@ void MessageHelper::writeLogFileToDisk()
     }
 
     do {
-        QTextStream(m_logFile) << m_logsToBeWrittenToDisk->dequeue() << endl;
+        QTextStream(m_logFile) << m_logsToBeWrittenToDisk->dequeue().toString() << endl;
     } while (!m_logsToBeWrittenToDisk->isEmpty());
 }
 
-void MessageHelper::writeToLogFile(const QString &log)
+void MessageHelper::writeToLogFile(const QVariant &log)
 {
     m_logsToBeWrittenToDisk->enqueue(log);
 }
