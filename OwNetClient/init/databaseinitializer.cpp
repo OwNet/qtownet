@@ -14,7 +14,8 @@
 #include <QDebug>
 #include <QDateTime>
 
-DatabaseInitializer::DatabaseInitializer()
+DatabaseInitializer::DatabaseInitializer(QObject *parent)
+    : QObject(parent)
 {
 }
 

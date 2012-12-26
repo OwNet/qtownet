@@ -6,7 +6,8 @@
 #include <QNetworkInterface>
 #include <QNetworkProxy>
 
-ProxyInitializer::ProxyInitializer()
+ProxyInitializer::ProxyInitializer(QObject *parent)
+    : QObject(parent)
 {
 }
 
