@@ -69,63 +69,71 @@ void DatabaseInitializer::runMigrations()
     QDir dir = ApplicationDataStorage().appResourcesDirectory();
     if (dir.exists("migrations")) {
         dir.cd("migrations");
+    } else if (dir.exists("migrations.lnk")) {
+        QFileInfo fi(dir.absoluteFilePath("migrations.lnk"));
+        if (fi.exists() && fi.isSymLink())
+            dir.setPath(fi.symLinkTarget());
+    }
+    if (!dir.exists()) {
+        MessageHelper::debug("Migrations  directory not found");
+        return;
+    }
 
-        QFileInfoList list = dir.entryInfoList(QDir::Files, QDir::Name);
+    QFileInfoList list = dir.entryInfoList(QDir::Files, QDir::Name);
 
-        // for all migrations
-        for (int i = 0; i < list.size(); ++i) {
+    // for all migrations
+    for (int i = 0; i < list.size(); ++i) {
 
-            // unless migration has been run
-            bool success = true;
-            if (! migrations.contains(list.at(i).fileName()))
-            {
-                MessageHelper::debug(QObject::tr("Migration %1")
-                                     .arg(list.at(i).fileName()));
+        // unless migration has been run
+        bool success = true;
+        if (! migrations.contains(list.at(i).fileName()))
+        {
+            MessageHelper::debug(QObject::tr("Migration %1")
+                                 .arg(list.at(i).fileName()));
 
-                // read file
-                QFile file(list.at(i).absoluteFilePath());
-                if (file.open(QIODevice::ReadOnly | QIODevice::Text)) {
-                    QTextStream in(&file);
-                    in.setCodec("UTF-8");
-                    QStringList queries = in.readAll().split(";", QString::SkipEmptyParts);
+            // read file
+            QFile file(list.at(i).absoluteFilePath());
+            if (file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+                QTextStream in(&file);
+                in.setCodec("UTF-8");
+                QStringList queries = in.readAll().split(";", QString::SkipEmptyParts);
 
-                    db.transaction();
+                db.transaction();
 
-                    foreach (QString strQuery, queries) {
-                        if (strQuery.trimmed().isEmpty())
-                            continue;
+                foreach (QString strQuery, queries) {
+                    if (strQuery.trimmed().isEmpty())
+                        continue;
 
-                        QSqlQuery query;
-                        if (!query.exec(strQuery)) {
-                            MessageHelper::debug(query.lastError().text());
-                            success = false;
-                            break;
-                        }
+                    QSqlQuery query;
+                    if (!query.exec(strQuery)) {
+                        MessageHelper::debug(query.lastError().text());
+                        success = false;
+                        break;
                     }
-
-                    if (!success)
-                        db.rollback();
-                    else
-                    {
-                        // add to migrations table
-                        QSqlQuery query;
-                        query.prepare("INSERT INTO migrations (name) VALUES (?); ");
-                        query.addBindValue(list.at(i).fileName());
-                        query.exec();
-
-                        db.commit();
-                    }
-
-                    file.close();
                 }
-                else {
-                    MessageHelper::debug(file.errorString());
+
+                if (!success)
+                    db.rollback();
+                else
+                {
+                    // add to migrations table
+                    QSqlQuery query;
+                    query.prepare("INSERT INTO migrations (name) VALUES (?); ");
+                    query.addBindValue(list.at(i).fileName());
+                    query.exec();
+
+                    db.commit();
                 }
+
+                file.close();
             }
-
-            if (! success)
-                break;
+            else {
+                MessageHelper::debug(file.errorString());
+            }
         }
+
+        if (! success)
+            break;
     }
 }
 
