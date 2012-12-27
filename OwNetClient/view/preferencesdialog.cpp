@@ -29,11 +29,11 @@ void PreferencesDialog::savePreferences()
     Settings settings;
 
     QDir dir(ui->leAppDataPath->text());
-    if (dir.exists())
+    if (dir.exists() || dir.mkpath(dir.absolutePath()))
         settings.setValue("application/data_folder_path", dir.absolutePath());
 
     dir.setPath(ui->leAppResourcesPath->text());
-    if (dir.exists())
+    if (dir.exists() || dir.mkpath(dir.absolutePath()))
         settings.setValue("application/resources_folder_path", dir.absolutePath());
 }
 
