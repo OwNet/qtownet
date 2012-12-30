@@ -71,7 +71,8 @@ SOURCES += main.cpp\
     helpers/jsondocument/qjsonwriter.cpp \
     helpers/jsondocument/qjson.cpp \
     modules/response.cpp \
-    jobs/updaterecordssavejob.cpp
+    jobs/updaterecordssavejob.cpp \
+    jobs/dumplogfilejob.cpp
 
 
 HEADERS  += view/mainwindow.h \
@@ -148,7 +149,8 @@ HEADERS  += view/mainwindow.h \
     modules/interfaces/iroute.h \
     modules/interfaces/iresponse.h \
     modules/response.h \
-    jobs/updaterecordssavejob.h
+    jobs/updaterecordssavejob.h \
+    jobs/dumplogfilejob.h
 
 
 FORMS    += view/mainwindow.ui \

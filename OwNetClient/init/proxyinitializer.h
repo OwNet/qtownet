@@ -5,10 +5,10 @@
 
 #include <QObject>
 
-class ProxyInitializer
+class ProxyInitializer : public QObject
 {
 public:
-    ProxyInitializer();
+    ProxyInitializer(QObject *parent = NULL);
 
     void init();
 

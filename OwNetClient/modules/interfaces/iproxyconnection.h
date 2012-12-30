@@ -26,6 +26,7 @@ public:
     virtual IRequest *createRequest(IRequest::RequestType requestType, const QString &service, const int id, QObject *parent = 0) = 0;
     virtual QVariant fromJson(const QByteArray &content, bool *ok = NULL) const = 0;
     virtual QByteArray toJson(const QVariant &content) const = 0;
+    virtual void debugMessage(const QVariant &message) const = 0;
 
     virtual void registerService(IService*) = 0;
     virtual void registerRestService(IRestService*) = 0;

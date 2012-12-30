@@ -12,6 +12,7 @@
 #include "iservice.h"
 #include "ijobaction.h"
 #include "modulejob.h"
+#include "messagehelper.h"
 
 ProxyConnection::ProxyConnection(QObject *parent) :
     QObject(parent)
@@ -87,4 +88,9 @@ void ProxyConnection::registerJob(IJobAction* job)
 IResponse *ProxyConnection::callModule(IRequest *req)
 {
     return RequestRouter::processRequest(req);
+}
+
+void ProxyConnection::debugMessage(const QVariant &message) const
+{
+    MessageHelper::debug(message);
 }
