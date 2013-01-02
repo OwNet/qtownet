@@ -1,20 +1,21 @@
-MulticastModulePath = $${ModulesPath}/MulticastModule
+ModulePath = $${ModulesPath}/MulticastModule
 
-INCLUDEPATH    += $${OwNetClientPath}/modules/interfaces
+INCLUDEPATH    += $${OwNetClientPath}/modules/interfaces \
+    $${ModulePath}
 
-SOURCES        += $${MulticastModulePath}/multicastmodule.cpp \
-    $${MulticastModulePath}/multicastserver.cpp \
-    $${MulticastModulePath}/multicastjob.cpp \
-    $${MulticastModulePath}/multicastprotocolnode.cpp \
-    $${MulticastModulePath}/multicastprotocol.cpp \
-    $${MulticastModulePath}/multicastservice.cpp \
-    $${MulticastModulePath}/updatejob.cpp
+SOURCES        += $${ModulePath}/multicastmodule.cpp \
+    $${ModulePath}/multicastserver.cpp \
+    $${ModulePath}/multicastjob.cpp \
+    $${ModulePath}/multicastprotocolnode.cpp \
+    $${ModulePath}/multicastprotocol.cpp \
+    $${ModulePath}/multicastservice.cpp \
+    $${ModulePath}/updatejob.cpp
 
 
-HEADERS        += $${MulticastModulePath}/multicastmodule.h \
-    $${MulticastModulePath}/multicastserver.h \
-    $${MulticastModulePath}/multicastjob.h \
-    $${MulticastModulePath}/multicastprotocolnode.h \
-    $${MulticastModulePath}/multicastprotocol.h \
-    $${MulticastModulePath}/multicastservice.h \
-    $${MulticastModulePath}/updatejob.h
+HEADERS        += $${ModulePath}/multicastmodule.h \
+    $${ModulePath}/multicastserver.h \
+    $${ModulePath}/multicastjob.h \
+    $${ModulePath}/multicastprotocolnode.h \
+    $${ModulePath}/multicastprotocol.h \
+    $${ModulePath}/multicastservice.h \
+    $${ModulePath}/updatejob.h
