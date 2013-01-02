@@ -28,4 +28,5 @@ HEADERS  += $${OwNetClientPath}/helpers/messagehelper.h \
     $${OwNetClientPath}/helpers/jsondocument/jsondocument.h \
     $${OwNetClientPath}/helpers/jsondocument/qjson_p.h
 
-INCLUDEPATH += $${OwNetClientPath}/helpers
+INCLUDEPATH += $${OwNetClientPath}/helpers \
+    $${OwNetClientPath}/helpers/jsondocument
