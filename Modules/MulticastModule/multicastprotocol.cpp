@@ -7,6 +7,7 @@
 #include <QDebug>
 #include <QDateTime>
 #include <QMutexLocker>
+#include <QProcessEnvironment>
 
 const int MulticastProtocol::expirationTimeInSeconds = 15;
 
@@ -98,6 +99,8 @@ QList<MulticastProtocolNode *> &MulticastProtocol::nodes()
 
 void MulticastProtocol::update()
 {
+    QObject parent;
+    ISession *session = m_proxyConnection->session(&parent);
     QMutexLocker locker(&m_nodesMutex);
 
     // clean expired nodes
@@ -118,26 +121,18 @@ void MulticastProtocol::update()
     m_currentNode->setStatus(currentNodesStatus());
 
     // save server to session
-    if (serverNode() != NULL) {
-        m_proxyConnection->session()->setValue("multicast_server_ip", serverNode()->address());
-        m_proxyConnection->session()->setValue("multicast_server_port", serverNode()->port());
-    }
-    else {
-        m_proxyConnection->session()->setValue("multicast_server_ip", "");
-        m_proxyConnection->session()->setValue("multicast_server_port", (uint) 0);
-    }
+    if (serverNode() != NULL)
+        session->setValue("server_id", serverNode()->id());
+    else
+        session->setValue("server_id", QVariant());
 
     // save nodes to session
+    QVariantMap availableClients;
     for (int i = 0; i < m_nodes.size(); i++) {
-        m_proxyConnection->session()->setValue(
-            QString("multicast_node_").append(QString::number(m_nodes.at(i)->id())).append("_ip"),
-            m_nodes.at(i)->address()
-        );
-        m_proxyConnection->session()->setValue(
-            QString("multicast_node_").append(QString::number(m_nodes.at(i)->id())).append("_port"),
-            m_nodes.at(i)->port()
-        );
+        availableClients.insert(QString::number(m_nodes.at(i)->id()),
+                                QString("%1:%2").arg(m_nodes.at(i)->address()).arg(m_nodes.at(i)->port()));
     }
+    session->setValue("available_clients", availableClients);
 }
 
 MulticastProtocol::Status MulticastProtocol::currentNodesStatus() const
@@ -178,10 +173,12 @@ QVariantMap MulticastProtocol::message() const
         break;
     }
 
+    int port = QProcessEnvironment::systemEnvironment().value("OWNET_LISTEN_PORT", "8081").toInt();
+
     message.insert("id", m_currentNode->id());
     message.insert("score", m_currentNode->score());
     message.insert("status", status);
-    message.insert("port", 8081);
+    message.insert("port", port);
     message.insert("initialized", m_currentNode->initialized());
 
     return message;

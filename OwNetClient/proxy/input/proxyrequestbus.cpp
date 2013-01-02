@@ -68,7 +68,7 @@ QByteArray *ProxyRequestBus::processResponse(IResponse *response)
     case QMetaType::QByteArray:
         result = new QByteArray(body.toByteArray());
         if (notContentType)
-            setContentType("text");
+            setContentType("application/octet-stream");
         break;
 
     case QMetaType::QJsonDocument:

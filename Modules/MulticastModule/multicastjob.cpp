@@ -1,12 +1,17 @@
 #include "multicastjob.h"
-#include "jsondocument.h"
+
 #include "multicastprotocol.h"
+#include "iproxyconnection.h"
 
 #include <QUdpSocket>
 
 MulticastJob::MulticastJob(QHostAddress *groupAddress, int port,  MulticastProtocol *protocol,
-                           QObject *parent)
-    : m_groupAddress(groupAddress), m_protocol(protocol), m_port(port)
+                           IProxyConnection *proxyConnection, QObject *parent)
+    : m_groupAddress(groupAddress),
+      m_protocol(protocol),
+      m_port(port),
+      m_proxyConnection(proxyConnection),
+      QObject(parent)
 {
 }
 
@@ -18,6 +23,6 @@ void MulticastJob::execute()
     m_protocol->update();
 
     QUdpSocket *udpSocket = new QUdpSocket(this);
-    QByteArray datagram = JsonDocument::fromVariant(m_protocol->message()).toJson();
+    QByteArray datagram = m_proxyConnection->toJson(m_protocol->message());
     udpSocket->writeDatagram(datagram.data(), datagram.size(), *m_groupAddress, m_port);
 }

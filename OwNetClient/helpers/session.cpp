@@ -1,5 +1,7 @@
 #include "session.h"
 
+#include "databasesettings.h"
+
 QVariantMap *Session::m_sessionData = new QVariantMap;
 
 Session::Session(QObject *parent)
@@ -17,6 +19,11 @@ QVariant Session::value(const QString &key) const
     return m_sessionData->value(key);
 }
 
+bool Session::contains(const QString &key) const
+{
+    return m_sessionData->contains(key);
+}
+
 void Session::clear()
 {
     m_sessionData->clear();
@@ -25,4 +32,23 @@ void Session::clear()
 bool Session::isLoggedIn() const
 {
     return m_sessionData->contains("logged");
+}
+
+QVariantMap Session::availableClients() const
+{
+    if (m_sessionData->contains("available_clients"))
+        return m_sessionData->value("available_clients").toMap();
+    return QVariantMap();
+}
+
+uint Session::serverId() const
+{
+    if (m_sessionData->contains("server_id") && !m_sessionData->value("server_id").isNull())
+        return m_sessionData->value("server_id").toUInt();
+    return DatabaseSettings().clientId();
+}
+
+bool Session::isServer() const
+{
+    return serverId() == DatabaseSettings().clientId();
 }

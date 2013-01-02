@@ -12,6 +12,15 @@ class IDatabaseSelectQueryWhere;
 class DatabaseSelectQueryJoin;
 class IDatabaseSelectQueryWhereGroup;
 
+/**
+ * @brief Wrapper for database SELECT queries.
+ *
+ * Constructs and executes the query when next() or first() is called.
+ * Enables retrieving values for attributes from the results of the executed query using value(attribute).
+ *
+ * Supports complex where expressions. Beware, there can only be a single root where expression
+ * created by either singleWhere() or whereGroup(). Each call overwrites the previous expression.
+ */
 class DatabaseSelectQuery : public QObject, public IDatabaseSelectQuery
 {
     Q_OBJECT

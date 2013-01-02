@@ -38,7 +38,7 @@ private:
     bool m_failed;
     bool m_firstRead;
 
-    int m_hashCode;
+    uint m_hashCode;
     QString m_url;
     QString m_requestHeaders;
     QString m_responseHeaders;

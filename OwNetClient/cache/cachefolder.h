@@ -15,7 +15,7 @@ public:
     long cacheReserveSize();
 
     QFile *cacheFile(ProxyRequest *request, int part, QObject *parent = NULL);
-    QFile *cacheFile(int id, int part, QObject *parent = NULL);
+    QFile *cacheFile(uint id, int part, QObject *parent = NULL);
 };
 
 #endif // CACHEFOLDER_H

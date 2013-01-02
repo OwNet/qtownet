@@ -22,16 +22,29 @@ DatabaseUpdateQuery::DatabaseUpdateQuery(const QVariantMap &content, QObject *pa
     m_content = content;
 }
 
+/**
+ * @brief Set the name of the table
+ * @param table Name of the table
+ */
 void DatabaseUpdateQuery::setTable(const QString &table)
 {
     m_content.insert("table", table);
 }
 
+/**
+ * @brief Set the type of the query, i.e. update, insert, delete
+ * @param type Type of the query
+ */
 void DatabaseUpdateQuery::setType(DatabaseUpdateQuery::EntryType type)
 {
     m_content.insert("type", (int)type);
 }
 
+/**
+ * @brief Set queries to be executed that use the returned autoincremented ID of the current query.
+ * @param useColumnAs Use the returned ID as
+ * @param queries List of queries to be executed
+ */
 void DatabaseUpdateQuery::setReturningId(const QString &useColumnAs, const QVariantList &queries)
 {
     QVariantMap returningMap;
@@ -40,21 +53,40 @@ void DatabaseUpdateQuery::setReturningId(const QString &useColumnAs, const QVari
     m_content.insert("returning_id", returningMap);
 }
 
+/**
+ * @brief Set the values for the column
+ * @param name Name of the column
+ * @param value Value of the column
+ */
 void DatabaseUpdateQuery::setColumnValue(const QString &name, const QVariant &value)
 {
     m_columns.insert(name, value);
 }
 
+/**
+ * @brief Set temporary binding for column values and where expressions that should not be present in the JSON representation.
+ * @param name Name of the attribute
+ * @param value Value of the attribute
+ */
 void DatabaseUpdateQuery::setTemporaryBinding(const QString &name, const QVariant &value)
 {
     m_temporaryBindings.insert(name, value);
 }
 
+/**
+ * @brief Append a new where expression
+ * @param name Name of the column
+ * @param value Value of the column
+ */
 void DatabaseUpdateQuery::setWhere(const QString &name, const QVariant &value)
 {
     m_wheres.insert(name, value);
 }
 
+/**
+ * @brief Automatically assign date_updated and date_created values if true.
+ * @param setDates
+ */
 void DatabaseUpdateQuery::setUpdateDates(bool setDates)
 {
     if (setDates)
@@ -63,11 +95,21 @@ void DatabaseUpdateQuery::setUpdateDates(bool setDates)
         m_content.insert("set_update_dates", (int)IDatabaseUpdateQuery::None);
 }
 
+/**
+ * @brief Automatically insert current dates for the given columns
+ * @param updateDates Columns to be used
+ */
 void DatabaseUpdateQuery::setUpdateDates(IDatabaseUpdateQuery::UpdateDates updateDates)
 {
     m_content.insert("set_update_dates", (int)updateDates);
 }
 
+/**
+ * @brief Return the value for the column. Can be modified by a temporary binding.
+ * @param name Name of the column
+ * @param value Value to be returned if there is no temporary binding
+ * @return
+ */
 QVariant DatabaseUpdateQuery::bindingValue(const QString &name, const QVariant &value) const
 {
     if (m_temporaryBindings.contains(name))
@@ -75,6 +117,9 @@ QVariant DatabaseUpdateQuery::bindingValue(const QString &name, const QVariant &
     return value;
 }
 
+/**
+ * @brief Prepare the JSON representation
+ */
 void DatabaseUpdateQuery::save()
 {
     if (m_columns.count())
@@ -83,6 +128,10 @@ void DatabaseUpdateQuery::save()
         m_content.insert("where", m_wheres);
 }
 
+/**
+ * @brief Execute the query
+ * @return True if successful
+ */
 bool DatabaseUpdateQuery::executeQuery()
 {
     if (m_needsSave)
@@ -172,26 +221,46 @@ bool DatabaseUpdateQuery::executeQuery()
     return true;
 }
 
+/**
+ * @return Name of the table
+ */
 QString DatabaseUpdateQuery::table() const
 {
     return m_content.value("table").toString();
 }
 
+/**
+ * @return Type of the query - insert, update, delete
+ */
 DatabaseUpdateQuery::EntryType DatabaseUpdateQuery::type() const
 {
     return (EntryType) m_content.value("type").toInt();
 }
 
+/**
+ * @return JSON convertible representation of the query
+ */
 QVariantMap DatabaseUpdateQuery::content() const
 {
     return m_content;
 }
 
+/**
+ * @brief Current datetime to be used in date_updated or date_created
+ */
 QString DatabaseUpdateQuery::timestamp() const
 {
     return QDateTime::currentDateTime().toString(Qt::ISODate);
 }
 
+/**
+ * @brief Append where clauses to the generated SQL query string
+ *
+ * Also prepares the QSqlQuery query object and bind the where values.
+ *
+ * @param queryString Generated SQL query
+ * @param query QSqlQuery representation
+ */
 void DatabaseUpdateQuery::appendWhere(QString &queryString, QSqlQuery &query)
 {
     QVariantMap where;

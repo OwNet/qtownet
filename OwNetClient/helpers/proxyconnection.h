@@ -21,6 +21,7 @@ public:
     QVariant fromJson(const QByteArray &content, bool *ok = NULL) const;
     QByteArray toJson(const QVariant &content) const;
     IResponse *callModule(IRequest *req);
+    void debugMessage(const QVariant &message) const;
 
     void registerService(IService* service);
     void registerRestService(IRestService* service);

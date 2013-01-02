@@ -38,7 +38,7 @@ public:
 private:
     ProxyDownloads();
 
-    QMap<int, ProxyDownload*> m_openDownloads;
+    QMap<uint, ProxyDownload*> m_openDownloads;
     QMutex m_openDownloadsMutex;
     GDSFClock *m_gdsfClock;
     ProxyTrafficCounter *m_trafficCounter;

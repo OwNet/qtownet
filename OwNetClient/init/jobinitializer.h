@@ -1,23 +1,14 @@
 #ifndef JOBINITIALIZER_H
 #define JOBINITIALIZER_H
 
-class CleanCacheJob;
-class ProxyTrafficCounterJob;
-class MulticastJob;
-class UpdateRecordsSaveJob;
+#include <QObject>
 
-class JobInitializer
+class JobInitializer : public QObject
 {
 public:
-    JobInitializer();
-    ~JobInitializer();
+    JobInitializer(QObject *parent = NULL);
 
     void init();
-
-private:
-    CleanCacheJob *m_cleanCacheJob;
-    ProxyTrafficCounterJob *m_trafficCounterJob;
-    UpdateRecordsSaveJob *m_updateRecordsSaveJob;
 };
 
 #endif // JOBINITIALIZER_H

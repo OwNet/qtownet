@@ -22,7 +22,13 @@ private slots:
     void readResponseHeaders(QNetworkReply *reply);
 
 private:
+    void createReply();
+    bool isClientOnline(uint clientId) const;
+    QString clientIp(uint clientId) const;
+
     bool m_readHeaders;
+    bool m_retryIfFailed;
+    QList<uint> m_clientsToTry;
 };
 
 #endif // PROXYWEBINPUTOBJECT_H

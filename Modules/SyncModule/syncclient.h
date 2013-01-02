@@ -11,10 +11,12 @@ class SyncClient : public QObject
 public:
     explicit SyncClient(IProxyConnection *proxyConnection, QObject *parent = 0);
 
-    void update();
-    void reportToServer();
+    bool updateFromServer();
+    int updateFromClients();
 
 private:
+    bool downloadUpdatesFromClient(uint clientId);
+
     IProxyConnection *m_proxyConnection;
 };
 

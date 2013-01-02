@@ -113,7 +113,8 @@ void ProxySocketOutputWriter::read(QIODevice *ioDevice)
         os.flush();
     }
     QRegularExpression rx("(.*<body[^>]*>)(.*)");
-    if (!m_foundBody && m_proxyDownload->inputObject()->contentType().toLower().contains("text/html")) {
+    ProxyInputObject *inputObject = m_proxyDownload->inputObject();
+    if (!m_foundBody && !inputObject->request()->isLocalRequest() && inputObject->contentType().toLower().contains("text/html")) {
         while (!ioDevice->atEnd()) {
             QByteArray lineBytes = ioDevice->readLine();
             QString line = QString::fromLatin1(lineBytes);
@@ -126,7 +127,7 @@ void ProxySocketOutputWriter::read(QIODevice *ioDevice)
 
                 m_socket->write(listx.at(1).toLatin1());
 
-                m_socket->write(QString("<script type=\"text/javascript\" src=\"http://inject.ownet/inject.js\"></script>")
+                m_socket->write(QString("<script type=\"text/javascript\" src=\"http://inject.ownet/js/tabframeinject.js\"></script>")
                                 .toLatin1());
                 m_socket->write(listx.at(2).toLatin1());
                 m_socket->write(lineBytes);

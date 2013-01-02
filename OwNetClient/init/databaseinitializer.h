@@ -3,10 +3,12 @@
 
 #include <QObject>
 
-class DatabaseInitializer
+class DatabaseInitializer : public QObject
 {
+    Q_OBJECT
+
 public:
-    DatabaseInitializer();
+    DatabaseInitializer(QObject *parent = NULL);
 
     void init();
 

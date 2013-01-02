@@ -4,6 +4,9 @@
 #include "idatabasesettings.h"
 #include "idatabaseselectquery.h"
 #include "syncserver.h"
+#include "isession.h"
+
+#include <QDebug>
 
 SyncClient::SyncClient(IProxyConnection *proxyConnection, QObject *parent) :
     QObject(parent),
@@ -14,9 +17,44 @@ SyncClient::SyncClient(IProxyConnection *proxyConnection, QObject *parent) :
 /**
  * @brief Update journal from server.
  */
-void SyncClient::update()
+bool SyncClient::updateFromServer()
 {
     QObject parent;
+    ISession *session = m_proxyConnection->session(&parent);
+    if (session->isServer())
+        return false;
+
+    return downloadUpdatesFromClient(session->serverId());
+}
+
+/**
+ * @brief Used by the server to download updates from all online clients
+ */
+int SyncClient::updateFromClients()
+{
+    QObject parent;
+    ISession *session = m_proxyConnection->session(&parent);
+    int clients = 0;
+
+    foreach (QString clientId, session->availableClients().keys())
+        if (downloadUpdatesFromClient(clientId.toUInt()))
+            clients++;
+
+    return clients;
+}
+
+/**
+ * @brief Download sync updates from the specified client
+ * @param clientId ID of the client
+ */
+bool SyncClient::downloadUpdatesFromClient(uint clientId)
+{
+    QObject parent;
+    if (clientId == m_proxyConnection->databaseSettings(&parent)->clientId())
+        return false;
+
+    qDebug() << "Sync with client " << clientId << " started";
+
     SyncServer server(m_proxyConnection);
 
     QVariantMap body;
@@ -24,32 +62,17 @@ void SyncClient::update()
     body.insert("sync_all_groups", true);
     body.insert("client_record_numbers", server.clientRecordNumbers());
 
-    IRequest *request = m_proxyConnection->createRequest(IRequest::POST, "server", "sync/get_updates", this);
+    IRequest *request = m_proxyConnection->createRequest(IRequest::POST, "clients", QString("%1/sync/get_updates")
+                                                         .arg(clientId), this);
     request->setPostBody(body);
     IResponse *response = m_proxyConnection->callModule(request);
-    if (response->status() != IResponse::OK)
-        return;
+    if (response->status() != IResponse::OK) {
+        qDebug() << "Sync with client " << clientId << " failed";
+        return false;
+    }
 
     server.saveAndApplyUpdates(response->body().toList());
-}
+    qDebug() << "Sync with client " << clientId << " finished";
 
-/**
- * @brief Send new updates to server.
- */
-void SyncClient::reportToServer()
-{
-    IRequest *request = m_proxyConnection->createRequest(IRequest::GET, "server", "sync/available_records", this);
-    IResponse *response = m_proxyConnection->callModule(request);
-    if (response->status() != IResponse::OK)
-        return;
-
-    QVariantMap currentItemsOnServer = response->body().toMap();
-    SyncServer server(m_proxyConnection);
-    QVariantList uploadItems = server.updates(currentItemsOnServer, true, 0);
-
-    if (uploadItems.count()) {
-        request = m_proxyConnection->createRequest(IRequest::POST, "server", "sync/upload_changes", this);
-        request->setPostBody(uploadItems);
-        m_proxyConnection->callModule(request);
-    }
+    return true;
 }

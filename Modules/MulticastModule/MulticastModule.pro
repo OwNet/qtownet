@@ -5,31 +5,10 @@ TARGET          = $$qtLibraryTarget(ownet_servermodule)
 TEMPLATE        = lib
 CONFIG         += plugin
 
-INCLUDEPATH    += ../../OwNetClient/modules/interfaces \
-    helpers/jsondocument
+OwNetClientPath = ../../OwNetClient
+ModulesPath = ..
 
-SOURCES        += multicastmodule.cpp \
-    multicastserver.cpp \
-    multicastjob.cpp \
-    helpers/jsondocument/jsondocument.cpp \
-    helpers/jsondocument/qjsonwriter.cpp \
-    helpers/jsondocument/qjson.cpp \
-    multicastprotocolnode.cpp \
-    multicastprotocol.cpp \
-    multicastservice.cpp \
-    updatejob.cpp
-
-
-HEADERS        += multicastmodule.h \
-    multicastserver.h \
-    multicastjob.h \
-    helpers/jsondocument/jsondocument.h \
-    helpers/jsondocument/qjsonwriter_p.h \
-    helpers/jsondocument/qjson_p.h \
-    multicastprotocolnode.h \
-    multicastprotocol.h \
-    multicastservice.h \
-    updatejob.h
+include(MulticastModule.pri)
 
 TARGET          = $$qtLibraryTarget(ownet_multicastmodule)
 macx:DESTDIR    = ../../OwNetClient/OwNetClient.app/Contents/MacOS/modules

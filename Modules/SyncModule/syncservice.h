@@ -16,11 +16,10 @@ public:
     virtual QString name() const { return "sync"; }
     void init(IRouter* router);
 
-    IResponse *getUpdates(IRequest *request);
-    IResponse *availableRecords(IRequest *);
-    IResponse *uploadChanges(IRequest *request);
-
 private:
+    IResponse *getUpdates(IRequest *request);
+    IResponse *syncNow(IRequest *request);
+
     IProxyConnection *m_proxyConnection;
 };
 

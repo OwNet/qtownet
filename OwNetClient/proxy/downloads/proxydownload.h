@@ -36,7 +36,7 @@ public:
     int registerReader();
     void deregisterReader(int readerId);
     int countRegisteredReaders();
-    int hashCode() { return m_hashCode; }
+    uint hashCode() { return m_hashCode; }
 
     bool shareDownload() { return m_shareDownload; }
     void startDownload();
@@ -72,7 +72,7 @@ private:
     QMutex m_readersMutex;
     QMap<int, int> m_readers;
     int m_nextReaderId;
-    int m_hashCode;
+    uint m_hashCode;
     int m_proxyHandlerDependentObjectId;
 
     bool m_shareDownload;

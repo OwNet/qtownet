@@ -22,8 +22,11 @@ public:
     IResponse *logout(IRequest *req);
     IResponse *index(IRequest *req);
 
+
 private:
     IProxyConnection *m_proxyConnection;
+
+    bool checkUserPassword(QString password, uint user_id);
 };
 
 #endif // SESSIONSERVICE_H

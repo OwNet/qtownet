@@ -10,8 +10,8 @@
 #include "session.h"
 #include "databasesettings.h"
 
-#include "../Modules/MulticastModule/multicastprotocol.h"
-#include "../Modules/MulticastModule/multicastprotocolnode.h"
+#include "multicastprotocol.h"
+#include "multicastprotocolnode.h"
 
 class MulticastProtocolTests : public QObject
 {
@@ -196,15 +196,15 @@ void MulticastProtocolTests::testWeakerNode()
     QCOMPARE(node->address(), QString("10.10.10.10"));
 
     // session
-    QCOMPARE(m_proxyConnection->session()->value("multicast_server_ip").toString(),
-             QString(""));
-    QCOMPARE(m_proxyConnection->session()->value("multicast_server_port").toUInt(),
+    QObject parent;
+    ISession *session = m_proxyConnection->session(&parent);
+    QCOMPARE(session->serverId(),
+             m_proxyConnection->databaseSettings()->clientId());
+    QCOMPARE(session->value("multicast_server_port").toUInt(),
              (uint) 0);
 
-    QCOMPARE(m_proxyConnection->session()->value("multicast_node_1_ip").toString(),
-             QString("10.10.10.10"));
-    QCOMPARE(m_proxyConnection->session()->value("multicast_node_1_port").toUInt(),
-             (uint) 5000);
+    QCOMPARE(session->availableClients().value("1").toString(),
+             QString("10.10.10.10:5000"));
 
     // status
     QVERIFY(protocol.currentNode()->status() == MulticastProtocol::INITIALIZING);
@@ -319,15 +319,13 @@ void MulticastProtocolTests::testStrongerNode()
     QVERIFY(protocol.serverNode() != NULL);
 
     // session
-    QCOMPARE(m_proxyConnection->session()->value("multicast_server_ip").toString(),
-             QString("10.10.10.10"));
-    QCOMPARE(m_proxyConnection->session()->value("multicast_server_port").toUInt(),
-             (uint) 5000);
+    QObject parent;
+    ISession *session = m_proxyConnection->session(&parent);
+    QCOMPARE(session->availableClients().value(QString::number(session->serverId())).toString(),
+             QString("10.10.10.10:5000"));
 
-    QCOMPARE(m_proxyConnection->session()->value("multicast_node_1_ip").toString(),
-             QString("10.10.10.10"));
-    QCOMPARE(m_proxyConnection->session()->value("multicast_node_1_port").toUInt(),
-             (uint) 5000);
+    QCOMPARE(session->availableClients().value("1").toString(),
+             QString("10.10.10.10:5000"));
 
     // initialized!
 

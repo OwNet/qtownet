@@ -48,7 +48,7 @@ public:
     QByteArray requestBody() const { return m_requestBody; }
     QString staticResourcePath() const;
 
-    int hashCode() const { return m_hashCode; }
+    uint hashCode() const { return m_hashCode; }
 
     bool isLocalRequest() const;
     bool isStaticResourceRequest() const;
@@ -66,7 +66,7 @@ private:
     static QMap<QString, QString> initContentTypes();
 
     // int m_id;
-    int m_hashCode;
+    uint m_hashCode;
 
     bool m_isApiRequest;
 
