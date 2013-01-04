@@ -13,13 +13,12 @@ MulticastJob::MulticastJob(QHostAddress *groupAddress, int port,  MulticastProto
       m_proxyConnection(proxyConnection),
       QObject(parent)
 {
+    // this should be done after first synchronisation
+    m_protocol->initialized();
 }
 
 void MulticastJob::execute()
 {
-    // this should be done after first synchronisation
-    m_protocol->initialized();
-
     m_protocol->update();
 
     QUdpSocket *udpSocket = new QUdpSocket(this);
