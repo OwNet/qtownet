@@ -5,6 +5,7 @@
 #include "isession.h"
 
 #include <QDebug>
+#include <QSettings>
 #include <QDateTime>
 #include <QMutexLocker>
 #include <QProcessEnvironment>
@@ -15,10 +16,11 @@ MulticastProtocol::MulticastProtocol(IProxyConnection *connection, QObject *pare
     : m_proxyConnection(connection), QObject(parent)
 {
     uint myId = connection->databaseSettings(this)->clientId();
+    int port = m_proxyConnection->settings()->value("application/listen_port", 8081).toInt();
 
     // add self as first instance
     m_currentNode = new MulticastProtocolNode(myId);
-    m_currentNode->update(1, INITIALIZING, 8081, "127.0.0.1", 0);
+    m_currentNode->update(1, INITIALIZING, port, "127.0.0.1", 0);
     m_nodes.append(m_currentNode);
 }
 
@@ -173,7 +175,7 @@ QVariantMap MulticastProtocol::message() const
         break;
     }
 
-    int port = QProcessEnvironment::systemEnvironment().value("OWNET_LISTEN_PORT", "8081").toInt();
+    int port = m_proxyConnection->settings()->value("application/listen_port", 8081).toInt();
 
     message.insert("id", m_currentNode->id());
     message.insert("score", m_currentNode->score());

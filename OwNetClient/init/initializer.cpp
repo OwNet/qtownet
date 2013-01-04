@@ -8,6 +8,7 @@
 #include "moduleinitializer.h"
 #include "jobinitializer.h"
 #include "settingsinitializer.h"
+#include "settings.h"
 
 #include <QCoreApplication>
 

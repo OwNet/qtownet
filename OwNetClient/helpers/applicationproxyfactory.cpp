@@ -1,18 +1,19 @@
 #include "applicationproxyfactory.h"
 #include "applicationenvironment.h"
 #include "messagehelper.h"
+#include "settings.h"
 
 /**
  * @brief Initialize proxy factory using configuration options.
  */
 ApplicationProxyFactory::ApplicationProxyFactory()
 {
-    if (ApplicationEnvironment().contains("OWNET_PROXY_HOST_NAME")
-            && ApplicationEnvironment().contains("OWNET_PROXY_PORT"))
-    {
-        QString hostName = ApplicationEnvironment().value("OWNET_PROXY_HOST_NAME");
-        int port = ApplicationEnvironment().value("OWNET_PROXY_PORT").toInt();
+    Settings settings;
+    QString hostName = settings.value("application/proxy_host_name", "").toString();
+    int port = settings.value("application/proxy_port", 8081).toInt();
 
+    if (hostName != "")
+    {
         MessageHelper::debug(QObject::tr("Setting external proxy to %1:%2")
                              .arg(hostName).arg(port));
 
