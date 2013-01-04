@@ -37,8 +37,6 @@ void MulticastServer::processPendingDatagrams()
         datagram.resize(m_udpSocket->pendingDatagramSize());
         m_udpSocket->readDatagram(datagram.data(), datagram.size(), &fromAddress);
 
-        qDebug() << datagram;
-
         bool ok = false;
         QVariantMap result = m_proxyConnection->fromJson(datagram, &ok).toMap();
         if (ok) {
