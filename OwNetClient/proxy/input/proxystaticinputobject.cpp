@@ -6,7 +6,6 @@
 
 #include <QFile>
 #include <QDir>
-#include <QApplication>
 
 ProxyStaticInputObject::ProxyStaticInputObject(ProxyRequest *request, QObject *parent)
     : ProxyInputObject(request, parent)

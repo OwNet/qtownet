@@ -4,6 +4,8 @@
 #include "syncserver.h"
 #include "syncclient.h"
 #include "irouter.h"
+#include "iproxyconnection.h"
+#include "isession.h"
 
 SyncService::SyncService(IProxyConnection *proxyConnection, QObject *parent) :
     QObject(parent),
@@ -53,6 +55,7 @@ IResponse *SyncService::syncNow(IRequest *request)
     SyncClient client(m_proxyConnection);
     QVariantMap json;
 
+    json.insert("number_of_available_clients", m_proxyConnection->session(&client)->availableClients().count());
     json.insert("updated_from_server", client.updateFromServer());
     json.insert("updates_from_clients", client.updateFromClients());
 
