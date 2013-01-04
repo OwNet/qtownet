@@ -15,7 +15,7 @@ int main(int argc, char *argv[])
     Initializer initializer;
     initializer.init();
 
-    if (!ApplicationEnvironment().contains("OWNET_DISABLE_GUI"))
+    if (! ApplicationEnvironment().contains("OWNET_TEST_ENVIRONMENT"))
     {
         w = new MainWindow;
         w->show();
