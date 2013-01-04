@@ -1,7 +1,7 @@
 #include "proxyinitializer.h"
 #include "messagehelper.h"
 #include "proxyrequest.h"
-#include "applicationenvironment.h"
+#include "settings.h"
 
 #include <QNetworkInterface>
 #include <QNetworkProxy>
@@ -14,8 +14,7 @@ ProxyInitializer::ProxyInitializer(QObject *parent)
 void ProxyInitializer::init()
 {
     // configure stub listening port
-    int port = ApplicationEnvironment().value("OWNET_LISTEN_PORT",
-                                              QString::number(ProxyServer::Port)).toInt();
+    int port = Settings().value("application/listen_port", QString::number(ProxyServer::Port)).toInt();
 
     if (!m_proxyServer.listen(QHostAddress::Any, port)) {
         MessageHelper::error(QObject::tr("Failed to start server"),

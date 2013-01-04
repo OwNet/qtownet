@@ -16,7 +16,7 @@ SettingsInitializer::SettingsInitializer(QObject *parent) :
 
 void SettingsInitializer::init()
 {
-    if (ApplicationEnvironment().contains("OWNET_INI_DIR"))
+    if (ApplicationEnvironment().contains("OWNET_TEST_ENVIRONMENT"))
     {
         QSettings::setDefaultFormat(QSettings::IniFormat);
         QSettings::setPath(QSettings::IniFormat, QSettings::UserScope, ApplicationEnvironment().value("OWNET_INI_DIR"));
