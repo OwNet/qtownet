@@ -138,8 +138,8 @@ void SyncServerTests::testUpdates()
     init();
 
     server.saveAndApplyUpdates(updates1);
-    QCOMPARE(server.updates(clientRecordNumbers2, true, clientId2).count(), 0);
     server.saveAndApplyUpdates(updates2);
+    QCOMPARE(server.updates(clientRecordNumbers2, true, clientId2).count(), 0);
 
     {
         DatabaseSelectQuery selectQuery("settings");
