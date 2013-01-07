@@ -30,13 +30,19 @@ QVariantList SyncServer::updates(const QVariantMap &clientRecordNumbers, bool sy
     IDatabaseSelectQuery *query = m_proxyConnection->databaseSelect("client_sync_records", &parent);
     if (!syncAllGroups) {
         IDatabaseSelectQueryWhereGroup *baseOr = query->whereGroup(IDatabaseSelectQuery::Or);
-        foreach (QString groupId, clientRecordNumbers.keys()) {
-            if (groupId.isNull())
-                baseOr->where("group_id", "NULL", IDatabaseSelectQuery::Is, false);
-            else
-                baseOr->where("group_id", groupId.toInt());
+
+        if (clientRecordNumbers.keys().count() > 0) {
+            foreach (QString groupId, clientRecordNumbers.keys()) {
+                if (groupId.isNull())
+                    baseOr->where("group_id", "NULL", IDatabaseSelectQuery::Is, false);
+                else
+                    baseOr->where("group_id", groupId.toInt());
+            }
+        } else {
+            baseOr->where("group_id", "NULL", IDatabaseSelectQuery::Is, false);
         }
     }
+    query->orderBy("group_id");
 
     bool foundUpdates = false;
     IDatabaseSelectQuery *journalQuery = m_proxyConnection->databaseSelect("sync_journal", &parent);
@@ -44,6 +50,8 @@ QVariantList SyncServer::updates(const QVariantMap &clientRecordNumbers, bool sy
     IDatabaseSelectQueryWhereGroup *journalOr = NULL;
     if (query->next()) {
         journalOr = journalAnd->whereGroup(IDatabaseSelectQuery::Or);
+        QString lastGroupId;
+        IDatabaseSelectQueryWhereGroup *groupAnd = NULL;
 
         do {
             QString groupId = query->value("group_id").toString();
@@ -53,27 +61,27 @@ QVariantList SyncServer::updates(const QVariantMap &clientRecordNumbers, bool sy
             if (clientRecordNumbers.contains(groupId)) {
                 QVariantMap groupClients = clientRecordNumbers.value(groupId).toMap();
                 if (groupClients.contains(clientId)) {
-                    if (query->value("last_client_rec_num").toInt() > groupClients.value(clientId).toInt()) {
-                        /// Sync newer
-                        last_client_rec_num = groupClients.value(clientId).toInt();
-                    } else {
-                        /// Do not sync, client has newer items
-                        continue;
-                    }
+                    last_client_rec_num = groupClients.value(clientId).toInt();
                 }
             }
 
-            IDatabaseSelectQueryWhereGroup *clientGroupAnd = journalOr->whereGroup(IDatabaseSelectQuery::And);
+            if (!groupAnd || lastGroupId != groupId) {
+                groupAnd = journalOr->whereGroup(IDatabaseSelectQuery::And);
 
-            if (query->value("group_id").isNull())
-                clientGroupAnd->where("group_id", "NULL", IDatabaseSelectQuery::Is, false);
-            else
-                clientGroupAnd->where("group_id", query->value("group_id"));
+                if (query->value("group_id").isNull())
+                    groupAnd->where("group_id", "NULL", IDatabaseSelectQuery::Is, false);
+                else
+                    groupAnd->where("group_id", query->value("group_id"));
 
-            clientGroupAnd->where("client_id", query->value("client_id"));
-            if (last_client_rec_num > -1)
-                clientGroupAnd->where("client_rec_num", last_client_rec_num, IDatabaseSelectQuery::GreaterThan);
+                lastGroupId = groupId;
+            }
 
+            if (last_client_rec_num > -1) {
+                IDatabaseSelectQueryWhereGroup *clientOr = groupAnd->whereGroup(IDatabaseSelectQuery::Or);
+
+                clientOr->where("client_id", query->value("client_id"), IDatabaseSelectQuery::NotEqual);
+                clientOr->where("client_rec_num", last_client_rec_num, IDatabaseSelectQuery::GreaterThan);
+            }
             foundUpdates = true;
         } while (query->next());
     }

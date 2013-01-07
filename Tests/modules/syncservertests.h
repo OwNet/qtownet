@@ -10,10 +10,11 @@ public:
     explicit SyncServerTests(QObject *parent = 0);
 
 private slots:
-    void initTestCase();
+    void init();
     void cleanupTestCase();
 
     void testClientRecordNumbers();
+    void testUpdates();
 };
 
 #endif // SYNCSERVERTESTS_H
