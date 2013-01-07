@@ -9,7 +9,7 @@ class SyncServerTests : public QObject
 public:
     explicit SyncServerTests(QObject *parent = 0);
 
-private Q_SLOTS:
+private slots:
     void initTestCase();
     void cleanupTestCase();
 
