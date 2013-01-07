@@ -182,6 +182,8 @@ QVariantMap MulticastProtocol::message() const
     message.insert("status", status);
     message.insert("port", port);
     message.insert("initialized", m_currentNode->initialized());
+    QObject parent;
+    message.insert("num_available_clients", m_proxyConnection->session(&parent)->availableClients().count());
 
     return message;
 }

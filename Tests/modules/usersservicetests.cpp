@@ -1,6 +1,3 @@
-#include <QtCore/QString>
-#include <QtTest/QtTest>
-#include <QtCore/QCoreApplication>
 #include <QDebug>
 #include <QSqlQuery>
 #include <QSqlRecord>
@@ -107,7 +104,7 @@ void UsersServiceTests::initTestCase()
 
     // initialize module
     m_proxyConnection = new ProxyConnection();
-    m_module->init(m_proxyConnection);    
+    m_module->init(m_proxyConnection);
 }
 
 void UsersServiceTests::cleanupTestCase()

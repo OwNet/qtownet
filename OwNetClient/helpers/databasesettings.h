@@ -14,17 +14,20 @@ class DatabaseSettings : public QObject, public IDatabaseSettings
 public:
     explicit DatabaseSettings(QObject *parent = 0);
 
-    void setValue(const QString &key, const QString &value);
+    void setValue(const QString &key, const QString &value) const;
     QString value(const QString &key, const QString &defaultValue = QString()) const;
 
     bool hasClientId() const;
     uint clientId() const;
-    void createClientId();
+    void createClientId() const;
 
     int nextClientSyncRecordNumber();
 
+    void clearCache() const;
+
 private:
     static QMap<QString, QString> *m_cachedSettings;
+    static int m_numClientIdsGenerated;
 };
 
 #endif // DATABASESETTINGS_H

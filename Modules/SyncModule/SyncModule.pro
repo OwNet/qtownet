@@ -8,6 +8,9 @@ CONFIG         += plugin
 OwNetClientPath = ../../OwNetClient
 ModulesPath = ..
 
+SOURCES += syncmodule.cpp
+HEADERS += syncmodule.h
+
 include(SyncModule.pri)
 
 TARGET          = $$qtLibraryTarget(ownet_syncmodule)
