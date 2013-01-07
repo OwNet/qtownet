@@ -12,7 +12,7 @@ class UpdateJob : public QObject, public IJobAction
 public:
     explicit UpdateJob(MulticastProtocol *protocol, QObject *parent = 0);
 
-    int interval() { return 1 * 1000; };
+    int interval() { return 1 * 1000; }
     void execute();
     
 signals:

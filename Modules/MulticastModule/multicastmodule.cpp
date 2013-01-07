@@ -18,7 +18,7 @@ void MulticastModule::init(IProxyConnection *proxyConnection)
         proxyConnection->settings()->value("application/multicast_group_address",
                                            "227.227.227.1").toString()
     );
-    int port = proxyConnection->settings()->value("application/multicast_port", "8081").toInt();
+    int port = proxyConnection->settings()->value("application/multicast_port", 8081).toInt();
 
     m_multicastProtocol = new MulticastProtocol(proxyConnection, this);
 
