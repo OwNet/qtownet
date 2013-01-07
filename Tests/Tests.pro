@@ -20,13 +20,15 @@ SOURCES +=  main.cpp \
     stub/stubdatabase.cpp \
     classes/multicastprotocoltests.cpp \
     modules/usersservicetests.cpp \
-    modules/sampleservicetests.cpp
+    modules/sampleservicetests.cpp \
+    modules/syncservertests.cpp
 
 
 HEADERS +=  autotest.h \
     stub/stubtime.h \
     helpers/modulehelpers.h \
-    stub/stubdatabase.h
+    stub/stubdatabase.h \
+    modules/syncservertests.h
 
 OwNetClientPath = ../OwNetClient
 ModulesPath = ../Modules
@@ -39,10 +41,12 @@ include($${OwNetClientPath}/cache/cache.pri)
 include($${OwNetClientPath}/proxy/proxy.pri)
 
 include($${ModulesPath}/MulticastModule/MulticastModule.pri)
+include($${ModulesPath}/SyncModule/SyncModule.pri)
 
 INCLUDEPATH += $$_PRO_FILE_PWD_ \
     stub \
-    helpers
+    helpers \
+    modules
 
 DEFINES += SRCDIR=\\\"$$_PRO_FILE_PWD_\\\" TEST
 
