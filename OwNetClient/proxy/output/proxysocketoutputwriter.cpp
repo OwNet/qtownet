@@ -5,6 +5,7 @@
 #include "messagehelper.h"
 #include "proxyinputobject.h"
 #include "proxyhandlersession.h"
+#include "proxysocket.h"
 
 #include <QTcpSocket>
 #include <QFile>
@@ -23,8 +24,8 @@ ProxySocketOutputWriter::ProxySocketOutputWriter(int socketDescriptor, ProxyHand
  */
 void ProxySocketOutputWriter::startDownload()
 {
-    m_socket = new QTcpSocket(this);
-    connect(m_socket, SIGNAL(readyRead()), this, SLOT(readRequest()));
+    m_socket = new ProxySocket(this);
+    connect(m_socket->ioDevice(), SIGNAL(readyRead()), this, SLOT(readRequest()));
     m_socket->setSocketDescriptor(m_socketDescriptor);
 }
 
@@ -42,7 +43,7 @@ QList<QString> ProxySocketOutputWriter::dumpOpenRequests()
  */
 void ProxySocketOutputWriter::readRequest()
 {
-    ProxyRequest *request = new ProxyRequest(m_socket, m_proxyHandlerSession);
+    ProxyRequest *request = new ProxyRequest(m_socket->ioDevice(), m_proxyHandlerSession);
 
     if (!request->readFromSocket()) {
         MessageHelper::debug("Failed to read from socket.");
@@ -63,7 +64,7 @@ void ProxySocketOutputWriter::readRequest()
 void ProxySocketOutputWriter::virtualClose()
 {
     if (m_socket) {
-        if (m_socket->isOpen()) {
+        if (m_socket->ioDevice()->isOpen()) {
             m_socket->flush();
             m_socket->disconnectFromHost();
             if (m_socket->state() != QAbstractSocket::UnconnectedState)
@@ -80,13 +81,14 @@ void ProxySocketOutputWriter::virtualClose()
  */
 void ProxySocketOutputWriter::read(QIODevice *ioDevice)
 {
-    if (!m_socket || !m_socket->isOpen() || !ioDevice)
+    if (!m_socket || !m_socket->ioDevice()->isOpen() || !ioDevice)
         return;
+    QIODevice *output = m_socket->ioDevice();
 
     if (!m_writtenToSocket) {
         m_writtenToSocket = true;
 
-        QTextStream os(m_socket);
+        QTextStream os(output);
         os.setAutoDetectUnicode(false);
 
         os << "HTTP/1.0 "
@@ -125,22 +127,22 @@ void ProxySocketOutputWriter::read(QIODevice *ioDevice)
 
                 QStringList listx = match.capturedTexts();
 
-                m_socket->write(listx.at(1).toLatin1());
+                output->write(listx.at(1).toLatin1());
 
-                m_socket->write(QString("<script type=\"text/javascript\" src=\"http://inject.ownet/js/tabframeinject.js\"></script>")
+                output->write(QString("<script type=\"text/javascript\" src=\"http://inject.ownet/js/tabframeinject.js\"></script>")
                                 .toLatin1());
-                m_socket->write(listx.at(2).toLatin1());
-                m_socket->write(lineBytes);
+                output->write(listx.at(2).toLatin1());
+                output->write(lineBytes);
                 m_foundBody = true;
             }
             else
             {
-                m_socket->write(lineBytes);
+                output->write(lineBytes);
             }
         }
     }
     else {
         m_foundBody = true;
-        m_socket->write(ioDevice->readAll());
+        output->write(ioDevice->readAll());
     }
 }

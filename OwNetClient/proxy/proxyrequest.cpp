@@ -6,11 +6,10 @@
 
 #include <QNetworkRequest>
 #include <QStringList>
-#include <QTcpSocket>
 #include <QRegularExpression>
 #include <QDebug>
 
-ProxyRequest::ProxyRequest(QTcpSocket *socket, QObject *parent)
+ProxyRequest::ProxyRequest(QIODevice *socket, QObject *parent)
     : QObject(parent),
       // m_id(-1),
       m_hashCode(-1),

@@ -1,7 +1,7 @@
 #ifndef PROXYSOCKETOUTPUTWRITER_H
 #define PROXYSOCKETOUTPUTWRITER_H
 
-class QTcpSocket;
+class ISocket;
 class QSemaphore;
 
 #include "proxyoutputwriter.h"
@@ -39,7 +39,7 @@ private:
     uint m_requestHashCode;
     bool m_writtenToSocket;
     bool m_foundBody;
-    QTcpSocket *m_socket;
+    ISocket *m_socket;
 
     static QMap<int, QString> *m_openRequests;
 };

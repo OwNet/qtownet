@@ -10,8 +10,6 @@
 #include <QUrlQuery>
 #include <QStringList>
 
-class QTcpSocket;
-
 /**
  * @brief Represents all the information about the request received by proxy.
  */
@@ -20,7 +18,7 @@ class ProxyRequest : public QObject, public IRequest
     Q_OBJECT
 
 public:
-    ProxyRequest(QTcpSocket *socket, QObject *parent = 0);
+    ProxyRequest(QIODevice *socket, QObject *parent = 0);
 
     QVariant postBodyFromJson(bool *ok = NULL) const;
     QMap<QString, QString> postBodyFromForm() const;
@@ -54,7 +52,7 @@ public:
     bool isStaticResourceRequest() const;
     bool isApiRequest() const { return m_isApiRequest; }
 
-    QTcpSocket *socket() const { return m_socket; }
+    QIODevice *socket() const { return m_socket; }
 
     IResponse* response();
     IResponse* response(const QVariant body, IResponse::Status status = IResponse::OK);
@@ -71,7 +69,7 @@ private:
     bool m_isApiRequest;
 
     QByteArray m_requestBody;
-    QTcpSocket *m_socket;
+    QIODevice *m_socket;
     static QMap<QString, QString> m_contentTypes;
     VariantMap m_requestHeaders;
     QUrl m_qUrl;
