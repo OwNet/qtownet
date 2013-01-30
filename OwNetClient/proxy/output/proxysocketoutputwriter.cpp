@@ -1,7 +1,7 @@
 #include "proxysocketoutputwriter.h"
 
 #include "proxydownload.h"
-#include "proxyrequest.h"
+#include "proxysocketrequest.h"
 #include "messagehelper.h"
 #include "proxyinputobject.h"
 #include "proxyhandlersession.h"
@@ -43,7 +43,7 @@ QList<QString> ProxySocketOutputWriter::dumpOpenRequests()
  */
 void ProxySocketOutputWriter::readRequest()
 {
-    ProxyRequest *request = new ProxyRequest(m_socket->ioDevice(), m_proxyHandlerSession);
+    ProxySocketRequest *request = new ProxySocketRequest(m_socket->ioDevice(), m_proxyHandlerSession);
 
     if (!request->readFromSocket()) {
         MessageHelper::debug("Failed to read from socket.");

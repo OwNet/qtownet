@@ -32,7 +32,6 @@ ProxyCacheOutputWriter::ProxyCacheOutputWriter(ProxyDownload *download, int down
     m_proxyDownload = download;
     m_request = m_proxyDownload->inputObject()->request();
     m_hashCode = m_request->hashCode();
-    connectProxyDownload();
 }
 
 /**

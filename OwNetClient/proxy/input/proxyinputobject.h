@@ -16,6 +16,13 @@ class ProxyInputObject : public QObject
     Q_OBJECT
 
 public:
+    enum InputType {
+        Web,
+        Cache,
+        LocalFile,
+        LocalService
+    };
+
     ProxyInputObject(ProxyRequest *request, QObject *parent = 0);
 
     void startDownload();
@@ -27,7 +34,9 @@ public:
     virtual QString contentType() const;
     virtual void setContentType(const QString &value);
     VariantMap responseHeaders() const { return m_responseHeaders; }
-    ProxyRequest *request() { return m_request; }
+    ProxyRequest *request() const { return m_request; }
+
+    virtual InputType inputType() const = 0;
 
 signals:
     void readyRead(QIODevice *ioDevice);

@@ -9,73 +9,29 @@
 #include <QRegularExpression>
 #include <QDebug>
 
-ProxyRequest::ProxyRequest(QIODevice *socket, QObject *parent)
+ProxyRequest::ProxyRequest(QObject *parent)
     : QObject(parent),
       // m_id(-1),
       m_hashCode(-1),
       m_isApiRequest(false),
-      m_socket(socket)
+      m_requestType(UNKNOWN)
 {
 }
 
-/**
- * @brief Reads request headers from socket.
- * @return Returns true if successful
- */
-bool ProxyRequest::readFromSocket()
+void ProxyRequest::addRequestHeader(const QString &key, const QString &value)
 {
-    for (int i = 0; m_socket->isOpen() && m_socket->canReadLine(); ++i) {
-        QString readLine(m_socket->readLine());
-
-        if (i == 0) {
-            QStringList tuple = readLine.split(QRegularExpression("[ \r\n][ \r\n]*"));
-            if (tuple.count() > 1) {
-                m_requestMethod = tuple.first().toLower();
-                m_qUrl = QUrl::fromEncoded(tuple.at(1).toUtf8());
-                m_qUrlQuery = QUrlQuery(m_qUrl);
-            } else {
-                return false;
-            }
-        } else {
-            if (readLine == "\r\n") {
-                m_requestBody = m_socket->readAll();
-            } else {
-                QStringList tokens = readLine.split(":");
-                if (tokens.count() < 2)
-                    continue;
-                QString key = tokens.first();
-                QString value = tokens.at(1);
-                value.remove(QRegularExpression("[\r\n][\r\n]*"));
-
-                if (!key.toLower().contains("accept-encoding") || !value.contains("gzip")) {
-                    m_requestHeaders.insert(key, value);
-                } else {
-                    m_requestHeaders.insert("Accept-encoding", "*");
-                }
-            }
-        }
+    if (!key.toLower().contains("accept-encoding") || !value.contains("gzip")) {
+        m_requestHeaders.insert(key, value);
+    } else {
+        m_requestHeaders.insert("Accept-encoding", "*");
     }
-
-    analyzeUrl();
-
-    return true;
 }
 
-/**
- * @brief Get the HTTP request type.
- * @return HTTP request type
- */
-ProxyRequest::RequestType ProxyRequest::requestType() const
+void ProxyRequest::setUrl(const QUrl &url)
 {
-    if (m_requestMethod == "get")
-        return GET;
-    else if (m_requestMethod == "post")
-        return POST;
-    else if (m_requestMethod == "put")
-        return PUT;
-    else if (m_requestMethod == "delete")
-        return DELETE;
-    return UNKNOWN;
+    m_qUrl = url;
+    m_qUrlQuery = QUrlQuery(m_qUrl);
+    analyzeUrl();
 }
 
 /**
@@ -168,6 +124,11 @@ QString ProxyRequest::relativeUrl() const
     return path;
 }
 
+void ProxyRequest::setUrl(const QString &url)
+{
+    setUrl(QUrl(url));
+}
+
 /**
  * @brief Returns path to the requested static file.
  * @return Path to the requested static file
@@ -252,18 +213,6 @@ void ProxyRequest::analyzeUrl()
 
             if (split.count()) {
                 m_service = split.takeFirst();
-
-//                if (split.count()) {
-//                    QString idOrAction = split.first();
-//                    bool ok;
-//                    int id = idOrAction.toInt(&ok);
-//                    if (ok) {
-//                        m_id = id;
-//                        split.takeFirst();
-//                    }
-//                    if (split.count())
-//                        m_action = split.join("/");
-//                }
             }
         }
     }

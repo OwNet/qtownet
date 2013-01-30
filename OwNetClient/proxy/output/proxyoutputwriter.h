@@ -23,14 +23,13 @@ public:
 signals:
     void iAmActive();
     
-private slots:
+public slots:
     void readAvailableParts();
 
 protected slots:
     void forceQuit();
 
 protected:
-    void connectProxyDownload();
     void createDownload(ProxyRequest *request);
 
     virtual void virtualClose() = 0;

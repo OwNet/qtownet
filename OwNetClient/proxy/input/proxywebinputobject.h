@@ -12,6 +12,8 @@ class ProxyWebInputObject : public ProxyInputObject
 public:
     ProxyWebInputObject(ProxyRequest *request, QObject *parent = 0);
 
+    InputType inputType() const { return Web; }
+
 protected:
     void readRequest();
 

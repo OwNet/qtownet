@@ -7,7 +7,6 @@
 #include "databasesettings.h"
 #include "session.h"
 
-#include <QNetworkAccessManager>
 #include <QNetworkReply>
 #include <QNetworkProxy>
 #include <QTcpSocket>
