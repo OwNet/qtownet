@@ -25,7 +25,8 @@ SOURCES +=  main.cpp \
     proxy/testserver.cpp \
     proxy/testsocket.cpp \
     proxy/proxydownloadtests.cpp \
-    proxy/proxyrequesttests.cpp
+    proxy/proxyrequesttests.cpp \
+    classes/databaseupdatequerytests.cpp
 
 
 HEADERS +=  autotest.h \
@@ -36,7 +37,8 @@ HEADERS +=  autotest.h \
     proxy/testserver.h \
     proxy/testsocket.h \
     proxy/proxydownloadtests.h \
-    proxy/proxyrequesttests.h
+    proxy/proxyrequesttests.h \
+    classes/databaseupdatequerytests.h
 
 OwNetClientPath = ../OwNetClient
 ModulesPath = ../Modules
@@ -55,7 +57,8 @@ INCLUDEPATH += $$_PRO_FILE_PWD_ \
     stub \
     helpers \
     modules \
-    proxy
+    proxy \
+    classes
 
 DEFINES += SRCDIR=\\\"$$_PRO_FILE_PWD_\\\" TEST
 

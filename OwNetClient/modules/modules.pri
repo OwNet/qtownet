@@ -7,7 +7,6 @@ HEADERS  += $${OwNetClientPath}/modules/interfaces/imodule.h \
     $${OwNetClientPath}/modules/interfaces/irequest.h \
     $${OwNetClientPath}/modules/requestrouter.h \
     $${OwNetClientPath}/modules/interfaces/isession.h \
-    $${OwNetClientPath}/modules/interfaces/idatabaseupdate.h \
     $${OwNetClientPath}/modules/interfaces/idatabaseupdatequery.h \
     $${OwNetClientPath}/modules/interfaces/ijobaction.h \
     $${OwNetClientPath}/modules/interfaces/iproxyconnection.h \
@@ -21,7 +20,8 @@ HEADERS  += $${OwNetClientPath}/modules/interfaces/imodule.h \
     $${OwNetClientPath}/modules/route.h \
     $${OwNetClientPath}/modules/interfaces/iroute.h \
     $${OwNetClientPath}/modules/interfaces/iresponse.h \
-    $${OwNetClientPath}/modules/response.h
+    $${OwNetClientPath}/modules/response.h \
+    modules/interfaces/isynceddatabaseupdatequery.h
 
 INCLUDEPATH += $${OwNetClientPath}/modules \
     $${OwNetClientPath}/modules/interfaces

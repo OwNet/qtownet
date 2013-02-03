@@ -9,6 +9,5 @@ UpdateRecordsSaveJob::UpdateRecordsSaveJob(QObject *parent)
 
 void UpdateRecordsSaveJob::execute()
 {
-    DatabaseUpdate update;
-    update.saveLastRecordNumbers();
+    DatabaseUpdate::saveLastRecordNumbers();
 }

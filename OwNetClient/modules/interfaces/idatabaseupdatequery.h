@@ -4,13 +4,13 @@
 #include <QString>
 #include <QVariant>
 
+#include "idatabaseselectquery.h"
+
 class IDatabaseUpdateQuery
 {
 public:
     enum EntryType {
-        Insert = 1,
-        Update = 2,
-        Detect = 3,
+        InsertOrUpdate = 1,
         Delete = 4
     };
     enum UpdateDates {
@@ -19,15 +19,18 @@ public:
         DateUpdated = 2
     };
 
-    virtual void setReturningId(const QString &useColumnAs, const QVariantList &queries) = 0;
     virtual void setColumnValue(const QString &name, const QVariant &value) = 0;
-    virtual void setWhere(const QString &name, const QVariant &value) = 0;
     virtual void setUpdateDates(bool setDates) = 0;
     virtual void setUpdateDates(IDatabaseUpdateQuery::UpdateDates updateDates) = 0;
 
+    virtual void singleWhere(const QString &column, const QVariant &value, IDatabaseSelectQuery::WhereOperator op = IDatabaseSelectQuery::Equal, bool bind = true) = 0;
+    virtual IDatabaseSelectQueryWhereGroup *whereGroup(IDatabaseSelectQuery::JoinOperator op) = 0;
+
     virtual QString table() const = 0;
     virtual EntryType type() const = 0;
-    virtual QVariantMap content() const = 0;
+    virtual void setType(EntryType type) = 0;
+
+    virtual bool executeQuery() = 0;
 };
 
 #endif // IDATABASEUPDATEQUERY_H

@@ -9,7 +9,6 @@
 
 class IProxyConnection;
 class IDatabaseUpdateQuery;
-class IDatabaseUpdate;
 class HistoryModule;
 
 class HistoryService : public QObject, public IService
@@ -30,10 +29,10 @@ private:
 
 
 
-   int registerPageQuery(IDatabaseUpdate *update, QString url, QString title);
-   void registerVisitQuery(IDatabaseUpdate *update, int user_id, int page_id);
-   void registerEdgeQuery(IDatabaseUpdate *update, int page_from_id, int page_to_id);
-   void registerTraverseQuery(IDatabaseUpdate *update, int user_id, int page_from_id, int page_to_id);
+   bool registerPageQuery(QString url, QString title, int &id);
+   bool registerVisitQuery(int user_id, int page_id);
+   bool registerEdgeQuery(int page_from_id, int page_to_id);
+   bool registerTraverseQuery(int user_id, int page_from_id, int page_to_id);
 };
 
 

@@ -6,7 +6,7 @@
 #include <QDateTime>
 #include <QMutex>
 
-#include "databaseupdate.h"
+#include "databaseupdatequery.h"
 #include "databaseselectquery.h"
 
 QMap<QString, QString> *DatabaseSettings::m_cachedSettings = new QMap<QString, QString>();
@@ -22,12 +22,11 @@ void DatabaseSettings::setValue(const QString &key, const QString &value) const
 {
     DatabaseSettings::m_cachedSettings->insert(key, value);
 
-    DatabaseUpdate update(false);
-    IDatabaseUpdateQuery *query = update.createUpdateQuery("settings", IDatabaseUpdateQuery::Detect);
-    query->setWhere("key", key);
-    query->setColumnValue("key", key);
-    query->setColumnValue("value", value);
-    update.execute();
+    DatabaseUpdateQuery query("settings", IDatabaseUpdateQuery::InsertOrUpdate);
+    query.singleWhere("key", key);
+    query.setColumnValue("key", key);
+    query.setColumnValue("value", value);
+    query.executeQuery();
 }
 
 QString DatabaseSettings::value(const QString &key, const QString &defaultValue) const

@@ -34,6 +34,7 @@ public:
 
     void select(const QString &column) { m_selectColumns.append(column); }
     void select(const QStringList &columns) { m_selectColumns.append(columns); }
+    void clearSelect() { m_selectColumns.clear(); }
 
     void singleWhere(const QString &column, const QVariant &value, WhereOperator op = Equal, bool bind = true);
     IDatabaseSelectQueryWhereGroup *whereGroup(IDatabaseSelectQuery::JoinOperator op);
@@ -48,7 +49,11 @@ public:
 
     void limit(int l) { m_limit = l; }
     void offset(int o) { m_offset = o; }
-    
+
+    IDatabaseSelectQueryWhere *currentWhereQuery() { return m_where; }
+
+    void resetQuery();
+
 private:
     bool execute();
 

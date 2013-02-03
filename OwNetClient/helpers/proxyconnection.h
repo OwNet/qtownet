@@ -12,7 +12,7 @@ public:
     explicit ProxyConnection(QObject *parent = 0);
 
     ISession *session(QObject *parent = 0);
-    IDatabaseUpdate *databaseUpdate(QObject *parent = 0);
+    IDatabaseUpdateQuery *databaseUpdateQuery(const QString &table, QObject *parent = 0, bool sync = true);
     IDatabaseSelectQuery *databaseSelect(const QString &table, QObject *parent = 0);
     QSettings *settings(QObject *parent = 0);
     IDatabaseSettings *databaseSettings(QObject *parent = 0);    

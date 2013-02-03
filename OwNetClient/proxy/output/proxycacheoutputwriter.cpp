@@ -7,9 +7,10 @@
 #include "messagehelper.h"
 #include "proxydownloads.h"
 #include "gdsfclock.h"
-#include "databaseupdate.h"
+#include "synceddatabaseupdatequery.h"
 #include "proxycachefiledownloadpart.h"
 #include "databasesettings.h"
+#include "idatabaseselectquerywheregroup.h"
 
 #include <QFile>
 #include <QIODevice>
@@ -89,37 +90,35 @@ void ProxyCacheOutputWriter::save()
     sqlQuery.bindValue(":id", m_hashCode);
     int accessCount = 0;
 
-    DatabaseUpdateQuery::EntryType entryType = DatabaseUpdateQuery::Insert;
-
-    if (sqlQuery.exec() && sqlQuery.next()) {
-        entryType = DatabaseUpdateQuery::Update;
+    if (sqlQuery.exec() && sqlQuery.next())
         accessCount = sqlQuery.value(sqlQuery.record().indexOf("access_count")).toInt();
-    }
     accessCount++;
 
-    DatabaseUpdate update(false);
-    IDatabaseUpdateQuery *query = update.createUpdateQuery("caches", entryType);
-    query->setUpdateDates(true);
-    query->setWhere("id", m_hashCode);
-    query->setColumnValue("id", m_hashCode);
-    query->setColumnValue("absolute_uri", m_url);
-    query->setColumnValue("request_headers", m_requestHeaders);
-    query->setColumnValue("response_headers", m_responseHeaders);
-    query->setColumnValue("num_parts", m_numFileParts);
-    query->setColumnValue("status_code", m_statusCode);
-    query->setColumnValue("status_description", m_statusDescription);
-    query->setColumnValue("size", m_sizeWritten);
-    query->setColumnValue("access_value", ProxyDownloads::instance()->gdsfClock()->getGDSFPriority(accessCount, m_sizeWritten));
-    update.execute();
-
-    DatabaseUpdate syncedUpdate;
-    query = syncedUpdate.createUpdateQuery("client_caches", IDatabaseUpdateQuery::Detect);
-    query->setUpdateDates(IDatabaseUpdateQuery::DateCreated);
-    query->setColumnValue("client_id", DatabaseSettings().clientId());
-    query->setColumnValue("cache_id", m_hashCode);
-    query->setWhere("client_id", DatabaseSettings().clientId());
-    query->setWhere("cache_id", m_hashCode);
-    syncedUpdate.execute();
+    {
+        DatabaseUpdateQuery query("caches", DatabaseUpdateQuery::InsertOrUpdate);
+        query.setUpdateDates(true);
+        query.singleWhere("id", m_hashCode);
+        query.setColumnValue("id", m_hashCode);
+        query.setColumnValue("absolute_uri", m_url);
+        query.setColumnValue("request_headers", m_requestHeaders);
+        query.setColumnValue("response_headers", m_responseHeaders);
+        query.setColumnValue("num_parts", m_numFileParts);
+        query.setColumnValue("status_code", m_statusCode);
+        query.setColumnValue("status_description", m_statusDescription);
+        query.setColumnValue("size", m_sizeWritten);
+        query.setColumnValue("access_value", ProxyDownloads::instance()->gdsfClock()->getGDSFPriority(accessCount, m_sizeWritten));
+        query.executeQuery();
+    }
+    {
+        SyncedDatabaseUpdateQuery query("client_caches");
+        query.setUpdateDates(IDatabaseUpdateQuery::DateCreated);
+        query.setColumnValue("client_id", DatabaseSettings().clientId());
+        query.setColumnValue("cache_id", m_hashCode);
+        IDatabaseSelectQueryWhereGroup *where = query.whereGroup(IDatabaseSelectQuery::And);
+        where->where("client_id", DatabaseSettings().clientId());
+        where->where("cache_id", m_hashCode);
+        query.executeQuery();
+    }
 }
 
 /**
