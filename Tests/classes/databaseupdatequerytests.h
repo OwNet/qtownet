@@ -13,7 +13,9 @@ private slots:
     void init();
     void cleanupTestCase();
 
-    void testExecuteQuery();
+    void testInsert();
+    void testUpdate();
+    void testDelete();
 };
 
 #endif // DATABASEUPDATEQUERYTESTS_H
