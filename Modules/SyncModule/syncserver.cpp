@@ -3,10 +3,12 @@
 #include "iproxyconnection.h"
 #include "idatabaseselectquery.h"
 #include "idatabaseselectquerywheregroup.h"
-#include "idatabaseupdate.h"
+#include "idatabaseupdatequery.h"
 #include "synclock.h"
 
 #include <QSqlQuery>
+#include <QSqlRecord>
+#include <QSqlField>
 #include <QStringList>
 
 SyncServer::SyncServer(IProxyConnection *proxyConnection, QObject *parent)
@@ -100,10 +102,33 @@ QVariantList SyncServer::updates(const QVariantMap &clientRecordNumbers, bool sy
         QVariantMap update;
         update.insert("client_id", journalQuery->value("client_id"));
         update.insert("client_rec_num", journalQuery->value("client_rec_num"));
-        update.insert("content", journalQuery->value("content"));
+        update.insert("table_name", journalQuery->value("table_name"));
+        update.insert("sync_id", journalQuery->value("sync_id"));
+        update.insert("operation_type", journalQuery->value("operation_type"));
         update.insert("group_id", journalQuery->value("group_id"));
         update.insert("sync_with", journalQuery->value("sync_with"));
         update.insert("date_created", journalQuery->value("date_created"));
+
+        if ((IDatabaseUpdateQuery::EntryType)journalQuery->value("operation_type").toInt() == IDatabaseUpdateQuery::InsertOrUpdate) {
+            QVariantMap columns;
+
+            QSqlQuery recordQuery;
+            recordQuery.prepare(QString("SELECT * FROM %1 WHERE sync_id = :sync_id")
+                          .arg(journalQuery->value("table_name").toString()));
+            recordQuery.bindValue(":sync_id", journalQuery->value("sync_id").toString());
+            if (recordQuery.exec() && recordQuery.next()) {
+                QSqlRecord record = recordQuery.record();
+                for (int i = 0; i < record.count(); ++i) {
+                    QSqlField field = record.field(i);
+                    if (!field.name().startsWith('_'))
+                        columns.insert(field.name(), recordQuery.value(i));
+                }
+            } else {
+                continue;
+            }
+
+            update.insert("columns", columns);
+        }
         updates.append(update);
     }
 
@@ -168,42 +193,40 @@ void SyncServer::saveAndApplyUpdates(const QVariantList &changes)
                 currentLastRecordsMap.value(key) >= changeMap.value("client_rec_num").toInt())
             continue;
 
-        bool ok = false;
-        QVariant json = m_proxyConnection->fromJson(changeMap.value("content").toByteArray(), &ok);
-        if (ok) {
-            IDatabaseUpdate *update = m_proxyConnection->databaseUpdate(&parent);
-            update->setSync(false);
+        int clientRecNum = changeMap.value("client_rec_num").toInt();
 
-            int clientRecNum = changeMap.value("client_rec_num").toInt();
+        /// Save to sync_journal
+        IDatabaseUpdateQuery *updateJournalQuery = m_proxyConnection->databaseUpdateQuery("sync_journal", &parent, false);
 
-            /// Save to sync_journal
-            IDatabaseUpdateQuery *updateQuery = update->createUpdateQuery("sync_journal", IDatabaseUpdateQuery::Insert);
+        updateJournalQuery->setColumnValue("client_id", changeMap.value("client_id").toUInt());
+        updateJournalQuery->setColumnValue("client_rec_num", clientRecNum);
+        updateJournalQuery->setColumnValue("table_name", changeMap.value("table_name").toString());
+        updateJournalQuery->setColumnValue("sync_id", changeMap.value("sync_id").toString());
+        updateJournalQuery->setColumnValue("operation_type", changeMap.value("operation_type").toInt());
 
-            if (!changeMap.value("client_id").isNull())
-                updateQuery->setColumnValue("client_id", changeMap.value("client_id").toUInt());
+        if (!changeMap.value("group_id").isNull())
+            updateJournalQuery->setColumnValue("group_id", changeMap.value("group_id").toInt());
 
-            updateQuery->setColumnValue("client_rec_num", clientRecNum);
-            updateQuery->setColumnValue("content", changeMap.value("content").toString());
+        if (!changeMap.value("sync_with").isNull())
+            updateJournalQuery->setColumnValue("sync_with", changeMap.value("sync_with").toInt());
 
-            if (!changeMap.value("group_id").isNull())
-                updateQuery->setColumnValue("group_id", changeMap.value("group_id").toInt());
+        updateJournalQuery->setUpdateDates(IDatabaseUpdateQuery::DateCreated);
+        bool ok = updateJournalQuery->executeQuery();
 
-            if (!changeMap.value("sync_with").isNull())
-                updateQuery->setColumnValue("sync_with", changeMap.value("sync_with").toInt());
-
-            updateQuery->setUpdateDates(IDatabaseUpdateQuery::DateCreated);
-
-            /// Apply update
-            QVariantList updateQueries = json.toList();
-            foreach (QVariant updateQuery, updateQueries) {
-                update->createUpdateQuery(updateQuery.toMap());
+        /// Apply update
+        IDatabaseUpdateQuery *executeUpdateQuery = m_proxyConnection->databaseUpdateQuery(changeMap.value("table_name").toString(), &parent, false);
+        executeUpdateQuery->setType((IDatabaseUpdateQuery::EntryType)changeMap.value("operation_type").toInt());
+        if (changeMap.contains("columns")) {
+            QVariantMap columns = changeMap.value("columns").toMap();
+            foreach (QString columnName, columns.keys()) {
+                executeUpdateQuery->setColumnValue(columnName, columns.value(columnName));
             }
-
-            update->execute();
-
-            if (!lastRecords.contains(key) || lastRecords.value(key) < clientRecNum)
-                lastRecords.insert(key, clientRecNum);
         }
+        executeUpdateQuery->singleWhere("sync_id", changeMap.value("sync_id").toString());
+        ok = executeUpdateQuery->executeQuery();
+
+        if (!lastRecords.contains(key) || lastRecords.value(key) < clientRecNum)
+            lastRecords.insert(key, clientRecNum);
     }
 
     /// Update client_sync_records
@@ -212,44 +235,22 @@ void SyncServer::saveAndApplyUpdates(const QVariantList &changes)
         QString groupId = split.first();
         QString clientId = split.last();
 
-        QString where;
+        IDatabaseUpdateQuery *updateQuery = m_proxyConnection->databaseUpdateQuery("client_sync_records", &parent, false);
+        IDatabaseSelectQueryWhereGroup *where = updateQuery->whereGroup(IDatabaseSelectQuery::And);
+
         if (groupId.isEmpty())
-            where += "group_id IS NULL";
+            where->where("group_id", "NULL", IDatabaseSelectQuery::Is);
         else
-            QString("group_id = %1").arg(groupId.toInt());
-        where += " AND ";
-        if (clientId.isEmpty())
-            where += "client_id IS NULL";
-        else
-            where += QString("client_id = %1").arg(clientId.toUInt());
+            where->where("group_id", groupId.toInt());
 
-        QSqlQuery query;
-        query.prepare(QString("SELECT * FROM client_sync_records WHERE %1").arg(where));
+        where->where("client_id", clientId.toUInt());
 
-        if (query.exec() && query.first()) {
-            QSqlQuery update;
-            update.prepare(QString("UPDATE client_sync_records SET last_client_rec_num = %1 WHERE %2")
-                           .arg(lastRecords.value(key))
-                           .arg(where));
-            update.exec();
-        } else {
-            QStringList columns;
-            QStringList values;
-            if (!groupId.isEmpty()) {
-                columns.append("group_id");
-                values.append(QString::number(groupId.toInt()));
-            } if (!clientId.isEmpty()) {
-                columns.append("client_id");
-                values.append(QString::number(clientId.toInt()));
-            }
-            columns.append("last_client_rec_num");
-            values.append(QString::number(lastRecords.value(key)));
+        updateQuery->setColumnValue("last_client_rec_num", lastRecords.value(key));
+        updateQuery->setColumnValue("client_id", clientId.toInt());
 
-            QSqlQuery insert;
-            insert.prepare(QString("INSERT INTO client_sync_records (%1) VALUES (%2)")
-                    .arg(columns.join(", "))
-                    .arg(values.join(", ")));
-            insert.exec();
-        }
+        if (!groupId.isEmpty())
+            updateQuery->setColumnValue("group_id", groupId.toInt());
+
+        updateQuery->executeQuery();
     }
 }

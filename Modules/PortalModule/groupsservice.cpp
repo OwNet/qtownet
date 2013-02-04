@@ -1,11 +1,12 @@
 #include "groupsservice.h"
 
 #include "irequest.h"
-#include "idatabaseupdate.h"
 #include "iproxyconnection.h"
 #include "isession.h"
 #include "irouter.h"
 #include "portalhelper.h"
+#include "idatabaseselectquerywheregroup.h"
+#include "idatabaseupdatequery.h"
 
 #include <QDebug>
 #include <QSqlQuery>
@@ -92,7 +93,7 @@ bool GroupsService::isAdmin(uint user_id, uint group_id)
 
     QSqlQuery q_check;
 
-    q_check.prepare("SELECT id FROM group_admins WHERE user_id = :user_id AND group_id = :group_id");
+    q_check.prepare("SELECT _id FROM group_admins WHERE user_id = :user_id AND group_id = :group_id");
     q_check.bindValue(":user_id",user_id);
     q_check.bindValue(":group_id",group_id);
     q_check.exec();
@@ -235,12 +236,10 @@ IResponse *GroupsService::create( IRequest *req)
         //creating group ID
         uint id = qHash(QString("%1-%2").arg(name).arg(QDateTime::currentDateTime().toString(Qt::ISODate)));
 
-        IDatabaseUpdate *createGroup = m_proxyConnection->databaseUpdate();
-
-        IDatabaseUpdateQuery *query = createGroup->createUpdateQuery("groups", IDatabaseUpdateQuery::Insert);
+        QObject parentObject;
+        IDatabaseUpdateQuery *query = m_proxyConnection->databaseUpdateQuery("groups", &parentObject);
 
         query->setUpdateDates(true); // sam nastavi v tabulke datumy date_created a date_updated
-
         query->setColumnValue("id", id);
         query->setColumnValue("name", name);
         query->setColumnValue("description", description);
@@ -251,59 +250,50 @@ IResponse *GroupsService::create( IRequest *req)
         query->setColumnValue("parent",parent);
         query->setColumnValue("salt", salt);
 
-        if(createGroup->execute()){
+        if (!query->executeQuery()){
              return req->response(IResponse::INTERNAL_SERVER_ERROR);
         }
 
-        IDatabaseUpdate *group_admin = m_proxyConnection->databaseUpdate();
-
-        IDatabaseUpdateQuery *q2 = group_admin->createUpdateQuery("group_admins", IDatabaseUpdateQuery::Insert);
+        IDatabaseUpdateQuery *q2 = m_proxyConnection->databaseUpdateQuery("group_admins", &parentObject);
 
         q2->setUpdateDates(true); // sam nastavi v tabulke datumy date_created a date_updated
-
         q2->setColumnValue("user_id", user_id);
         q2->setColumnValue("group_id", id);
 
-        if(group_admin->execute()){
+        if (!q2->executeQuery()){
 
-            //delete group
-            IDatabaseUpdate *del = m_proxyConnection->databaseUpdate();
-
-            IDatabaseUpdateQuery *del_q = del->createUpdateQuery("groups", IDatabaseUpdateQuery::Delete);
+            //delete query
+            IDatabaseUpdateQuery *del_q = m_proxyConnection->databaseUpdateQuery("groups", &parentObject);
+            del_q->setType(IDatabaseUpdateQuery::Delete);
             del_q->setUpdateDates(true);
-            del_q->setWhere("id", id);
-            del->execute();
+            del_q->singleWhere("id", id);
+            del_q->executeQuery();
 
             return req->response(IResponse::INTERNAL_SERVER_ERROR);
         }
 
-        IDatabaseUpdate *group_user = m_proxyConnection->databaseUpdate();
-
-
-        IDatabaseUpdateQuery *q3 = group_user->createUpdateQuery("group_users", IDatabaseUpdateQuery::Insert);
+        IDatabaseUpdateQuery *q3 = m_proxyConnection->databaseUpdateQuery("group_users", &parentObject);
 
         q3->setUpdateDates(true); // sam nastavi v tabulke datumy date_created a date_updated
-
         q3->setColumnValue("user_id", user_id);
         q3->setColumnValue("status","1");
         q3->setColumnValue("group_id", id);
 
-        if(group_user->execute()){
+        if (!q3->executeQuery()){
 
-
-            //delete group
-            IDatabaseUpdate *del = m_proxyConnection->databaseUpdate();
-
-            IDatabaseUpdateQuery *del_q = del->createUpdateQuery("groups", IDatabaseUpdateQuery::Delete);
+            //delete query
+            IDatabaseUpdateQuery *del_q = m_proxyConnection->databaseUpdateQuery("groups", &parentObject);
+            del_q->setType(IDatabaseUpdateQuery::Delete);
             del_q->setUpdateDates(true);
-            del_q->setWhere("id", id);
+            del_q->singleWhere("id", id);
 
             //delete admin_group
 
-            IDatabaseUpdateQuery *del_q2 = del->createUpdateQuery("group_admins", IDatabaseUpdateQuery::Delete);
+            IDatabaseUpdateQuery *del_q2 = m_proxyConnection->databaseUpdateQuery("group_admins", &parentObject);
+            del_q2->setType(IDatabaseUpdateQuery::Delete);
             del_q2->setUpdateDates(true);
-            del_q2->setWhere("group_id", id);
-            del->execute();
+            del_q2->singleWhere("group_id", id);
+            del_q2->executeQuery();
 
            return req->response(IResponse::INTERNAL_SERVER_ERROR);
         }
@@ -338,7 +328,7 @@ IResponse *GroupsService::show(IRequest *req, uint id)
 
         QSqlQuery q_type;
 
-        q_type.prepare("SELECT name FROM group_types WHERE id = :id");
+        q_type.prepare("SELECT name FROM group_types WHERE _id = :id");
         q_type.bindValue(":id",query.value(query.record().indexOf("group_type_id")));
 
         if(!q_type.exec()){
@@ -407,13 +397,13 @@ IResponse *GroupsService::edit(IRequest *req, uint id)
     QString curUser_id = m_proxyConnection->session()->value("logged").toString();
     QString salt = "";
     QString password = "";
+    QObject parent;
 
     if(this->isAdmin(curUser_id.toUInt(), id)){
 
-            IDatabaseUpdate *update = m_proxyConnection->databaseUpdate();
-            IDatabaseUpdateQuery *query = update->createUpdateQuery("groups", IDatabaseUpdateQuery::Update);
+            IDatabaseUpdateQuery *query = m_proxyConnection->databaseUpdateQuery("groups", &parent);
             query->setUpdateDates(true);
-            query->setWhere("id", id);
+            query->singleWhere("id", id);
 
             if(reqJson["name"] != "")
                 query->setColumnValue("name", reqJson["name"]);
@@ -449,7 +439,7 @@ IResponse *GroupsService::edit(IRequest *req, uint id)
             if(reqJson["group_type_id"] != "")
                 query->setColumnValue("group_type_id", reqJson["group_type_id"]);
 
-            if(!update->execute()){
+            if(query->executeQuery()){
                 return req->response(IResponse::OK);
             }
             else{
@@ -467,14 +457,15 @@ IResponse *GroupsService::del(IRequest *req, uint id)
 {
 
     QString curUser_id = m_proxyConnection->session()->value("logged").toString();
+    QObject parent;
 
     if(this->isAdmin(curUser_id.toUInt(), id)){
 
-            IDatabaseUpdate *update = m_proxyConnection->databaseUpdate();
-            IDatabaseUpdateQuery *query = update->createUpdateQuery("groups", IDatabaseUpdateQuery::Delete);
+            IDatabaseUpdateQuery *query = m_proxyConnection->databaseUpdateQuery("groups", &parent);
+            query->setType(IDatabaseUpdateQuery::Delete);
             query->setUpdateDates(true);
-            query->setWhere("id", id);
-            if(!update->execute()){
+            query->singleWhere("id", id);
+            if(query->executeQuery()){
                 return req->response(IResponse::OK);
             }
             else{
@@ -494,6 +485,7 @@ IResponse *GroupsService::joinGroup(IRequest *req)
     if (!ok)
         return NULL;
 
+    QObject parent;
     QVariantMap error;
     QSqlQuery query;
 
@@ -542,9 +534,7 @@ IResponse *GroupsService::joinGroup(IRequest *req)
 
              if(this->checkGroupPassword(password,group_id)){
                    //vytvorime zaznam so statusom 1
-                 IDatabaseUpdate *group_user = m_proxyConnection->databaseUpdate();
-
-                 IDatabaseUpdateQuery *q = group_user->createUpdateQuery("group_users", IDatabaseUpdateQuery::Insert);
+                 IDatabaseUpdateQuery *q = m_proxyConnection->databaseUpdateQuery("group_users", &parent);
 
                  q->setUpdateDates(true); // sam nastavi v tabulke datumy date_created a date_updated
 
@@ -552,7 +542,7 @@ IResponse *GroupsService::joinGroup(IRequest *req)
                  q->setColumnValue("group_id", group_id);
                  q->setColumnValue("status", "1");
 
-                 if(group_user->execute()){
+                 if(!q->executeQuery()){
                      return req->response(IResponse::INTERNAL_SERVER_ERROR);
                  }
              }
@@ -565,8 +555,7 @@ IResponse *GroupsService::joinGroup(IRequest *req)
          // group has approvement
          else if(query.value(query.record().indexOf("has_approvement")) == "1"){
 
-             IDatabaseUpdate *group_user = m_proxyConnection->databaseUpdate();
-             IDatabaseUpdateQuery *q = group_user->createUpdateQuery("group_users", IDatabaseUpdateQuery::Insert);
+             IDatabaseUpdateQuery *q = m_proxyConnection->databaseUpdateQuery("group_users", &parent);
 
              q->setUpdateDates(true); // sam nastavi v tabulke datumy date_created a date_updated
 
@@ -574,14 +563,13 @@ IResponse *GroupsService::joinGroup(IRequest *req)
              q->setColumnValue("group_id", group_id);
              q->setColumnValue("status", "0");
 
-             if(group_user->execute()){
+             if(!q->executeQuery()){
                  return req->response(QVariant(error),IResponse::INTERNAL_SERVER_ERROR);
              }
          }
          // group has no password and no approvement
          else{
-             IDatabaseUpdate *group_user = m_proxyConnection->databaseUpdate();
-             IDatabaseUpdateQuery *q = group_user->createUpdateQuery("group_users", IDatabaseUpdateQuery::Insert);
+             IDatabaseUpdateQuery *q = m_proxyConnection->databaseUpdateQuery("group_users", &parent);
 
              q->setUpdateDates(true); // sam nastavi v tabulke datumy date_created a date_updated
 
@@ -589,7 +577,7 @@ IResponse *GroupsService::joinGroup(IRequest *req)
              q->setColumnValue("group_id", group_id);
              q->setColumnValue("status", "1");
 
-             if(group_user->execute()){
+             if(!q->executeQuery()){
                  return req->response(QVariant(error),IResponse::INTERNAL_SERVER_ERROR);
              }
          }
@@ -606,6 +594,7 @@ IResponse * GroupsService::approveUser( IRequest *req)
     if (!ok)
         return NULL;
 
+    QObject parent;
     QSqlQuery query;
    //  bool missingValue = false;
 
@@ -628,13 +617,12 @@ IResponse * GroupsService::approveUser( IRequest *req)
 
         if( m_proxyConnection->session()->isLoggedIn() && query.first())
         {
-            IDatabaseUpdate *group_user = m_proxyConnection->databaseUpdate();
-            IDatabaseUpdateQuery *q = group_user->createUpdateQuery("group_users", IDatabaseUpdateQuery::Update);
+            IDatabaseUpdateQuery *q = m_proxyConnection->databaseUpdateQuery("group_users", &parent);
 
             q->setUpdateDates(true); // sam nastavi v tabulke datumy date_created a date_updated
             q->setColumnValue("status", "1");
 
-            if(group_user->execute()){
+            if(!q->executeQuery()){
                return req->response(IResponse::INTERNAL_SERVER_ERROR);
             }
         }
@@ -649,7 +637,7 @@ IResponse * GroupsService::approveUser( IRequest *req)
 
 IResponse * GroupsService::addAdmin(IRequest *req)
 {
-
+    QObject parent;
     QVariantMap reqJson = req->postBodyFromJson().toMap();
 
     QString group_id = reqJson["group_id"].toString();
@@ -664,14 +652,13 @@ IResponse * GroupsService::addAdmin(IRequest *req)
 
     if( this->isAdmin(m_proxyConnection->session()->value("logged").toUInt(),group_id.toUInt()))
     {
-        IDatabaseUpdate *group_user = m_proxyConnection->databaseUpdate();
-        IDatabaseUpdateQuery *q = group_user->createUpdateQuery("group_admins", IDatabaseUpdateQuery::Insert);
+        IDatabaseUpdateQuery *q = m_proxyConnection->databaseUpdateQuery("group_admins", &parent);
 
         q->setUpdateDates(true); // sam nastavi v tabulke datumy date_created a date_updated
         q->setColumnValue("user_id", user_id);
         q->setColumnValue("group_id", group_id);
 
-        if(group_user->execute()){
+        if(!q->executeQuery()){
             return req->response(IResponse::INTERNAL_SERVER_ERROR);
         }
     }
@@ -794,7 +781,7 @@ IResponse *GroupsService::getGroupTypes(IRequest *req)
         while(query.next()){
 
            QVariantMap type;
-           type.insert("id",query.value(query.record().indexOf("id")));
+           type.insert("id",query.value(query.record().indexOf("_id")));
            type.insert("name",query.value(query.record().indexOf("name")));
 
            types.append(type);
@@ -809,7 +796,7 @@ IResponse *GroupsService::getGroupTypes(IRequest *req)
 
 IResponse *GroupsService::deleteUser( IRequest *req)
 {
-
+    QObject parent;
     QVariantMap reqJson = req->postBodyFromJson().toMap();
 
     QSqlQuery query1;
@@ -832,13 +819,13 @@ IResponse *GroupsService::deleteUser( IRequest *req)
             return req->response(IResponse::INTERNAL_SERVER_ERROR);
         if(query1.first()){
 
-            IDatabaseUpdate *update = m_proxyConnection->databaseUpdate();
-
-            IDatabaseUpdateQuery *query = update->createUpdateQuery("group_users", IDatabaseUpdateQuery::Delete);
+            IDatabaseUpdateQuery *query = m_proxyConnection->databaseUpdateQuery("group_users", &parent);
+            query->setType(IDatabaseUpdateQuery::Delete);
             query->setUpdateDates(true);
-            query->setWhere("user_id", reqJson["user_id"]);
-            query->setWhere("group_id",reqJson["group_id"]);
-            if(update->execute())
+            IDatabaseSelectQueryWhereGroup *where = query->whereGroup(IDatabaseSelectQuery::And);
+            where->where("user_id", reqJson["user_id"]);
+            where->where("group_id",reqJson["group_id"]);
+            if(!query->executeQuery())
                     req->response(IResponse::INTERNAL_SERVER_ERROR);
 
            return req->response(IResponse::OK);

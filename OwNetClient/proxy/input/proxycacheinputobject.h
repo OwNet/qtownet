@@ -10,6 +10,8 @@ public:
 
     bool exists() { return m_exists; }
 
+    InputType inputType() const { return Cache; }
+
 protected:
     void readRequest();
 

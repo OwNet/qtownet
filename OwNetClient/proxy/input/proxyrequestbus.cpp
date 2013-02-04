@@ -3,7 +3,6 @@
 #include "proxyrequest.h"
 #include "requestrouter.h"
 #include "session.h"
-#include "databaseupdate.h"
 #include "settings.h"
 #include "requestrouter.h"
 #include "iresponse.h"

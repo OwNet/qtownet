@@ -159,3 +159,11 @@ IDatabaseSelectQueryJoin *DatabaseSelectQuery::join(const QString &table, JoinTy
     m_joins.append(join);
     return join;
 }
+
+void DatabaseSelectQuery::resetQuery()
+{
+    if (m_query)
+        delete m_query;
+    m_query = new QSqlQuery;
+    m_executed = false;
+}

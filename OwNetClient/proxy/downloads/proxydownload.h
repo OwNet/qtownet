@@ -7,8 +7,8 @@
 
 #include "listofstringpairs.h"
 
-class ProxyInputObject;
 class ProxyRequest;
+class ProxyInputObject;
 class ProxyHandlerSession;
 class QIODevice;
 class ProxyDownloadPart;
@@ -24,35 +24,32 @@ class ProxyDownload : public QObject
 
 public:
     ProxyDownload(ProxyRequest *request, ProxyHandlerSession *handlerSession, QObject *parent = 0);
-    ~ProxyDownload();
 
     enum {
         FirstDownloadPartIndex = 0,
         FirstReaderId = 1
     };
 
-    ProxyInputObject *inputObject() { return m_inputObject; }
-
     int registerReader();
     void deregisterReader(int readerId);
     int countRegisteredReaders();
     uint hashCode() { return m_hashCode; }
 
-    bool shareDownload() { return m_shareDownload; }
-    void startDownload();
+    bool shareDownload();
 
     void close();
 
     ProxyDownloadPart *downloadPart(int readerId);
-    void replaceDownloadParts(ProxyCacheFileDownloadPart *downloadPart, int at);
+    void replaceDownloadParts(ProxyDownloadPart *downloadPart, int at);
+
+    ProxyInputObject *inputObject() const { return m_inputObject; }
+    void setInputObject(ProxyInputObject *inputObject) { m_inputObject = inputObject; }
     
 signals:
     void bytePartAvailable();
     void downloadFinished();
 
 public slots:
-
-private slots:
     void readReply(QIODevice *ioDevice);
     void inputObjectFinished();
     void inputObjectError();
@@ -60,10 +57,8 @@ private slots:
 private:
     void deleteUnnecessaryParts();
 
-    ProxyInputObject *webInputObject(ProxyRequest *request);
-
-    ProxyInputObject *m_inputObject;
     ProxyHandlerSession *m_proxyHandlerSession;
+    ProxyInputObject *m_inputObject;
 
     QMutex m_downloadPartsMutex;
     QMap<int, ProxyDownloadPart *> m_downloadParts;
@@ -74,8 +69,6 @@ private:
     int m_nextReaderId;
     uint m_hashCode;
     int m_proxyHandlerDependentObjectId;
-
-    bool m_shareDownload;
 };
 
 #endif // PROXYDOWNLOAD_H

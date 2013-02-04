@@ -32,15 +32,12 @@ void ProxyOutputWriter::forceQuit()
 }
 
 /**
- * @brief Create ProxyDownload object and connect its signals.
+ * @brief Creates a ProxyDownload object, which starts the download
  * @param request Request to download
  */
 void ProxyOutputWriter::createDownload(ProxyRequest *request)
 {
-    m_proxyDownload = m_proxyDownloads->proxyDownload(request, m_proxyHandlerSession, m_downloadReaderId);
-    connectProxyDownload();
-
-    m_proxyDownload->startDownload();
+    m_proxyDownload = m_proxyDownloads->proxyDownload(request, m_proxyHandlerSession, this, m_downloadReaderId);
 }
 
 /**
@@ -100,13 +97,4 @@ void ProxyOutputWriter::readAvailableParts()
     } else {
         emit iAmActive();
     }
-}
-
-/**
- * @brief Connects slots to signals in the ProxyDownload.
- */
-void ProxyOutputWriter::connectProxyDownload()
-{
-    connect(m_proxyDownload, SIGNAL(downloadFinished()), this, SLOT(readAvailableParts()), Qt::QueuedConnection);
-    connect(m_proxyDownload, SIGNAL(bytePartAvailable()), this, SLOT(readAvailableParts()), Qt::QueuedConnection);
 }

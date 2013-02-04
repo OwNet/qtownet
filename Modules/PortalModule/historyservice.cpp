@@ -4,10 +4,10 @@
 #include "isession.h"
 #include "irequest.h"
 #include "irouter.h"
-#include "idatabaseupdate.h"
 #include "iproxyconnection.h"
 #include "idatabaseselectquery.h"
 #include "idatabaseselectquerywheregroup.h"
+#include "idatabaseupdatequery.h"
 
 #include <QSqlQuery>
 #include <QSqlRecord>
@@ -43,26 +43,21 @@ void HistoryService::init(IRouter *router)
 //    return new QByteArray("{ ERROR : 'PROBLEM'}");
 //}
 
-int HistoryService::registerPageQuery(IDatabaseUpdate *update, QString url, QString title)
+bool HistoryService::registerPageQuery(QString url, QString title, int &id)
 {
-    int id;
-
-    if (update == NULL) return -1;
-
-    IDatabaseUpdateQuery *query = update->createUpdateQuery("pages");
+    QObject parent;
+    IDatabaseUpdateQuery *query = m_proxyConnection->databaseUpdateQuery("pages", &parent);
     query->setUpdateDates(true);
     query->setColumnValue("absolute_uri", url);
     query->setColumnValue("title", title);
     id = qHash(url);
-    query->setWhere("id", id);
-    return id;
+    query->singleWhere("id", id);
+    return query->executeQuery();
 }
 
-void HistoryService::registerVisitQuery(IDatabaseUpdate *update, int user_id, int page_id)
+bool HistoryService::registerVisitQuery(int user_id, int page_id)
 {
     int count = 0;
-    bool existed = false;
-    if (update == NULL) return;
     QObject parent;
 
     IDatabaseSelectQuery *select = m_proxyConnection->databaseSelect("user_visits_pages", &parent);
@@ -75,33 +70,25 @@ void HistoryService::registerVisitQuery(IDatabaseUpdate *update, int user_id, in
 
     while (select->next()) {
         count = select->value("count").toInt();
-        existed = true;
     }
 
     count += 1;
 
 
-    IDatabaseUpdateQuery *query = NULL;
-    if (existed) {
-        query = update->createUpdateQuery("user_visits_pages", IDatabaseUpdateQuery::Update);
-        query->setWhere("user_id", user_id);
-        query->setWhere("page_id", page_id);
-    }
-    else {
-        query = update->createUpdateQuery("user_visits_pages", IDatabaseUpdateQuery::Insert);
-        query->setColumnValue("user_id", user_id);
-        query->setColumnValue("page_id", page_id);
-    }
-    query->setUpdateDates(true);
+    IDatabaseUpdateQuery *query = m_proxyConnection->databaseUpdateQuery("user_visits_pages", &parent);
+    IDatabaseSelectQueryWhereGroup *where = query->whereGroup(IDatabaseSelectQuery::And);
+    where->where("user_id", user_id);
+    where->where("page_id", page_id);
+    query->setColumnValue("user_id", user_id);
+    query->setColumnValue("page_id", page_id);
     query->setColumnValue("count", count);
     query->setColumnValue("visited_at", QDateTime::currentDateTime().toString(Qt::ISODate));
+    query->setUpdateDates(true);
+    return query->executeQuery();
 }
 
-void HistoryService::registerEdgeQuery(IDatabaseUpdate *update, int page_from_id, int page_to_id)
+bool HistoryService::registerEdgeQuery(int page_from_id, int page_to_id)
 {
-    if (update == NULL)
-        return;
-
     QObject parent;
     IDatabaseSelectQuery *select = m_proxyConnection->databaseSelect("edges", &parent);
     IDatabaseSelectQueryWhereGroup *group = select->whereGroup(IDatabaseSelectQuery::And);
@@ -109,21 +96,20 @@ void HistoryService::registerEdgeQuery(IDatabaseUpdate *update, int page_from_id
     group->where("page_id_to", page_to_id);
 
     if (!select->next()) {
-        IDatabaseUpdateQuery *query = update->createUpdateQuery("edges", IDatabaseUpdateQuery::Insert);
+        IDatabaseUpdateQuery *query = m_proxyConnection->databaseUpdateQuery("edges", &parent);
         query->setUpdateDates(true);
         query->setColumnValue("page_id_from", page_from_id);
         query->setColumnValue("page_id_to", page_to_id);
+        return query->executeQuery();
     }
+    return false;
 }
 
-void HistoryService::registerTraverseQuery(IDatabaseUpdate *update, int user_id, int page_from_id, int page_to_id)
+bool HistoryService::registerTraverseQuery(int user_id, int page_from_id, int page_to_id)
 {
 
-    if (update == NULL)
-        return;
     QObject parent;
     int freq = 0;
-    bool existed = false;
     IDatabaseSelectQuery *select = m_proxyConnection->databaseSelect("user_traverses_edges", &parent);
     IDatabaseSelectQueryWhereGroup *group = select->whereGroup(IDatabaseSelectQuery::And);
     group->where("edge_page_id_from", page_from_id);
@@ -135,26 +121,20 @@ void HistoryService::registerTraverseQuery(IDatabaseUpdate *update, int user_id,
 
     while (select->next()) {
         freq = select->value("frequency").toInt();
-        existed = true;
     }
 
     freq += 1;
-    IDatabaseUpdateQuery *query = NULL;
-    if (existed) {
-        query = update->createUpdateQuery("user_traverses_edges", IDatabaseUpdateQuery::Update);
-        query->setWhere("edge_page_id_from", page_from_id);
-        query->setWhere("edge_page_id_to", page_to_id);
-        query->setWhere("user_id", user_id);
-
-    }
-    else {
-        query = update->createUpdateQuery("user_traverses_edges", IDatabaseUpdateQuery::Insert);
-        query->setColumnValue("edge_page_id_from", page_from_id);
-        query->setColumnValue("edge_page_id_to", page_to_id);
-        query->setColumnValue("user_id", user_id);
-    }
+    IDatabaseUpdateQuery *query = m_proxyConnection->databaseUpdateQuery("user_traverses_edges", &parent);
+    IDatabaseSelectQueryWhereGroup *where = query->whereGroup(IDatabaseSelectQuery::And);
+    where->where("edge_page_id_from", page_from_id);
+    where->where("edge_page_id_to", page_to_id);
+    where->where("user_id", user_id);
+    query->setColumnValue("edge_page_id_from", page_from_id);
+    query->setColumnValue("edge_page_id_to", page_to_id);
+    query->setColumnValue("user_id", user_id);
     query->setUpdateDates(true);
     query->setColumnValue("frequency", freq);
+    return query->executeQuery();
 }
 
 IResponse *HistoryService::visit(IRequest *req)
@@ -163,9 +143,8 @@ IResponse *HistoryService::visit(IRequest *req)
     int idfrom = -1;
     int idto = -1;
     bool referrer = false;
+    bool success = true;
     if (req->hasParameter("page")) {
-
-        IDatabaseUpdate *update = m_proxyConnection->databaseUpdate(&parent);
 
         QString page = req->parameterValue("page");
         if (page.contains("prefetch.ownet/api"))
@@ -179,12 +158,14 @@ IResponse *HistoryService::visit(IRequest *req)
             if (t == false) user_id = -1;
         }
 
-       // m_module->prefetchJob()->registerPage(id,  page);
+        // m_module->prefetchJob()->registerPage(id,  page);
 
-        idto = registerPageQuery(update, page, "Titulok stranky");
+        if (!registerPageQuery(page, "Titulok stranky", idto))
+            success = false;
 
         if (user_id != -1) {
-            registerVisitQuery(update, user_id, idto);
+            if (!registerVisitQuery(user_id, idto))
+                success = false;
         }
 
 
@@ -192,26 +173,22 @@ IResponse *HistoryService::visit(IRequest *req)
             page = req->parameterValue("ref");
             if (!page.isEmpty() && !page.contains("prefetch.ownet/api")) {
 
-                idfrom = registerPageQuery(update, page, "Titulok stranky");
+                if (!registerPageQuery(page, "Titulok stranky", idfrom))
+                    success = false;
                 referrer = true;
-  //              m_module->prefetchJob()->removePage(page);
+                // m_module->prefetchJob()->removePage(page);
             }
         }
 
 
-        int a = update->execute();
-        if(!a) {
+        if(success) {
 
             if (referrer) {
-                update = m_proxyConnection->databaseUpdate(&parent);
-
-                registerEdgeQuery(update, idfrom, idto);
+                registerEdgeQuery(idfrom, idto);
 
                 if (user_id != -1) {
-                    registerTraverseQuery(update, user_id, idfrom, idto);
+                    registerTraverseQuery(user_id, idfrom, idto);
                 }
-
-                update->execute();
             }
             return req->response(QString("owNetPAGEID = %1;").arg(QString::number(idto)).toLatin1());
         }

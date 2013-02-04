@@ -15,6 +15,8 @@ class ProxyRequestBus : public ProxyInputObject
 public:
     ProxyRequestBus(ProxyRequest *request, QObject *parent = 0);
 
+    InputType inputType() const { return LocalService; }
+
 protected:
     void readRequest();
 

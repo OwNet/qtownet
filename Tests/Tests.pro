@@ -21,14 +21,24 @@ SOURCES +=  main.cpp \
     classes/multicastprotocoltests.cpp \
     modules/usersservicetests.cpp \
     modules/sampleservicetests.cpp \
-    modules/syncservertests.cpp
+    modules/syncservertests.cpp \
+    proxy/testserver.cpp \
+    proxy/testsocket.cpp \
+    proxy/proxydownloadtests.cpp \
+    proxy/proxyrequesttests.cpp \
+    classes/databaseupdatequerytests.cpp
 
 
 HEADERS +=  autotest.h \
     stub/stubtime.h \
     helpers/modulehelpers.h \
     stub/stubdatabase.h \
-    modules/syncservertests.h
+    modules/syncservertests.h \
+    proxy/testserver.h \
+    proxy/testsocket.h \
+    proxy/proxydownloadtests.h \
+    proxy/proxyrequesttests.h \
+    classes/databaseupdatequerytests.h
 
 OwNetClientPath = ../OwNetClient
 ModulesPath = ../Modules
@@ -46,7 +56,9 @@ include($${ModulesPath}/SyncModule/SyncModule.pri)
 INCLUDEPATH += $$_PRO_FILE_PWD_ \
     stub \
     helpers \
-    modules
+    modules \
+    proxy \
+    classes
 
 DEFINES += SRCDIR=\\\"$$_PRO_FILE_PWD_\\\" TEST
 
