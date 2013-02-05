@@ -25,12 +25,12 @@ void ProxySocket::disconnectFromHost()
 
 bool ProxySocket::waitForDisconnected(int msecs)
 {
-    m_tcpSocket->waitForDisconnected(msecs);
+    return m_tcpSocket->waitForDisconnected(msecs);
 }
 
 bool ProxySocket::flush()
 {
-    m_tcpSocket->flush();
+    return m_tcpSocket->flush();
 }
 
 QAbstractSocket::SocketState ProxySocket::state()
