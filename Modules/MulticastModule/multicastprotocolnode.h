@@ -27,6 +27,8 @@ public:
     void setStatus(MulticastProtocol::Status);
     void setInitialized();
 
+    QVariantMap message() const;
+
 private:
 
     uint m_id;

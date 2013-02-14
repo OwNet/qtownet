@@ -34,6 +34,9 @@ public:
     virtual IResponse* response() = 0;
     virtual IResponse* response(const QVariant body, IResponse::Status status = IResponse::OK) = 0;
     virtual IResponse* response(IResponse::Status status) = 0;
+
+    virtual QString peerAddress() const { return ""; }
+    virtual quint16 peerPort() const { return 0; }
 };
 
 #endif // IREQUEST_H

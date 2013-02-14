@@ -35,6 +35,11 @@ IResponse *ClientServiceCall::callClientService(uint clientId, const QString &ap
     if (ip.isEmpty())
         return request->response(IResponse::SERVICE_UNAVAILABLE);
 
+    return callClientService(ip, port, apiUrl, request);
+}
+
+IResponse *ClientServiceCall::callClientService(QString ip, int port, const QString &apiUrl, IRequest *request)
+{
     QUrlQuery urlQuery(QString("http://external.ownet/api/%1").arg(apiUrl));
     /*foreach (QString key, parameters.keys()) {
         urlQuery.addQueryItem(key, parameters.value(key).toString());

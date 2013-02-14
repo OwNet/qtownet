@@ -53,6 +53,33 @@ void MulticastProtocolNode::setInitialized()
     m_initialized = currentDateTime.toTime_t();
 }
 
+QVariantMap MulticastProtocolNode::message() const
+{
+    QVariantMap message;
+    QString s;
+
+    switch (status())
+    {
+    case MulticastProtocol::INITIALIZING:
+        s = "initializing";
+        break;
+    case MulticastProtocol::CLIENT:
+        s = "client";
+        break;
+    case MulticastProtocol::SERVER:
+        s = "server";
+        break;
+    }
+
+    message.insert("id", id());
+    message.insert("score", score());
+    message.insert("status", s);
+    message.insert("port", port());
+    message.insert("initialized", initialized());
+
+    return message;
+}
+
 uint MulticastProtocolNode::id() const
 {
     return m_id;

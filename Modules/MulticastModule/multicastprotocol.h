@@ -22,7 +22,7 @@ public:
 
     MulticastProtocol(IProxyConnection *connection, QObject *parent = 0);
 
-    void processMessage(QVariantMap *);
+    void processMessage(const QVariantMap &);
     QList<MulticastProtocolNode *> &nodes();
     MulticastProtocolNode *serverNode() const;
     MulticastProtocolNode *currentNode() const;
