@@ -26,8 +26,10 @@ void PingJob::execute()
         serviceName = "server";
     else if (!m_proxyConnection->settings(&parent)->value("custom_server_ip").toString().isEmpty())
         serviceName = "custom_server";
-    else
+    else {
+        m_pingMutex.unlock();
         return;
+    }
 
     IRequest *request = m_proxyConnection->createRequest(IRequest::POST, serviceName, "ping/available_clients", this);
     request->setPostBody(m_pingServer->multicastProtocol()->currentNode()->message());

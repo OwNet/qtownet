@@ -19,10 +19,10 @@ void CustomServerService::init(IRouter *router)
     router->setDefaultRoute(DEFAULT_ROUTE_FN {
         QObject parent;
         QSettings *settings = m_proxyConnection->settings(&parent);
-        if (settings->value("custom_server_id").isNull() || settings->value("custom_server_port").isNull())
+        if (settings->value("custom_server_ip").isNull() || settings->value("custom_server_port").isNull())
             return req->response(IResponse::SERVICE_UNAVAILABLE);
 
-        QString ip = settings->value("custom_server_id").toString();
+        QString ip = settings->value("custom_server_ip").toString();
         int port = settings->value("custom_server_port").toInt();
 
         QStringList urlSplit = req->relativeUrl().split("/");
