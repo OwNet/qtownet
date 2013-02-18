@@ -170,7 +170,7 @@ void MulticastProtocolTests::testWeakerNode()
     sendMessage->insert("status", "client");
     sendMessage->insert("address", "10.10.10.10"); // test IPs
 
-    protocol.processMessage(sendMessage);
+    protocol.processMessage(*sendMessage);
     protocol.update();
 
     QVERIFY(protocol.nodes().count() == 2);
@@ -280,7 +280,7 @@ void MulticastProtocolTests::testStrongerNode()
     sendMessage->insert("status", "server");
     sendMessage->insert("address", "10.10.10.10");
 
-    protocol.processMessage(sendMessage);
+    protocol.processMessage(*sendMessage);
     protocol.update();
 
     QVERIFY(protocol.nodes().count() == 2);
@@ -388,7 +388,7 @@ void MulticastProtocolTests::testInitializingNode()
     sendMessage->insert("initialized", "0");
     sendMessage->insert("status", "initializing");
 
-    protocol.processMessage(sendMessage);
+    protocol.processMessage(*sendMessage);
     protocol.update();
 
     QVERIFY(protocol.nodes().count() == 2);
@@ -452,7 +452,7 @@ void MulticastProtocolTests::testInitializingNode()
     sendMessage->insert("initialized", "10");
     sendMessage->insert("status", "server");
 
-    protocol.processMessage(sendMessage);
+    protocol.processMessage(*sendMessage);
     protocol.update();
 
     QCOMPARE(protocol.nodes().count(), 2);
@@ -494,7 +494,7 @@ void MulticastProtocolTests::testMultipleNodes()
     sendMessage->insert("initialized", "10");
     sendMessage->insert("status", "server");
 
-    protocol.processMessage(sendMessage);
+    protocol.processMessage(*sendMessage);
     protocol.update();
 
     sendMessage = new QVariantMap();
@@ -504,7 +504,7 @@ void MulticastProtocolTests::testMultipleNodes()
     sendMessage->insert("initialized", "9");
     sendMessage->insert("status", "client");
 
-    protocol.processMessage(sendMessage);
+    protocol.processMessage(*sendMessage);
     protocol.update();
 
     QVERIFY(protocol.nodes().count() == 3);
@@ -593,7 +593,7 @@ void MulticastProtocolTests::testMultipleNodes()
     sendMessage->insert("initialized", "9");
     sendMessage->insert("status", "server"); // changed
 
-    protocol.processMessage(sendMessage);
+    protocol.processMessage(*sendMessage);
     protocol.update();
 
     // wait!
@@ -650,7 +650,7 @@ void MulticastProtocolTests::testMultipleWeakerNodes()
     sendMessage->insert("status", "client");
     sendMessage->insert("initialized", "3");    // test sort by initialized
 
-    protocol.processMessage(sendMessage);
+    protocol.processMessage(*sendMessage);
     protocol.update();
 
     sendMessage = new QVariantMap();
@@ -659,7 +659,7 @@ void MulticastProtocolTests::testMultipleWeakerNodes()
     sendMessage->insert("status", "client");
     sendMessage->insert("initialized", "2");    // test sort by initialized
 
-    protocol.processMessage(sendMessage);
+    protocol.processMessage(*sendMessage);
     protocol.update();
 
     sendMessage = new QVariantMap();
@@ -668,7 +668,7 @@ void MulticastProtocolTests::testMultipleWeakerNodes()
     sendMessage->insert("status", "server");
     sendMessage->insert("initialized", "1");    // test sort by initialized
 
-    protocol.processMessage(sendMessage);
+    protocol.processMessage(*sendMessage);
     protocol.update();
 
     QVERIFY(protocol.nodes().count() == 4);

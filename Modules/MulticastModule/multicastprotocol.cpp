@@ -51,24 +51,24 @@ void MulticastProtocol::initialized()
     m_currentNode->setInitialized();
 }
 
-void MulticastProtocol::processMessage(QVariantMap *message)
+void MulticastProtocol::processMessage(const QVariantMap &message)
 {
     QMutexLocker locker(&m_nodesMutex);
 
     MulticastProtocolNode *node = NULL;
 
-    uint id = message->value("id").toUInt();
-    uint score = message->value("score").toUInt();
-    uint port = message->value("port").toUInt();
-    uint initialized = message->value("initialized").toUInt();
-    QString address = message->value("address").toString();
+    uint id = message.value("id").toUInt();
+    uint score = message.value("score").toUInt();
+    uint port = message.value("port").toUInt();
+    uint initialized = message.value("initialized").toUInt();
+    QString address = message.value("address").toString();
 
     Status status;
-    if (message->value("status") == "initializing")
+    if (message.value("status") == "initializing")
         status = INITIALIZING;
-    else if (message->value("status") == "client")
+    else if (message.value("status") == "client")
         status = CLIENT;
-    else if (message->value("status") == "server")
+    else if (message.value("status") == "server")
         status = SERVER;
 
     // find proxy by id
@@ -159,29 +159,7 @@ MulticastProtocol::Status MulticastProtocol::currentNodesStatus() const
 
 QVariantMap MulticastProtocol::message() const
 {
-    QVariantMap message;
-    QString status;
-
-    switch (m_currentNode->status())
-    {
-    case MulticastProtocol::INITIALIZING:
-        status = "initializing";
-        break;
-    case MulticastProtocol::CLIENT:
-        status = "client";
-        break;
-    case MulticastProtocol::SERVER:
-        status = "server";
-        break;
-    }
-
-    int port = m_proxyConnection->settings()->value("application/listen_port", 8081).toInt();
-
-    message.insert("id", m_currentNode->id());
-    message.insert("score", m_currentNode->score());
-    message.insert("status", status);
-    message.insert("port", port);
-    message.insert("initialized", m_currentNode->initialized());
+    QVariantMap message = m_currentNode->message();
     QObject parent;
     message.insert("num_available_clients", m_proxyConnection->session(&parent)->availableClients().count());
 

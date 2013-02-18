@@ -42,7 +42,7 @@ void MulticastServer::processPendingDatagrams()
         if (ok) {
            result.insert("address", fromAddress.toString());
 
-           m_protocol->processMessage(&result);
+           m_protocol->processMessage(result);
         }
     }
 }

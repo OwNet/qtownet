@@ -9,7 +9,10 @@ SOURCES        += $${ModulePath}/multicastmodule.cpp \
     $${ModulePath}/multicastprotocolnode.cpp \
     $${ModulePath}/multicastprotocol.cpp \
     $${ModulePath}/multicastservice.cpp \
-    $${ModulePath}/updatejob.cpp
+    $${ModulePath}/updatejob.cpp \
+    $${ModulePath}/pingserver.cpp \
+    $${ModulePath}/pingservice.cpp \
+    $${ModulePath}/pingjob.cpp
 
 
 HEADERS        += $${ModulePath}/multicastmodule.h \
@@ -18,4 +21,7 @@ HEADERS        += $${ModulePath}/multicastmodule.h \
     $${ModulePath}/multicastprotocolnode.h \
     $${ModulePath}/multicastprotocol.h \
     $${ModulePath}/multicastservice.h \
-    $${ModulePath}/updatejob.h
+    $${ModulePath}/updatejob.h \
+    $${ModulePath}/pingserver.h \
+    $${ModulePath}/pingservice.h \
+    $${ModulePath}/pingjob.h

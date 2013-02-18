@@ -1,9 +1,16 @@
 #include "proxysocketrequest.h"
 
+#include <QTcpSocket>
 #include <QRegularExpression>
+#include <QHostAddress>
 
-ProxySocketRequest::ProxySocketRequest(QIODevice *socket, QObject *parent)
-    : ProxyRequest(parent), m_socket(socket)
+ProxySocketRequest::ProxySocketRequest(QTcpSocket *socket, QObject *parent)
+    : ProxyRequest(parent), m_socket(socket), m_socketIODevice(socket)
+{
+}
+
+ProxySocketRequest::ProxySocketRequest(QIODevice *socketIODevice, QObject *parent)
+    : ProxyRequest(parent), m_socket(NULL), m_socketIODevice(socketIODevice)
 {
 }
 
@@ -13,8 +20,8 @@ ProxySocketRequest::ProxySocketRequest(QIODevice *socket, QObject *parent)
  */
 bool ProxySocketRequest::readFromSocket()
 {
-    for (int i = 0; m_socket->isOpen() && m_socket->canReadLine(); ++i) {
-        QString readLine(m_socket->readLine());
+    for (int i = 0; m_socketIODevice->isOpen() && m_socketIODevice->canReadLine(); ++i) {
+        QString readLine(m_socketIODevice->readLine());
 
         if (i == 0) {
             QStringList tuple = readLine.split(QRegularExpression("[ \r\n][ \r\n]*"));
@@ -35,7 +42,7 @@ bool ProxySocketRequest::readFromSocket()
             }
         } else {
             if (readLine == "\r\n") {
-                setRequestBody(m_socket->readAll());
+                setRequestBody(m_socketIODevice->readAll());
             } else {
                 QStringList tokens = readLine.split(": ");
                 if (tokens.count() < 2)
@@ -52,4 +59,23 @@ bool ProxySocketRequest::readFromSocket()
     }
 
     return true;
+}
+
+QIODevice *ProxySocketRequest::socket() const
+{
+    return m_socket;
+}
+
+QString ProxySocketRequest::peerAddress() const
+{
+    if (!m_socket)
+        return "";
+    return m_socket->peerAddress().toString();
+}
+
+quint16 ProxySocketRequest::peerPort() const
+{
+    if (!m_socket)
+        return 0;
+    return m_socket->peerPort();
 }

@@ -22,8 +22,7 @@ SOURCES += $${OwNetClientPath}/proxy/proxyserver.cpp \
     $${OwNetClientPath}/proxy/proxyhandlersession.cpp \
     $${OwNetClientPath}/proxy/downloads/proxycachefiledownloadpart.cpp \
     $${OwNetClientPath}/proxy/downloads/proxydownloadstream.cpp \
-    $${OwNetClientPath}/proxy/output/proxysocket.cpp \
-    ../OwNetClient/proxy/proxysocketrequest.cpp
+    $${OwNetClientPath}/proxy/proxysocketrequest.cpp
 
 
 HEADERS  += $${OwNetClientPath}/proxy/proxyserver.h \
@@ -48,8 +47,7 @@ HEADERS  += $${OwNetClientPath}/proxy/proxyserver.h \
     $${OwNetClientPath}/proxy/downloads/proxycachefiledownloadpart.h \
     $${OwNetClientPath}/proxy/downloads/proxydownloadstream.h \
     $${OwNetClientPath}/proxy/output/isocket.h \
-    $${OwNetClientPath}/proxy/output/proxysocket.h \
-    ../OwNetClient/proxy/proxysocketrequest.h
+    $${OwNetClientPath}/proxy/proxysocketrequest.h
 
 INCLUDEPATH += $${OwNetClientPath}/proxy \
     $${OwNetClientPath}/proxy/downloads \
