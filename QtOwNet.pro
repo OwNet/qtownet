@@ -2,4 +2,5 @@ TEMPLATE = subdirs
 
 SUBDIRS += \
     OwNetClient \
-    Modules
+    Modules \
+    Tests

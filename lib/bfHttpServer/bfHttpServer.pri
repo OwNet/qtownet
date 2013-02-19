@@ -1,10 +1,24 @@
-INCLUDEPATH += $$PWD
-DEPENDPATH += $$PWD
+INCLUDEPATH += $${LibPath}/bfHttpServer
+DEPENDPATH += $${LibPath}/bfHttpServer
 
-HEADERS += $$PWD/httplistener.h $$PWD/httpconnectionhandler.h $$PWD/httpconnectionhandlerpool.h $$PWD/httprequest.h $$PWD/httpresponse.h $$PWD/httpcookie.h $$PWD/httprequesthandler.h
-HEADERS += $$PWD/httpsession.h $$PWD/httpsessionstore.h
-HEADERS += $$PWD/staticfilecontroller.h
+HEADERS += $${LibPath}/bfHttpServer/httplistener.h \
+    $${LibPath}/bfHttpServer/httpconnectionhandler.h \
+    $${LibPath}/bfHttpServer/httpconnectionhandlerpool.h \
+    $${LibPath}/bfHttpServer/httprequest.h \
+    $${LibPath}/bfHttpServer/httpresponse.h \
+    $${LibPath}/bfHttpServer/httpcookie.h \
+    $${LibPath}/bfHttpServer/httprequesthandler.h
+HEADERS += $${LibPath}/bfHttpServer/httpsession.h \
+    $${LibPath}/bfHttpServer/httpsessionstore.h
+HEADERS += $${LibPath}/bfHttpServer/staticfilecontroller.h
 
-SOURCES += $$PWD/httplistener.cpp $$PWD/httpconnectionhandler.cpp $$PWD/httpconnectionhandlerpool.cpp $$PWD/httprequest.cpp $$PWD/httpresponse.cpp $$PWD/httpcookie.cpp $$PWD/httprequesthandler.cpp
-SOURCES += $$PWD/httpsession.cpp $$PWD/httpsessionstore.cpp
-SOURCES += $$PWD/staticfilecontroller.cpp
+SOURCES += $${LibPath}/bfHttpServer/httplistener.cpp \
+    $${LibPath}/bfHttpServer/httpconnectionhandler.cpp \
+    $${LibPath}/bfHttpServer/httpconnectionhandlerpool.cpp \
+    $${LibPath}/bfHttpServer/httprequest.cpp \
+    $${LibPath}/bfHttpServer/httpresponse.cpp \
+    $${LibPath}/bfHttpServer/httpcookie.cpp \
+    $${LibPath}/bfHttpServer/httprequesthandler.cpp
+SOURCES += $${LibPath}/bfHttpServer/httpsession.cpp \
+    $${LibPath}/bfHttpServer/httpsessionstore.cpp
+SOURCES += $${LibPath}/bfHttpServer/staticfilecontroller.cpp

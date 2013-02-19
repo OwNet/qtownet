@@ -23,6 +23,7 @@ public:
     };
 
     ProxyRequest(HttpRequest *request, QObject *parent = 0);
+    ProxyRequest(IRequest::RequestType requestType, QString url, QVariantMap requestHeaders, QObject *parent = 0);
 
     QVariant postBodyFromJson(bool *ok = NULL) const;
     QMap<QString, QString> postBodyFromForm() const;
@@ -56,7 +57,6 @@ protected:
 
 private:
     QString urlExtension() const;
-    void init(HttpRequest *request);
     void analyzeUrl();
     void analyzeRequestHeaders(HttpRequest *request);
     void analyzeRequestType(HttpRequest *request);

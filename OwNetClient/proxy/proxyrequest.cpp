@@ -15,8 +15,27 @@ ProxyRequest::ProxyRequest(HttpRequest *request, QObject *parent)
       m_isApiRequest(false),
       m_requestType(UNKNOWN)
 {
-    init(request);
+    /// Copy values from HttpRequest
+    /// If accessed directly, they would sometimes throw EXC_BAD_ACCESS error.
+    m_url = request->getAbsoluteUrl();
+    m_requestBody = request->getBody();
+    m_requestParameters = request->getParameterMap();
+
+    analyzeUrl();
+    analyzeRequestHeaders(request);
+    analyzeRequestType(request);
+
     qDebug() << url();
+}
+
+ProxyRequest::ProxyRequest(IRequest::RequestType requestType, QString url, QVariantMap requestHeaders, QObject *parent)
+    : QObject(parent),
+      m_isApiRequest(false),
+      m_requestType(requestType),
+      m_url(url),
+      m_requestHeaders(requestHeaders)
+{
+    analyzeUrl();
 }
 
 QString ProxyRequest::url() const
@@ -186,20 +205,6 @@ QString ProxyRequest::urlExtension() const
     if (parts.count() > 1)
         return parts.last();
     return "";
-}
-
-/**
- * @brief Copy values from HttpRequest
- * If accessed directly, they would sometimes throw EXC_BAD_ACCESS error.
- */
-void ProxyRequest::init(HttpRequest *request)
-{
-    m_url = request->getAbsoluteUrl();
-    m_requestBody = request->getBody();
-    m_requestParameters = request->getParameterMap();
-    analyzeUrl();
-    analyzeRequestHeaders(request);
-    analyzeRequestType(request);
 }
 
 /**
