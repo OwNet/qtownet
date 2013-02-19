@@ -102,7 +102,7 @@ void ProxyWebInputObject::createReply()
         m_retryIfFailed = true;
     }
 
-    request.setUrl(m_request->qUrl());
+    request.setUrl(QUrl(m_request->url()));
     foreach (QString headerName, m_request->requestHeaders().keys())
         request.setRawHeader(headerName.toUtf8(),
                              m_request->requestHeaders().value(headerName).toString().toUtf8());

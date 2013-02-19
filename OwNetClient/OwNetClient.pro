@@ -20,6 +20,7 @@ RESOURCES += \
     resources.qrc
 
 OwNetClientPath = .
+LibPath = ../lib
 
 include(cache/cache.pri)
 include(database/database.pri)
@@ -29,6 +30,7 @@ include(init/init.pri)
 include(jobs/jobs.pri)
 include(proxy/proxy.pri)
 include(view/view.pri)
+include($${LibPath}/bfHttpServer/bfHttpServer.pri)
 
 macx:QMAKE_CXXFLAGS += -stdlib=libc++
 QMAKE_CXXFLAGS += -std=c++0x

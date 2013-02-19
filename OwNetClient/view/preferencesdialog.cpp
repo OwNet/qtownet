@@ -3,7 +3,7 @@
 
 #include "applicationdatastorage.h"
 #include "settings.h"
-#include "proxyserver.h"
+#include "proxyrequest.h"
 
 #include <QFileDialog>
 
@@ -70,5 +70,5 @@ void PreferencesDialog::loadSettings()
 
     Settings settings;
     ui->leCustomServerIP->setText(settings.value("custom_server_ip").toString());
-    ui->leCustomServerPort->setText(settings.value("custom_server_port", ProxyServer::Port).toString());
+    ui->leCustomServerPort->setText(settings.value("custom_server_port", ProxyRequest::Port).toString());
 }
