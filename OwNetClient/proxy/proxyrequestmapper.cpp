@@ -14,11 +14,11 @@ ProxyRequestMapper::ProxyRequestMapper(QObject* parent)
   @param request The received HTTP request
   @param response Must be used to return the response
 */
-void ProxyRequestMapper::service(HttpRequest& request, HttpResponse& response)
+void ProxyRequestMapper::service(HttpRequest *request, HttpResponse *response)
 {
     ProxyHandler handler;
     QEventLoop loop;
     loop.connect(&handler, SIGNAL(disposeThread()), &loop, SLOT(quit()));
-    handler.setRequestAndResponseAndStart(&request, &response);
+    handler.setRequestAndResponseAndStart(request, response);
     loop.exec();
 }

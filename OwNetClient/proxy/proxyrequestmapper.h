@@ -14,7 +14,7 @@ class ProxyRequestMapper : public HttpRequestHandler {
 public:
     ProxyRequestMapper(QObject* parent=0);
 
-    void service(HttpRequest& request, HttpResponse& response);
+    void service(HttpRequest *request, HttpResponse *response);
 };
 
 #endif // REQUESTMAPPER_H

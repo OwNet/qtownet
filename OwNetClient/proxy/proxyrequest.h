@@ -26,9 +26,9 @@ public:
 
     QVariant postBodyFromJson(bool *ok = NULL) const;
     QMap<QString, QString> postBodyFromForm() const;
-    QByteArray requestBody() const;
-    QVariantMap requestHeaders() const;
-    IRequest::RequestType requestType() const;
+    QByteArray requestBody() const { return m_requestBody; }
+    QVariantMap requestHeaders() const { return m_requestHeaders; }
+    IRequest::RequestType requestType() const { return m_requestType; }
     QString requestContentType(const QString &defaultContentType = "", const QString &extension = "") const;
 
     QString url() const;
@@ -56,16 +56,23 @@ protected:
 
 private:
     QString urlExtension() const;
+    void init(HttpRequest *request);
     void analyzeUrl();
+    void analyzeRequestHeaders(HttpRequest *request);
+    void analyzeRequestType(HttpRequest *request);
     static QMap<QString, QString> initContentTypes();
 
     bool m_isApiRequest;
 
     static QMap<QString, QString> m_contentTypes;
+    QString m_url;
     QString m_domain;
     QString m_subDomain;
     QString m_service;
-    HttpRequest *m_request;
+    QByteArray m_requestBody;
+    QVariantMap m_requestHeaders;
+    QMultiMap<QByteArray,QByteArray> m_requestParameters;
+    IRequest::RequestType m_requestType;
 
     friend class ProxyInitializer;
 };

@@ -136,7 +136,7 @@ void HttpConnectionHandler::read() {
         qDebug("HttpConnectionHandler (%p): received request",this);
         HttpResponse response(&socket);
         try {
-            requestHandler->service(*currentRequest, response);
+            requestHandler->service(currentRequest, &response);
         }
         catch (...) {
             qCritical("HttpConnectionHandler (%p): An uncatched exception occured in the request handler",this);
@@ -146,6 +146,11 @@ void HttpConnectionHandler::read() {
         if (!response.hasSentLastPart()) {
             response.write(QByteArray(),true);
         }
+
+        socket.flush();
+        socket.disconnectFromHost();
+
+/* The following code caused EXC_BAD_ACCESS
         // Close the connection after delivering the response, if requested
         if (QString::compare(currentRequest->getHeader("Connection"),"close",Qt::CaseInsensitive)==0) {
             socket.disconnectFromHost();
@@ -155,6 +160,7 @@ void HttpConnectionHandler::read() {
             int readTimeout=settings->value("readTimeout",10000).toInt();
             readTimer.start(readTimeout);
         }
+*/
         // Prepare for next request
         delete currentRequest;
         currentRequest=0;

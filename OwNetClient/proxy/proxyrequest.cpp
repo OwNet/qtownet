@@ -13,15 +13,15 @@
 ProxyRequest::ProxyRequest(HttpRequest *request, QObject *parent)
     : QObject(parent),
       m_isApiRequest(false),
-      m_request(request)
+      m_requestType(UNKNOWN)
 {
-    analyzeUrl();
+    init(request);
     qDebug() << url();
 }
 
 QString ProxyRequest::url() const
 {
-    return m_request->getAbsoluteUrl();
+    return m_url;
 }
 
 /**
@@ -94,41 +94,6 @@ QMap<QString, QString> ProxyRequest::postBodyFromForm() const
     return result;
 }
 
-QByteArray ProxyRequest::requestBody() const
-{
-    return m_request->getBody();
-}
-
-QVariantMap ProxyRequest::requestHeaders() const
-{
-    QVariantMap headers;
-    QMapIterator<QByteArray,QByteArray> i(m_request->getHeaderMap());
-    while (i.hasNext()) {
-        i.next();
-        QString key(i.key());
-        QString value(i.value());
-        if (!key.toLower().contains("accept-encoding") || !value.contains("gzip"))
-            headers.insert(key, value);
-        else
-            headers.insert("Accept-encoding", "*");
-    }
-    return headers;
-}
-
-IRequest::RequestType ProxyRequest::requestType() const
-{
-    QString requestMethod = QString(m_request->getMethod()).toLower();
-    if (requestMethod == "get")
-        return GET;
-    else if (requestMethod == "post")
-        return POST;
-    else if (requestMethod == "put")
-        return PUT;
-    else if (requestMethod == "delete")
-        return DELETE;
-    return UNKNOWN;
-}
-
 /**
  * @brief Get the content type from the url extension.
  * @return Content type of the request
@@ -143,12 +108,12 @@ QString ProxyRequest::requestContentType(const QString &defaultContentType, cons
 
 QString ProxyRequest::parameterValue(const QString &key) const
 {
-    return QString(m_request->getParameter(key.toUtf8()));
+    return QString(m_requestParameters.value(key.toUtf8()));
 }
 
 bool ProxyRequest::hasParameter(const QString &key) const
 {
-    return !m_request->getParameter(key.toUtf8()).isNull();
+    return m_requestParameters.values(key.toUtf8()).count() > 0;
 }
 
 uint ProxyRequest::hashCode() const
@@ -224,6 +189,20 @@ QString ProxyRequest::urlExtension() const
 }
 
 /**
+ * @brief Copy values from HttpRequest
+ * If accessed directly, they would sometimes throw EXC_BAD_ACCESS error.
+ */
+void ProxyRequest::init(HttpRequest *request)
+{
+    m_url = request->getAbsoluteUrl();
+    m_requestBody = request->getBody();
+    m_requestParameters = request->getParameterMap();
+    analyzeUrl();
+    analyzeRequestHeaders(request);
+    analyzeRequestType(request);
+}
+
+/**
  * @brief Analyzes the url and parses out the domain, subdomain and module, action and id for local requests.
  */
 void ProxyRequest::analyzeUrl()
@@ -249,6 +228,33 @@ void ProxyRequest::analyzeUrl()
             }
         }
     }
+}
+
+void ProxyRequest::analyzeRequestHeaders(HttpRequest *request)
+{
+    QMapIterator<QByteArray,QByteArray> i(request->getHeaderMap());
+    while (i.hasNext()) {
+        i.next();
+        QString key(i.key());
+        QString value(i.value());
+        if (!key.toLower().contains("accept-encoding") || !value.contains("gzip"))
+            m_requestHeaders.insert(key, value);
+        else
+            m_requestHeaders.insert("Accept-encoding", "*");
+    }
+}
+
+void ProxyRequest::analyzeRequestType(HttpRequest *request)
+{
+    QString requestMethod = QString(request->getMethod()).toLower();
+    if (requestMethod == "get")
+        m_requestType = GET;
+    else if (requestMethod == "post")
+        m_requestType = POST;
+    else if (requestMethod == "put")
+        m_requestType = PUT;
+    else if (requestMethod == "delete")
+        m_requestType = DELETE;
 }
 
 /**
