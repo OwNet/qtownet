@@ -6,6 +6,11 @@
 
 class QSqlQuery;
 
+/**
+ * @brief Interface used by DatabaseSelectQuery as a where clause.
+ *
+ * Implemented by DatabaseSelectQueryWhereExpression and DatabaseSelectQueryWhereGroup
+ */
 class IDatabaseSelectQueryWhere : public QObject
 {
     Q_OBJECT

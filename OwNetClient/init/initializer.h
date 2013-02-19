@@ -1,26 +1,18 @@
 #ifndef INITIALIZER_H
 #define INITIALIZER_H
 
-#include "databaseinitializer.h"
-#include "proxyinitializer.h"
-#include "moduleinitializer.h"
-#include "jobinitializer.h"
-#include "communicationinitializer.h"
+#include <QObject>
 
-class Initializer
+class Initializer : public QObject
 {
+    Q_OBJECT
+
 public:
-    Initializer();
+    Initializer(QObject *parent = NULL);
 
     void init();
 
 private:
-    ProxyInitializer m_proxyInitializer;
-    DatabaseInitializer m_databaseInitializer;
-    ModuleInitializer m_moduleInitializer;
-    JobInitializer m_jobInitializer;
-    CommunicationInitializer m_communicationInitializer;
-
     void createPidFile();
 };
 

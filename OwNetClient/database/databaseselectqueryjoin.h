@@ -8,6 +8,12 @@
 class IDatabaseSelectQueryWhere;
 class QSqlQuery;
 
+/**
+ * @brief Enables creating JOIN expressions in DatabaseSelectQuery.
+ *
+ * Join expressions can have complex ON clauses, created by singleWhere. or whereGroup().
+ * Each call to those functions overwrites the previous calls.
+ */
 class DatabaseSelectQueryJoin : public QObject, public IDatabaseSelectQueryJoin
 {
     Q_OBJECT

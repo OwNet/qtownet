@@ -2,12 +2,11 @@
 
 #include "irequest.h"
 #include "iresponse.h"
-#include "idatabaseupdate.h"
 #include "iproxyconnection.h"
 
 #include "portalhelper.h"
 #include "isession.h"
-
+#include "idatabaseupdatequery.h"
 
 #include <QSqlQuery>
 #include <QSqlRecord>
@@ -107,12 +106,9 @@ IResponse *UsersService::create(IRequest *req)
     uint id = qHash(QString("%1-%2").arg(login).arg(QDateTime::currentDateTime().toString(Qt::ISODate)));
 
     QObject parent;
-    IDatabaseUpdate *update = m_proxyConnection->databaseUpdate(&parent);
-
-    IDatabaseUpdateQuery *query = update->createUpdateQuery("users", IDatabaseUpdateQuery::Insert);
+    IDatabaseUpdateQuery *query = m_proxyConnection->databaseUpdateQuery("users", &parent);
 
     query->setUpdateDates(true); // sam nastavi v tabulke datumy date_created a date_updated
-
     query->setColumnValue("id", id);
     query->setColumnValue("first_name", first_name);
     query->setColumnValue("last_name", last_name);
@@ -122,7 +118,7 @@ IResponse *UsersService::create(IRequest *req)
     query->setColumnValue("password", password);
     query->setColumnValue("salt", salt);
 
-    if( update->execute() == 0 )
+    if ( query->executeQuery() )
         return req->response(IResponse::CREATED);
     else
         return req->response(IResponse::BAD_REQUEST);
@@ -136,9 +132,8 @@ IResponse *UsersService::edit(IRequest *req, uint id)
 
 
     QObject parent;
-    IDatabaseUpdate *update = m_proxyConnection->databaseUpdate(&parent);
 
-    IDatabaseUpdateQuery *query = update->createUpdateQuery("users", IDatabaseUpdateQuery::Update);
+    IDatabaseUpdateQuery *query = m_proxyConnection->databaseUpdateQuery("users", &parent);
 
     bool ok = false;
     QVariant body = req->postBodyFromJson(&ok);
@@ -153,10 +148,12 @@ IResponse *UsersService::edit(IRequest *req, uint id)
     query->setColumnValue("login", user["login"]);
     query->setColumnValue("email", user["email"]);
 
+    query->singleWhere("id", id);
+
     if (user.contains("password"))
         query->setColumnValue("password", user["password"]);
 
-    if (update->execute() == 0 )
+    if ( query->executeQuery() )
         return req->response(IResponse::OK);
     else
         return req->response(IResponse::INTERNAL_SERVER_ERROR);
@@ -169,12 +166,11 @@ IResponse *UsersService::del(IRequest *req, uint id)
         return req->response(IResponse::UNAUTHORIEZED);
 
     QObject parent;
-    IDatabaseUpdate *update = m_proxyConnection->databaseUpdate(&parent);
+    IDatabaseUpdateQuery *query = m_proxyConnection->databaseUpdateQuery("users", &parent);
+    query->setType(IDatabaseUpdateQuery::Delete);
+    query->singleWhere("id", id);
 
-    IDatabaseUpdateQuery *query = update->createUpdateQuery("users", IDatabaseUpdateQuery::Delete);
-    query->setWhere("id",id);
-
-    if( update->execute() == 0 )
+    if( query->executeQuery() )
         return req->response(IResponse::NO_CONTENT);
     else
         return req->response(IResponse::INTERNAL_SERVER_ERROR);

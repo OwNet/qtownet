@@ -12,6 +12,8 @@ class ProxyWebInputObject : public ProxyInputObject
 public:
     ProxyWebInputObject(ProxyRequest *request, QObject *parent = 0);
 
+    InputType inputType() const { return Web; }
+
 protected:
     void readRequest();
 
@@ -22,7 +24,13 @@ private slots:
     void readResponseHeaders(QNetworkReply *reply);
 
 private:
+    void createReply();
+    bool isClientOnline(uint clientId) const;
+    QString clientIp(uint clientId) const;
+
     bool m_readHeaders;
+    bool m_retryIfFailed;
+    QList<uint> m_clientsToTry;
 };
 
 #endif // PROXYWEBINPUTOBJECT_H

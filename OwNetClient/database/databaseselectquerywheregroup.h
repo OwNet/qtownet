@@ -4,6 +4,11 @@
 #include "idatabaseselectquerywheregroup.h"
 #include "idatabaseselectquerywhere.h"
 
+/**
+ * @brief Used by SelectDatabaseQuery to nest where expression clauses.
+ *
+ * Defines the operation that joins the clauses. Subclauses can be created by whereGroup().
+ */
 class DatabaseSelectQueryWhereGroup : public IDatabaseSelectQueryWhereGroup, public IDatabaseSelectQueryWhere
 {
 public:

@@ -5,21 +5,13 @@ TARGET          = $$qtLibraryTarget(ownet_syncmodule)
 TEMPLATE        = lib
 CONFIG         += plugin
 
-INCLUDEPATH    += ../../OwNetClient/modules/interfaces
+OwNetClientPath = ../../OwNetClient
+ModulesPath = ..
 
-SOURCES        += syncmodule.cpp \
-    syncjob.cpp \
-    syncserver.cpp \
-    syncservice.cpp \
-    syncclient.cpp \
-    synclock.cpp
+SOURCES += syncmodule.cpp
+HEADERS += syncmodule.h
 
-HEADERS        += syncmodule.h \
-    syncjob.h \
-    syncserver.h \
-    syncservice.h \
-    syncclient.h \
-    synclock.h
+include(SyncModule.pri)
 
 TARGET          = $$qtLibraryTarget(ownet_syncmodule)
 macx:DESTDIR    = ../../OwNetClient/OwNetClient.app/Contents/MacOS/modules

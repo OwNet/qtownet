@@ -2,7 +2,7 @@
 
 #include "settings.h"
 #include "databasesettings.h"
-#include "databaseupdate.h"
+#include "synceddatabaseupdatequery.h"
 #include "databaseselectquery.h"
 #include "session.h"
 #include "artificialrequest.h"
@@ -12,6 +12,7 @@
 #include "iservice.h"
 #include "ijobaction.h"
 #include "modulejob.h"
+#include "messagehelper.h"
 
 ProxyConnection::ProxyConnection(QObject *parent) :
     QObject(parent)
@@ -23,9 +24,11 @@ ISession *ProxyConnection::session(QObject *parent)
     return new Session(parent);
 }
 
-IDatabaseUpdate *ProxyConnection::databaseUpdate(QObject *parent)
+IDatabaseUpdateQuery *ProxyConnection::databaseUpdateQuery(const QString &table, QObject *parent, bool sync)
 {
-    return new DatabaseUpdate(parent);
+    if (sync)
+        return new SyncedDatabaseUpdateQuery(table, DatabaseUpdateQuery::InsertOrUpdate, parent);
+    return new DatabaseUpdateQuery(table, DatabaseUpdateQuery::InsertOrUpdate, parent);
 }
 
 IDatabaseSelectQuery *ProxyConnection::databaseSelect(const QString &table, QObject *parent)
@@ -87,4 +90,9 @@ void ProxyConnection::registerJob(IJobAction* job)
 IResponse *ProxyConnection::callModule(IRequest *req)
 {
     return RequestRouter::processRequest(req);
+}
+
+void ProxyConnection::debugMessage(const QVariant &message) const
+{
+    MessageHelper::debug(message);
 }

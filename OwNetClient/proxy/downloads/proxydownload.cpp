@@ -1,16 +1,12 @@
 #include "proxydownload.h"
 
-#include "proxywebinputobject.h"
-#include "proxystaticinputobject.h"
-#include "proxycacheinputobject.h"
-#include "proxyrequestbus.h"
 #include "proxyrequest.h"
 #include "proxyhandlersession.h"
-#include "proxycacheoutputwriter.h"
 #include "proxybytedownloadpart.h"
 #include "proxystreamdownloadpart.h"
 #include "proxylastdownloadpart.h"
 #include "proxycachefiledownloadpart.h"
+#include "proxyinputobject.h"
 
 #include <QBuffer>
 #include <QDebug>
@@ -24,33 +20,13 @@
  */
 ProxyDownload::ProxyDownload(ProxyRequest *request, ProxyHandlerSession *handlerSession, QObject *parent) :
     QObject(parent),
-    m_inputObject(NULL),
     m_proxyHandlerSession(handlerSession),
     m_nextReaderId(FirstReaderId),
-    m_shareDownload(false),
-    m_nextDownloadPartIndex(FirstDownloadPartIndex)
+    m_nextDownloadPartIndex(FirstDownloadPartIndex),
+    m_inputObject(NULL)
 {
     m_hashCode = request->hashCode();
     m_proxyHandlerDependentObjectId = m_proxyHandlerSession->registerDependentObject();
-
-    if (request->isStaticResourceRequest()) {
-        m_inputObject = new ProxyStaticInputObject(request, this);
-    } else if (request->isLocalRequest()) {
-        m_inputObject = new ProxyRequestBus(request, this);
-    } else {
-        m_inputObject = webInputObject(request);
-    }
-
-    if (m_shareDownload)
-        new ProxyCacheOutputWriter(this, registerReader(), m_proxyHandlerSession);
-
-    connect(m_inputObject, SIGNAL(finished()), this, SLOT(inputObjectFinished()));
-    connect(m_inputObject, SIGNAL(failed()), this, SLOT(inputObjectError()));
-    connect(m_inputObject, SIGNAL(readyRead(QIODevice*)), this, SLOT(readReply(QIODevice*)));
-}
-
-ProxyDownload::~ProxyDownload()
-{
 }
 
 /**
@@ -91,11 +67,14 @@ int ProxyDownload::countRegisteredReaders()
 }
 
 /**
- * @brief Start downloading the request. Triggered from outside.
+ * @brief Downloads are shared if the input source is Web
+ * @return True if the download should be shared
  */
-void ProxyDownload::startDownload()
+bool ProxyDownload::shareDownload()
 {
-    m_inputObject->startDownload();
+    if (inputObject())
+        return inputObject()->inputType() == ProxyInputObject::Web;
+    return false;
 }
 
 /**
@@ -138,7 +117,7 @@ ProxyDownloadPart *ProxyDownload::downloadPart(int readerId)
  * @param at Position of the ProxyDownloadPart
  * @param numParts Number of parts to replace
  */
-void ProxyDownload::replaceDownloadParts(ProxyCacheFileDownloadPart *downloadPart, int at)
+void ProxyDownload::replaceDownloadParts(ProxyDownloadPart *downloadPart, int at)
 {
     QMutexLocker locker(&m_downloadPartsMutex);
 
@@ -179,7 +158,7 @@ void ProxyDownload::readReply(QIODevice *ioDevice)
         parent = m_downloadParts.value(partIndex - 1);
 
     ProxyDownloadPart *part = NULL;
-    if (m_shareDownload)
+    if (shareDownload())
         part = new ProxyByteDownloadPart(new QByteArray(ioDevice->readAll()), m_nextDownloadPartIndex, parent);
     else
         part = new ProxyStreamDownloadPart(ioDevice, m_nextDownloadPartIndex, parent);
@@ -212,21 +191,4 @@ void ProxyDownload::inputObjectError()
     m_downloadPartsMutex.unlock();
 
     emit downloadFinished();
-}
-
-/**
- * @brief Create an input object for web request. Download from cache if available.
- * @param request Web request to download.
- * @return Web input object.
- */
-ProxyInputObject *ProxyDownload::webInputObject(ProxyRequest *request)
-{
-    if (request->requestType() == ProxyRequest::GET) {
-        ProxyCacheInputObject *cacheInputObject = new ProxyCacheInputObject(request, this);
-        if (cacheInputObject->exists())
-            return cacheInputObject;
-    }
-
-    m_shareDownload = true;
-    return new ProxyWebInputObject(request, this);
 }

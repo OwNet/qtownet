@@ -6,6 +6,11 @@
 #include "idatabaseselectquery.h"
 #include "idatabaseselectquerywhere.h"
 
+/**
+ * @brief WHERE expression used by DatabaseSelectQuery.
+ *
+ * Supports just a single key - value expression with custom operation.
+ */
 class DatabaseSelectQueryWhereExpression : public IDatabaseSelectQueryWhere
 {
 public:

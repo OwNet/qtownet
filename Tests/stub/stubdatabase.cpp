@@ -7,6 +7,8 @@
 #include <QSqlError>
 #include <QSqlQuery>
 #include <QTextStream>
+#include <QSqlRecord>
+#include <QSqlField>
 
 #include "settings.h"
 #include "messagehelper.h"
@@ -38,6 +40,26 @@ void StubDatabase::init()
 void StubDatabase::close()
 {
     QSqlDatabase::database().close();
+}
+
+void StubDatabase::dumpTable(const QString &tableName)
+{
+    QSqlQuery query;
+    query.prepare(QString("SELECT * FROM %1").arg(tableName));
+    query.exec();
+    if (query.next()) {
+        QStringList values;
+        QSqlRecord record = query.record();
+        for (int i = 0; i < record.count(); ++i)
+            values.append(record.field(i).name());
+        MessageHelper::debug(values.join(" | "));
+        do {
+            values.clear();
+            for (int i = 0; i < record.count(); ++i)
+                values.append(query.value(i).toString());
+            MessageHelper::debug(values.join(" | "));
+        } while (query.next());
+    }
 }
 
 void StubDatabase::runMigrations()

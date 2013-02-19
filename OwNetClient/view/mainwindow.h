@@ -19,6 +19,8 @@ private slots:
     void showPreferences();
     void openMyOwNet();
     void dumpOpenSockets();
+    void dumpAvailableClients();
+    void sync();
     
 private:
     void createTrayIcon();

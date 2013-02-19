@@ -1,6 +1,7 @@
 #include "clientservicecall.h"
 
 #include "iproxyconnection.h"
+#include "isession.h"
 
 #include <QUrl>
 #include <QUrlQuery>
@@ -19,7 +20,25 @@ ClientServiceCall::ClientServiceCall(IProxyConnection *proxyConnection, QObject 
 {
 }
 
-QVariant ClientServiceCall::callClientService(int clientId, const QString &apiUrl, IRequest *request)
+IResponse *ClientServiceCall::callClientService(uint clientId, const QString &apiUrl, IRequest *request)
+{
+    QObject parent;
+    ISession *session = m_proxyConnection->session(&parent);
+    QStringList ipPort = session->availableClients().value(QString::number(clientId)).toString().split(":");
+
+    if (ipPort.count() < 2)
+        return request->response(IResponse::SERVICE_UNAVAILABLE);
+
+    QString ip = ipPort.takeFirst();
+    int port = ipPort.takeFirst().toInt();
+
+    if (ip.isEmpty())
+        return request->response(IResponse::SERVICE_UNAVAILABLE);
+
+    return callClientService(ip, port, apiUrl, request);
+}
+
+IResponse *ClientServiceCall::callClientService(QString ip, int port, const QString &apiUrl, IRequest *request)
 {
     QUrlQuery urlQuery(QString("http://external.ownet/api/%1").arg(apiUrl));
     /*foreach (QString key, parameters.keys()) {
@@ -27,7 +46,8 @@ QVariant ClientServiceCall::callClientService(int clientId, const QString &apiUr
     }*/
 
     QNetworkAccessManager *manager = new QNetworkAccessManager(this);
-    manager->setProxy(QNetworkProxy(QNetworkProxy::HttpProxy, "localhost", 8081));
+    manager->setProxy(QNetworkProxy(QNetworkProxy::HttpProxy, ip, port));
+
     QNetworkReply *reply = NULL;
     QNetworkRequest networkRequest(QUrl(urlQuery.toString(QUrl::FullyEncoded)));
 
@@ -47,7 +67,7 @@ QVariant ClientServiceCall::callClientService(int clientId, const QString &apiUr
         reply = manager->deleteResource(networkRequest);
         break;
     case IRequest::UNKNOWN:
-        return QVariant();
+        return request->response(IResponse::BAD_REQUEST);
     }
 
     // Wait for the request to finish
@@ -58,6 +78,6 @@ QVariant ClientServiceCall::callClientService(int clientId, const QString &apiUr
     bool ok = false;
     QVariant json = m_proxyConnection->fromJson(reply->readAll(), &ok);
     if (ok)
-        return json;
-    return QVariant();
+        return request->response(json);
+    return request->response(IResponse::NOT_FOUND);
 }

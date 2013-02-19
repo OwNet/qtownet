@@ -11,6 +11,8 @@ public:
 protected:
     void readRequest();
 
+    InputType inputType() const { return LocalFile; }
+
 private:
 };
 

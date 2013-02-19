@@ -10,12 +10,15 @@ INCLUDEPATH    += ../../OwNetClient/modules/interfaces
 SOURCES        += servermodule.cpp \
     serverservice.cpp \
     clientservice.cpp \
-    clientservicecall.cpp
+    clientservicecall.cpp \
+    customserverservice.cpp
+
 
 HEADERS        += servermodule.h \
     serverservice.h \
     clientservice.h \
-    clientservicecall.h
+    clientservicecall.h \
+    customserverservice.h
 
 TARGET          = $$qtLibraryTarget(ownet_servermodule)
 macx:DESTDIR    = ../../OwNetClient/OwNetClient.app/Contents/MacOS/modules

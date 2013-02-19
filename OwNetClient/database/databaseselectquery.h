@@ -12,6 +12,15 @@ class IDatabaseSelectQueryWhere;
 class DatabaseSelectQueryJoin;
 class IDatabaseSelectQueryWhereGroup;
 
+/**
+ * @brief Wrapper for database SELECT queries.
+ *
+ * Constructs and executes the query when next() or first() is called.
+ * Enables retrieving values for attributes from the results of the executed query using value(attribute).
+ *
+ * Supports complex where expressions. Beware, there can only be a single root where expression
+ * created by either singleWhere() or whereGroup(). Each call overwrites the previous expression.
+ */
 class DatabaseSelectQuery : public QObject, public IDatabaseSelectQuery
 {
     Q_OBJECT
@@ -25,6 +34,7 @@ public:
 
     void select(const QString &column) { m_selectColumns.append(column); }
     void select(const QStringList &columns) { m_selectColumns.append(columns); }
+    void clearSelect() { m_selectColumns.clear(); }
 
     void singleWhere(const QString &column, const QVariant &value, WhereOperator op = Equal, bool bind = true);
     IDatabaseSelectQueryWhereGroup *whereGroup(IDatabaseSelectQuery::JoinOperator op);
@@ -39,7 +49,11 @@ public:
 
     void limit(int l) { m_limit = l; }
     void offset(int o) { m_offset = o; }
-    
+
+    IDatabaseSelectQueryWhere *currentWhereQuery() { return m_where; }
+
+    void resetQuery();
+
 private:
     bool execute();
 

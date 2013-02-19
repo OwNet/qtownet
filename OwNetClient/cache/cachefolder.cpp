@@ -34,7 +34,7 @@ QFile *CacheFolder::cacheFile(ProxyRequest *request, int part, QObject *parent)
     return cacheFile(request->hashCode(), part, parent);
 }
 
-QFile *CacheFolder::cacheFile(int id, int part, QObject *parent)
+QFile *CacheFolder::cacheFile(uint id, int part, QObject *parent)
 {
     return new QFile(absoluteFilePath(QString("%1-%2.cache")
                             .arg(id)

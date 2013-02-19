@@ -5,6 +5,7 @@
 
 class QTimer;
 class ProxyHandlerSession;
+class IProxyMockable;
 
 class ProxyHandler : public QObject
 {

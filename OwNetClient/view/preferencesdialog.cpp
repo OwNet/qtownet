@@ -3,6 +3,7 @@
 
 #include "applicationdatastorage.h"
 #include "settings.h"
+#include "proxyserver.h"
 
 #include <QFileDialog>
 
@@ -29,12 +30,16 @@ void PreferencesDialog::savePreferences()
     Settings settings;
 
     QDir dir(ui->leAppDataPath->text());
-    if (dir.exists())
+    if (dir.exists() || dir.mkpath(dir.absolutePath()))
         settings.setValue("application/data_folder_path", dir.absolutePath());
 
     dir.setPath(ui->leAppResourcesPath->text());
-    if (dir.exists())
+    if (dir.exists() || dir.mkpath(dir.absolutePath()))
         settings.setValue("application/resources_folder_path", dir.absolutePath());
+
+    if (!ui->leCustomServerIP->text().isEmpty())
+        settings.setValue("custom_server_ip", ui->leCustomServerIP->text());
+    settings.setValue("custom_server_port", ui->leCustomServerPort->text().toInt());
 }
 
 void PreferencesDialog::browseAppData()
@@ -62,4 +67,8 @@ void PreferencesDialog::loadSettings()
     ApplicationDataStorage appData;
     ui->leAppDataPath->setText(appData.appDataDirectory().absolutePath());
     ui->leAppResourcesPath->setText(appData.appResourcesDirectory().absolutePath());
+
+    Settings settings;
+    ui->leCustomServerIP->setText(settings.value("custom_server_ip").toString());
+    ui->leCustomServerPort->setText(settings.value("custom_server_port", ProxyServer::Port).toString());
 }

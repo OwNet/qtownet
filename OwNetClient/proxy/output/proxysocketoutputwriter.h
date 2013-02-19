@@ -36,7 +36,7 @@ protected:
 
 private:
     int m_socketDescriptor;
-    int m_requestHashCode;
+    uint m_requestHashCode;
     bool m_writtenToSocket;
     bool m_foundBody;
     QTcpSocket *m_socket;

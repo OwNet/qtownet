@@ -1,11 +1,19 @@
 #include "initializer.h"
+
 #include "messagehelper.h"
-#include "settingsinitializer.h"
 #include "applicationdatastorage.h"
+
+#include "databaseinitializer.h"
+#include "proxyinitializer.h"
+#include "moduleinitializer.h"
+#include "jobinitializer.h"
+#include "settingsinitializer.h"
+#include "settings.h"
 
 #include <QCoreApplication>
 
-Initializer::Initializer()
+Initializer::Initializer(QObject *parent)
+    : QObject(parent)
 {
 }
 
@@ -14,13 +22,11 @@ void Initializer::init()
     QCoreApplication::setOrganizationName("The Reconnected");
     QCoreApplication::setApplicationName("OwNet Client");
 
-    SettingsInitializer().init();
-
-    m_databaseInitializer.init();
-    m_proxyInitializer.init();
-    m_moduleInitializer.init();
-    m_communicationInitializer.init();
-    m_jobInitializer.init();
+    (new SettingsInitializer(this))->init();
+    (new DatabaseInitializer(this))->init();
+    (new ProxyInitializer(this))->init();
+    (new ModuleInitializer(this))->init();
+    (new JobInitializer(this))->init();
 
     createPidFile();
 

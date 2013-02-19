@@ -6,9 +6,11 @@
 #include <QDateTime>
 #include <QMutex>
 
-#include "databaseupdate.h"
+#include "databaseupdatequery.h"
+#include "databaseselectquery.h"
 
 QMap<QString, QString> *DatabaseSettings::m_cachedSettings = new QMap<QString, QString>();
+int DatabaseSettings::m_numClientIdsGenerated = 0;
 
 DatabaseSettings::DatabaseSettings(QObject *parent) :
     QObject(parent)
@@ -16,16 +18,15 @@ DatabaseSettings::DatabaseSettings(QObject *parent) :
     clientId();
 }
 
-void DatabaseSettings::setValue(const QString &key, const QString &value)
+void DatabaseSettings::setValue(const QString &key, const QString &value) const
 {
     DatabaseSettings::m_cachedSettings->insert(key, value);
 
-    DatabaseUpdate update(false);
-    IDatabaseUpdateQuery *query = update.createUpdateQuery("settings", IDatabaseUpdateQuery::Detect);
-    query->setWhere("key", key);
-    query->setColumnValue("key", key);
-    query->setColumnValue("value", value);
-    update.execute();
+    DatabaseUpdateQuery query("settings", IDatabaseUpdateQuery::InsertOrUpdate);
+    query.singleWhere("key", key);
+    query.setColumnValue("key", key);
+    query.setColumnValue("value", value);
+    query.executeQuery();
 }
 
 QString DatabaseSettings::value(const QString &key, const QString &defaultValue) const
@@ -33,12 +34,12 @@ QString DatabaseSettings::value(const QString &key, const QString &defaultValue)
     if (DatabaseSettings::m_cachedSettings->contains(key))
         return DatabaseSettings::m_cachedSettings->value(key);
 
-    QSqlQuery query;
-    query.prepare("SELECT value FROM settings WHERE key = :key");
-    query.bindValue(":key", key);
+    DatabaseSelectQuery query("settings");
+    query.select("value");
+    query.singleWhere("key", key);
 
-    if (query.exec() && query.first()) {
-        QString value = query.value(query.record().indexOf("value")).toString();
+    if (query.first()) {
+        QString value = query.value("value").toString();
         DatabaseSettings::m_cachedSettings->insert(key, value);
         return value;
     }
@@ -54,15 +55,19 @@ bool DatabaseSettings::hasClientId() const
 
 uint DatabaseSettings::clientId() const
 {
+    if (!hasClientId())
+        createClientId();
+
     uint id = value("client_id").toUInt();
     return id;
 }
 
-void DatabaseSettings::createClientId()
+void DatabaseSettings::createClientId() const
 {
     setValue("client_id",
-                      QString::number(qHash(QString("c_%1")
-                                            .arg(QDateTime::currentDateTime().toString(Qt::ISODate)))));
+                      QString::number(qHash(QString("c_%1-%2")
+                                            .arg(QDateTime::currentDateTime().toString(Qt::ISODate))
+                                            .arg(m_numClientIdsGenerated++))));
 }
 
 int DatabaseSettings::nextClientSyncRecordNumber()
@@ -74,4 +79,9 @@ int DatabaseSettings::nextClientSyncRecordNumber()
     setValue("client_sync_record_number", QString::number(clientRecordNumber + 1));
 
     return clientRecordNumber;
+}
+
+void DatabaseSettings::clearCache() const
+{
+    DatabaseSettings::m_cachedSettings->clear();
 }

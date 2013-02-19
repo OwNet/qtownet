@@ -1,8 +1,8 @@
 owNetAVAILABLEURIS = [];
 
 owNetGLOBAL = {
-    localUri: "http://prefetch.ownet/api/prefetch/",
-    prefetchUri : "http://prefetch.ownet/api/prefetch/",
+    localUri: "http://inject.ownet/api/history/",
+    prefetchUri : "http://inject.ownet/api/prefetch/",
     encodedPageUri: encodeURIComponent(document.location.href.replace(/#.*$/, "")),
     encodedReferrerUri: encodeURIComponent(document.referrer.replace(/#.*$/, "")),
     getRandomLink: function() {
@@ -226,7 +226,7 @@ owNetGLOBAL = {
         reportPrimary: function () {
             try {
                 if (this.hasReportedPrimary == 0) {
-                    owNetGLOBAL.loadScript(owNetGLOBAL.prefetchUri + "visit?page=" + owNetGLOBAL.encodedPageUri + "&ref=" + owNetGLOBAL.encodedReferrerUri + "&gid=" + Math.floor((Math.random() * 1000) + 1), function () {
+                    owNetGLOBAL.loadScript(owNetGLOBAL.localUri + "visit/?page=" + owNetGLOBAL.encodedPageUri + "&ref=" + owNetGLOBAL.encodedReferrerUri + "&gid=" + Math.floor((Math.random() * 1000) + 1), function () {
                         if (owNetPAGEID !== null)
                         {
                             owNetGLOBAL.ProxyContact.pageId = owNetPAGEID;
@@ -244,7 +244,7 @@ owNetGLOBAL = {
              });
 	    },
  	    reportLink:function () {
-            try {
+            try { // TODO chech owNetPAGEID existence
                 if (this.hasReportedPrimary == 1) {
 		            this.sendRandomLink();
 		            this.sendRandomLink();
@@ -261,7 +261,7 @@ owNetGLOBAL = {
                     /*         owNetGLOBAL.loadScript(owNetGLOBAL.localUri + "cancel?page=" + owNetGLOBAL.encodedPageUri, function () {
                     return true;
                     });*/
-                    owNetGLOBAL.ajaxGet(owNetGLOBAL.localUri + "close?page=" + this.pageId, function (xmlHttp) {
+                    owNetGLOBAL.ajaxGet(owNetGLOBAL.prefetchUri + "close?page=" + this.pageId, function (xmlHttp) {
                         if (xmlHttp.readyState == 4 && xmlHttp.status == 200) {
                             return true;
                         }
@@ -314,7 +314,7 @@ owNetGLOBAL = {
                    // if (target === null || target.match(/\S/g) === null)
                     target = owNetGLOBAL.encodedPageUri;
 
-                    owNetGLOBAL.loadScript(owNetGLOBAL.localUri + "done?page=" + target + "&gid=" + Math.floor((Math.random() * 1000) + 1), function () {
+                    owNetGLOBAL.loadScript(owNetGLOBAL.prefetchUri + "done?page=" + target + "&gid=" + Math.floor((Math.random() * 1000) + 1), function () {
                         return true;
                     });
                     this.hasReportedPrefetch = 1;
@@ -373,7 +373,7 @@ Array.prototype.owNetContains = function (item, comparer) {
             else {
 
                 owNetGLOBAL.ProxyContact.reportPrimary();
-
+/*
                 if (document.addEventListener) {
                     document.addEventListener("DOMContentLoaded", function () {
                         document.removeEventListener("DOMContentLoaded", arguments.callee, false);
@@ -388,7 +388,7 @@ Array.prototype.owNetContains = function (item, comparer) {
                         }
                     });
                 }
-
+*/
 
                 if (window.addEventListener) {
                     window.addEventListener("unload", function () {
