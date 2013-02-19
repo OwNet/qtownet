@@ -6,6 +6,8 @@
 class QTimer;
 class ProxyHandlerSession;
 class IProxyMockable;
+class HttpRequest;
+class HttpResponse;
 
 class ProxyHandler : public QObject
 {
@@ -18,7 +20,7 @@ class ProxyHandler : public QObject
 public:
     ProxyHandler(QObject *parent = NULL);
 
-    void setDescriptorAndStart(int handle);
+    void setRequestAndResponseAndStart(HttpRequest *request, HttpResponse *response);
 
 signals:
     void start(); ///< Signal to start the download in the ProxyHandler thread
@@ -34,7 +36,8 @@ private slots:
     void finishHandling();
 
 private:
-    int m_socketDescriptor;
+    HttpRequest *m_request;
+    HttpResponse *m_response;
 
     ProxyHandlerSession *m_proxyHandlerSession;
     QTimer *m_timeoutTimer;

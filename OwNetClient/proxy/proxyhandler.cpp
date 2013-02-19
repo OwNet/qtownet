@@ -1,7 +1,7 @@
 #include "proxyhandler.h"
 
 #include "messagehelper.h"
-#include "proxysocketoutputwriter.h"
+#include "proxyresponseoutputwriter.h"
 #include "proxyhandlersession.h"
 
 #include <QDateTime>
@@ -19,8 +19,9 @@ ProxyHandler::ProxyHandler(QObject *parent)
  * @brief Set socket descriptor handle to desc and trigger start.
  * @param desc Socket descriptor
  */
-void ProxyHandler::setDescriptorAndStart(int desc) {
-    m_socketDescriptor = desc;
+void ProxyHandler::setRequestAndResponseAndStart(HttpRequest *request, HttpResponse *response) {
+    m_request = request;
+    m_response = response;
     emit start();
 }
 
@@ -36,10 +37,10 @@ void ProxyHandler::handleRequest()
     m_timeoutTimer = new QTimer(m_proxyHandlerSession);
     connect(m_timeoutTimer, SIGNAL(timeout()), this, SLOT(requestTimeout()));
 
-    ProxySocketOutputWriter *socketOutputWriter = new ProxySocketOutputWriter(m_socketDescriptor, m_proxyHandlerSession);
-    connect(socketOutputWriter, SIGNAL(iAmActive()), this, SLOT(restartTimeout()));
+    ProxyResponseOutputWriter *responseOutputWriter = new ProxyResponseOutputWriter(m_request, m_response, m_proxyHandlerSession);
+    connect(responseOutputWriter, SIGNAL(iAmActive()), this, SLOT(restartTimeout()));
 
-    socketOutputWriter->startDownload();
+    responseOutputWriter->startDownload();
     m_timeoutTimer->start(Timeout);
 }
 

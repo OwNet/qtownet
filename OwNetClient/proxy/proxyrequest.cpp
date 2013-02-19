@@ -3,35 +3,25 @@
 
 #include "messagehelper.h"
 #include "jsondocument.h"
+#include "httprequest.h"
 
 #include <QNetworkRequest>
 #include <QStringList>
 #include <QRegularExpression>
 #include <QDebug>
 
-ProxyRequest::ProxyRequest(QObject *parent)
+ProxyRequest::ProxyRequest(HttpRequest *request, QObject *parent)
     : QObject(parent),
-      // m_id(-1),
-      m_hashCode(-1),
       m_isApiRequest(false),
-      m_requestType(UNKNOWN)
+      m_request(request)
 {
-}
-
-void ProxyRequest::addRequestHeader(const QString &key, const QString &value)
-{
-    if (!key.toLower().contains("accept-encoding") || !value.contains("gzip")) {
-        m_requestHeaders.insert(key, value);
-    } else {
-        m_requestHeaders.insert("Accept-encoding", "*");
-    }
-}
-
-void ProxyRequest::setUrl(const QUrl &url)
-{
-    m_qUrl = url;
-    m_qUrlQuery = QUrlQuery(m_qUrl);
     analyzeUrl();
+    qDebug() << url();
+}
+
+QString ProxyRequest::url() const
+{
+    return m_request->getAbsoluteUrl();
 }
 
 /**
@@ -45,7 +35,7 @@ QVariant ProxyRequest::postBodyFromJson(bool *ok) const
         return result;
 
     QJsonParseError err;
-    JsonDocument json = JsonDocument::fromJson(m_requestBody, &err);
+    JsonDocument json = JsonDocument::fromJson(requestBody(), &err);
 
     if (ok) {
         *ok = (err.error == QJsonParseError::NoError);
@@ -67,7 +57,7 @@ QMap<QString, QString> ProxyRequest::postBodyFromForm() const
     if(requestType() != POST && requestType() != PUT)
         return result;
 
-    QString body(m_requestBody);
+    QString body(requestBody());
     body.replace("+", " ");
     body.replace("%21", "!");
     body.replace("%22", "\"");
@@ -104,6 +94,41 @@ QMap<QString, QString> ProxyRequest::postBodyFromForm() const
     return result;
 }
 
+QByteArray ProxyRequest::requestBody() const
+{
+    return m_request->getBody();
+}
+
+QVariantMap ProxyRequest::requestHeaders() const
+{
+    QVariantMap headers;
+    QMapIterator<QByteArray,QByteArray> i(m_request->getHeaderMap());
+    while (i.hasNext()) {
+        i.next();
+        QString key(i.key());
+        QString value(i.value());
+        if (!key.toLower().contains("accept-encoding") || !value.contains("gzip"))
+            headers.insert(key, value);
+        else
+            headers.insert("Accept-encoding", "*");
+    }
+    return headers;
+}
+
+IRequest::RequestType ProxyRequest::requestType() const
+{
+    QString requestMethod = QString(m_request->getMethod()).toLower();
+    if (requestMethod == "get")
+        return GET;
+    else if (requestMethod == "post")
+        return POST;
+    else if (requestMethod == "put")
+        return PUT;
+    else if (requestMethod == "delete")
+        return DELETE;
+    return UNKNOWN;
+}
+
 /**
  * @brief Get the content type from the url extension.
  * @return Content type of the request
@@ -116,17 +141,27 @@ QString ProxyRequest::requestContentType(const QString &defaultContentType, cons
     return defaultContentType.isEmpty() ? "application/octet-stream" : defaultContentType;
 }
 
+QString ProxyRequest::parameterValue(const QString &key) const
+{
+    return QString(m_request->getParameter(key.toUtf8()));
+}
+
+bool ProxyRequest::hasParameter(const QString &key) const
+{
+    return !m_request->getParameter(key.toUtf8()).isNull();
+}
+
+uint ProxyRequest::hashCode() const
+{
+    return qHash(url());
+}
+
 QString ProxyRequest::relativeUrl() const
 {
-    QString path = m_qUrl.path(QUrl::FullyEncoded);
+    QString path = QUrl(url()).path(QUrl::FullyEncoded);
     if (path.startsWith('/'))
         path.remove(0, 1);
     return path;
-}
-
-void ProxyRequest::setUrl(const QString &url)
-{
-    setUrl(QUrl(url));
 }
 
 /**
@@ -182,7 +217,7 @@ IResponse *ProxyRequest::response(IResponse::Status status)
  */
 QString ProxyRequest::urlExtension() const
 {
-    QStringList parts = m_qUrl.path().split(".");
+    QStringList parts = url().split(".");
     if (parts.count() > 1)
         return parts.last();
     return "";
@@ -193,9 +228,7 @@ QString ProxyRequest::urlExtension() const
  */
 void ProxyRequest::analyzeUrl()
 {
-    m_hashCode = qHash(url());
-
-    QStringList domainSplit = QString(m_qUrl.host(QUrl::FullyEncoded)).split(".");
+    QStringList domainSplit = QString(QUrl(url()).host(QUrl::FullyEncoded)).split(".");
     if (domainSplit.first() == "www")
         domainSplit.takeFirst();
 
