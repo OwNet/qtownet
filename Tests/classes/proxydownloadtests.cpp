@@ -29,10 +29,9 @@ void ProxyDownloadTests::cleanupTestCase()
 
 void ProxyDownloadTests::testInputAndOutput()
 {
-    ProxyRequest request;
-    request.setRequestType(IRequest::GET);
-    request.setUrl("http://www.fiit.stuba.sk");
-    request.addRequestHeader("User-Agent", "OwNetTests/1.0");
+    QVariantMap requestHeaders;
+    requestHeaders.insert("User-Agent", "OwNetTests/1.0");
+    ProxyRequest request(IRequest::GET, "http://www.fiit.stuba.sk", requestHeaders);
     ProxyHandlerSession session;
     ProxyDownload download(&request, &session);
     ProxyWebInputObject webInput(&request);

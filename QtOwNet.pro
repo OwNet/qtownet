@@ -4,5 +4,3 @@ SUBDIRS += \
     OwNetClient \
     Modules \
     Tests
-
-

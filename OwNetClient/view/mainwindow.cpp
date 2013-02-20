@@ -2,9 +2,9 @@
 #include "ui_mainwindow.h"
 
 #include "preferencesdialog.h"
-#include "proxysocketoutputwriter.h"
 #include "proxyconnection.h"
 #include "session.h"
+#include "proxyresponseoutputwriter.h"
 
 #include <QSystemTrayIcon>
 #include <QAction>
@@ -54,7 +54,7 @@ void MainWindow::dumpOpenSockets()
 {
     qDebug() << tr("+++ Open Sockets +++");
 
-    foreach (QString url, ProxySocketOutputWriter::dumpOpenRequests())
+    foreach (QString url, ProxyResponseOutputWriter::dumpOpenRequests())
         qDebug() << url;
 
     qDebug() << tr("--- Open Sockets ---");

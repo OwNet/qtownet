@@ -11,6 +11,7 @@
 #include "settings.h"
 
 #include <QCoreApplication>
+#include <QTextStream>
 
 Initializer::Initializer(QObject *parent)
     : QObject(parent)

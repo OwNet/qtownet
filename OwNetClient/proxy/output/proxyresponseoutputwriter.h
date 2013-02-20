@@ -1,8 +1,10 @@
-#ifndef PROXYSOCKETOUTPUTWRITER_H
-#define PROXYSOCKETOUTPUTWRITER_H
+#ifndef PROXYRESPONSEOUTPUTWRITER_H
+#define PROXYRESPONSEOUTPUTWRITER_H
 
 class QTcpSocket;
 class QSemaphore;
+class HttpRequest;
+class HttpResponse;
 
 #include "proxyoutputwriter.h"
 
@@ -11,12 +13,12 @@ class QSemaphore;
 /**
  * @brief Reads data from ProxyDownload and outputs them to socket.
  */
-class ProxySocketOutputWriter : public ProxyOutputWriter
+class ProxyResponseOutputWriter : public ProxyOutputWriter
 {
     Q_OBJECT
 
 public:
-    ProxySocketOutputWriter(int socketDescriptor, ProxyHandlerSession *proxyHandler);
+    ProxyResponseOutputWriter(HttpRequest *request, HttpResponse *response, ProxyHandlerSession *proxyHandler);
 
     enum {
         BufferSize = 8192
@@ -25,9 +27,6 @@ public:
     void startDownload();
     static QList<QString> dumpOpenRequests();
 
-private slots:
-    void readRequest();
-
 protected:
     void virtualClose();
     void read(QIODevice *ioDevice);
@@ -35,13 +34,13 @@ protected:
     void error() {}
 
 private:
-    int m_socketDescriptor;
+    HttpRequest *m_request;
+    HttpResponse *m_response;
     uint m_requestHashCode;
-    bool m_writtenToSocket;
+    bool m_hasWrittenResponseHeaders;
     bool m_foundBody;
-    QTcpSocket *m_socket;
 
     static QMap<int, QString> *m_openRequests;
 };
 
-#endif // PROXYSOCKETOUTPUTWRITER_H
+#endif // PROXYRESPONSEOUTPUTWRITER_H
