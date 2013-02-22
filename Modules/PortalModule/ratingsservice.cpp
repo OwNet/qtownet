@@ -1,9 +1,9 @@
 #include "ratingsservice.h"
 #include "irequest.h"
 #include "idatabaseupdate.h"
-#include "ibus.h"
 #include "iproxyconnection.h"
 #include "isession.h"
+#include "idatabaseselectquerywheregroup.h"
 
 #include <QSqlQuery>
 #include <QSqlRecord>
@@ -16,7 +16,7 @@ RatingsService::RatingsService(IProxyConnection *proxyConnection, QObject *paren
 }
 
 // create element
-QVariant *RatingsService::create(IBus *bus, IRequest *req)
+IResponse *RatingsService::create(IRequest *req)
 {
     bool ok = false;
     QVariantMap reqJson = req->postBodyFromJson(&ok).toMap();
@@ -49,9 +49,7 @@ QVariant *RatingsService::create(IBus *bus, IRequest *req)
 
     if(missingValue){
 
-        bus->setHttpStatus(400,"Bad Request");
-
-        return new QVariant(error);
+         return req->response(QVariant(error), IResponse::BAD_REQUEST);
     }
 
     // if rating already exist throw error
@@ -63,14 +61,12 @@ QVariant *RatingsService::create(IBus *bus, IRequest *req)
 
     if(q.first()){
         error.insert("error","duplicate rating");
-        bus->setHttpStatus(400,"Bad Request");
-
-        return new QVariant(error);
+        return req->response(QVariant(error), IResponse::BAD_REQUEST);
     }
 
-    IDatabaseUpdate *createRating = m_proxyConnection->databaseUpdate();
 
-    IDatabaseUpdateQuery *query = createRating->createUpdateQuery("ratings", IDatabaseUpdateQuery::Insert);
+    QObject parentObject;
+    IDatabaseUpdateQuery *query = m_proxyConnection->databaseUpdateQuery("messages", &parentObject);
 
     query->setUpdateDates(true); // sam nastavi v tabulke datumy date_created a date_updated
 
@@ -78,18 +74,16 @@ QVariant *RatingsService::create(IBus *bus, IRequest *req)
     query->setColumnValue("val", value);
     query->setColumnValue("user_id", curUser_id);
 
-    int a = createRating->execute();
-    if(a){
-        bus->setHttpStatus(500,"Internal server error");
-        return new QVariant;
+    if(!query->executeQuery()){
+        return req->response(QVariant(error), IResponse::INTERNAL_SERVER_ERROR);
     }
-    bus->setHttpStatus(201, "Created");
-    return new QVariant;
+
+    return req->response(IResponse::CREATED);
 
 
 }
 
-QVariant *RatingsService::index(IBus *bus, IRequest *req)
+IResponse *RatingsService::index(IRequest *req)
 {
     bool logged = false;
     QVariantMap error;
@@ -103,9 +97,7 @@ QVariant *RatingsService::index(IBus *bus, IRequest *req)
     // if not logged in
     if(logged){
 
-        bus->setHttpStatus(400,"Bad Request");
-
-        return new QVariant(error);
+        return req->response(QVariant(error), IResponse::BAD_REQUEST);
     }
 
     QSqlQuery query;
@@ -124,11 +116,10 @@ QVariant *RatingsService::index(IBus *bus, IRequest *req)
         ratings.append(rating);
     }
 
-    bus->setHttpStatus(200, "OK");
-    return new QVariant(ratings);
+    return req->response(QVariant(ratings), IResponse::BAD_REQUEST);
 }
 
-QVariant *RatingsService::show(IBus *bus, IRequest *req)
+IResponse *RatingsService::show(IRequest *req)
 {
     bool ok = false;
     QVariantMap reqJson = req->postBodyFromJson(&ok).toMap();
@@ -147,17 +138,13 @@ QVariant *RatingsService::show(IBus *bus, IRequest *req)
     // if not logged in
     if(logged){
 
-        bus->setHttpStatus(400,"Bad Request");
-
-        return new QVariant(error);
+        return req->response(QVariant(error), IResponse::BAD_REQUEST);
     }
 
     QString absolute_uri = reqJson["absolute_uri"].toString();
     if(absolute_uri == ""){
         error.insert("absolute_uri","required");
-        bus->setHttpStatus(400,"Bad Request");
-
-        return new QVariant(error);
+        return req->response(QVariant(error), IResponse::BAD_REQUEST);
     }
 
     QSqlQuery query;
@@ -177,12 +164,11 @@ QVariant *RatingsService::show(IBus *bus, IRequest *req)
         ratings.append(rating);
     }
 
-    bus->setHttpStatus(200, "OK");
-    return new QVariant(ratings);
+    return req->response(QVariant(ratings), IResponse::OK);
 }
 
 
-QVariant *RatingsService::del(IBus *bus, IRequest *req)
+IResponse *RatingsService::del(IRequest *req)
 {
     bool ok = false;
     QVariantMap reqJson = req->postBodyFromJson(&ok).toMap();
@@ -201,33 +187,32 @@ QVariant *RatingsService::del(IBus *bus, IRequest *req)
     // if not logged in
     if(logged){
 
-        bus->setHttpStatus(400,"Bad Request");
-
-        return new QVariant(error);
+       return req->response(QVariant(error), IResponse::BAD_REQUEST);
     }
 
     QString absolute_uri = reqJson["idi"].toString();
     if(absolute_uri == ""){
         error.insert("id","required");
-        bus->setHttpStatus(400,"Bad Request");
-
-        return new QVariant(error);
+        return req->response(QVariant(error), IResponse::BAD_REQUEST);
     }
 
 
-    IDatabaseUpdate *update = m_proxyConnection->databaseUpdate();
-    IDatabaseUpdateQuery *query = update->createUpdateQuery("recommendations", IDatabaseUpdateQuery::Delete);
+    QObject parentObject;
+    IDatabaseUpdateQuery *query = m_proxyConnection->databaseUpdateQuery("ratings", &parentObject);
     query->setUpdateDates(true);
-    query->setWhere("id", reqJson["id"]);
-    query->setWhere("user_id",curUser_id);
 
-    if(!update->execute()){
-        bus->setHttpStatus(200,"OK");
-        return new QVariant;
+    IDatabaseSelectQueryWhereGroup *where = query->whereGroup(IDatabaseSelectQuery::And);
+    where->where("id", reqJson["id"]);
+    where->where("user_id",curUser_id);
+
+    if(!query->executeQuery()){
+        return req->response(IResponse::OK);
     }
+
     else{
-        bus->setHttpStatus(500, "Internal Server Error");
-        return new QVariant;
+
+        return req->response(IResponse::INTERNAL_SERVER_ERROR);
+
     }
 
 }
