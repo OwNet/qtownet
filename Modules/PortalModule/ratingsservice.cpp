@@ -15,6 +15,11 @@ RatingsService::RatingsService(IProxyConnection *proxyConnection, QObject *paren
 {
 }
 
+void RatingsService::init(IRouter *router)
+{
+
+}
+
 // create element
 IResponse *RatingsService::create(IRequest *req)
 {

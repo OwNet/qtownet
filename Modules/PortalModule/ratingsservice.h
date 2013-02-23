@@ -13,6 +13,8 @@ class RatingsService : public QObject, public IRestService
 public:
     explicit RatingsService(IProxyConnection *proxyConnection, QObject *parent = 0);
 
+    void init(IRouter* router);
+
     QString name() const { return "ratings"; }
 
      IResponse *create(IRequest *req);

@@ -2,7 +2,6 @@
 
 #include "irequest.h"
 #include "idatabaseupdate.h"
-#include "ibus.h"
 #include "iproxyconnection.h"
 #include "isession.h"
 
@@ -16,8 +15,13 @@ RecommendationsService::RecommendationsService(IProxyConnection *proxyConnection
 {
 }
 
+void RecommendationsService::init(IRouter *router)
+{
+
+}
+
 // create element
-QVariant *RecommendationsService::create(IBus *bus, IRequest *req)
+IResponse *RecommendationsService::create(IRequest *req)
 {
     bool ok = false;
     QVariantMap reqJson = req->postBodyFromJson(&ok).toMap();
@@ -58,9 +62,7 @@ QVariant *RecommendationsService::create(IBus *bus, IRequest *req)
 
     if(missingValue){
 
-        bus->setHttpStatus(400,"Bad Request");
-
-        return new QVariant(error);
+        return req->response(QVariant(error), IResponse::BAD_REQUEST);
     }
 
     QString curUser_id = m_proxyConnection->session()->value("logged").toString();
@@ -68,18 +70,17 @@ QVariant *RecommendationsService::create(IBus *bus, IRequest *req)
     IRequest *request = m_proxyConnection->createRequest(IRequest::GET, "groups", "isMember");
     request->setParamater("user_id", curUser_id);
     request->setParamater("group_id", group_id);
-    bool member = m_proxyConnection->callModule(request)->toBool();
+
+    bool member = m_proxyConnection->callModule(request)->body().toBool();
 
     // overit ci je userom skupiny do ktorej chce pridat recomm
     if(member){
 
 
-        IDatabaseUpdate *createRecomm = m_proxyConnection->databaseUpdate();
-
-        IDatabaseUpdateQuery *query = createRecomm->createUpdateQuery("recommendations", IDatabaseUpdateQuery::Insert);
+        QObject parentObject;
+        IDatabaseUpdateQuery *query = m_proxyConnection->databaseUpdateQuery("recommendations", &parentObject);
 
         query->setUpdateDates(true); // sam nastavi v tabulke datumy date_created a date_updated
-
 
         query->setColumnValue("title", title);
         query->setColumnValue("absolute_uri", absolute_uri);
@@ -87,25 +88,23 @@ QVariant *RecommendationsService::create(IBus *bus, IRequest *req)
         query->setColumnValue("description", description);
         query->setColumnValue("user_id", curUser_id);
 
-
-        int a = createRecomm->execute();
-        if(a){
-            bus->setHttpStatus(500,"Internal server error");
-            return new QVariant;
+        if(!query->executeQuery()){
+            return req->response(IResponse::INTERNAL_SERVER_ERROR);
         }
-        bus->setHttpStatus(201, "Created");
-        return new QVariant;
+        return req->response(IResponse::CREATED);
 
     }
     else{
-        bus->setHttpStatus(400, "Bad Request");
-        return new QVariant;
+
+        QVariantMap err;
+        err.insert("membership of the group","required");
+        return req->response(QVariant(err), IResponse::BAD_REQUEST);
     }
 
 
 }
 
-QVariant *RecommendationsService::index(IBus *bus, IRequest *req)
+IResponse *RecommendationsService::index(IRequest *req)
 {
     bool ok = false;
     QVariantMap reqJson = req->postBodyFromJson(&ok).toMap();
@@ -118,7 +117,8 @@ QVariant *RecommendationsService::index(IBus *bus, IRequest *req)
     IRequest *request = m_proxyConnection->createRequest(IRequest::GET, "groups", "isMember");
     request->setParamater("user_id", curUser_id);
     request->setParamater("group_id", group_id);
-    bool member = m_proxyConnection->callModule(request)->toBool();
+
+    bool member = m_proxyConnection->callModule(request)->body().toBool();
 
     // overit ci je userom skupiny do ktorej chce pridat recomm
     if(member){
@@ -140,16 +140,14 @@ QVariant *RecommendationsService::index(IBus *bus, IRequest *req)
             recomms.append(recomm);
         }
 
-        bus->setHttpStatus(200, "OK");
-        return new QVariant(recomms);
+        return req->response(QVariant(recomms), IResponse::OK);
 
     }
 
-    bus->setHttpStatus(400,"Bad Request");
-    return new QVariant;
+    return req->response(IResponse::BAD_REQUEST);
 }
 
-QVariant *RecommendationsService::edit(IBus *bus, IRequest *req)
+IResponse *RecommendationsService::edit(IRequest *req)
 {
     bool ok = true;
     QVariantMap reqJson = req->postBodyFromJson(&ok).toMap();
@@ -159,7 +157,7 @@ QVariant *RecommendationsService::edit(IBus *bus, IRequest *req)
     IRequest *request = m_proxyConnection->createRequest(IRequest::GET, "groups", "isAdmin");
     request->setParamater("user_id", reqJson["user_id"].toString());
     request->setParamater("group_id", reqJson["group_id"].toString());
-    bool admin = m_proxyConnection->callModule(request)->toBool();
+    bool admin = m_proxyConnection->callModule(request)->body().toBool();
 
     QSqlQuery q;
     q.prepare("SELECT * FROM recommendations WHERE id=:id AND user_id=:user_id AND group_id =:group_id");
@@ -171,10 +169,11 @@ QVariant *RecommendationsService::edit(IBus *bus, IRequest *req)
     bool owner = q.first();
 
     if(admin || owner){
-        IDatabaseUpdate *update = m_proxyConnection->databaseUpdate();
-        IDatabaseUpdateQuery *query = update->createUpdateQuery("recommendations", IDatabaseUpdateQuery::Update);
+        QObject parent;
+
+        IDatabaseUpdateQuery *query = m_proxyConnection->databaseUpdateQuery("groups", &parent);
         query->setUpdateDates(true);
-        query->setWhere("id", reqJson["id"]);
+        query->singleWhere("id", reqJson["id"]);
 
         if(reqJson["title"] != "")
             query->setColumnValue("title", reqJson["title"].toString());
@@ -182,23 +181,20 @@ QVariant *RecommendationsService::edit(IBus *bus, IRequest *req)
         if(reqJson["description"] != "")
             query->setColumnValue("description", reqJson["description"].toString());
 
-        if(!update->execute()){
-            bus->setHttpStatus(200,"OK");
-            return new QVariant;
+        if(query->executeQuery()){
+            return req->response(IResponse::OK);
         }
         else{
-            bus->setHttpStatus(500, "Internal Server Error");
-            return new QVariant;
+            return req->response(IResponse::INTERNAL_SERVER_ERROR);
         }
     }
     else{
-        bus->setHttpStatus(400, "Bad Request");
-        return new QVariant;
+       return req->response(IResponse::UNAUTHORIEZED);
     }
 
 }
 
-QVariant *RecommendationsService::del(IBus *bus, IRequest *req)
+IResponse *RecommendationsService::del(IRequest *req)
 {
     bool ok = false;
     QVariantMap reqJson = req->postBodyFromJson(&ok).toMap();
@@ -208,7 +204,7 @@ QVariant *RecommendationsService::del(IBus *bus, IRequest *req)
     IRequest *request = m_proxyConnection->createRequest(IRequest::GET, "groups", "isAdmin");
     request->setParamater("user_id", reqJson["user_id"].toString());
     request->setParamater("group_id", reqJson["group_id"].toString());
-    bool admin = m_proxyConnection->callModule(request)->toBool();
+    bool admin = m_proxyConnection->callModule(request)->body().toBool();
 
     QSqlQuery q;
     q.prepare("SELECT * FROM recommendations WHERE id=:id AND user_id=:user_id AND group_id =:group_id");
@@ -220,24 +216,26 @@ QVariant *RecommendationsService::del(IBus *bus, IRequest *req)
     bool owner = q.first();
 
     if(admin || owner){
-        IDatabaseUpdate *update = m_proxyConnection->databaseUpdate();
-        IDatabaseUpdateQuery *query = update->createUpdateQuery("recommendations", IDatabaseUpdateQuery::Delete);
-        query->setUpdateDates(true);
-        query->setWhere("id", reqJson["id"]);
 
-        if(!update->execute()){
-            bus->setHttpStatus(200,"OK");
-            return new QVariant;
+        QObject parentObject;
+        IDatabaseUpdateQuery *query = m_proxyConnection->databaseUpdateQuery("messages", &parentObject);
+
+        query->setUpdateDates(true);
+        query->setType(IDatabaseUpdateQuery::Delete);
+
+        query->singleWhere("id", reqJson["id"]);
+
+        if(query->executeQuery()){
+            return req->response(IResponse::OK);
         }
         else{
-            bus->setHttpStatus(500, "Internal Server Error");
-            return new QVariant;
+            return req->response(IResponse::INTERNAL_SERVER_ERROR);
         }
     }
     else{
-        bus->setHttpStatus(400, "Bad Request");
-        return new QVariant;
+       req->response(IResponse::UNAUTHORIEZED);
     }
 
 }
+
 
