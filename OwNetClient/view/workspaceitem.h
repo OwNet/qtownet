@@ -17,6 +17,8 @@ public:
     void setJoined(bool joined) { m_joined = joined; setActive(m_joined); }
     void setName(const QString &name);
 
+    QString name() const { return m_name; }
+
 private slots:
     void openButtonClicked();
     

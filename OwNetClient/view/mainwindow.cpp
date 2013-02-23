@@ -71,9 +71,14 @@ void MainWindow::update()
     foreach (QString id, workspaces.keys()) {
         QVariantMap workspace = workspaces.value(id).toMap();
         if (workspace.value("last_seen").toDateTime().addSecs(15) > QDateTime::currentDateTime()) {
+            QString name = workspace.value("name").toString();
             if (!m_workspaceItems.contains(id))
-                m_workspaceItems.insert(id, new WorkspaceItem(id, workspace.value("name").toString(), ui->treeWidget, this));
-            m_workspaceItems.value(id)->setActive(true);
+                m_workspaceItems.insert(id, new WorkspaceItem(id, name, ui->treeWidget, this));
+
+            WorkspaceItem *item = m_workspaceItems.value(id);
+            if (item->name() != name)
+                item->setName(name);
+            item->setActive(true);
         } else if (m_workspaceItems.contains(id)) {
             m_workspaceItems.value(id)->setActive(false);
         }
