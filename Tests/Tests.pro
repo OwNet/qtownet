@@ -23,7 +23,9 @@ SOURCES +=  main.cpp \
     modules/sampleservicetests.cpp \
     modules/syncservertests.cpp \
     classes/proxydownloadtests.cpp \
-    classes/databaseupdatequerytests.cpp
+    classes/databaseupdatequerytests.cpp \
+    classes/workspaceinitializertests.cpp \
+    helpers/workspacehelpertests.cpp
 
 
 HEADERS +=  autotest.h \
@@ -32,7 +34,9 @@ HEADERS +=  autotest.h \
     stub/stubdatabase.h \
     modules/syncservertests.h \
     classes/proxydownloadtests.h \
-    classes/databaseupdatequerytests.h
+    classes/databaseupdatequerytests.h \
+    classes/workspaceinitializertests.h \
+    helpers/workspacehelpertests.h
 
 OwNetClientPath = ../OwNetClient
 ModulesPath = ../Modules
@@ -44,6 +48,7 @@ include($${OwNetClientPath}/database/database.pri)
 include($${OwNetClientPath}/jobs/jobs.pri)
 include($${OwNetClientPath}/cache/cache.pri)
 include($${OwNetClientPath}/proxy/proxy.pri)
+include($${OwNetClientPath}/init/init.pri)
 include($${LibPath}/bfHttpServer/bfHttpServer.pri)
 
 include($${ModulesPath}/MulticastModule/MulticastModule.pri)

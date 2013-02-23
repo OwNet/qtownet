@@ -19,13 +19,15 @@ bool MulticastProtocolNode::lessThan(const MulticastProtocolNode *first,
 }
 
 void MulticastProtocolNode::update(uint score, MulticastProtocol::Status status,
-                                   uint port, QString address, uint initialized)
+                                   uint port, QString address, uint initialized, QString workspaceId, QString workspaceName)
 {
     m_score = score;
     m_status = status;
     m_port = port;
     m_address = address;
     m_initialized = initialized;
+    m_workspaceId = workspaceId;
+    m_workspaceName = workspaceName;
 
     // last update
     QDateTime currentDateTime;
@@ -75,6 +77,8 @@ QVariantMap MulticastProtocolNode::message() const
     message.insert("score", score());
     message.insert("status", s);
     message.insert("port", port());
+    message.insert("workspace_id", m_workspaceId);
+    message.insert("workspace_name", m_workspaceName);
     message.insert("initialized", initialized());
 
     return message;

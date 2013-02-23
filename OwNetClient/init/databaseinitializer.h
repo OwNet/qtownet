@@ -16,6 +16,7 @@ private:
     void openDatabase();
     void runMigrations();
     void createClientName();
+    QString databaseName() const;
 };
 
 #endif // DATABASEINITIALIZER_H

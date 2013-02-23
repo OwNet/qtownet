@@ -5,6 +5,9 @@
 #include "proxyconnection.h"
 #include "session.h"
 #include "proxyresponseoutputwriter.h"
+#include "workspaceitem.h"
+#include "workspacehelper.h"
+#include "settings.h"
 
 #include <QSystemTrayIcon>
 #include <QAction>
@@ -12,6 +15,11 @@
 #include <QUrl>
 #include <QShortcut>
 #include <QDebug>
+#include <QDateTime>
+#include <QInputDialog>
+#include <QDir>
+
+MainWindow *MainWindow::m_instance = NULL;
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -22,6 +30,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->actionPreferences, SIGNAL(triggered()), this, SLOT(showPreferences()));
     connect(ui->btnPreferences, SIGNAL(clicked()), this, SLOT(showPreferences()));
     connect(ui->btnSync, SIGNAL(clicked()), this, SLOT(sync()));
+    connect(ui->btnEditWorkspaceName, SIGNAL(clicked()), this, SLOT(editWorkspaceName()));
 
     createTrayIcon();
 
@@ -32,11 +41,43 @@ MainWindow::MainWindow(QWidget *parent) :
     QShortcut *dumpAvailableClients = new QShortcut(QKeySequence(tr("Ctrl+K", "Dump Available Socket")), this);
     dumpAvailableClients->setContext(Qt::ApplicationShortcut);
     connect(dumpAvailableClients, SIGNAL(activated()), this, SLOT(dumpAvailableClients()));
+
+    ui->treeWidget->header()->setSectionResizeMode(QHeaderView::ResizeToContents);
+
+    Settings settings;
+    settings.beginGroup("workspaces");
+    foreach (QString id, settings.childKeys()) {
+        WorkspaceItem *item = new WorkspaceItem(id, settings.value(id).toString(), ui->treeWidget, this);
+        item->setJoined(true);
+        m_workspaceItems.insert(id, item);
+    }
+
+    MainWindow::m_instance = this;
 }
 
 MainWindow::~MainWindow()
 {
     delete ui;
+}
+
+void MainWindow::update()
+{
+    ui->lblWorkspaceName->setText(WorkspaceHelper::currentWorkspaceName());
+
+    Session session;
+    ui->btnEditWorkspaceName->setEnabled(session.isServer());
+
+    QVariantMap workspaces = session.value("workspaces").toMap();
+    foreach (QString id, workspaces.keys()) {
+        QVariantMap workspace = workspaces.value(id).toMap();
+        if (workspace.value("last_seen").toDateTime().addSecs(15) > QDateTime::currentDateTime()) {
+            if (!m_workspaceItems.contains(id))
+                m_workspaceItems.insert(id, new WorkspaceItem(id, workspace.value("name").toString(), ui->treeWidget, this));
+            m_workspaceItems.value(id)->setActive(true);
+        } else if (m_workspaceItems.contains(id)) {
+            m_workspaceItems.value(id)->setActive(false);
+        }
+    }
 }
 
 void MainWindow::showPreferences()
@@ -78,6 +119,20 @@ void MainWindow::sync()
 {
     ProxyConnection connection;
     connection.callModule(connection.createRequest(IRequest::GET, "sync", "now", &connection));
+}
+
+void MainWindow::editWorkspaceName()
+{
+    bool ok;
+    QString text = QInputDialog::getText(this, tr("Change workspace name"),
+                                         tr("New name:"), QLineEdit::Normal,
+                                         WorkspaceHelper::currentWorkspaceName(), &ok);
+    if (ok && !text.isEmpty()) {
+        WorkspaceHelper::setCurrentWorkspaceName(text);
+        QString id = WorkspaceHelper::currentWorkspaceId();
+        if (m_workspaceItems.contains(id))
+            m_workspaceItems.value(id)->setName(text);
+    }
 }
 
 void MainWindow::createTrayIcon()
