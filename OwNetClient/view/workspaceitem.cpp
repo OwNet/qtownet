@@ -5,6 +5,7 @@
 #include <QTreeWidget>
 #include <QTreeWidgetItem>
 #include <QPushButton>
+#include <QMessageBox>
 
 WorkspaceItem::WorkspaceItem(QString id, QString name, QTreeWidget *treeWidget, QObject *parent) :
     QObject(parent),
@@ -64,5 +65,9 @@ void WorkspaceItem::setName(const QString &name)
  */
 void WorkspaceItem::openButtonClicked()
 {
-    WorkspaceHelper::loadWorkspace(m_id, m_name);
+    if (QMessageBox::Yes == QMessageBox::question(m_treeWidget->parentWidget(),
+                                                  tr("OwNet - Switch Workspace"),
+                                                  tr("Are you sure you want to switch to the workspace %1? This will restart the application.").arg(m_name),
+                                                  QMessageBox::Yes, QMessageBox::No))
+        WorkspaceHelper::loadWorkspace(m_id, m_name);
 }

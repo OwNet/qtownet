@@ -4,8 +4,15 @@
 #include "stub/stubtime.h"
 #endif
 
-MulticastProtocolNode::MulticastProtocolNode(const uint &id, QObject *parent) :
-    m_id(id), m_lastUpdated(QDateTime()), QObject(parent)
+#include "iproxyconnection.h"
+
+#include <QSettings>
+
+MulticastProtocolNode::MulticastProtocolNode(const uint &id, IProxyConnection *proxyConnection, QObject *parent) :
+    m_id(id),
+    m_lastUpdated(QDateTime()),
+    m_proxyConnection(proxyConnection),
+    QObject(parent)
 {
 }
 
@@ -19,15 +26,13 @@ bool MulticastProtocolNode::lessThan(const MulticastProtocolNode *first,
 }
 
 void MulticastProtocolNode::update(uint score, MulticastProtocol::Status status,
-                                   uint port, QString address, uint initialized, QString workspaceId, QString workspaceName)
+                                   uint port, QString address, uint initialized)
 {
     m_score = score;
     m_status = status;
     m_port = port;
     m_address = address;
     m_initialized = initialized;
-    m_workspaceId = workspaceId;
-    m_workspaceName = workspaceName;
 
     // last update
     QDateTime currentDateTime;
@@ -60,6 +65,10 @@ QVariantMap MulticastProtocolNode::message() const
     QVariantMap message;
     QString s;
 
+    QObject parent;
+    QSettings *settings = m_proxyConnection->settings(&parent);
+    settings->beginGroup("current_workspace");
+
     switch (status())
     {
     case MulticastProtocol::INITIALIZING:
@@ -77,8 +86,8 @@ QVariantMap MulticastProtocolNode::message() const
     message.insert("score", score());
     message.insert("status", s);
     message.insert("port", port());
-    message.insert("workspace_id", m_workspaceId);
-    message.insert("workspace_name", m_workspaceName);
+    message.insert("workspace_id", settings->value("id"));
+    message.insert("workspace_name", settings->value("name"));
     message.insert("initialized", initialized());
 
     return message;

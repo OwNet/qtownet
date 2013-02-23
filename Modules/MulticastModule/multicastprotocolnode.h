@@ -6,15 +6,17 @@
 
 #include "multicastprotocol.h"
 
+class IProxyConnection;
+
 class MulticastProtocolNode : public QObject
 {
     Q_OBJECT
 public:
-    MulticastProtocolNode(const uint &id, QObject *parent = 0);
+    MulticastProtocolNode(const uint &id, IProxyConnection *proxyConnection, QObject *parent = 0);
 
     static bool lessThan(const MulticastProtocolNode *, const MulticastProtocolNode *);
     void update(uint score, MulticastProtocol::Status status,
-                uint port, QString address, uint initialized, QString workspaceId, QString workspaceName);
+                uint port, QString address, uint initialized);
 
     uint id() const;
     uint score() const;
@@ -35,11 +37,10 @@ private:
     uint m_score;
     uint m_port;
     QString m_address;
-    QString m_workspaceId;
-    QString m_workspaceName;
     uint m_initialized;
     MulticastProtocol::Status m_status;
     QDateTime m_lastUpdated;
+    IProxyConnection *m_proxyConnection;
 
 signals:
     

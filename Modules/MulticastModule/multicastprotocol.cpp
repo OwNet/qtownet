@@ -22,10 +22,8 @@ MulticastProtocol::MulticastProtocol(IProxyConnection *connection, QObject *pare
     int port = settings->value("application/listen_port", 8081).toInt();
 
     // add self as first instance
-    m_currentNode = new MulticastProtocolNode(myId);
-    m_currentNode->update(1, INITIALIZING, port, "127.0.0.1", 0,
-                          settings->value("current_workspace/id").toString(),
-                          settings->value("current_workspace/name").toString());
+    m_currentNode = new MulticastProtocolNode(myId, m_proxyConnection);
+    m_currentNode->update(1, INITIALIZING, port, "127.0.0.1", 0);
     m_nodes.append(m_currentNode);
 }
 
@@ -95,13 +93,13 @@ void MulticastProtocol::processMessage(const QVariantMap &message)
         // or create new
         if (! node)
         {
-            node = new MulticastProtocolNode(id);
+            node = new MulticastProtocolNode(id, m_proxyConnection);
             m_nodes.append(node);
         }
 
         // update info
         if (node != m_currentNode)
-            node->update(score, status, port, address, initialized, workspaceId, workspaceName);
+            node->update(score, status, port, address, initialized);
     } else { // Different workspace
         ISession *session = m_proxyConnection->session(&parent);
         QVariantMap workspaces = session->value("workspaces").toMap();
