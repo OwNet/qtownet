@@ -17,7 +17,8 @@ ProxyInitializer::ProxyInitializer(QObject *parent)
 void ProxyInitializer::init()
 {
     Settings *settings = new Settings();
-    int port = Settings().value("application/listen_port", QString::number(ProxyRequest::Port)).toInt();
-    settings->setValue("port", port);
+    settings->beginGroup("application");
+    int port = settings->value("listen_port", QString::number(ProxyRequest::Port)).toInt();
+    settings->setValue("listen_port", port);
     new HttpListener(settings, new ProxyRequestMapper());
 }

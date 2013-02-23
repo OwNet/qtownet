@@ -14,7 +14,7 @@ HttpListener::HttpListener(QSettings* settings, HttpRequestHandler* requestHandl
     Q_ASSERT(settings!=0);
     this->settings=settings;
     // Start listening
-    int port=settings->value("port").toInt();
+    int port=settings->value("listen_port").toInt();
     listen(QHostAddress::Any, port);
     if (!isListening()) {
         qCritical("HttpListener: Cannot bind on port %i: %s",port,qPrintable(errorString()));
