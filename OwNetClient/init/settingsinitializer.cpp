@@ -6,7 +6,6 @@
 #include "messagehelper.h"
 
 #include <QStandardPaths>
-#include <QApplication>
 #include <QDir>
 
 SettingsInitializer::SettingsInitializer(QObject *parent) :
@@ -33,7 +32,7 @@ void SettingsInitializer::init()
                          .arg(settings.value("application/data_folder_path").toString()));
 
     if (!settings.contains("application/resources_folder_path")) {
-        dir.setPath(QApplication::applicationDirPath());
+        dir.setPath(QDir::currentPath());
         settings.setValue("application/resources_folder_path", dir.absoluteFilePath("resources"));
     }    
     MessageHelper::debug(QObject::tr("Using resources directory %1")

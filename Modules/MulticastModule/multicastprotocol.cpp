@@ -15,11 +15,14 @@ const int MulticastProtocol::expirationTimeInSeconds = 15;
 MulticastProtocol::MulticastProtocol(IProxyConnection *connection, QObject *parent)
     : m_proxyConnection(connection), QObject(parent)
 {
+    QObject parentObject;
+    QSettings *settings = m_proxyConnection->settings(&parentObject);
+
     uint myId = connection->databaseSettings(this)->clientId();
-    int port = m_proxyConnection->settings()->value("application/listen_port", 8081).toInt();
+    int port = settings->value("application/listen_port", 8081).toInt();
 
     // add self as first instance
-    m_currentNode = new MulticastProtocolNode(myId);
+    m_currentNode = new MulticastProtocolNode(myId, m_proxyConnection);
     m_currentNode->update(1, INITIALIZING, port, "127.0.0.1", 0);
     m_nodes.append(m_currentNode);
 }
@@ -55,42 +58,57 @@ void MulticastProtocol::processMessage(const QVariantMap &message)
 {
     QMutexLocker locker(&m_nodesMutex);
 
-    MulticastProtocolNode *node = NULL;
+    QObject parent;
+    QSettings *settings = m_proxyConnection->settings(&parent);
 
-    uint id = message.value("id").toUInt();
-    uint score = message.value("score").toUInt();
-    uint port = message.value("port").toUInt();
-    uint initialized = message.value("initialized").toUInt();
-    QString address = message.value("address").toString();
+    QString workspaceId = message.value("workspace_id").toString();
+    QString workspaceName = message.value("workspace_name").toString();
 
-    Status status;
-    if (message.value("status") == "initializing")
-        status = INITIALIZING;
-    else if (message.value("status") == "client")
-        status = CLIENT;
-    else if (message.value("status") == "server")
-        status = SERVER;
+    if (workspaceId == settings->value("current_workspace/id")) { // Same as current workspace
+        MulticastProtocolNode *node = NULL;
+        uint id = message.value("id").toUInt();
+        uint score = message.value("score").toUInt();
+        uint port = message.value("port").toUInt();
+        uint initialized = message.value("initialized").toUInt();
+        QString address = message.value("address").toString();
 
-    // find proxy by id
-    for (int i = 0; i < m_nodes.size(); ++i)
-    {
-        if (m_nodes.at(i)->id() == id)
+        Status status;
+        if (message.value("status") == "initializing")
+            status = INITIALIZING;
+        else if (message.value("status") == "client")
+            status = CLIENT;
+        else if (message.value("status") == "server")
+            status = SERVER;
+
+        // find proxy by id
+        for (int i = 0; i < m_nodes.size(); ++i)
         {
-            node = m_nodes.at(i);
-            break;
+            if (m_nodes.at(i)->id() == id)
+            {
+                node = m_nodes.at(i);
+                break;
+            }
         }
-    }
 
-    // or create new
-    if (! node)
-    {
-        node = new MulticastProtocolNode(id);
-        m_nodes.append(node);
-    }
+        // or create new
+        if (! node)
+        {
+            node = new MulticastProtocolNode(id, m_proxyConnection);
+            m_nodes.append(node);
+        }
 
-    // update info
-    if (node != m_currentNode)
-        node->update(score, status, port, address, initialized);
+        // update info
+        if (node != m_currentNode)
+            node->update(score, status, port, address, initialized);
+    } else { // Different workspace
+        ISession *session = m_proxyConnection->session(&parent);
+        QVariantMap workspaces = session->value("workspaces").toMap();
+        QVariantMap workspace;
+        workspace.insert("name", workspaceName);
+        workspace.insert("last_seen", QDateTime::currentDateTime());
+        workspaces.insert(workspaceId, workspace);
+        session->setValue("workspaces", workspaces);
+    }
 }
 
 QList<MulticastProtocolNode *> &MulticastProtocol::nodes()

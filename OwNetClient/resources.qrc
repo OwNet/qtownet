@@ -3,5 +3,6 @@
         <file alias="icon256">images/icon256.png</file>
         <file alias="icon16">images/icon16.png</file>
         <file alias="icon32">images/icon32.png</file>
+        <file>images/logo512.png</file>
     </qresource>
 </RCC>

@@ -6,11 +6,13 @@
 
 #include "multicastprotocol.h"
 
+class IProxyConnection;
+
 class MulticastProtocolNode : public QObject
 {
     Q_OBJECT
 public:
-    MulticastProtocolNode(const uint &id, QObject *parent = 0);
+    MulticastProtocolNode(const uint &id, IProxyConnection *proxyConnection, QObject *parent = 0);
 
     static bool lessThan(const MulticastProtocolNode *, const MulticastProtocolNode *);
     void update(uint score, MulticastProtocol::Status status,
@@ -38,6 +40,7 @@ private:
     uint m_initialized;
     MulticastProtocol::Status m_status;
     QDateTime m_lastUpdated;
+    IProxyConnection *m_proxyConnection;
 
 signals:
     
