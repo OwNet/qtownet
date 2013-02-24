@@ -1,0 +1,11 @@
+{
+  "name": "jscheck",
+  "description": "Simple Javascirpt Syntax Checker",
+  "version": "1.0.0",
+  "author": "Michal Dorner",
+  "repository": "git://github.com/dorny/jscheck",
+  "bin": { "jscheck": "./jscheck" },
+  "dependencies": {
+    "uglify-js": "*"
+  }
+}

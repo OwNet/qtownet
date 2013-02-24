@@ -1,0 +1,64 @@
+GEM
+  remote: https://rubygems.org/
+  specs:
+    addressable (2.3.2)
+    capybara (1.1.3)
+      mime-types (>= 1.16)
+      nokogiri (>= 1.3.3)
+      rack (>= 1.0.0)
+      rack-test (>= 0.5.4)
+      selenium-webdriver (~> 2.0)
+      xpath (~> 0.1.4)
+    childprocess (0.3.6)
+      ffi (~> 1.0, >= 1.0.6)
+    diff-lcs (1.1.3)
+    faraday (0.8.4)
+      multipart-post (~> 1.1)
+    ffi (1.1.5)
+    ffi (1.1.5-x86-mingw32)
+    json (1.7.5)
+    launchy (2.1.2)
+      addressable (~> 2.3)
+    libwebsocket (0.1.5)
+      addressable
+    mime-types (1.19)
+    multi_json (1.3.7)
+    multipart-post (1.1.5)
+    nokogiri (1.5.5)
+    nokogiri (1.5.5-x86-mingw32)
+    rack (1.4.1)
+    rack-test (0.6.2)
+      rack (>= 1.0)
+    rdoc (3.12)
+      json (~> 1.4)
+    rspec (2.11.0)
+      rspec-core (~> 2.11.0)
+      rspec-expectations (~> 2.11.0)
+      rspec-mocks (~> 2.11.0)
+    rspec-core (2.11.1)
+    rspec-expectations (2.11.3)
+      diff-lcs (~> 1.1.3)
+    rspec-mocks (2.11.3)
+    rubyzip (0.9.9)
+    selenium-webdriver (2.26.0)
+      childprocess (>= 0.2.5)
+      libwebsocket (~> 0.1.3)
+      multi_json (~> 1.0)
+      rubyzip
+    sqlite3 (1.3.4)
+    sqlite3 (1.3.4-x86-mingw32)
+    xpath (0.1.4)
+      nokogiri (~> 1.3)
+
+PLATFORMS
+  ruby
+  x86-mingw32
+
+DEPENDENCIES
+  capybara (~> 1.1.3)
+  faraday
+  launchy
+  rack
+  rdoc
+  rspec
+  sqlite3

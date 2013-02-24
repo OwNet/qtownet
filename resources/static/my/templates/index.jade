@@ -1,0 +1,34 @@
+!!! 5
+html(lang='en')
+	head
+		title my.ownet
+		meta( http-equiv='cache-control' content='no-cache' )
+		meta( http-equiv='Content-Type' content='text/html; charset=utf-8' )
+
+		if ( config.debug )
+			link( rel='stylesheet' href='css/style.css' type='text/css' )
+			script(src="http://share.ownet/lib/require.js" data-main="config.js")
+		else
+			script( src='js/app.min.js' type='text/javascript' )
+			link( rel='stylesheet' href='css/style.min.css' type='text/css' )
+
+	body
+		#page
+
+			include navbar
+
+			.row
+				.span10.offset1
+					#messages
+
+			#content
+
+		include pagefooter
+
+
+
+
+
+
+
+

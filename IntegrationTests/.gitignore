@@ -1,0 +1,6 @@
+/log
+/tmp
+/doc
+/spec/support/config.yml
+.rspec
+capybara-*
