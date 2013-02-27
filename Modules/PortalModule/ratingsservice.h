@@ -13,13 +13,15 @@ class RatingsService : public QObject, public IRestService
 public:
     explicit RatingsService(IProxyConnection *proxyConnection, QObject *parent = 0);
 
+    void init(IRouter* router);
+
     QString name() const { return "ratings"; }
 
-    QVariant *create(IBus *bus, IRequest *req);
-    QVariant *show(IBus *bus, IRequest *req);
-    QVariant *index(IBus *bus, IRequest *);
+     IResponse *create(IRequest *req);
+     IResponse *show( IRequest *req);
+     IResponse *index(IRequest *req);
    // QVariant *edit(IBus *bus, IRequest *);
-    QVariant *del(IBus *bus, IRequest *);
+     IResponse *del(IRequest *req);
 
 private:
     IProxyConnection *m_proxyConnection;

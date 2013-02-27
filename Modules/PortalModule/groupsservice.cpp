@@ -306,7 +306,8 @@ IResponse *GroupsService::show(IRequest *req, uint id)
 {
     QSqlQuery query;
 
-    if(!m_proxyConnection->session()->isLoggedIn())
+    QString user_id = m_proxyConnection->session()->value("logged").toString();
+    if(!m_proxyConnection->session()->isLoggedIn() || !isMember(user_id.toUInt(),id) )
         req->response(IResponse::FORBIDDEN);
 
     query.prepare("SELECT * FROM groups WHERE id = :id");

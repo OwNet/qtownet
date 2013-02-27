@@ -2,7 +2,6 @@
 
 #include "irequest.h"
 #include "idatabaseupdate.h"
-#include "ibus.h"
 #include "iproxyconnection.h"
 #include "isession.h"
 
@@ -17,8 +16,13 @@ MessagesService::MessagesService(IProxyConnection *proxyConnection, QObject *par
 {
 }
 
+void MessagesService::init(IRouter *router)
+{
+
+}
+
 // create element
-QVariant *MessagesService::create(IBus *bus, IRequest *req)
+IResponse *MessagesService::create(IRequest *req)
 {
     bool ok = false;
     QVariantMap reqJson = req->postBodyFromJson(&ok).toMap();
@@ -52,23 +56,21 @@ QVariant *MessagesService::create(IBus *bus, IRequest *req)
         q.exec();
 
         if(!q.first()){
-            bus->setHttpStatus(400,"Bad Request");
-            return new QVariant;
+            return req->response(IResponse::BAD_REQUEST);
         }
         if(q.value(q.record().indexOf("parent_id")).toString() != "0"){
             QVariantMap qm;
             qm.insert("error","not allowed nesting level");
-            bus->setHttpStatus(400,"Bad Request");
-            return new QVariant(qm);
+
+            return req->response(QVariant(qm), IResponse::BAD_REQUEST);
         }
 
     }
     // missing argument
     if(missingValue){
 
-        bus->setHttpStatus(400,"Bad Request");
+        return req->response(QVariant(error), IResponse::BAD_REQUEST);
 
-        return new QVariant(error);
     }
 
    QString curUser_id = m_proxyConnection->session()->value("logged").toString();
@@ -76,13 +78,12 @@ QVariant *MessagesService::create(IBus *bus, IRequest *req)
    IRequest *request = m_proxyConnection->createRequest(IRequest::GET, "groups", "isMember");
    request->setParamater("user_id", curUser_id);
    request->setParamater("group_id", group_id);
-   bool member = m_proxyConnection->callModule(request)->toBool();
+   bool member = m_proxyConnection->callModule(request)->body().toBool();
 
    if(member){
 
-        IDatabaseUpdate *createRecomm = m_proxyConnection->databaseUpdate();
-
-        IDatabaseUpdateQuery *query = createRecomm->createUpdateQuery("messages", IDatabaseUpdateQuery::Insert);
+        QObject parentObject;
+        IDatabaseUpdateQuery *query = m_proxyConnection->databaseUpdateQuery("messages", &parentObject);
 
         query->setUpdateDates(true); // sam nastavi v tabulke datumy date_created a date_updated
 
@@ -92,24 +93,21 @@ QVariant *MessagesService::create(IBus *bus, IRequest *req)
         query->setColumnValue("parent_id", parent_id);
         query->setColumnValue("user_id", curUser_id);
 
-        int a = createRecomm->execute();
-        if(a){
-            bus->setHttpStatus(500,"Internal server error");
-            return new QVariant;
+        if(!query->executeQuery()){
+
+            return req->response(IResponse::INTERNAL_SERVER_ERROR);
         }
-        bus->setHttpStatus(201, "Created");
-        return new QVariant;
+         return req->response(IResponse::CREATED);
 
     }
     else{
-        bus->setHttpStatus(400, "Bad Request");
-        return new QVariant;
+       return req->response(IResponse::BAD_REQUEST);
     }
 
 
 }
 
-QVariant *MessagesService::index(IBus *bus, IRequest *req)
+IResponse *MessagesService::index(IRequest *req)
 {
     bool ok = false;
     QVariantMap reqJson = req->postBodyFromJson(&ok).toMap();
@@ -122,7 +120,8 @@ QVariant *MessagesService::index(IBus *bus, IRequest *req)
     IRequest *request = m_proxyConnection->createRequest(IRequest::GET, "groups", "isMember");
     request->setParamater("user_id", curUser_id);
     request->setParamater("group_id", group_id);
-    bool member = m_proxyConnection->callModule(request)->toBool();
+
+    bool member = m_proxyConnection->callModule(request)->body().toBool();
 
     if(member){
         QSqlQuery query;
@@ -142,16 +141,13 @@ QVariant *MessagesService::index(IBus *bus, IRequest *req)
             messages.append(message);
         }
 
-        bus->setHttpStatus(200, "OK");
-        return new QVariant(messages);
-
+        return req->response(QVariant(messages), IResponse::OK);
     }
 
-    bus->setHttpStatus(400,"Bad Request");
-    return new QVariant;
+    return req->response(IResponse::BAD_REQUEST);
 }
 
-QVariant *MessagesService::del(IBus *bus, IRequest *req, int id)
+IResponse *MessagesService::del(IRequest *req, int id)
 {
     bool ok = false;
     QVariantMap reqJson = req->postBodyFromJson(&ok).toMap();
@@ -161,7 +157,7 @@ QVariant *MessagesService::del(IBus *bus, IRequest *req, int id)
     IRequest *request = m_proxyConnection->createRequest(IRequest::GET, "groups", "isAdmin");
     request->setParamater("user_id", reqJson["user_id"].toString());
     request->setParamater("group_id", reqJson["group_id"].toString());
-    bool admin = m_proxyConnection->callModule(request)->toBool();
+    bool admin = m_proxyConnection->callModule(request)->body().toBool();
 
     QSqlQuery q;
     q.prepare("SELECT * FROM messages WHERE id=:id AND user_id=:user_id AND group_id =:group_id");
@@ -173,23 +169,24 @@ QVariant *MessagesService::del(IBus *bus, IRequest *req, int id)
     bool owner = q.first();
 
     if(admin || owner){
-        IDatabaseUpdate *update = m_proxyConnection->databaseUpdate();
-        IDatabaseUpdateQuery *query = update->createUpdateQuery("messages", IDatabaseUpdateQuery::Delete);
-        query->setUpdateDates(true);
-        query->setWhere("id", reqJson["id"]);
 
-        if(!update->execute()){
-            bus->setHttpStatus(200,"OK");
-            return new QVariant;
+        QObject parentObject;
+        IDatabaseUpdateQuery *query = m_proxyConnection->databaseUpdateQuery("messages", &parentObject);
+
+        query->setUpdateDates(true);
+        query->setType(IDatabaseUpdateQuery::Delete);
+        query->singleWhere("id", reqJson["id"]);
+
+        if(query->executeQuery()){
+            return req->response(IResponse::OK);
         }
         else{
-            bus->setHttpStatus(500, "Internal Server Error");
-            return new QVariant;
+
+            return req->response( IResponse::INTERNAL_SERVER_ERROR);
         }
     }
     else{
-        bus->setHttpStatus(400, "Bad Request");
-        return new QVariant;
+        return req->response( IResponse::BAD_REQUEST);
     }
 
 }
