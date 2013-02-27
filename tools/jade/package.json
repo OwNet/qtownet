@@ -1,0 +1,55 @@
+{
+  "name": "jade",
+  "description": "Jade template engine",
+  "version": "0.27.6",
+  "author": {
+    "name": "Michal Dorner",
+    "email": "tj@vision-media.ca",
+    "url": "some modifications"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/dorny/jade.git"
+  },
+  "main": "./index.js",
+  "bin": {
+    "jade": "./bin/jade"
+  },
+  "man": [
+    "./jade.1"
+  ],
+  "dependencies": {
+    "commander": "0.6.1",
+    "mkdirp": "0.3.x"
+  },
+  "devDependencies": {
+    "mocha": "*",
+    "markdown": "*",
+    "stylus": "*",
+    "uubench": "*",
+    "should": "*",
+    "less": "*",
+    "uglify-js": "*"
+  },
+  "component": {
+    "scripts": {
+      "jade": "runtime.js"
+    }
+  },
+  "scripts": {
+    "prepublish": "npm prune"
+  },
+  "_id": "jade@0.27.6",
+  "optionalDependencies": {},
+  "engines": {
+    "node": "*"
+  },
+  "_engineSupported": true,
+  "_npmVersion": "1.1.4",
+  "_nodeVersion": "v0.6.12",
+  "_defaultsLoaded": true,
+  "dist": {
+    "shasum": "bd67263c6cbb82ee50ca3070440a48afeeff75b7"
+  },
+  "_from": "git://github.com/dorny/jade.git"
+}

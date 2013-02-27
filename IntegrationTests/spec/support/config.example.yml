@@ -1,0 +1,4 @@
+ownet_proxy:
+    binary_path: "../QtOwNet-build-desktop-Qt_4_8_1_in_PATH__System__Release/OwNetClient/OwNetClient"
+    static_path: "../static"
+    migrations_path: "../qtownet/OwNetClient/database/migrations"

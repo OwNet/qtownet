@@ -1,0 +1,9 @@
+each group in groups
+	.row
+		.span1
+			label #{group.name}
+		.span2
+			label #{group.description}
+
+		.span3
+			a( href="#/showgroup" data-id="#{group.id}" name="show") Show group

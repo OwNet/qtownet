@@ -8,6 +8,7 @@
 #include "moduleinitializer.h"
 #include "jobinitializer.h"
 #include "settingsinitializer.h"
+#include "workspaceinitializer.h"
 #include "settings.h"
 
 #include <QCoreApplication>
@@ -24,6 +25,7 @@ void Initializer::init()
     QCoreApplication::setApplicationName("OwNet Client");
 
     (new SettingsInitializer(this))->init();
+    (new WorkspaceInitializer(this))->init();
     (new DatabaseInitializer(this))->init();
     (new ProxyInitializer(this))->init();
     (new ModuleInitializer(this))->init();

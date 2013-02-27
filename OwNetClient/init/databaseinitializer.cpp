@@ -4,6 +4,7 @@
 #include "applicationdatastorage.h"
 #include "applicationenvironment.h"
 #include "databasesettings.h"
+#include "workspacehelper.h"
 
 #include <QtCore/QVariant>
 #include <QSqlDatabase>
@@ -32,13 +33,13 @@ void DatabaseInitializer::init()
 void DatabaseInitializer::openDatabase()
 {
     // configure stub database name
-    QString databaseName = ApplicationDataStorage().appDataDirectory().absoluteFilePath("ownet.sqlite");
+    QString name = ApplicationDataStorage().appDataDirectory().absoluteFilePath(databaseName());
 
     MessageHelper::debug(QObject::tr("Opening database %1")
-                         .arg(databaseName));
+                         .arg(name));
 
     QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE");
-    db.setDatabaseName(databaseName);
+    db.setDatabaseName(name);
 
     if (!db.open()) {
         MessageHelper::error(QObject::tr("Failed to open database"),
@@ -145,4 +146,13 @@ void DatabaseInitializer::createClientName()
     DatabaseSettings settings;
     if (!settings.hasClientId())
         settings.createClientId();
+}
+
+/**
+ * @brief Returns the file name of the SQLite database. This depends on the current workspace.
+ * @return Name of the database
+ */
+QString DatabaseInitializer::databaseName() const
+{
+    return QString("%1.sqlite").arg(WorkspaceHelper::currentWorkspaceId());
 }
