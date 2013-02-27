@@ -121,7 +121,7 @@ IResponse *RatingsService::index(IRequest *req)
         ratings.append(rating);
     }
 
-    return req->response(QVariant(ratings), IResponse::BAD_REQUEST);
+    return req->response(QVariant(ratings), IResponse::OK);
 }
 
 IResponse *RatingsService::show(IRequest *req)
