@@ -4,8 +4,8 @@
 #include <QObject>
 
 #include "irestservice.h"
+#include "ratingmanager.h"
 
-class IProxyConnection;
 
 class RatingsService : public QObject, public IRestService
 {
@@ -24,7 +24,10 @@ public:
      IResponse *del(IRequest *req);
 
 private:
+
     IProxyConnection *m_proxyConnection;
+
+    RatingManager *m_ratingManager;
 };
 
 #endif // RATINGSSERVICE_H

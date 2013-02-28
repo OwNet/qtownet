@@ -16,6 +16,13 @@ public:
     int group_id;
     int object_id;
 
+    enum ActivitiesTypes
+    {
+        RECOMMENDATION,
+        RATING,
+        FILE
+    };
+
 signals:
     
 public slots:

@@ -5,17 +5,21 @@
 #include "activity.h"
 #include <QVariant>
 
+#include "iproxyconnection.h"
+
 
 class ActivityManager : public QObject
 {
     Q_OBJECT
 public:
-    explicit ActivityManager(QObject *parent = 0);
+    explicit ActivityManager(IProxyConnection *proxyConnection, QObject *parent = 0);
     
-    static bool createActivity(Activity ac);
+    bool createActivity(Activity *ac);
 
-    static QVariantList getActivities(bool *ok);
+    QVariantList getActivities(bool *ok);
 
+private:
+    IProxyConnection *m_proxyConnection;
 
 signals:
     

@@ -13,6 +13,7 @@ ActivitiesService::ActivitiesService(IProxyConnection *proxyConnection, QObject 
     QObject(parent),
     m_proxyConnection(proxyConnection)
 {
+   m_activityManager = new ActivityManager(proxyConnection);
 }
 
 void ActivitiesService::init(IRouter *router)
@@ -38,7 +39,7 @@ IResponse *ActivitiesService::index(IRequest *req)
     }
 
     bool ok;
-    QVariantList activities = ActivityManager::getActivities(&ok);
+    QVariantList activities = m_activityManager->getActivities(&ok);
 
     if(ok)
         return req->response(QVariant(activities), IResponse::OK);

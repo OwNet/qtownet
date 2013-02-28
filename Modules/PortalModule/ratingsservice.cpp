@@ -13,6 +13,7 @@ RatingsService::RatingsService(IProxyConnection *proxyConnection, QObject *paren
     QObject(parent),
     m_proxyConnection(proxyConnection)
 {
+    m_ratingManager = new RatingManager(proxyConnection);
 }
 
 void RatingsService::init(IRouter *router)

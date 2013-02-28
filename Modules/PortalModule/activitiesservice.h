@@ -6,8 +6,6 @@
 #include "irestservice.h"
 #include "activitymanager.h"
 
-class IProxyConnection;
-
 class ActivitiesService : public QObject, public IRestService
 {
     Q_OBJECT
@@ -20,9 +18,9 @@ public:
 
     IResponse *index(IRequest *req);
 
-
 private:
-    enum ActivitiesTypes { RECOMMENDATION, RATING, FILE };
+
+    ActivityManager *m_activityManager;
 
     IProxyConnection *m_proxyConnection;
 

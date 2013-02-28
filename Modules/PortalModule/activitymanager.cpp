@@ -3,29 +3,35 @@
 #include <QSqlRecord>
 
 #include "idatabaseupdatequery.h"
+#include "iproxyconnection.h"
 
-ActivityManager::ActivityManager(QObject *parent) :
-    QObject(parent)
+ActivityManager::ActivityManager(IProxyConnection *proxyConnection, QObject *parent) :
+    QObject(parent),
+    m_proxyConnection(proxyConnection)
 {
 }
 
-bool ActivityManager::createActivity(Activity ac)
+bool ActivityManager::createActivity(Activity *ac)
 {
     QObject parentObject;
     IDatabaseUpdateQuery *query = m_proxyConnection->databaseUpdateQuery("activities", &parentObject);
 
     query->setUpdateDates(true); // sam nastavi v tabulke datumy date_created a date_updated
 
-    query->setColumnValue("user_name", ac.user_name);
-    query->setColumnValue("content", ac.content;
-    query->setColumnValue("type", ac.activity_type);
-    query->setColumnValue("group_id", ac.group_id);
-    query->setColumnValue("object_id", ac.object_id);
+    query->setColumnValue("user_name", ac->user_name);
+    query->setColumnValue("content", ac->content);
+    query->setColumnValue("type", ac->activity_type);
+    query->setColumnValue("group_id", ac->group_id);
+    query->setColumnValue("object_id", ac->object_id);
 
-    if(!query->executeQuery())
+    if(!query->executeQuery()){
+        ac->destroyed();
         return false;
-    else
+    }
+    else{
+        ac->destroyed();
         return true;
+    }
 }
 
 QVariantList ActivityManager::getActivities(bool *ok)
