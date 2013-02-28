@@ -119,7 +119,7 @@ bool HistoryService::registerTraverseQuery(int user_id, int page_from_id, int pa
     select->select("frequency");
     select->limit(1);
 
-    while (select->next()) {
+    if (select->next()) {
         freq = select->value("frequency").toInt();
     }
 
