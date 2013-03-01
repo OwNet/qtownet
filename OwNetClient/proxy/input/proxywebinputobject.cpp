@@ -26,7 +26,7 @@ void ProxyWebInputObject::readRequest()
     IDatabaseSelectQueryWhereGroup *where = query.whereGroup(IDatabaseSelectQuery::And);
     where->where("cache_id", m_request->hashCode());
     where->where("client_id", myId, IDatabaseSelectQuery::NotEqual);
-    query.orderBy("");
+    query.orderBy("date_created", IDatabaseSelectQuery::Descending);
     while (query.next())
         if (isClientOnline(query.value("client_id").toUInt()))
             m_clientsToTry.append(query.value("client_id").toUInt());
