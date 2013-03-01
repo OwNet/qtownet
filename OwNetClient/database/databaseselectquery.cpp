@@ -58,7 +58,13 @@ bool DatabaseSelectQuery::execute()
 
     if (m_orderByColumns.count()) {
         queryString.append(" ORDER BY ");
-        queryString.append(m_orderByColumns.join(", "));
+        QStringList columns;
+        foreach (auto pair, m_orderByColumns)
+            if (pair.second == IDatabaseSelectQuery::Descending)
+                columns.append(QString("%1 DESC").arg(pair.first));
+            else
+                columns.append(pair.first);
+        queryString.append(columns.join(", "));
     }
 
     if (m_limit >= 0)
@@ -158,6 +164,11 @@ IDatabaseSelectQueryJoin *DatabaseSelectQuery::join(const QString &table, JoinTy
     DatabaseSelectQueryJoin *join = new DatabaseSelectQueryJoin(table, joinType, this);
     m_joins.append(join);
     return join;
+}
+
+void DatabaseSelectQuery::orderBy(const QString &column, IDatabaseSelectQuery::Order order)
+{
+    m_orderByColumns.append(QPair<QString, IDatabaseSelectQuery::Order>(column, order));
 }
 
 void DatabaseSelectQuery::resetQuery()

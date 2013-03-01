@@ -131,11 +131,11 @@ ProxyInputObject *ProxyDownloads::newInputObject(ProxyRequest *request, ProxyHan
     } else if (request->isLocalRequest()) {
         inputObject = new ProxyRequestBus(request, handlerSession);
     } else {
-        if (request->requestType() == ProxyRequest::GET) {
+        /*if (request->requestType() == ProxyRequest::GET) {
             ProxyCacheInputObject *cacheInput = new ProxyCacheInputObject(request, handlerSession);
             if (cacheInput->exists())
                 inputObject = cacheInput;
-        }
+        }*/
 
         if (!inputObject)
             inputObject = new ProxyWebInputObject(request, handlerSession);

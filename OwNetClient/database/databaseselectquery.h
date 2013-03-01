@@ -44,8 +44,7 @@ public:
     void groupBy(const QString &column) { m_groupByColumns.append(column); }
     void groupBy(const QStringList &columns) { m_groupByColumns.append(columns); }
 
-    void orderBy(const QString &column) { m_orderByColumns.append(column); }
-    void orderBy(const QStringList &columns) { m_orderByColumns.append(columns); }
+    void orderBy(const QString &column, IDatabaseSelectQuery::Order order = IDatabaseSelectQuery::Ascending);
 
     void limit(int l) { m_limit = l; }
     void offset(int o) { m_offset = o; }
@@ -60,7 +59,7 @@ private:
     QString m_table;
     QStringList m_selectColumns;
     QStringList m_groupByColumns;
-    QStringList m_orderByColumns;
+    QList<QPair<QString, IDatabaseSelectQuery::Order> > m_orderByColumns;
     QList<DatabaseSelectQueryJoin *> m_joins;
     IDatabaseSelectQueryWhere *m_where;
     QSqlQuery *m_query;
