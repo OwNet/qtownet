@@ -11,25 +11,24 @@ ActivityManager::ActivityManager(IProxyConnection *proxyConnection, QObject *par
 {
 }
 
-bool ActivityManager::createActivity(Activity *ac)
+bool ActivityManager::createActivity(Activity &ac)
 {
     QObject parentObject;
     IDatabaseUpdateQuery *query = m_proxyConnection->databaseUpdateQuery("activities", &parentObject);
 
     query->setUpdateDates(true); // sam nastavi v tabulke datumy date_created a date_updated
 
-    query->setColumnValue("user_name", ac->user_name);
-    query->setColumnValue("content", ac->content);
-    query->setColumnValue("type", ac->activity_type);
-    query->setColumnValue("group_id", ac->group_id);
-    query->setColumnValue("object_id", ac->object_id);
+    query->setColumnValue("user_name", ac.user_name);
+    query->setColumnValue("content", ac.content);
+    query->setColumnValue("type", ac.activity_type);
+    query->setColumnValue("group_id", ac.group_id);
+    query->setColumnValue("object_id", ac.object_id);
 
     if(!query->executeQuery()){
-        ac->destroyed();
         return false;
     }
-    else{
-        ac->destroyed();
+    else
+    {
         return true;
     }
 }
@@ -57,4 +56,19 @@ QVariantList ActivityManager::getActivities(bool *ok)
 
     *ok = true;
     return activities;
+}
+
+bool ActivityManager::deleteActivity(int objectId)
+{
+    QObject parentObject;
+    IDatabaseUpdateQuery *query = m_proxyConnection->databaseUpdateQuery("activities", &parentObject);
+    query->setUpdateDates(true);
+    query->setType(IDatabaseUpdateQuery::Delete);
+    query->singleWhere("object_id",objectId);
+
+    if(!query->executeQuery()){
+        return false;
+    }
+
+    return true;
 }

@@ -17,11 +17,9 @@ public:
 
     QString name() const { return "ratings"; }
 
-     IResponse *create(IRequest *req);
-     IResponse *show( IRequest *req);
-     IResponse *index(IRequest *req);
-   // QVariant *edit(IBus *bus, IRequest *);
-     IResponse *del(IRequest *req);
+    IResponse *create(IRequest *req);
+    IResponse *show( IRequest *req);
+    IResponse *del(IRequest *req);
 
 private:
 

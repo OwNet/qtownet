@@ -13,7 +13,9 @@ class RatingManager : public QObject
 public:
     explicit RatingManager(IProxyConnection *proxyConnection, QObject *parent = 0);
 
-    bool createRating();
+    IResponse::Status createRating(IRequest *req, QString curUser_id, QVariantMap &error);
+    IResponse::Status showRating(IRequest *req, QVariantList &ratings, QVariantMap &error);
+    IResponse::Status deleteRating(IRequest *req, QString curUser_id, QVariantMap &error);
 
     
 private:

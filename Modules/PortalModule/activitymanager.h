@@ -14,9 +14,9 @@ class ActivityManager : public QObject
 public:
     explicit ActivityManager(IProxyConnection *proxyConnection, QObject *parent = 0);
     
-    bool createActivity(Activity *ac);
-
+    bool createActivity(Activity &ac);
     QVariantList getActivities(bool *ok);
+    bool deleteActivity(int objectId);
 
 private:
     IProxyConnection *m_proxyConnection;

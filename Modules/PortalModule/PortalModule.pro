@@ -19,7 +19,8 @@ SOURCES        += portalmodule.cpp \
     activitiesservice.cpp \
     activity.cpp \
     activitymanager.cpp \
-    ratingmanager.cpp
+    ratingmanager.cpp \
+    recommendationmanager.cpp
 
 HEADERS        += portalmodule.h \
     usersservice.h \
@@ -33,7 +34,8 @@ HEADERS        += portalmodule.h \
     activitiesservice.h \
     activity.h \
     activitymanager.h \
-    ratingmanager.h
+    ratingmanager.h \
+    recommendationmanager.h
 
 macx:DESTDIR    = ../../OwNetClient/OwNetClient.app/Contents/MacOS/modules
 !macx:DESTDIR   = ../../OwNetClient/modules
