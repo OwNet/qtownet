@@ -3,6 +3,8 @@
 
 #include <QObject>
 
+class QNetworkAccessManager;
+
 class OwNetCloudServer : public QObject
 {
     Q_OBJECT
@@ -14,6 +16,8 @@ signals:
     
 public slots:
     
+private:
+    QNetworkAccessManager *m_nam;
 };
 
 #endif // OWNETCLOUDSERVER_H
