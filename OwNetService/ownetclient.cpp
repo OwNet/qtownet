@@ -4,6 +4,7 @@
 #include <QDebug>
 #include <QProcess>
 #include <QCoreApplication>
+#include <QMessageBox>
 
 OwNetClient::OwNetClient(OwNetCloudServer *cloudServer, QObject *parent) :
     QObject(parent)
@@ -44,7 +45,7 @@ void OwNetClient::finished()
         else
         {
             qDebug() << "Disabling OwNet client (crashed again in 10 secs)";
-            // notify user
+            QMessageBox::critical(NULL, "OwNet", "Oooops! OwNet has crashed. We have sent a report to our servers, so that we can figure out what's going on. If you know anything more, please contact us via <a href=\"http://ownet.fiit.stuba.sk\">http://ownet.fiit.stuba.sk</a>.");
 
             QCoreApplication::exit(1);
         }
