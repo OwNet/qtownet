@@ -16,11 +16,13 @@ SOURCES += main.cpp \
     helpers/applicationenvironment.cpp \
     helpers/settings.cpp \
     initializers/settingsinitializer.cpp \
-    ownetclient.cpp
+    ownetclient.cpp \
+    ownetcloudserver.cpp
 
 HEADERS  += helpers/applicationenvironment.h \
             helpers/settings.h \
     initializers/settingsinitializer.h \
-    ownetclient.h
+    ownetclient.h \
+    ownetcloudserver.h
 
 INCLUDEPATH += helpers initializers

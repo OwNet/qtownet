@@ -6,11 +6,13 @@
 #include <QProcess>
 #include <QDateTime>
 
+class OwNetCloudServer;
+
 class OwNetClient : public QObject
 {
     Q_OBJECT
 public:
-    explicit OwNetClient(QObject *parent = 0);
+    explicit OwNetClient(OwNetCloudServer *, QObject *parent = 0);
     void start();
     
 signals:
@@ -23,6 +25,7 @@ private:
     QString m_path;
     QString m_output;
     QDateTime m_lastError;
+    OwNetCloudServer *m_cloudServer;
 };
 
 #endif // OWNETCLIENT_H

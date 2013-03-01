@@ -1,13 +1,15 @@
 #include "ownetclient.h"
+#include "ownetcloudserver.h"
 
 #include <QDebug>
 #include <QProcess>
 #include <QCoreApplication>
 
-OwNetClient::OwNetClient(QObject *parent) :
+OwNetClient::OwNetClient(OwNetCloudServer *cloudServer, QObject *parent) :
     QObject(parent)
 {
     m_path = QCoreApplication::applicationDirPath().append("/../OwNetClient/OwNetClient");
+    m_cloudServer = cloudServer;
 }
 
 void OwNetClient::start()
@@ -32,10 +34,10 @@ void OwNetClient::finished()
         // first crash or crashed again in 10 secs
         if (m_lastError.isNull() || m_lastError < QDateTime::currentDateTime().addSecs(-10))
         {
-            start();
-
             qDebug() << "Sending crash report";
-            // send m_output
+            m_cloudServer->sendCrashReport(m_output);
+
+            start();
 
             m_lastError = QDateTime::currentDateTime();
         }

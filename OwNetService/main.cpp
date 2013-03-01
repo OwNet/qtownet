@@ -3,12 +3,7 @@
 
 #include "settingsinitializer.h"
 #include "ownetclient.h"
-
-/*
-#include "settings.h"
-#include <QDir>
-#include <QDebug>
-*/
+#include "ownetcloudserver.h"
 
 int main(int argc, char *argv[])
 {
@@ -16,17 +11,9 @@ int main(int argc, char *argv[])
 
     (new SettingsInitializer())->init();
 
-    // read pidfile
-    /*
-    QDir dir;
-    dir.setPath(Settings().value("application/data_folder_path").toString());
-    QFile file(dir.absoluteFilePath("ownet.pid"));
-    file.open(QIODevice::ReadOnly | QIODevice::Text);
-    qDebug() << file.fileName();
-    qDebug() << file.readAll().toLong();
-    */
+    OwNetCloudServer *cloudServer = new OwNetCloudServer();
 
-    OwNetClient *client = new OwNetClient();
+    OwNetClient *client = new OwNetClient(cloudServer);
     client->start();
 
     return a.exec();
