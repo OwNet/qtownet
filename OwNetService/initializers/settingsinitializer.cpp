@@ -6,6 +6,7 @@
 #include <QDir>
 #include <QDebug>
 #include <QStandardPaths>
+#include <QCoreApplication>
 
 SettingsInitializer::SettingsInitializer()
 {
@@ -13,6 +14,9 @@ SettingsInitializer::SettingsInitializer()
 
 void SettingsInitializer::init()
 {
+    QCoreApplication::setOrganizationName("The Reconnected");
+    QCoreApplication::setApplicationName("OwNet Client");
+
     if (ApplicationEnvironment().contains("OWNET_TEST_ENVIRONMENT"))
     {
         QSettings::setDefaultFormat(QSettings::IniFormat);

@@ -30,6 +30,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->actionPreferences, SIGNAL(triggered()), this, SLOT(showPreferences()));
     connect(ui->btnPreferences, SIGNAL(clicked()), this, SLOT(showPreferences()));
     connect(ui->btnSync, SIGNAL(clicked()), this, SLOT(sync()));
+    connect(ui->btnCrash, SIGNAL(clicked()), this, SLOT(crash()));
     connect(ui->btnEditWorkspaceName, SIGNAL(clicked()), this, SLOT(editWorkspaceName()));
 
     createTrayIcon();
@@ -124,6 +125,11 @@ void MainWindow::sync()
 {
     ProxyConnection connection;
     connection.callModule(connection.createRequest(IRequest::GET, "sync", "now", &connection));
+}
+
+void MainWindow::crash()
+{
+    qDebug() << *(QString *)0x0;
 }
 
 void MainWindow::editWorkspaceName()

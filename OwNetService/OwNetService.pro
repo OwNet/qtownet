@@ -15,10 +15,12 @@ TEMPLATE = app
 SOURCES += main.cpp \
     helpers/applicationenvironment.cpp \
     helpers/settings.cpp \
-    initializers/settingsinitializer.cpp
+    initializers/settingsinitializer.cpp \
+    ownetclient.cpp
 
 HEADERS  += helpers/applicationenvironment.h \
             helpers/settings.h \
-    initializers/settingsinitializer.h
+    initializers/settingsinitializer.h \
+    ownetclient.h
 
 INCLUDEPATH += helpers initializers
