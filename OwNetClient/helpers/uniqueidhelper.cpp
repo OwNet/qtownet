@@ -9,5 +9,5 @@ UniqueIdHelper::UniqueIdHelper(QObject *parent) :
 
 QString UniqueIdHelper::generate()
 {
-    return QUuid::createUuid().toString();
+    return QUuid::createUuid().toString().mid(1,36);
 }
