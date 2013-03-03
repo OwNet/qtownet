@@ -16,19 +16,25 @@ SOURCES += main.cpp \
     helpers/applicationenvironment.cpp \
     helpers/settings.cpp \
     initializers/settingsinitializer.cpp \
-    ownetclient.cpp \
-    ownetcloudserver.cpp \
+    ownet/ownetclient.cpp \
+    ownet/ownetcloudserver.cpp \
     helpers/jsondocument/jsondocument.cpp \
     helpers/jsondocument/qjsonwriter.cpp \
-    helpers/jsondocument/qjson.cpp
+    helpers/jsondocument/qjson.cpp \
+    helpers/version.cpp \
+    ownet/ownetupdater.cpp \
+    ownet/ownetinstallation.cpp
 
 HEADERS  += helpers/applicationenvironment.h \
             helpers/settings.h \
     initializers/settingsinitializer.h \
-    ownetclient.h \
-    ownetcloudserver.h \
+    ownet/ownetclient.h \
+    ownet/ownetcloudserver.h \
     helpers/jsondocument/jsondocument.h \
     helpers/jsondocument/qjsonwriter.h \
-    helpers/jsondocument/qjson.h
+    helpers/jsondocument/qjson.h \
+    helpers/version.h \
+    ownet/ownetupdater.h \
+    ownet/ownetinstallation.h
 
-INCLUDEPATH += helpers initializers
+INCLUDEPATH += helpers initializers ownet

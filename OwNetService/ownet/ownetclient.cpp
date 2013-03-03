@@ -7,10 +7,9 @@
 #include <QMessageBox>
 
 OwNetClient::OwNetClient(OwNetCloudServer *cloudServer, QObject *parent) :
-    QObject(parent)
+    m_cloudServer(cloudServer), QObject(parent)
 {
     m_path = QCoreApplication::applicationDirPath().append("/../OwNetClient/OwNetClient");
-    m_cloudServer = cloudServer;
 }
 
 void OwNetClient::start()
@@ -25,7 +24,6 @@ void OwNetClient::start()
     m_process->setProcessChannelMode(QProcess::MergedChannels);
 
     m_process->start(m_path);
-
 }
 
 void OwNetClient::finished()
@@ -58,3 +56,4 @@ void OwNetClient::readyRead()
 {
     m_output.append(m_process->readAll());
 }
+
