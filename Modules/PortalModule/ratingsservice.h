@@ -19,7 +19,7 @@ public:
 
     IResponse *create(IRequest *req);
     IResponse *show( IRequest *req);
-    IResponse *del(IRequest *req);
+    IResponse *del(IRequest *req, QString uid);
 
 private:
 

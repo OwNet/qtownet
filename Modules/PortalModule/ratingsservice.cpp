@@ -104,7 +104,7 @@ IResponse *RatingsService::show(IRequest *req)
 }
 
 
-IResponse *RatingsService::del(IRequest *req)
+IResponse *RatingsService::del(IRequest *req, QString uid)
 {
 
     QString curUser_id = m_proxyConnection->session()->value("logged").toString();
@@ -116,7 +116,7 @@ IResponse *RatingsService::del(IRequest *req)
 
      QVariantMap error;
 
-    IResponse::Status responseStatus = this->m_ratingManager->deleteRating(req, curUser_id, error);
+    IResponse::Status responseStatus = this->m_ratingManager->deleteRating(req, uid, curUser_id, error);
 
     if(!error.empty() || responseStatus == IResponse::INTERNAL_SERVER_ERROR)
     {

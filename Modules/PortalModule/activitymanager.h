@@ -16,7 +16,9 @@ public:
     
     bool createActivity(Activity &ac);
     QVariantList getActivities(bool *ok);
-    bool deleteActivity(int objectId);
+    bool deleteActivity(QString objectId);
+    bool editActivity(QString objectId, QString content);
+
 
 private:
     IProxyConnection *m_proxyConnection;

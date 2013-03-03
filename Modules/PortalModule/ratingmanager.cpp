@@ -5,6 +5,8 @@
 
 #include<QSqlRecord>
 #include <QSqlQuery>
+#include <QUuid>
+#include <QDate>
 
 RatingManager::RatingManager(IProxyConnection *proxyConnection, QObject *parent) :
     QObject(parent),
@@ -63,23 +65,25 @@ IResponse::Status RatingManager::createRating(IRequest *req, QString  curUser_id
      query->setColumnValue("absolute_uri", absolute_uri);
      query->setColumnValue("val", value);
      query->setColumnValue("user_id", curUser_id);
+     QString uid = QUuid::createUuid().toString();
+     query->setColumnValue("uid", uid);
 
      if(!query->executeQuery()){
          return IResponse::INTERNAL_SERVER_ERROR;
      }
 
 
-     // TODO create activity
+     // create activity
 
-     //Activity ac;
-     //ac.activity_type = Activity::RATING;
-     //ac.content = value.toInt();
-    // ac.group_id = 0;
+     Activity ac;
 
-     //********** TODOOOOO co s object_id *****************//
-    // ac.object_id = ??
+     //username is solved inside createActivity method
+     ac.activity_type = Activity::RATING;
+     ac.content = absolute_uri + ";" + value;
+     ac.group_id = 0;
+     ac.object_id = uid;
 
-     //m_activityManager->createActivity(ac);
+     m_activityManager->createActivity(ac);
 
      return IResponse::CREATED;
 
@@ -112,6 +116,7 @@ IResponse::Status RatingManager::showRating(IRequest *req, QVariantList &ratings
         rating.insert("user_id", query.value(query.record().indexOf("user_id")));
         rating.insert("value", query.value(query.record().indexOf("value")));
         rating.insert("absolute_uri", query.value(query.record().indexOf("absolute_uri")));
+        rating.insert("uid", query.value(query.record().indexOf("uid")));
 
         ratings.append(rating);
     }
@@ -119,7 +124,7 @@ IResponse::Status RatingManager::showRating(IRequest *req, QVariantList &ratings
     return IResponse::OK;
 }
 
-IResponse::Status RatingManager::deleteRating(IRequest *req, QString curUser_id, QVariantMap &error)
+IResponse::Status RatingManager::deleteRating(IRequest *req, QString uid, QString curUser_id, QVariantMap &error)
 {
     bool ok = false;
     QVariantMap reqJson = req->postBodyFromJson(&ok).toMap();
@@ -133,22 +138,37 @@ IResponse::Status RatingManager::deleteRating(IRequest *req, QString curUser_id,
         return IResponse::BAD_REQUEST;
     }
 
+    QSqlQuery query;
+    query.prepare("SELECT * FROM ratings WHERE absolute_uri=:absolute_uri AND user_id=:user_id");
+    query.bindValue(":absolute_uri",absolute_uri);
+    query.bindValue(":user_id",curUser_id);
 
-    QObject parentObject;
-    IDatabaseUpdateQuery *query = m_proxyConnection->databaseUpdateQuery("ratings", &parentObject);
-    query->setUpdateDates(true);
-    query->setType(IDatabaseUpdateQuery::Delete);
-
-    IDatabaseSelectQueryWhereGroup *where = query->whereGroup(IDatabaseSelectQuery::And);
-    where->where("absolute_uri", reqJson["absolute_uri"]);
-    where->where("user_id",curUser_id);
-
-    if(!query->executeQuery()){
+    if(!query.exec())
         return IResponse::INTERNAL_SERVER_ERROR;
+
+    if(query.first()){
+
+        QObject parentObject;
+        IDatabaseUpdateQuery *query = m_proxyConnection->databaseUpdateQuery("ratings", &parentObject);
+        query->setUpdateDates(true);
+        query->setType(IDatabaseUpdateQuery::Delete);
+
+        IDatabaseSelectQueryWhereGroup *where = query->whereGroup(IDatabaseSelectQuery::And);
+        where->where("absolute_uri", reqJson["absolute_uri"]);
+        where->where("user_id",curUser_id);
+
+        if(!query->executeQuery()){
+            return IResponse::INTERNAL_SERVER_ERROR;
+        }
+        else{
+            //**** delete activity ********//
+            m_activityManager->deleteActivity(uid);
+            return IResponse::OK;
+        }
     }
     else{
-
-        //**** TODO delete activity ********//
-        return IResponse::OK;
+        error.insert("ownership_of_rating","required");
+        return IResponse::UNAUTHORIEZED;
     }
+
 }

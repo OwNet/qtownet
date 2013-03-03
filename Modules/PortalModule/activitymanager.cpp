@@ -4,6 +4,7 @@
 
 #include "idatabaseupdatequery.h"
 #include "iproxyconnection.h"
+#include "isession.h"
 
 ActivityManager::ActivityManager(IProxyConnection *proxyConnection, QObject *parent) :
     QObject(parent),
@@ -13,6 +14,11 @@ ActivityManager::ActivityManager(IProxyConnection *proxyConnection, QObject *par
 
 bool ActivityManager::createActivity(Activity &ac)
 {
+
+    QObject parent;
+    ISession* sess = m_proxyConnection->session(&parent);
+    ac.user_name = sess->value("logged").toString();
+
     QObject parentObject;
     IDatabaseUpdateQuery *query = m_proxyConnection->databaseUpdateQuery("activities", &parentObject);
 
@@ -58,7 +64,7 @@ QVariantList ActivityManager::getActivities(bool *ok)
     return activities;
 }
 
-bool ActivityManager::deleteActivity(int objectId)
+bool ActivityManager::deleteActivity(QString objectId)
 {
     QObject parentObject;
     IDatabaseUpdateQuery *query = m_proxyConnection->databaseUpdateQuery("activities", &parentObject);
@@ -72,3 +78,23 @@ bool ActivityManager::deleteActivity(int objectId)
 
     return true;
 }
+
+bool ActivityManager::editActivity(QString objectId, QString content)
+{
+    QObject parent;
+    IDatabaseUpdateQuery *query = m_proxyConnection->databaseUpdateQuery("activities", &parent);
+    query->setUpdateDates(true);
+    query->singleWhere("object_id", objectId);
+
+    query->setColumnValue("content", content);
+
+    if(query->executeQuery()){
+        return true;
+    }
+
+    return false;
+
+}
+
+
+
