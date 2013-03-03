@@ -13,6 +13,7 @@ RecommendationsService::RecommendationsService(IProxyConnection *proxyConnection
     QObject(parent),
     m_proxyConnection(proxyConnection)
 {
+     m_recommendationManager = new RecommendationManager(proxyConnection);
 }
 
 void RecommendationsService::init(IRouter *router)
@@ -23,88 +24,26 @@ void RecommendationsService::init(IRouter *router)
 // create element
 IResponse *RecommendationsService::create(IRequest *req)
 {
-    bool ok = false;
-    QVariantMap reqJson = req->postBodyFromJson(&ok).toMap();
-    if (!ok)
-        return NULL;
-
-    QVariantMap error;
-
-    bool missingValue = false;
-
-    QString absolute_uri = reqJson["absolute_uri"].toString();
-    if(absolute_uri == ""){
-        missingValue = true;
-        error.insert("absolute_uri","required");
-    }
-
-    QString description = reqJson["description"].toString();
-    if(description == ""){
-        missingValue = true;
-        error.insert("description","required");
-
-    }
-
-    QString title = reqJson["title"].toString();
-    if(title == ""){
-        missingValue = true;
-        error.insert("title","required");
-
-    }
-
-    QString group_id = reqJson["group_id"].toString();
-    if(group_id == ""){
-        missingValue = true;
-        error.insert("group_id","required");
-    }
-
-    // missing argument
-
-    if(missingValue){
-
-        return req->response(QVariant(error), IResponse::BAD_REQUEST);
-    }
-
     QString curUser_id = m_proxyConnection->session()->value("logged").toString();
 
-    IRequest *request = m_proxyConnection->createRequest(IRequest::GET, "groups", "isMember");
-    request->setParamater("user_id", curUser_id);
-    request->setParamater("group_id", group_id);
-
-    bool member = m_proxyConnection->callModule(request)->body().toBool();
-
-    // overit ci je userom skupiny do ktorej chce pridat recomm
-    if(member){
-
-
-        QObject parentObject;
-        IDatabaseUpdateQuery *query = m_proxyConnection->databaseUpdateQuery("recommendations", &parentObject);
-
-        query->setUpdateDates(true); // sam nastavi v tabulke datumy date_created a date_updated
-
-        query->setColumnValue("title", title);
-        query->setColumnValue("absolute_uri", absolute_uri);
-        query->setColumnValue("group_id", group_id);
-        query->setColumnValue("description", description);
-        query->setColumnValue("user_id", curUser_id);
-
-        if(!query->executeQuery()){
-            return req->response(IResponse::INTERNAL_SERVER_ERROR);
-        }
-        return req->response(IResponse::CREATED);
-
-    }
-    else{
-
-        QVariantMap err;
-        err.insert("membership of the group","required");
-        return req->response(QVariant(err), IResponse::BAD_REQUEST);
+    if(curUser_id == "")
+    {
+        return req->response(IResponse::UNAUTHORIEZED);
     }
 
+    QVariantMap error;
+    IResponse::Status responseStatus;
+
+    responseStatus= this->m_recommendationManager->createRecomm(req, curUser_id, error);
+
+    if(!error.empty() || responseStatus == IResponse::INTERNAL_SERVER_ERROR)
+        return req->response(QVariant(error), responseStatus);
+    else
+       return req->response(responseStatus);
 
 }
 
-IResponse *RecommendationsService::index(IRequest *req)
+/*IResponse *RecommendationsService::index(IRequest *req)
 {
     bool ok = false;
     QVariantMap reqJson = req->postBodyFromJson(&ok).toMap();
@@ -145,96 +84,72 @@ IResponse *RecommendationsService::index(IRequest *req)
     }
 
     return req->response(IResponse::BAD_REQUEST);
-}
+}*/
 
-IResponse *RecommendationsService::edit(IRequest *req)
+IResponse *RecommendationsService::show(IRequest *req, QString id)
 {
-    bool ok = true;
-    QVariantMap reqJson = req->postBodyFromJson(&ok).toMap();
-    if (!ok)
-        return NULL;
 
-    IRequest *request = m_proxyConnection->createRequest(IRequest::GET, "groups", "isAdmin");
-    request->setParamater("user_id", reqJson["user_id"].toString());
-    request->setParamater("group_id", reqJson["group_id"].toString());
-    bool admin = m_proxyConnection->callModule(request)->body().toBool();
+    QString curUser_id = m_proxyConnection->session()->value("logged").toString();
 
-    QSqlQuery q;
-    q.prepare("SELECT * FROM recommendations WHERE id=:id AND user_id=:user_id AND group_id =:group_id");
-    q.bindValue(":user_id",reqJson["user_id"].toString());
-    q.bindValue(":group_id",reqJson["group_id"].toString());
-    q.bindValue(":id",reqJson["id"]);
-    q.exec();
-
-    bool owner = q.first();
-
-    if(admin || owner){
-        QObject parent;
-
-        IDatabaseUpdateQuery *query = m_proxyConnection->databaseUpdateQuery("groups", &parent);
-        query->setUpdateDates(true);
-        query->singleWhere("id", reqJson["id"]);
-
-        if(reqJson["title"] != "")
-            query->setColumnValue("title", reqJson["title"].toString());
-
-        if(reqJson["description"] != "")
-            query->setColumnValue("description", reqJson["description"].toString());
-
-        if(query->executeQuery()){
-            return req->response(IResponse::OK);
-        }
-        else{
-            return req->response(IResponse::INTERNAL_SERVER_ERROR);
-        }
+    if(curUser_id == "")
+    {
+        return req->response(IResponse::UNAUTHORIEZED);
     }
-    else{
-       return req->response(IResponse::UNAUTHORIEZED);
-    }
+
+    QVariantMap error;
+    QVariantMap recommendation;
+    IResponse::Status responseStatus;
+
+    responseStatus= this->m_recommendationManager->showRecomm(req, id, curUser_id, recommendation, error);
+
+    if(!error.empty() || responseStatus == IResponse::INTERNAL_SERVER_ERROR)
+        return req->response(QVariant(error), responseStatus);
+    else
+       return req->response( QVariant(recommendation), responseStatus);
 
 }
 
-IResponse *RecommendationsService::del(IRequest *req)
+IResponse *RecommendationsService::edit(IRequest *req, QString uid)
 {
-    bool ok = false;
-    QVariantMap reqJson = req->postBodyFromJson(&ok).toMap();
-    if (!ok)
-        return NULL;
 
-    IRequest *request = m_proxyConnection->createRequest(IRequest::GET, "groups", "isAdmin");
-    request->setParamater("user_id", reqJson["user_id"].toString());
-    request->setParamater("group_id", reqJson["group_id"].toString());
-    bool admin = m_proxyConnection->callModule(request)->body().toBool();
+    QString curUser_id = m_proxyConnection->session()->value("logged").toString();
 
-    QSqlQuery q;
-    q.prepare("SELECT * FROM recommendations WHERE id=:id AND user_id=:user_id AND group_id =:group_id");
-    q.bindValue(":user_id",reqJson["user_id"].toString());
-    q.bindValue(":group_id",reqJson["group_id"].toString());
-    q.bindValue(":id",reqJson["id"]);
-    q.exec();
-
-    bool owner = q.first();
-
-    if(admin || owner){
-
-        QObject parentObject;
-        IDatabaseUpdateQuery *query = m_proxyConnection->databaseUpdateQuery("messages", &parentObject);
-
-        query->setUpdateDates(true);
-        query->setType(IDatabaseUpdateQuery::Delete);
-
-        query->singleWhere("id", reqJson["id"]);
-
-        if(query->executeQuery()){
-            return req->response(IResponse::OK);
-        }
-        else{
-            return req->response(IResponse::INTERNAL_SERVER_ERROR);
-        }
+    if(curUser_id == "")
+    {
+        return req->response(IResponse::UNAUTHORIEZED);
     }
-    else{
-       req->response(IResponse::UNAUTHORIEZED);
+
+    QVariantMap error;
+    IResponse::Status responseStatus;
+
+    responseStatus= this->m_recommendationManager->editRecomm(req, uid, curUser_id, error);
+
+    if(!error.empty() || responseStatus == IResponse::INTERNAL_SERVER_ERROR)
+        return req->response(QVariant(error), responseStatus);
+    else
+       return req->response(responseStatus);
+
+}
+
+IResponse *RecommendationsService::del(IRequest *req, QString uid)
+{
+    QString curUser_id = m_proxyConnection->session()->value("logged").toString();
+
+    if(curUser_id == "")
+    {
+        return req->response(IResponse::UNAUTHORIEZED);
     }
+
+    QVariantMap error;
+    IResponse::Status responseStatus;
+
+    responseStatus= this->m_recommendationManager->deleteRecomm(req, uid, curUser_id, error);
+
+    if(!error.empty() || responseStatus == IResponse::INTERNAL_SERVER_ERROR)
+        return req->response(QVariant(error), responseStatus);
+    else
+       return req->response(responseStatus);
+
 
 }
 
