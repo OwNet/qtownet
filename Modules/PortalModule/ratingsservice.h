@@ -4,8 +4,8 @@
 #include <QObject>
 
 #include "irestservice.h"
+#include "ratingmanager.h"
 
-class IProxyConnection;
 
 class RatingsService : public QObject, public IRestService
 {
@@ -17,14 +17,15 @@ public:
 
     QString name() const { return "ratings"; }
 
-     IResponse *create(IRequest *req);
-     IResponse *show( IRequest *req);
-     IResponse *index(IRequest *req);
-   // QVariant *edit(IBus *bus, IRequest *);
-     IResponse *del(IRequest *req);
+    IResponse *create(IRequest *req);
+    IResponse *show( IRequest *req);
+    IResponse *del(IRequest *req, QString uid);
 
 private:
+
     IProxyConnection *m_proxyConnection;
+
+    RatingManager *m_ratingManager;
 };
 
 #endif // RATINGSSERVICE_H

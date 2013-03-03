@@ -4,6 +4,7 @@
 #include <QObject>
 
 #include "irestservice.h"
+#include "recommendationmanager.h"
 
 class IProxyConnection;
 
@@ -18,13 +19,14 @@ public:
     QString name() const { return "recommendations"; }
 
      IResponse *create(IRequest *req);
-     //IResponse *show( IRequest *req);
-     IResponse *index(IRequest *req);
-     IResponse *edit(IRequest *);
-     IResponse *del(IRequest *req);
+     IResponse *show( IRequest *req, QString id);
+     //IResponse *index(IRequest *req);
+     IResponse *edit(IRequest *, QString uid);
+     IResponse *del(IRequest *req, QString uid);
 
 private:
     IProxyConnection *m_proxyConnection;
+    RecommendationManager *m_recommendationManager;
 };
 
 #endif // RECOMMENDATIONSSERVICE_H

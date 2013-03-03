@@ -89,7 +89,7 @@ void ProxyResponseOutputWriter::read(QIODevice *ioDevice)
 
                 m_response->write(listx.at(1).toLatin1());
 
-                m_response->write(QString("<script type=\"text/javascript\" src=\"http://inject.ownet/js/tabframeinject.js\"></script>")
+                m_response->write(QString("<script type=\"text/javascript\" src=\"http://inject.ownet/js/inject.js\"></script>")
                                 .toLatin1());
                 m_response->write(listx.at(2).toLatin1());
                 m_response->write(lineBytes);
