@@ -6,6 +6,7 @@
 #include "databaseselectquery.h"
 #include "databasesettings.h"
 #include "session.h"
+#include "idatabaseselectquerywheregroup.h"
 
 #include <QNetworkReply>
 #include <QNetworkProxy>
@@ -22,9 +23,12 @@ void ProxyWebInputObject::readRequest()
     uint myId = DatabaseSettings().clientId();
 
     DatabaseSelectQuery query("client_caches");
-    query.singleWhere("cache_id", m_request->hashCode());
+    IDatabaseSelectQueryWhereGroup *where = query.whereGroup(IDatabaseSelectQuery::And);
+    where->where("cache_id", m_request->hashCode());
+    where->where("client_id", myId, IDatabaseSelectQuery::NotEqual);
+    query.orderBy("date_created", IDatabaseSelectQuery::Descending);
     while (query.next())
-        if (query.value("client_id").toUInt() != myId && isClientOnline(query.value("client_id").toUInt()))
+        if (isClientOnline(query.value("client_id").toUInt()))
             m_clientsToTry.append(query.value("client_id").toUInt());
 
     createReply();
