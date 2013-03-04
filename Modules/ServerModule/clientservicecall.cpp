@@ -92,8 +92,12 @@ IResponse *ClientServiceCall::callService(const QString &url, IRequest *request,
     loop.exec();
 
     bool ok = false;
-    QVariant json = m_proxyConnection->fromJson(reply->readAll(), &ok);
-    if (ok)
-        return request->response(json);
+
+    if (reply->error() == QNetworkReply::NoError) {
+        QVariant json = m_proxyConnection->fromJson(reply->readAll(), &ok);
+        if (ok)
+            return request->response(json);
+        return request->response(IResponse::OK);
+    }
     return request->response(IResponse::NOT_FOUND);
 }
