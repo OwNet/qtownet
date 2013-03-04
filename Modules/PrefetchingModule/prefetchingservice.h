@@ -2,7 +2,7 @@
 #define PREFETCHINGSERVICES_H
 
 #include <QObject>
-
+#include <QList>
 #include "irestservice.h"
 #include "iservice.h"
 #include "irouter.h"
@@ -13,6 +13,7 @@ class PrefetchingModule;
 class IDatabaseUpdateQuery;
 class IDatabaseUpdate;
 class QFile;
+class QUrl;
 
 class PrefetchingService : public QObject, public IService
 {
@@ -29,6 +30,7 @@ public:
     IResponse *load(IRequest *);
     IResponse *done(IRequest *);
 
+
 private:
     static const int DEFAULT_PRIORITY = 30;
     IProxyConnection *m_proxyConnection;
@@ -36,8 +38,7 @@ private:
     bool completedPrefetchingQuery(QString url);
     bool disablePredictionQuery(int hash);
 
-
-//    QFile* readCache(QUrl url);
+    QList<QString *> *getTopLinks(QString url);
 
    //int registerPage(QString &url);
 };

@@ -18,7 +18,7 @@ class PrefetchingJob : public QObject, public IJobAction
 public:
     PrefetchingJob(IProxyConnection *proxyConnection, QObject* parent);
 
-    int interval() { return 10 * 1000; }
+    int interval() { return 10 * 60 * 1000; }
     void execute();
 
 private:
