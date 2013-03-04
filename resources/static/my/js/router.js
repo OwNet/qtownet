@@ -73,6 +73,7 @@ define( function (require) {
 
 		showgroup: function() {
 			this.activate("#/showgroups")
+
 		},
 
 		editgroup: function() {

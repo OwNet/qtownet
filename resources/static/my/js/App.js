@@ -25,6 +25,7 @@ define( function (require) {
 		clearMessages: function() {
 			$("#messages").hide( "fast", function (){ $(this).html("").show() })
 		},
+		
 
 	}
 

@@ -67,6 +67,20 @@ define( function (require) {
 				return this
 			},
 
+			show1: function(){
+				        		
+        		var user = new UserModel()
+        		
+        		user.fetch({
+        			success: function() {
+						$('div#user_profile').html( profileTableTemplate({user :user.toJSON()}))
+						
+					}
+        		})
+
+				this.$el.html( profileTemplate({ }) )
+				return this
+			},
 			saveProfile: function() {
 				var form = Form( $('form[name="profile-form"]', this.$el) )
 				var data = form.toJSON()
@@ -79,11 +93,11 @@ define( function (require) {
 					wait: true,
 					success: function() {
 						App.router.navigate('profile', {trigger: true})
-						initialize()
-						App.showMessage("Profile created", "alert-success")
+					
+						App.showMessage("Profile updated", "alert-success")
 					},
 					error: function() {
-						App.showMessage("Profile creation failed")
+						App.showMessage("Profile update failed")
 					},
 				})
 			},
@@ -94,7 +108,7 @@ define( function (require) {
         		
         		var user = new UserModel()
         		user.id = id
-        		var self = this
+        		
         		user.fetch({
         			success: function() {
         				App.router.navigate("#/showprofile", {trigger: true})
@@ -107,15 +121,16 @@ define( function (require) {
 			editProfile: function(e){
 				e.preventDefault();
         		var id = $(e.currentTarget).data("id");
-        		
         		var user = new UserModel()
         		user.id = id
+
 
         		user.fetch({
         			success: function() {
         				App.router.navigate("#/editprofile", {trigger: true})
+        	
+        				$('div#edit_profile').html( profileFormTemplate({user :user.toJSON()}))
 
-        				$('div#user_profile').html( profileFormTemplate({user: user.toJSON()}))
         				
 					}
         		})
