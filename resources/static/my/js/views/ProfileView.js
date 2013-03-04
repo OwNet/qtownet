@@ -70,6 +70,7 @@ define( function (require) {
 			saveProfile: function() {
 				var form = Form( $('form[name="profile-form"]', this.$el) )
 				var data = form.toJSON()
+				var self = this
 				
 				var user = new UserModel(data)
 
@@ -78,6 +79,7 @@ define( function (require) {
 					wait: true,
 					success: function() {
 						App.router.navigate('profile', {trigger: true})
+						initialize()
 						App.showMessage("Profile created", "alert-success")
 					},
 					error: function() {
@@ -112,6 +114,7 @@ define( function (require) {
         		user.fetch({
         			success: function() {
         				App.router.navigate("#/editprofile", {trigger: true})
+
         				$('div#user_profile').html( profileFormTemplate({user: user.toJSON()}))
         				
 					}
