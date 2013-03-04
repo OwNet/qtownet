@@ -1,0 +1,12 @@
+each user in users
+	.row
+		.span1
+			label #{users[0].first_name}
+		.span2
+			label #{users[0].last_name}
+		.span3
+			label #{users[0].email}
+		.span4
+			label #{users[0].phone}
+		.span3
+			a( href="#/editprofile" data-id="#{users[0].id}" name="editprofile") Edit Profile

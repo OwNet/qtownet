@@ -5,7 +5,8 @@ define( function (require) {
 	var Backbone = require( 'backbone' )
 	  , LoginView = require( 'views/LoginView' )
 	  , RegistrationView = require( 'views/RegistrationView' )
-	  , GroupsView = require( 'views/GroupsView' )	  
+	  , GroupsView = require( 'views/GroupsView' )
+	  , ProfileView = require( 'views/ProfileView' )	  
 
 
 
@@ -19,6 +20,7 @@ define( function (require) {
 				login : new LoginView({ el:$("#content") }),
 				registration: new RegistrationView({ el:$("#content") }),
 				groups: new GroupsView({ el:$("#content") }),
+				profile: new ProfileView({ el:$("#content") }),
 			}
 
 			Backbone.history.start()
@@ -33,7 +35,10 @@ define( function (require) {
 			groups : "groups",
 			creategroups : "creategroups",
 			showgroup: "showgroup",
-			editgroup: "editgroup"
+			editgroup: "editgroup",
+			profile: "profile",
+			showprofile: "showprofile",
+			editprofile: "editprofile",
 
 		},
 
@@ -72,6 +77,19 @@ define( function (require) {
 
 		editgroup: function() {
 			this.activate("#/editgroups")
+		},
+
+		profile: function() {
+			this.views.profile.show()
+			this.activate("#/profile")
+		},
+
+		showprofile: function() {
+			this.activate("#/showprofile")
+		},
+
+		editprofile: function() {
+			this.activate("#/editprofile")
 		},
 
 	});
