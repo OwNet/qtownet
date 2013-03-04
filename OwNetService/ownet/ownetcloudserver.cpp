@@ -8,13 +8,11 @@
 #include <QNetworkAccessManager>
 #include <QVariantMap>
 #include <QNetworkReply>
+#include <QFileInfo>
 
 OwNetCloudServer::OwNetCloudServer(QObject *parent) :
     QObject(parent)
 {
-    m_nam = new QNetworkAccessManager(this);
-
-    connect(m_nam, SIGNAL(finished(QNetworkReply*)), this, SLOT(updateMetadataReceived(QNetworkReply*)));
 }
 
 void OwNetCloudServer::sendCrashReport(QString report)
@@ -30,14 +28,18 @@ void OwNetCloudServer::sendCrashReport(QString report)
     QNetworkRequest *request = new QNetworkRequest(QUrl(url));
     request->setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
 
-    m_nam->post(*request, postData);
+    QNetworkAccessManager *nam = new QNetworkAccessManager(this);
+    nam->post(*request, postData);
 }
 
 void OwNetCloudServer::checkUpdateMetadata()
 {
     QString url = "http://localhost:3000/update/metadata.json";
     QNetworkRequest *request = new QNetworkRequest(QUrl(url));
-    m_nam->get(*request);
+
+    QNetworkAccessManager *nam = new QNetworkAccessManager(this);
+    connect(nam, SIGNAL(finished(QNetworkReply*)), this, SLOT(updateMetadataReceived(QNetworkReply*)));
+    nam->get(*request);
 }
 
 void OwNetCloudServer::updateMetadataReceived(QNetworkReply *reply)
@@ -48,4 +50,22 @@ void OwNetCloudServer::updateMetadataReceived(QNetworkReply *reply)
     if (ok) {
         emit updateMetadataReceived(metadata);
     }
+}
+
+void OwNetCloudServer::downloadUpdatePackage(QString packageName)
+{
+    QString url = QString("http://localhost:3000/update/").append(packageName);
+    QNetworkRequest *request = new QNetworkRequest(QUrl(url));
+
+    QNetworkAccessManager *nam = new QNetworkAccessManager(this);
+    connect(nam, SIGNAL(finished(QNetworkReply*)), this, SLOT(packageDataReceived(QNetworkReply*)));
+    nam->get(*request);
+}
+
+void OwNetCloudServer::packageDataReceived(QNetworkReply *reply)
+{
+    QFileInfo fileInfo(reply->request().url().path());
+    QByteArray data = reply->readAll();
+
+    emit packageDataReceived(fileInfo.fileName(), data);
 }

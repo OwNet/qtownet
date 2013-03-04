@@ -18,6 +18,7 @@ signals:
     
 public slots:
     void updateMetadataReceived(QVariantMap);
+    void packageDataReceived(QString fileName, QByteArray data);
 
 private:
     OwNetClient *m_client;
