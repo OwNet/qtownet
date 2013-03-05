@@ -156,179 +156,157 @@ owNetGLOBAL = {
             }
         };
         anim();
+    }
+}
+
+owNetGLOBAL.HighlightSwitch = {
+    isSwitchedOn: 0,
+    switchObj: null,
+    availableUris: null,
+    highlightedLinks: [],
+    receiveLinks: function (linksobj) {
+        if (owNetGLOBAL.isArray(linksobj)) {
+            this.availableUris = linksobj;
+            for (var i = 0; i < this.availableUris.length; ++i) {
+                this.availableUris[i] = decodeURIComponent(this.availableUris[i]);
+            }
+        }
+
     },
-    HighlightSwitch:
-    {
-        isSwitchedOn: 0,
-        switchObj: null,
-        availableUris: null,
-        highlightedLinks: [],
-        receiveLinks: function (linksobj) {
-            if (owNetGLOBAL.isArray(linksobj)) {
-                this.availableUris = linksobj;
-                for (var i = 0; i < this.availableUris.length; ++i) {
-                    this.availableUris[i] = decodeURIComponent(this.availableUris[i]);
+    doSwitch: function () {
+        if (this.isSwitchedOn == 0) {  /* switch on */
+            owNetAVAILABLEURIS = null;  // check the client everytime
+            this.availableUris = null; 
+            if (this.availableUris === null || this.availableUris.length === 0 || owNetGLOBAL.pageUriChanged() === true) {
+                owNetGLOBAL.updatePageUri();
+                this.availableUris = null;
+                this.highlightedLinks = [];
+                owNetGLOBAL.loadScript(owNetGLOBAL.localUri + "cache/links?page=" + owNetGLOBAL.encodedPageUri + "&gid=" + Math.floor((Math.random() * 1000) + 1), function () {
+                    owNetGLOBAL.HighlightSwitch.receiveLinks(owNetAVAILABLEURIS); owNetGLOBAL.HighlightSwitch.switchOn();
                 }
+                );
+                return;
             }
-
-        },
-        doSwitch: function () {
-            if (this.isSwitchedOn == 0) {  /* switch on */
-                owNetAVAILABLEURIS = null;  // check the client everytime
-                this.availableUris = null; 
-                if (this.availableUris === null || this.availableUris.length === 0 || owNetGLOBAL.pageUriChanged() === true) {
-                    owNetGLOBAL.updatePageUri();
-                    this.availableUris = null;
-                    this.highlightedLinks = [];
-                    owNetGLOBAL.loadScript(owNetGLOBAL.localUri + "cache/links?page=" + owNetGLOBAL.encodedPageUri + "&gid=" + Math.floor((Math.random() * 1000) + 1), function () {
-                        owNetGLOBAL.HighlightSwitch.receiveLinks(owNetAVAILABLEURIS); owNetGLOBAL.HighlightSwitch.switchOn();
-                    }
-                    );
-                    return;
-                }
-                this.switchOn();
-            }
-            else {  /* switch off*/
-                this.switchOff();
-            }
-        },
-        switchOn: function () {
-            for (var i = 0; i < document.links.length; ++i) {
-                if (this.availableUris.owNetContains(document.links[i].href, owNetGLOBAL.urlEquals)) {
-                    document.links[i].className += " owNetHighlight";
-                    this.highlightedLinks[this.highlightedLinks.length] = document.links[i];
-                }
-            }
-            this.isSwitchedOn = 1;
-            this.switchObj.switchOn();
-        },
-        switchOff: function () {
-            var reg = new RegExp("(\\s|^)" + "owNetHighlight" + "(\\s|$)");
-
-            for (var i = 0; i < this.highlightedLinks.length; ++i) {
-                this.highlightedLinks[i].className = this.highlightedLinks[i].className.replace(reg, "");
-            }
-            this.highlightedLinks = [];
-            this.switchObj.switchOff();
-            this.isSwitchedOn = 0;
-        },
-        assignSwitch: function (obj) {
-            this.switchObj = obj;
-            return function () {
-                owNetGLOBAL.HighlightSwitch.doSwitch();
-            };
+            this.switchOn();
+        }
+        else {  /* switch off*/
+            this.switchOff();
         }
     },
-    ProxyContact:
-    {
-        hasReportedPrimary: 0,
-        hasReportedPrefetch: 0,
-        hasReportedClose: 0,
-        isRefreshed: 0,
-        pageId: -1,
-        reportPrimary: function () {
-            try {
-                if (this.hasReportedPrimary == 0) {
-                    owNetGLOBAL.loadScript(owNetGLOBAL.localUri + "visit/?page=" + owNetGLOBAL.encodedPageUri + "&ref=" + owNetGLOBAL.encodedReferrerUri + "&gid=" + Math.floor((Math.random() * 1000) + 1), function () {
-                        if (owNetPAGEID !== null)
-                        {
-                            owNetGLOBAL.ProxyContact.pageId = owNetPAGEID;
-                        }
-                    });
-                    this.hasReportedPrimary = 1;
-                }
+    switchOn: function () {
+        for (var i = 0; i < document.links.length; ++i) {
+            if (this.availableUris.owNetContains(document.links[i].href, owNetGLOBAL.urlEquals)) {
+                document.links[i].className += " owNetHighlight";
+                this.highlightedLinks[this.highlightedLinks.length] = document.links[i];
             }
-            catch (e) {
-                throw e;
-            }
-        },
-    	sendRandomLink : function() {
-             owNetGLOBAL.loadScript(owNetGLOBAL.prefetchUri + "link/?from=" + this.pageId + "&to=" + owNetGLOBAL.getRandomLink() + "&gid=" + Math.floor((Math.random() * 1000) + 1), function () {
-	        	return true;
-             });
-	    },
- 	    reportLink:function () {
-            try { // TODO chech owNetPAGEID existence
-                if (this.hasReportedPrimary == 1) {
-		            this.sendRandomLink();
-		            this.sendRandomLink();
-		            this.sendRandomLink();
-                }
-            }
-            catch (e) {
-                throw e;
-            }
-        },
-        reportClose: function () {
-            try {
-                if (this.hasReportedClose == 0) {
-                    /*         owNetGLOBAL.loadScript(owNetGLOBAL.localUri + "cancel/?page=" + this.pageId, function () {
-                    return true;
-                    });*/
-                    owNetGLOBAL.ajaxGet(owNetGLOBAL.prefetchUri + "close/?page=" + this.pageId, function (xmlHttp) {
-                        if (xmlHttp.readyState == 4 && xmlHttp.status == 200) {
-                            return true;
-                        }
-                        return true;
-                    });
-                    this.hasReportedClose = 1;
-                }
-            }
-            catch (e) {
-            }
-        },
-        startRefresh: function () {
-            owNetGLOBAL.loadScript(owNetGLOBAL.localUri + "refresh/start", function () {
-                window.location.reload();
-            });
-        },
-        stopRefresh: function () {
-            try {
-                this.stopRefreshTimeout();
-                if (this.isRefreshed == 0) {
-                    owNetGLOBAL.loadScript(owNetGLOBAL.localUri + "refresh/stop", function () {
-                        return true;
-                    });
-                    this.isRefreshed = 1;
-                }
-            }
-            catch (e) {
-                throw e;
-            }
-        },
-        refreshTimeout: 0,
-        reportTimeout: 0,
-        startRefreshTimeout: function () {
-            this.refreshTimeout = setTimeout(this.stopRefresh, 1000 * 60 * 2);
-        },
-        stopRefreshTimeout: function () {
-            if (this.refreshTimeout) clearTimeout(this.refreshTimeout);
-        },
-        startReportTimeout: function () {
-            this.reportTimeout = setTimeout(this.reportLink, 1000 * 10);
-        },
-        stopReportTimeout: function () {
-            if (this.reportTimeout) clearTimeout(this.reportTimeout);
-        },
-        reportPrefetch: function () {
-            try {
-                if (this.hasReportedPrefetch == 0) {
-                   // var target = owNetGLOBAL.encodedReferrerUri;
+        }
+        this.isSwitchedOn = 1;
+        this.switchObj.switchOn();
+    },
+    switchOff: function () {
+        var reg = new RegExp("(\\s|^)" + "owNetHighlight" + "(\\s|$)");
 
-                   // if (target === null || target.match(/\S/g) === null)
-                    target = owNetGLOBAL.encodedPageUri;
-
-                    owNetGLOBAL.loadScript(owNetGLOBAL.prefetchUri + "done/?page=" + target + "&gid=" + Math.floor((Math.random() * 1000) + 1), function () {
-                        return true;
-                    });
-                    this.hasReportedPrefetch = 1;
-                }
-            }
-            catch (e) {
-            }
-        },
+        for (var i = 0; i < this.highlightedLinks.length; ++i) {
+            this.highlightedLinks[i].className = this.highlightedLinks[i].className.replace(reg, "");
+        }
+        this.highlightedLinks = [];
+        this.switchObj.switchOff();
+        this.isSwitchedOn = 0;
+    },
+    assignSwitch: function (obj) {
+        this.switchObj = obj;
+        return function () {
+            owNetGLOBAL.HighlightSwitch.doSwitch();
+        };
     }
+};
 
+owNetGLOBAL.ProxyContact = {
+    hasReportedPrimary: 0,
+    hasReportedPrefetch: 0,
+    hasReportedClose: 0,
+    isRefreshed: 0,
+    pageId: -1,
+    reportVisit: function () {
+        try {
+            if (this.hasReportedPrimary == 0) {
+                owNetGLOBAL.loadScript(owNetGLOBAL.localUri + "visit/?page=" + owNetGLOBAL.encodedPageUri + "&ref=" + owNetGLOBAL.encodedReferrerUri + "&gid=" + Math.floor((Math.random() * 1000) + 1), function () {
+                    if (owNetPAGEID !== null) {
+                        owNetGLOBAL.ProxyContact.pageId = owNetPAGEID;
+                        owNetGLOBAL.loadScript(owNetGlobal.prefetchUri + "create/?page=" + owNetPAGEID + "&gid=" + Math.floor((Math.random() * 1000) + 1), function () { });
+                    }
+                });
+                this.hasReportedPrimary = 1;
+            }
+        }
+        catch (e) {
+            throw e;
+        }
+    },
+
+
+    reportClose: function () {
+        try {
+            if (this.hasReportedClose == 0) {
+                /*         owNetGLOBAL.loadScript(owNetGLOBAL.localUri + "cancel/?page=" + this.pageId, function () {
+                return true;
+                });*/
+                owNetGLOBAL.ajaxGet(owNetGLOBAL.prefetchUri + "close/?page=" + this.pageId, function (xmlHttp) {
+                    if (xmlHttp.readyState == 4 && xmlHttp.status == 200) {
+                        return true;
+                    }
+                    return true;
+                });
+                this.hasReportedClose = 1;
+            }
+        }
+        catch (e) {
+        }
+    },
+    startRefresh: function () {
+        owNetGLOBAL.loadScript(owNetGLOBAL.localUri + "refresh/start", function () {
+            window.location.reload();
+        });
+    },
+    stopRefresh: function () {
+        try {
+            this.stopRefreshTimeout();
+            if (this.isRefreshed == 0) {
+                owNetGLOBAL.loadScript(owNetGLOBAL.localUri + "refresh/stop", function () {
+                    return true;
+                });
+                this.isRefreshed = 1;
+            }
+        }
+        catch (e) {
+            throw e;
+        }
+    },
+    refreshTimeout: 0,
+    reportTimeout: 0,
+    startRefreshTimeout: function () {
+        this.refreshTimeout = setTimeout(this.stopRefresh, 1000 * 60 * 2);
+    },
+    stopRefreshTimeout: function () {
+        if (this.refreshTimeout) clearTimeout(this.refreshTimeout);
+    },
+    reportPrefetch: function () {
+        try {
+            if (this.hasReportedPrefetch == 0) {
+                // var target = owNetGLOBAL.encodedReferrerUri;
+
+                // if (target === null || target.match(/\S/g) === null)
+                target = owNetGLOBAL.encodedPageUri;
+
+                owNetGLOBAL.loadScript(owNetGLOBAL.prefetchUri + "done/?page=" + target + "&gid=" + Math.floor((Math.random() * 1000) + 1), function () {
+                    return true;
+                });
+                this.hasReportedPrefetch = 1;
+            }
+        }
+        catch (e) {
+        }
+    }
 };
 
 
@@ -356,10 +334,11 @@ Array.prototype.owNetContains = function (item, comparer) {
     try 
     {
         if (top === self) {
-            if (document.location.href.match(/prefetch.ownet\/api\/prefetch/) !== null) { alert("a"); }
+            if (document.location.href.match(/prefetch.ownet\/api\/prefetch/) !== null) {
+                alert("a");
+            }
             else if (document.referrer.match(/prefetch.ownet\/api\/prefetch/) !== null) {
                 alert("b");
-
                 if (document.addEventListener) {
                     document.addEventListener("DOMContentLoaded", function () {
                         document.removeEventListener("DOMContentLoaded", arguments.callee, false);
@@ -577,14 +556,14 @@ Array.prototype.owNetContains = function (item, comparer) {
                     if (document.addEventListener) {
                         document.addEventListener("DOMContentLoaded", function () {
                             document.removeEventListener("DOMContentLoaded", arguments.callee, false);
-                            owNetGLOBAL.ProxyContact.reportLink();
+                           
                         }, false);
                     }
                     else if (document.attachEvent) {
                         document.attachEvent("onreadystatechange", function () {
                             if (document.readyState === "complete") {
                                 document.detachEvent("onreadystatechange", arguments.callee);
-                                owNetGLOBAL.ProxyContact.reportLink();
+                                
                             }
                         });
                     }
