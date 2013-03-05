@@ -12,13 +12,13 @@ form(name="create-group-form").form-horizontal
 							textarea(name="description") #{group[0].description}
 							span.help-block
 
-					.control-group
+					//-.control-group
 						label.control-label Has password:
 						.controls
 							input(type="checkbox" name="has_password"  value="#{group[0].has_password}")
 							span.help-block
 
-					.control-group
+					//-.control-group
 						label.control-label Password:
 						.controls
 							input(type="password" name="password")
@@ -34,4 +34,4 @@ form(name="create-group-form").form-horizontal
 
 					.control-group
 						.controls
-							button.btn(type="button" name="submit") Sign Up
+							button.btn(type="button" name="submit") Create
