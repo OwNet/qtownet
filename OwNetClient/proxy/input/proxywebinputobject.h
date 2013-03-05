@@ -26,7 +26,7 @@ private slots:
 private:
     void createReply();
     bool isClientOnline(uint clientId) const;
-    QString clientIp(uint clientId) const;
+    QString clientIpAndPort(uint clientId) const;
 
     bool m_readHeaders;
     bool m_retryIfFailed;
