@@ -1,5 +1,4 @@
 #include "ratingsservice.h"
-#include "irequest.h"
 #include "irouter.h"
 #include "idatabaseupdate.h"
 #include "iproxyconnection.h"
@@ -45,12 +44,12 @@ IResponse *RatingsService::create(IRequest *req)
     if (absolute_uri == "")
         error.insert("absolute_uri","required");
 
-    int value = reqJson["value"].toInt(&ok);
+    int value = reqJson["val"].toInt(&ok);
     if(!ok)
-        error.insert("value","required");
+        error.insert("val","required");
 
     if (value<1 || value>5)
-        error.insert("value","value must be between 1 and 5");
+        error.insert("val","value must be between 1 and 5");
 
     if (!error.isEmpty())
         return req->response(QVariant(error), IResponse::BAD_REQUEST);
@@ -68,7 +67,6 @@ IResponse *RatingsService::create(IRequest *req)
 
 IResponse *RatingsService::index(IRequest *req)
 {
-
     if ( !m_proxyConnection->session()->isLoggedIn() )
            return req->response(IResponse::UNAUTHORIEZED);
 
@@ -88,11 +86,8 @@ IResponse *RatingsService::index(IRequest *req)
 
 IResponse *RatingsService::show(IRequest *req, uint id)
 {
-
     if ( !m_proxyConnection->session()->isLoggedIn() )
            return req->response(IResponse::UNAUTHORIEZED);
-
-    uint userId = m_proxyConnection->session()->userId();
 
     QVariantMap error;
     QVariantMap rating;
@@ -102,7 +97,36 @@ IResponse *RatingsService::show(IRequest *req, uint id)
     if (responseStatus != IResponse::OK)
         return req->response(QVariant(error), responseStatus);
     else
-       return req->response(QVariant(rating),responseStatus);
+        return req->response(QVariant(rating),responseStatus);
+}
+
+IResponse *RatingsService::edit(IRequest *req, uint id)
+{
+    if ( !m_proxyConnection->session()->isLoggedIn() )
+           return req->response(IResponse::UNAUTHORIEZED);
+
+    bool ok;
+    QVariantMap error;
+
+    uint userId = m_proxyConnection->session()->userId();
+
+    QVariantMap reqJson = req->postBodyFromJson(&ok).toMap();
+    if (!ok)
+        return req->response(IResponse::BAD_REQUEST);
+
+    int value = reqJson["val"].toInt(&ok);
+    if(!ok)
+        error.insert("val","required");
+
+    if (!error.isEmpty())
+        return req->response(QVariant(error), IResponse::BAD_REQUEST);
+
+    IResponse::Status responseStatus = this->m_ratingManager->editRating(id, userId, value, error );
+
+    if (responseStatus != IResponse::OK)
+        return req->response(QVariant(error), responseStatus);
+    else
+       return req->response(responseStatus);
 }
 
 
