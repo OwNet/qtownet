@@ -265,35 +265,28 @@ IResponse::Status RecommendationManager::editRecomm(IRequest *req, QString curUs
 
 IResponse::Status RecommendationManager::deleteRecomm(IRequest *req,  QString curUser_id, QVariantMap &error)
 {
-    bool ok = false;
+     bool missingValue = false;
 
     QString uid = req->parameterValue("uid");
 
     if(uid == ""){
         error.insert("uid_parameter","required");
-        return IResponse::BAD_REQUEST;
-    }
-
-    QVariantMap reqJson = req->postBodyFromJson(&ok).toMap();
-    if (!ok){
-        error.insert("parse_json","error");
-        return IResponse::BAD_REQUEST;
-    }
-
-    bool missingValue = false;
-
-    QString group_id = reqJson["group_id"].toString();
-    if(group_id == ""){
         missingValue = true;
-        error.insert("group_id","required");
     }
+
+    QString group_id = req->parameterValue("group_id");
+    if(group_id == ""){
+        error.insert("group_id_parameter","required");
+        missingValue = true;
+    }
+
 
     if(missingValue)
         return IResponse::BAD_REQUEST;
 
     IRequest *request = m_proxyConnection->createRequest(IRequest::GET, "groups", "isAdmin");
     request->setParamater("user_id", curUser_id);
-    request->setParamater("group_id", reqJson["group_id"].toString());
+    request->setParamater("group_id", group_id);
     bool admin = m_proxyConnection->callModule(request)->body().toBool();
 
     QSqlQuery q;

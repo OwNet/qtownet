@@ -18,7 +18,9 @@ void PortalModule::init(IProxyConnection *proxyConnection)
     proxyConnection->registerRestService( new RecommendationsService(proxyConnection,this) );
     proxyConnection->registerRestService( new UsersService(proxyConnection,this) );
     proxyConnection->registerRestService( new SessionService(proxyConnection,this) );
+    proxyConnection->registerRestService( new ActivitiesService(proxyConnection,this) );
+
     proxyConnection->registerService( new HistoryService(proxyConnection,this) );
-    proxyConnection->registerService( new ActivitiesService(proxyConnection,this) );
+
 
 }
