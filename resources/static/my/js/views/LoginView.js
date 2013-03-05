@@ -47,7 +47,7 @@ define( function (require) {
 					password: fields.password,
 					success: function() {
 						App.showMessage("Login successful", "alert-success" )
-						App.router.navigate('#/live')
+						App.router.navigate('#/profile')
 					},
 					error: function(){ App.showMessage("Login failed") },
 				})

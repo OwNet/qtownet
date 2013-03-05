@@ -38,7 +38,6 @@ define( function (require) {
 			showgroup: "showgroup",
 			editgroup: "editgroup",
 			profile: "profile",
-			showprofile: "showprofile",
 			editprofile: "editprofile",
 
 		},
@@ -84,10 +83,6 @@ define( function (require) {
 		profile: function() {
 			this.views.profile.show()
 			this.activate("#/profile")
-		},
-
-		showprofile: function() {
-			this.activate("#/showprofile")
 		},
 
 		editprofile: function() {

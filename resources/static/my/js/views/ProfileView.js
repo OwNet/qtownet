@@ -6,7 +6,7 @@ define( function (require) {
 	  , Backbone = require("backbone")
 	  , profileTemplate = require ("tpl/profile")
 	  , profileTableTemplate = require ("tpl/profiletable")
-	  , showProfileTemplate = require ("tpl/showprofile")
+	  , showAllTemplate = require ("tpl/showallprofiles")
 	  , profileFormTemplate = require ("tpl/profileform")
 	  , UserModel = require ("share/models/UserModel")
 
@@ -24,9 +24,9 @@ define( function (require) {
 	var ProfileView = Backbone.View.extend({
 
 			events: {
-				'click form[name="profile-form"] button[name="update"]': 'saveProfile',
-				'click a[name="showprofile"]': "showProfile",  
-				'click a[name="editprofile"]': "editProfile", 
+				'click form[name="profile-form"] button[name="update"]': 'saveProfile', 
+				'click a[name="editprofile"]': "editProfile",
+				'click a[name="showAll"]' :"showAll",
 			},
 
 			initialize: function() {
@@ -36,18 +36,13 @@ define( function (require) {
 
 			render: function() {
 				this.$el.html( profileTemplate({}) )
+
 				return this
 			}, 
-
-			showProfile1: function(){
-				this.$el.html( profileTemplate({}) )
-				return this
-			},
-
-			
-			show: function(message) {
+		
+			showAll: function(message) {
 				var UsersCollection = Backbone.Collection.extend({
-		  			url: '/api/users/'+App.user.id,
+		  			url: '/api/users/',
 		  			model: UserModel
 				})
 				
@@ -55,7 +50,7 @@ define( function (require) {
 
 				users.fetch({
 					success: function() {
-						$('div#user_profile').html( profileTableTemplate({users :users.toJSON()}))
+						$('div#all_profiles').html( showAllTemplate({users :users.toJSON()}))
 
 					},
 					error: function() {
@@ -67,16 +62,15 @@ define( function (require) {
 				return this
 			},
 
-			show1: function(){
-				        		
-        		var user = new UserModel()
-        		
-        		user.fetch({
+			show: function(){
+				        		     		
+        		App.user.fetch({
         			success: function() {
-						$('div#user_profile').html( profileTableTemplate({user :user.toJSON()}))
+						$('div#user_profile').html( profileTableTemplate({user :App.user.toJSON()}))
 						
 					}
         		})
+        		
 
 				this.$el.html( profileTemplate({ }) )
 				return this
@@ -84,12 +78,8 @@ define( function (require) {
 			saveProfile: function() {
 				var form = Form( $('form[name="profile-form"]', this.$el) )
 				var data = form.toJSON()
-				var self = this
 				
-				var user = new UserModel(data)
-
-
-				user.save({id: App.user ? App.user.id : "0"},{
+				App.user.save(data, {
 					wait: true,
 					success: function() {
 						App.router.navigate('profile', {trigger: true})
@@ -100,22 +90,6 @@ define( function (require) {
 						App.showMessage("Profile update failed")
 					},
 				})
-			},
-
-			showProfile: function(e){
-				e.preventDefault();
-        		var id = $(e.currentTarget).data("id");
-        		
-        		var user = new UserModel()
-        		user.id = id
-        		
-        		user.fetch({
-        			success: function() {
-        				App.router.navigate("#/showprofile", {trigger: true})
-						$('div#user_profile').html( showProfileTemplate({user :user.toJSON()}))
-						
-					}
-        		})
 			},
 
 			editProfile: function(e){
