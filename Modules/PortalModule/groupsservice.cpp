@@ -40,9 +40,8 @@ void GroupsService::init(IRouter *router)
 IResponse *GroupsService::getIsAdmin(IRequest *req){
 
 
-         QVariantMap reqJson = req->postBodyFromJson().toMap();
-         QString user_id = reqJson["user_id"].toString();
-         QString group_id = reqJson["group_id"].toString();
+        QString user_id = req->parameterValue("user_id");
+        QString group_id = req->parameterValue("group_id");
 
          QVariantMap res;
 
@@ -54,14 +53,13 @@ IResponse *GroupsService::getIsAdmin(IRequest *req){
          return req->response(QVariant(res),IResponse::OK);
 }
 
-IResponse *GroupsService::getIsMember(IRequest *req){
-
-
-         QVariantMap reqJson = req->postBodyFromJson().toMap();
-         QString user_id = reqJson["user_id"].toString();
-         QString group_id = reqJson["group_id"].toString();
+IResponse *GroupsService::getIsMember(IRequest *req)
+{
 
          QVariantMap res;
+
+         QString user_id = req->parameterValue("user_id");
+         QString group_id = req->parameterValue("group_id");
 
          if(isMember(user_id.toUInt(), group_id.toUInt()))
              res.insert("member","1");

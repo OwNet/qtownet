@@ -55,14 +55,26 @@ IResponse::Status RecommendationManager::createRecomm(IRequest *req, QString cur
         return IResponse::BAD_REQUEST;
     }
 
-    IRequest *request = m_proxyConnection->createRequest(IRequest::GET, "groups", "isMember");
+    IRequest *request = m_proxyConnection->createRequest(IRequest::POST, "groups", "isMember");
     request->setParamater("user_id", curUser_id);
     request->setParamater("group_id", group_id);
 
-    bool member = m_proxyConnection->callModule(request)->body().toBool();
+    QString member = m_proxyConnection->callModule(request)->body().toMap().value("member").toString();
 
     // overit ci je userom skupiny do ktorej chce pridat recomm
-    if(member){
+    if(member == "1"){
+
+        // if rating already exist throw error
+        QSqlQuery q;
+        q.prepare("SELECT * FROM recommendations WHERE absolute_uri=:absolute_uri AND user_id=:user_id");
+        q.bindValue(":absolute_uri", absolute_uri);
+        q.bindValue(":user_id",curUser_id);
+        q.exec();
+
+        if(q.first()){
+            error.insert("error","duplicate recommendations");
+            return IResponse::CONFLICT;
+        }
 
         QObject parentObject;
         IDatabaseUpdateQuery *query = m_proxyConnection->databaseUpdateQuery("recommendations", &parentObject);
@@ -105,36 +117,39 @@ IResponse::Status RecommendationManager::createRecomm(IRequest *req, QString cur
     }
 }
 
-IResponse::Status RecommendationManager::showRecomm(IRequest *req, QString id, QString curUser_id, QVariantMap &recommendation, QVariantMap &error)
+IResponse::Status RecommendationManager::showRecomm(IRequest *req, QString curUser_id, QVariantMap &recommendation, QVariantMap &error)
 {
-    bool ok = false;
-    QVariantMap reqJson = req->postBodyFromJson(&ok).toMap();
-    if (!ok)
-        return IResponse::INTERNAL_SERVER_ERROR;
 
     bool missingValue = false;
 
-    QString group_id = reqJson["group_id"].toString();
+    QString group_id = req->parameterValue("group_id");
     if(group_id == ""){
         error.insert("group_id","required");
+        missingValue = true;
+    }
+
+    QString uid = req->parameterValue("uid");
+    if(uid == ""){
+        error.insert("uid","required");
         missingValue = true;
     }
 
     if(missingValue)
         return IResponse::BAD_REQUEST;
 
-    IRequest *request = m_proxyConnection->createRequest(IRequest::GET, "groups", "isMember");
+    IRequest *request = m_proxyConnection->createRequest(IRequest::POST, "groups", "isMember");
     request->setParamater("user_id", curUser_id);
     request->setParamater("group_id", group_id);
 
-    bool member = m_proxyConnection->callModule(request)->body().toBool();
+    QString member = m_proxyConnection->callModule(request)->body().toMap().value("member").toString();
 
-    if(member)
+    // overit ci je userom skupiny do ktorej chce pridat recomm
+    if(member == "1")
     {
 
         QSqlQuery query;
-        query.prepare("SELECT * FROM recommendations WHERE _id=:id AND group_id=:group_id");
-        query.bindValue(":id",id);
+        query.prepare("SELECT * FROM recommendations WHERE uid=:uid AND group_id=:group_id");
+        query.bindValue(":uid",uid);
          query.bindValue(":group_id",group_id);
 
         if(!query.exec())
@@ -168,20 +183,25 @@ IResponse::Status RecommendationManager::showRecomm(IRequest *req, QString id, Q
 
 
 
-IResponse::Status RecommendationManager::editRecomm(IRequest *req, QString uid, QString curUser_id, QVariantMap &error)
+IResponse::Status RecommendationManager::editRecomm(IRequest *req, QString curUser_id, QVariantMap &error)
 {
     bool ok = true;
+
+    QString uid = req->parameterValue("uid");
+
+    if(uid == ""){
+        error.insert("uid_parameter","required");
+        return IResponse::BAD_REQUEST;
+    }
+
+
     QVariantMap reqJson = req->postBodyFromJson(&ok).toMap();
-    if (!ok)
-        return IResponse::INTERNAL_SERVER_ERROR;
+    if (!ok){
+        error.insert("json","parse_error");
+        return IResponse::BAD_REQUEST;
+    }
 
     bool missingValue = false;
-
-    QString id = reqJson["id"].toString();
-    if(id == ""){
-        missingValue = true;
-        error.insert("id","required");
-    }
 
     QString group_id = reqJson["group_id"].toString();
     if(group_id == ""){
@@ -189,40 +209,48 @@ IResponse::Status RecommendationManager::editRecomm(IRequest *req, QString uid, 
         error.insert("group_id","required");
     }
 
+    QString absolute_uri = reqJson["absolute_uri"].toString();
+    if(absolute_uri == ""){
+        missingValue = true;
+        error.insert("absolute_uri","required");
+    }
+
     if(missingValue)
         return IResponse::BAD_REQUEST;
 
-    IRequest *request = m_proxyConnection->createRequest(IRequest::GET, "groups", "isAdmin");
+    IRequest *request = m_proxyConnection->createRequest(IRequest::POST, "groups", "isAdmin");
     request->setParamater("user_id", curUser_id);
-    request->setParamater("group_id", reqJson["group_id"].toString());
-    bool admin = m_proxyConnection->callModule(request)->body().toBool();
+    request->setParamater("group_id", group_id);
+
+    QString admin = m_proxyConnection->callModule(request)->body().toMap().value("admin").toString();
 
     QSqlQuery q;
-    q.prepare("SELECT * FROM recommendations WHERE _id=:id AND user_id=:user_id AND group_id =:group_id");
+    q.prepare("SELECT * FROM recommendations WHERE uid=:uid AND user_id=:user_id AND group_id =:group_id");
     q.bindValue(":user_id",curUser_id);
     q.bindValue(":group_id",reqJson["group_id"].toString());
-    q.bindValue(":id",reqJson["id"]);
+    q.bindValue(":uid", uid);
     q.exec();
 
     bool owner = q.first();
 
-    if(admin || owner){
+    if(admin == "1" || owner){
         QObject parent;
 
-        IDatabaseUpdateQuery *query = m_proxyConnection->databaseUpdateQuery("groups", &parent);
+        IDatabaseUpdateQuery *query = m_proxyConnection->databaseUpdateQuery("recommendations", &parent);
         query->setUpdateDates(true);
-        query->singleWhere("id", reqJson["id"]);
+        query->singleWhere("uid", uid);
 
-        if(reqJson["title"] != "")
+        if(reqJson.contains("title"))
             query->setColumnValue("title", reqJson["title"].toString());
 
-        if(reqJson["description"] != "")
+        if(reqJson.contains("description"))
             query->setColumnValue("description", reqJson["description"].toString());
 
         if(query->executeQuery()){
 
             //edit activity
-            m_activityManager->editActivity(uid, reqJson["absolute_uri"].toString() + ";" + reqJson["title"].toString());
+            if(reqJson.contains("title"))
+                m_activityManager->editActivity(uid, absolute_uri + ";" + reqJson["title"].toString());
             return IResponse::OK;
         }
         else{
@@ -235,40 +263,37 @@ IResponse::Status RecommendationManager::editRecomm(IRequest *req, QString uid, 
     }
 }
 
-IResponse::Status RecommendationManager::deleteRecomm(IRequest *req, QString uid, QString curUser_id, QVariantMap &error)
+IResponse::Status RecommendationManager::deleteRecomm(IRequest *req,  QString curUser_id, QVariantMap &error)
 {
-    bool ok = false;
-    QVariantMap reqJson = req->postBodyFromJson(&ok).toMap();
-    if (!ok)
-        return IResponse::INTERNAL_SERVER_ERROR;
+     bool missingValue = false;
 
-    bool missingValue = false;
+    QString uid = req->parameterValue("uid");
 
-    QString id = reqJson["id"].toString();
-    if(id == ""){
+    if(uid == ""){
+        error.insert("uid_parameter","required");
         missingValue = true;
-        error.insert("id","required");
     }
 
-    QString group_id = reqJson["group_id"].toString();
+    QString group_id = req->parameterValue("group_id");
     if(group_id == ""){
+        error.insert("group_id_parameter","required");
         missingValue = true;
-        error.insert("group_id","required");
     }
+
 
     if(missingValue)
         return IResponse::BAD_REQUEST;
 
     IRequest *request = m_proxyConnection->createRequest(IRequest::GET, "groups", "isAdmin");
     request->setParamater("user_id", curUser_id);
-    request->setParamater("group_id", reqJson["group_id"].toString());
+    request->setParamater("group_id", group_id);
     bool admin = m_proxyConnection->callModule(request)->body().toBool();
 
     QSqlQuery q;
-    q.prepare("SELECT * FROM recommendations WHERE id=:id AND user_id=:user_id AND group_id =:group_id");
+    q.prepare("SELECT * FROM recommendations WHERE uid=:uid AND user_id=:user_id AND group_id =:group_id");
     q.bindValue(":user_id",curUser_id);
     q.bindValue(":group_id",group_id);
-    q.bindValue(":id",id);
+    q.bindValue(":uid",uid);
     q.exec();
 
     bool owner = q.first();
@@ -281,7 +306,7 @@ IResponse::Status RecommendationManager::deleteRecomm(IRequest *req, QString uid
         query->setUpdateDates(true);
         query->setType(IDatabaseUpdateQuery::Delete);
 
-        query->singleWhere("id", id);
+        query->singleWhere("uid", uid);
 
         if(query->executeQuery()){
 
