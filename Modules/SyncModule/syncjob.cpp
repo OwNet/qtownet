@@ -14,8 +14,7 @@ void SyncJob::execute()
         return;
 
     SyncClient client(m_proxyConnection);
-    client.updateFromServer();
-    client.updateFromClients();
+    client.sync();
 
     m_syncMutex.unlock();
 }
