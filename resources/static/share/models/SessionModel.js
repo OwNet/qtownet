@@ -10,8 +10,12 @@ define( function (require) {
 
 			urlRoot: '/api/session',
 
-			defaults: {
-				id: null
+			url: function() {
+				return this.urlRoot
+			},
+
+			isNew: function() {
+				return this.get('user_id') == null
 			}
 
 	})

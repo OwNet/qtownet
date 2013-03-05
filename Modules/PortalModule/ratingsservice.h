@@ -4,8 +4,8 @@
 #include <QObject>
 
 #include "irestservice.h"
+#include "ratingmanager.h"
 
-class IProxyConnection;
 
 class RatingsService : public QObject, public IRestService
 {
@@ -13,16 +13,25 @@ class RatingsService : public QObject, public IRestService
 public:
     explicit RatingsService(IProxyConnection *proxyConnection, QObject *parent = 0);
 
+    void init(IRouter* router);
+
     QString name() const { return "ratings"; }
 
-    QVariant *create(IBus *bus, IRequest *req);
-    QVariant *show(IBus *bus, IRequest *req);
-    QVariant *index(IBus *bus, IRequest *);
-   // QVariant *edit(IBus *bus, IRequest *);
-    QVariant *del(IBus *bus, IRequest *);
+    IResponse *create(IRequest *req);
+    IResponse *index(IRequest *req);
+    IResponse *show( IRequest *req, uint id);
+    IResponse *edit( IRequest *req, uint id);
+    IResponse *del(IRequest *req, uint uid);
+
+    IResponse *showPageStats(IRequest *req);    
+    IResponse *showAllPageRatings(IRequest *req);
+
 
 private:
+
     IProxyConnection *m_proxyConnection;
+
+    RatingManager *m_ratingManager;
 };
 
 #endif // RATINGSSERVICE_H
