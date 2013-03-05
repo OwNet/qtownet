@@ -3,10 +3,11 @@ define( function (require) {
 	"use_strict"
 
 	var Backbone = require( 'backbone' )
+	  , NavbarView = require( 'views/NavbarView')
 	  , LoginView = require( 'views/LoginView' )
 	  , RegistrationView = require( 'views/RegistrationView' )
 	  , GroupsView = require( 'views/GroupsView' )
-	  , ProfileView = require( 'views/ProfileView' )	  
+	  , ProfileView = require( 'views/ProfileView' )
 
 
 
@@ -14,23 +15,23 @@ define( function (require) {
 
 		initialize: function(options){
 
-			options.App.router = this
-
 			this.views = {
+				navbar: new NavbarView({ el:$('#appmenu') }),
 				login : new LoginView({ el:$("#content") }),
 				registration: new RegistrationView({ el:$("#content") }),
 				groups: new GroupsView({ el:$("#content") }),
 				profile: new ProfileView({ el:$("#content") }),
 			}
 
-			Backbone.history.start()
 		},
 
+		start: function(){
+			Backbone.history.start()
+		},
 
 		routes: {
 			""    : "home",
 			login : "login",
-			logout: "logout",
 			registration: "registration",
 			groups : "groups",
 			creategroups : "creategroups",
