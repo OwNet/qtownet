@@ -90,6 +90,7 @@ IResponse *ClientServiceCall::callService(const QString &url, IRequest *request,
     QEventLoop loop;
     connect(reply, SIGNAL(finished()), &loop, SLOT(quit()));
     loop.exec();
+    reply->waitForReadyRead(15000);
 
     bool ok = false;
 

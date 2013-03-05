@@ -52,7 +52,6 @@ int SyncClient::updateFromClients()
  */
 void SyncClient::sync()
 {
-    SyncLock lock;
     updateFromClients();
     updateFromServer();
 }
