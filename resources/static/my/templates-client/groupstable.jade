@@ -1,18 +1,19 @@
 each group in groups
-	.row
-		.span1
-			label #{group.name}
-		.span2
-			label #{group.description.substr(0,30)}...
-		.span3
-			label created #{new Date(group.date_created).toLocaleDateString()}
-		if (group.member == "1")
-			.span4
-				a( href="#/showgroup" data-id="#{group.id}" name="show") Show group
-		else
-			.span4
-				a( href="#/showgroup" data-id="#{group.id}" name="join") Join group
-		if (group.admin == "1")
-			.span5
-				a( href="#/editGroup" data-id="#{group.id}" name="edit") Edit group
-				a( href="#/showgroup" data-id="#{group.id}" name="delete") Delete group
+	if (filter == "all" || (filter == "my" && group.member == "1") || (filter == "admin" && group.admin == "1") || (filter == "notMy" && group.member == "0"))
+		.row
+			.span1
+				label #{group.name}
+			.span2
+				label #{group.description.substr(0,30)}...
+			.span3
+				label created #{new Date(group.date_created).toLocaleDateString()}
+			if (group.member == "1")
+				.span4
+					a( href="#/showgroup" data-id="#{group.id}" name="show") Show group
+			else
+				.span4
+					a( href="#/showgroup" data-id="#{group.id}" name="join") Join group
+			if (group.admin == "1")
+				.span5
+					a( href="#/editGroup" data-id="#{group.id}" name="edit") Edit group
+					a( href="#/showgroup" data-id="#{group.id}" name="delete") Delete group

@@ -30,6 +30,8 @@ define( function (require) {
 				'click a[name="show"]': "showGroup", 
 				'click a[name="delete"]': "deleteGroup", 
 				'click a[name="edit"]': "editGroup", 
+				'click a[name="join"]': "joinGroup", 
+				'click a[name="all"]' : "showWithFilter",
 			},
 
 			initialize: function() {
@@ -47,6 +49,24 @@ define( function (require) {
 				return this
 			},
 
+			joinGroup: function(e){
+				e.preventDefault();
+				var id = $(e.currentTarget).data("id");
+				$.post('/api/groups/joinGroup', { group_id: id }, function(data) {
+    				App.router.navigate("#/groups", {trigger: true})
+    				App.showMessage("Group joined")
+					this.show("all")
+    			}, 'json').error(
+    				App.showMessage("Cannot join")
+    			);
+			},
+
+			showWithFilter: function(e){
+				e.preventDefault();
+				var filter = $(e.currentTarget).data("filter");
+				this.show(filter)
+			},
+
 			deleteGroup: function(e){
 				e.preventDefault();
         		var id = $(e.currentTarget).data("id");
@@ -60,8 +80,8 @@ define( function (require) {
         			wait: true,
         			success: function() {
         				App.router.navigate("#/groups", {trigger: true})
-        				App.showMessage("Groups deleted")
-						this.show()
+        				App.showMessage("Group deleted")
+						this.show("all")
         				
 					},
 					error: function() {
@@ -71,7 +91,7 @@ define( function (require) {
 
 			},
 
-			show: function(message) {
+			show: function(filter) {
 				var GroupsCollection = Backbone.Collection.extend({
 		  			url: '/api/groups',
 		  			model: GroupsModel
@@ -81,7 +101,7 @@ define( function (require) {
 
 				groups.fetch({
 					success: function() {
-						$('div#groups_list').html( groupsTableTemplate({groups :groups.toJSON()}))
+						$('div#groups_list').html( groupsTableTemplate({groups :groups.toJSON(), filter: filter}))
 
 					},
 					error: function() {

@@ -57,7 +57,7 @@ define( function (require) {
 		},
 
 		groups: function() {
-			this.views.groups.show()
+			this.views.groups.show("all")
 			this.activate("#/groups")
 		},
 

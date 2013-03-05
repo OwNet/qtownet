@@ -7,13 +7,13 @@
 
 		.row
 			.span6
-				a( href="#/creategroups" name="create") All
+				a( href="#/groups" data-filter="all" name="all") All
 			.span6
-				a( href="#/creategroups" name="create") I am admin in
+				a( href="#/creategroups" data-filter="admin" name="all") I am admin in
 			.span6
-				a( href="#/creategroups" name="create") I am member
+				a( href="#/creategroups" data-filter="my" name="all") I am member
 			.span6
-				a( href="#/creategroups" name="create") Other
+				a( href="#/creategroups" data-filter="notMy" name="all") Other
 			.span6
 				a( href="#/creategroups" name="create") Create new
 			.span#groups_list
