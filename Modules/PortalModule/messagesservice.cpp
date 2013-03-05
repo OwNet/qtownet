@@ -25,17 +25,24 @@ void MessagesService::init(IRouter *router)
 IResponse *MessagesService::create(IRequest *req)
 {
     bool ok = false;
-    QVariantMap reqJson = req->postBodyFromJson(&ok).toMap();
-    if (!ok)
-        return NULL;
     QVariantMap error;
+
+    QString curUser_id = m_proxyConnection->session()->value("logged").toString();
+    if(curUser_id == "")
+        return req->response(IResponse::UNAUTHORIEZED);
+
+    QVariantMap reqJson = req->postBodyFromJson(&ok).toMap();
+    if (!ok){
+        error.insert("parsing_json","error");
+        return req->response(QVariant(error),IResponse::BAD_REQUEST);
+    }
 
     bool missingValue = false;
 
-    QString text = reqJson["text"].toString();
-    if(text == ""){
+    QString message = reqJson["message"].toString();
+    if(message == ""){
         missingValue = true;
-        error.insert("text","required");
+        error.insert("message","required");
     }
 
     QString group_id = reqJson["group_id"].toString();
@@ -49,14 +56,16 @@ IResponse *MessagesService::create(IRequest *req)
         missingValue = true;
         error.insert("parent_id","required");
     }
-    else if(parent_id!="0"){
+    else if(parent_id != "0"){
         QSqlQuery q;
-        q.prepare("SELECT * FROM messages WHERE id=:id ");
+        q.prepare("SELECT * FROM messages WHERE _id=:id ");
         q.bindValue(":id", parent_id);
         q.exec();
 
         if(!q.first()){
-            return req->response(IResponse::BAD_REQUEST);
+            QVariantMap qm;
+            qm.insert("error","parent message does not exist");
+            return req->response(QVariant(qm), IResponse::BAD_REQUEST);
         }
         if(q.value(q.record().indexOf("parent_id")).toString() != "0"){
             QVariantMap qm;
@@ -73,14 +82,15 @@ IResponse *MessagesService::create(IRequest *req)
 
     }
 
-   QString curUser_id = m_proxyConnection->session()->value("logged").toString();
-
-   IRequest *request = m_proxyConnection->createRequest(IRequest::GET, "groups", "isMember");
+   IRequest *request = m_proxyConnection->createRequest(IRequest::POST, "groups", "isMember");
    request->setParamater("user_id", curUser_id);
    request->setParamater("group_id", group_id);
-   bool member = m_proxyConnection->callModule(request)->body().toBool();
 
-   if(member){
+   QString member = m_proxyConnection->callModule(request)->body().toMap().value("member").toString();
+
+   // overit ci je userom skupiny d
+   if(member == "1")
+   {
 
         QObject parentObject;
         IDatabaseUpdateQuery *query = m_proxyConnection->databaseUpdateQuery("messages", &parentObject);
@@ -88,7 +98,7 @@ IResponse *MessagesService::create(IRequest *req)
         query->setUpdateDates(true); // sam nastavi v tabulke datumy date_created a date_updated
 
 
-        query->setColumnValue("text", text);
+        query->setColumnValue("message", message);
         query->setColumnValue("group_id", group_id);
         query->setColumnValue("parent_id", parent_id);
         query->setColumnValue("user_id", curUser_id);
@@ -101,7 +111,8 @@ IResponse *MessagesService::create(IRequest *req)
 
     }
     else{
-       return req->response(IResponse::BAD_REQUEST);
+       error.insert("membership in group","required");
+       return req->response(QVariant(error),IResponse::UNAUTHORIEZED);
     }
 
 
@@ -109,32 +120,41 @@ IResponse *MessagesService::create(IRequest *req)
 
 IResponse *MessagesService::index(IRequest *req)
 {
-    bool ok = false;
-    QVariantMap reqJson = req->postBodyFromJson(&ok).toMap();
-    if (!ok)
-        return NULL;
+    QVariantMap error;
 
-    QString group_id = reqJson["group_id"].toString();
     QString curUser_id = m_proxyConnection->session()->value("logged").toString();
+    if(curUser_id == "")
+        return req->response(IResponse::UNAUTHORIEZED);
 
-    IRequest *request = m_proxyConnection->createRequest(IRequest::GET, "groups", "isMember");
+    QString group_id = req->parameterValue("group_id");
+    if(group_id == ""){
+        error.insert("group_id_parameter","required");
+        return req->response(QVariant(error),IResponse::BAD_REQUEST);
+    }
+
+    IRequest *request = m_proxyConnection->createRequest(IRequest::POST, "groups", "isMember");
     request->setParamater("user_id", curUser_id);
     request->setParamater("group_id", group_id);
 
-    bool member = m_proxyConnection->callModule(request)->body().toBool();
+    QString member = m_proxyConnection->callModule(request)->body().toMap().value("member").toString();
 
-    if(member){
+    // overit ci je userom skupiny d
+    if(member == "1"){
+
         QSqlQuery query;
 
         query.prepare("SELECT * FROM messages WHERE group_id = :group_id");
         query.bindValue(":group_id",group_id);
 
+        if(!query.exec())
+            return req->response(IResponse::INTERNAL_SERVER_ERROR);
+
         QVariantList messages;
 
         while (query.next()) {
             QVariantMap message;
-            message.insert("id", query.value(query.record().indexOf("id")));
-            message.insert("text", query.value(query.record().indexOf("text")));
+            message.insert("id", query.value(query.record().indexOf("_id")));
+            message.insert("message", query.value(query.record().indexOf("message")));
             message.insert("user_id", query.value(query.record().indexOf("user_id")));
             message.insert("parent_id", query.value(query.record().indexOf("parent_id")));
 
@@ -144,49 +164,75 @@ IResponse *MessagesService::index(IRequest *req)
         return req->response(QVariant(messages), IResponse::OK);
     }
 
-    return req->response(IResponse::BAD_REQUEST);
+    else{
+       error.insert("membership in group","required");
+       return req->response(QVariant(error),IResponse::UNAUTHORIEZED);
+    }
+
 }
 
-IResponse *MessagesService::del(IRequest *req, int id)
+IResponse *MessagesService::del(IRequest *req, uint id)
 {
-    bool ok = false;
-    QVariantMap reqJson = req->postBodyFromJson(&ok).toMap();
-    if (!ok)
-        return NULL;
+    QVariantMap error;
 
-    IRequest *request = m_proxyConnection->createRequest(IRequest::GET, "groups", "isAdmin");
-    request->setParamater("user_id", reqJson["user_id"].toString());
-    request->setParamater("group_id", reqJson["group_id"].toString());
-    bool admin = m_proxyConnection->callModule(request)->body().toBool();
+    QString curUser_id = m_proxyConnection->session()->value("logged").toString();
+    if(curUser_id == "")
+        return req->response(IResponse::UNAUTHORIEZED);
 
-    QSqlQuery q;
-    q.prepare("SELECT * FROM messages WHERE id=:id AND user_id=:user_id AND group_id =:group_id");
-    q.bindValue(":user_id",reqJson["user_id"].toString());
-    q.bindValue(":group_id",reqJson["group_id"].toString());
-    q.bindValue(":id",reqJson["id"]);
-    q.exec();
+    QString group_id = req->parameterValue("group_id");
+    if(group_id == ""){
+        error.insert("group_id_parameter","required");
+        return req->response(QVariant(error),IResponse::BAD_REQUEST);
+    }
 
-    bool owner = q.first();
+    IRequest *request = m_proxyConnection->createRequest(IRequest::POST, "groups", "isAdmin");
+    request->setParamater("user_id", curUser_id);
+    request->setParamater("group_id", group_id);
 
-    if(admin || owner){
+    QString admin = m_proxyConnection->callModule(request)->body().toMap().value("admin").toString();
+
+    bool owner;
+    // overit ci je adminom skupiny d
+    if(admin == "1")
+        owner = true;
+    else{
+
+        QSqlQuery q;
+        q.prepare("SELECT * FROM messages WHERE id=:id AND user_id=:user_id AND group_id =:group_id");
+        q.bindValue(":user_id",curUser_id);
+        q.bindValue(":group_id",group_id);
+        q.bindValue(":id",id);
+        q.exec();
+
+        owner = q.first();
+    }
+
+    if(owner){
 
         QObject parentObject;
         IDatabaseUpdateQuery *query = m_proxyConnection->databaseUpdateQuery("messages", &parentObject);
 
         query->setUpdateDates(true);
         query->setType(IDatabaseUpdateQuery::Delete);
-        query->singleWhere("id", reqJson["id"]);
+        query->singleWhere("_id", id);
 
-        if(query->executeQuery()){
-            return req->response(IResponse::OK);
-        }
-        else{
-
+        if(!query->executeQuery()){
             return req->response( IResponse::INTERNAL_SERVER_ERROR);
         }
+
+        query->setUpdateDates(true);
+        query->setType(IDatabaseUpdateQuery::Delete);
+        query->singleWhere("parent_id", id);
+
+        if(!query->executeQuery()){
+            return req->response( IResponse::INTERNAL_SERVER_ERROR);
+        }
+
+        return req->response(IResponse::OK);
     }
     else{
-        return req->response( IResponse::BAD_REQUEST);
+       error.insert("membership in group","required");
+       return req->response(QVariant(error),IResponse::UNAUTHORIEZED);
     }
 
 }
