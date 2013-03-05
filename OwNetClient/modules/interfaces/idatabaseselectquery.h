@@ -30,6 +30,10 @@ public:
         LeftJoin,
         RightJoin
     };
+    enum Order {
+        Ascending,
+        Descending
+    };
 
     virtual bool first() = 0;
     virtual bool next() = 0;
@@ -46,8 +50,7 @@ public:
     virtual void groupBy(const QString &column) = 0;
     virtual void groupBy(const QStringList &columns) = 0;
 
-    virtual void orderBy(const QString &column) = 0;
-    virtual void orderBy(const QStringList &columns) = 0;
+    virtual void orderBy(const QString &column, IDatabaseSelectQuery::Order order = IDatabaseSelectQuery::Ascending) = 0;
 
     virtual void limit(int l) = 0;
     virtual void offset(int o) = 0;

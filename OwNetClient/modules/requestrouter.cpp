@@ -117,7 +117,7 @@ IRoute* RequestRouter::addRoute(QString url)
 
     if (route == NULL) {
         route = new Route(url);
-        m_routes.append(route);
+        m_routes.prepend(route);
     }
 
     return route;

@@ -34,6 +34,11 @@ bool Session::isLoggedIn() const
     return m_sessionData->contains("logged");
 }
 
+uint Session::userId() const
+{
+    return m_sessionData->value("logged").toUInt();
+}
+
 QVariantMap Session::availableClients() const
 {
     if (m_sessionData->contains("available_clients"))

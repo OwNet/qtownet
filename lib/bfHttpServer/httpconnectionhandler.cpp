@@ -31,26 +31,22 @@ HttpConnectionHandler::HttpConnectionHandler(QSettings* settings, HttpRequestHan
 
 
 HttpConnectionHandler::~HttpConnectionHandler() {
-    qDebug("HttpConnectionHandler (%p): destroyed", this);
 }
 
 
 void HttpConnectionHandler::run() {
-    qDebug("HttpConnectionHandler (%p): thread started", this);
     try {
         exec();
     }
     catch (...) {
         qCritical("HttpConnectionHandler (%p): an uncatched exception occured in the thread",this);
     }
-    qDebug("HttpConnectionHandler (%p): thread stopped", this);
     // Change to the main thread, otherwise deleteLater() would not work
     moveToThread(QCoreApplication::instance()->thread());
 }
 
 
 void HttpConnectionHandler::handleConnection(int socketDescriptor) {
-    qDebug("HttpConnectionHandler (%p): handle new connection", this);
     busy = true;
     Q_ASSERT(socket.isOpen()==false); // if not, then the handler is already busy
 
@@ -94,7 +90,6 @@ void HttpConnectionHandler::readTimeout() {
 
 
 void HttpConnectionHandler::disconnected() {
-    qDebug("HttpConnectionHandler (%p): disconnected", this);
     socket.close();
     readTimer.stop();
     busy = false;
@@ -133,13 +128,12 @@ void HttpConnectionHandler::read() {
     // If the request is complete, let the request mapper dispatch it
     if (currentRequest->getStatus()==HttpRequest::complete) {
         readTimer.stop();
-        qDebug("HttpConnectionHandler (%p): received request",this);
         HttpResponse response(&socket);
         try {
             requestHandler->service(currentRequest, &response);
         }
         catch (...) {
-            qCritical("HttpConnectionHandler (%p): An uncatched exception occured in the request handler",this);
+            qCritical("HttpConnectionHandler (%p): An uncaught exception occured in the request handler",this);
         }
 
         // Finalize sending the response if not already done

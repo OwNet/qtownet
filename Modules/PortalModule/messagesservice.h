@@ -13,12 +13,14 @@ class MessagesService : public QObject, public IRestService
 public:
     explicit MessagesService(IProxyConnection *proxyConnection, QObject *parent = 0);
 
+    void init(IRouter* router);
+
     QString name() const { return "messages"; }
 
-    QVariant *create(IBus *bus, IRequest *req);
+     IResponse *create( IRequest *req);
     // QVariant *show(IBus *bus, IRequest *req);
-    QVariant *index(IBus *bus, IRequest *);
-    QVariant *del(IBus *bus, IRequest *, int id);
+    IResponse  *index(IRequest *req);
+    IResponse  *del(IRequest *req, int id);
 
 private:
     IProxyConnection *m_proxyConnection;

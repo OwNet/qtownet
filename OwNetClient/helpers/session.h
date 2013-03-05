@@ -19,6 +19,7 @@ public:
     void clear();
 
     bool isLoggedIn() const;
+    uint userId() const;
     QVariantMap availableClients() const;
     uint serverId() const;
     bool isServer() const;

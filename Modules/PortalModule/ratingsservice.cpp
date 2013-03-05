@@ -1,9 +1,9 @@
 #include "ratingsservice.h"
-#include "irequest.h"
+#include "irouter.h"
 #include "idatabaseupdate.h"
-#include "ibus.h"
 #include "iproxyconnection.h"
 #include "isession.h"
+#include "idatabaseselectquerywheregroup.h"
 
 #include <QSqlQuery>
 #include <QSqlRecord>
@@ -13,222 +13,180 @@ RatingsService::RatingsService(IProxyConnection *proxyConnection, QObject *paren
     QObject(parent),
     m_proxyConnection(proxyConnection)
 {
+    m_ratingManager = new RatingManager(proxyConnection);
+}
+
+void RatingsService::init(IRouter *router)
+{
+    router->addRoute("/page_stats")
+            ->on(IRequest::GET, ROUTE(this->showPageStats));
+
+    router->addRoute("/page_all")
+            ->on(IRequest::GET, ROUTE(this->showAllPageRatings));
 }
 
 // create element
-QVariant *RatingsService::create(IBus *bus, IRequest *req)
+IResponse *RatingsService::create(IRequest *req)
 {
-    bool ok = false;
-    QVariantMap reqJson = req->postBodyFromJson(&ok).toMap();
-    if (!ok)
-        return NULL;
+    if ( !m_proxyConnection->session()->isLoggedIn() )
+           return req->response(IResponse::UNAUTHORIEZED);
 
+    bool ok = false;
     QVariantMap error;
 
-    bool missingValue = false;
+    uint userId = m_proxyConnection->session()->userId();
+
+    QVariantMap reqJson = req->postBodyFromJson(&ok).toMap();
+    if (!ok)
+        return req->response(IResponse::BAD_REQUEST);
 
     QString absolute_uri = reqJson["absolute_uri"].toString();
-    if(absolute_uri == ""){
-        missingValue = true;
+    if (absolute_uri == "")
         error.insert("absolute_uri","required");
-    }
 
-    QString value = reqJson["value"].toString();
-    if(value == ""){
-        missingValue = true;
-        error.insert("value","required");
+    int value = reqJson["val"].toInt(&ok);
+    if(!ok)
+        error.insert("val","required");
 
-    }
-    QString curUser_id = m_proxyConnection->session()->value("logged").toString();
-    if(curUser_id == ""){
-        missingValue = true;
-        error.insert("error","not logged in");
+    if (value<1 || value>5)
+        error.insert("val","value must be between 1 and 5");
 
-    }
-    // missing argument
+    if (!error.isEmpty())
+        return req->response(QVariant(error), IResponse::BAD_REQUEST);
 
-    if(missingValue){
+    IResponse::Status responseStatus;
+    responseStatus = this->m_ratingManager->createRating(userId, absolute_uri, value, error);
 
-        bus->setHttpStatus(400,"Bad Request");
-
-        return new QVariant(error);
-    }
-
-    // if rating already exist throw error
-    QSqlQuery q;
-    q.prepare("SELECT * FROM ratings WHERE absolute_uri=:absolute_uri AND user_id=:user_id");
-    q.bindValue(":absolute_uri", absolute_uri);
-    q.bindValue(":user_id",curUser_id);
-    q.exec();
-
-    if(q.first()){
-        error.insert("error","duplicate rating");
-        bus->setHttpStatus(400,"Bad Request");
-
-        return new QVariant(error);
-    }
-
-    IDatabaseUpdate *createRating = m_proxyConnection->databaseUpdate();
-
-    IDatabaseUpdateQuery *query = createRating->createUpdateQuery("ratings", IDatabaseUpdateQuery::Insert);
-
-    query->setUpdateDates(true); // sam nastavi v tabulke datumy date_created a date_updated
-
-    query->setColumnValue("absolute_uri", absolute_uri);
-    query->setColumnValue("val", value);
-    query->setColumnValue("user_id", curUser_id);
-
-    int a = createRating->execute();
-    if(a){
-        bus->setHttpStatus(500,"Internal server error");
-        return new QVariant;
-    }
-    bus->setHttpStatus(201, "Created");
-    return new QVariant;
-
+    if (responseStatus != IResponse::CREATED)
+        return req->response(QVariant(error), responseStatus);
+    else
+       return req->response(responseStatus);
 
 }
 
-QVariant *RatingsService::index(IBus *bus, IRequest *req)
+
+IResponse *RatingsService::index(IRequest *req)
 {
-    bool logged = false;
+    if ( !m_proxyConnection->session()->isLoggedIn() )
+           return req->response(IResponse::UNAUTHORIEZED);
+
+    uint userId = m_proxyConnection->session()->userId();
+    QVariantList ratings;
     QVariantMap error;
 
-    QString curUser_id = m_proxyConnection->session()->value("logged").toString();
-    if(curUser_id == ""){
-        logged = true;
-        error.insert("error","not logged in");
+    IResponse::Status responseStatus;
+    responseStatus = this->m_ratingManager->showAllUserRatings(userId, ratings, error);
 
-    }
-    // if not logged in
-    if(logged){
+    if (responseStatus != IResponse::OK)
+        return req->response(QVariant(error), responseStatus);
+    else
+       return req->response(QVariant(ratings),responseStatus);
 
-        bus->setHttpStatus(400,"Bad Request");
-
-        return new QVariant(error);
-    }
-
-    QSqlQuery query;
-    query.prepare("SELECT * FROM ratings");
-    query.exec();
-
-    QVariantList ratings;
-
-    while (query.next()) {
-        QVariantMap rating;
-        rating.insert("id", query.value(query.record().indexOf("id")));
-        rating.insert("user_id", query.value(query.record().indexOf("user_id")));
-        rating.insert("value", query.value(query.record().indexOf("value")));
-        rating.insert("absolute_uri", query.value(query.record().indexOf("absolute_uri")));
-
-        ratings.append(rating);
-    }
-
-    bus->setHttpStatus(200, "OK");
-    return new QVariant(ratings);
 }
 
-QVariant *RatingsService::show(IBus *bus, IRequest *req)
+IResponse *RatingsService::show(IRequest *req, uint id)
 {
-    bool ok = false;
+    if ( !m_proxyConnection->session()->isLoggedIn() )
+           return req->response(IResponse::UNAUTHORIEZED);
+
+    QVariantMap error;
+    QVariantMap rating;
+
+    IResponse::Status responseStatus = this->m_ratingManager->showRating(id, rating, error);
+
+    if (responseStatus != IResponse::OK)
+        return req->response(QVariant(error), responseStatus);
+    else
+        return req->response(QVariant(rating),responseStatus);
+}
+
+IResponse *RatingsService::edit(IRequest *req, uint id)
+{
+    if ( !m_proxyConnection->session()->isLoggedIn() )
+           return req->response(IResponse::UNAUTHORIEZED);
+
+    bool ok;
+    QVariantMap error;
+
+    uint userId = m_proxyConnection->session()->userId();
+
     QVariantMap reqJson = req->postBodyFromJson(&ok).toMap();
     if (!ok)
-        return NULL;
+        return req->response(IResponse::BAD_REQUEST);
 
-    bool logged = false;
+    int value = reqJson["val"].toInt(&ok);
+    if(!ok)
+        error.insert("val","required");
+
+    if (!error.isEmpty())
+        return req->response(QVariant(error), IResponse::BAD_REQUEST);
+
+    IResponse::Status responseStatus = this->m_ratingManager->editRating(id, userId, value, error );
+
+    if (responseStatus != IResponse::OK)
+        return req->response(QVariant(error), responseStatus);
+    else
+       return req->response(responseStatus);
+}
+
+
+IResponse *RatingsService::del(IRequest *req, uint id)
+{
+    if ( !m_proxyConnection->session()->isLoggedIn() )
+           return req->response(IResponse::UNAUTHORIEZED);
+
+    uint userId = m_proxyConnection->session()->userId();
+
     QVariantMap error;
 
-    QString curUser_id = m_proxyConnection->session()->value("logged").toString();
-    if(curUser_id == ""){
-        logged = true;
-        error.insert("error","not logged in");
+    IResponse::Status responseStatus = this->m_ratingManager->deleteRating(id, userId, error);
 
+    if (responseStatus != IResponse::NO_CONTENT)
+        return req->response(QVariant(error), responseStatus);
+    else
+       return req->response(responseStatus);
+}
+
+IResponse *RatingsService::showPageStats(IRequest *req)
+{
+    if ( !m_proxyConnection->session()->isLoggedIn() )
+           return req->response(IResponse::UNAUTHORIEZED);
+
+    QVariantMap error;
+    QVariantMap stats;
+
+    if (!req->hasParameter("uri")) {
+        error.insert("uri","required");
+        return req->response(QVariant(error), IResponse::BAD_REQUEST);
     }
-    // if not logged in
-    if(logged){
 
-        bus->setHttpStatus(400,"Bad Request");
+    IResponse::Status responseStatus;
+    responseStatus = this->m_ratingManager->showPageStats( req->parameterValue("uri"), stats, error);
 
-        return new QVariant(error);
-    }
+    if (responseStatus != IResponse::OK)
+        return req->response(QVariant(error), responseStatus);
+    else
+        return req->response(QVariant(stats), responseStatus);
+}
 
-    QString absolute_uri = reqJson["absolute_uri"].toString();
-    if(absolute_uri == ""){
-        error.insert("absolute_uri","required");
-        bus->setHttpStatus(400,"Bad Request");
+IResponse *RatingsService::showAllPageRatings(IRequest *req)
+{
+    if ( !m_proxyConnection->session()->isLoggedIn() )
+           return req->response(IResponse::UNAUTHORIEZED);
 
-        return new QVariant(error);
-    }
-
-    QSqlQuery query;
-    query.prepare("SELECT * FROM ratings WHERE absolute_uri=:absolute_uri");
-    query.bindValue(":absolute_uri",absolute_uri);
-    query.exec();
-
+    QVariantMap error;
     QVariantList ratings;
 
-    while (query.next()) {
-        QVariantMap rating;
-        rating.insert("id", query.value(query.record().indexOf("id")));
-        rating.insert("user_id", query.value(query.record().indexOf("user_id")));
-        rating.insert("value", query.value(query.record().indexOf("value")));
-        rating.insert("absolute_uri", query.value(query.record().indexOf("absolute_uri")));
-
-        ratings.append(rating);
+    if (!req->hasParameter("uri")) {
+        error.insert("uri","required");
+        return req->response(QVariant(error), IResponse::BAD_REQUEST);
     }
 
-    bus->setHttpStatus(200, "OK");
-    return new QVariant(ratings);
+    IResponse::Status responseStatus;
+    responseStatus = this->m_ratingManager->showAllPageRatings( req->parameterValue("uri"), ratings, error);
+
+    if (responseStatus != IResponse::OK)
+        return req->response(QVariant(error), responseStatus);
+    else
+        return req->response(QVariant(ratings), responseStatus);
 }
-
-
-QVariant *RatingsService::del(IBus *bus, IRequest *req)
-{
-    bool ok = false;
-    QVariantMap reqJson = req->postBodyFromJson(&ok).toMap();
-    if (!ok)
-        return NULL;
-
-    bool logged = false;
-    QVariantMap error;
-
-    QString curUser_id = m_proxyConnection->session()->value("logged").toString();
-    if(curUser_id == ""){
-        logged = true;
-        error.insert("error","not logged in");
-
-    }
-    // if not logged in
-    if(logged){
-
-        bus->setHttpStatus(400,"Bad Request");
-
-        return new QVariant(error);
-    }
-
-    QString absolute_uri = reqJson["idi"].toString();
-    if(absolute_uri == ""){
-        error.insert("id","required");
-        bus->setHttpStatus(400,"Bad Request");
-
-        return new QVariant(error);
-    }
-
-
-    IDatabaseUpdate *update = m_proxyConnection->databaseUpdate();
-    IDatabaseUpdateQuery *query = update->createUpdateQuery("recommendations", IDatabaseUpdateQuery::Delete);
-    query->setUpdateDates(true);
-    query->setWhere("id", reqJson["id"]);
-    query->setWhere("user_id",curUser_id);
-
-    if(!update->execute()){
-        bus->setHttpStatus(200,"OK");
-        return new QVariant;
-    }
-    else{
-        bus->setHttpStatus(500, "Internal Server Error");
-        return new QVariant;
-    }
-
-}
-
