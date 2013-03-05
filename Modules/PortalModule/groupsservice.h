@@ -63,7 +63,7 @@ private:
 
     IResponse *getIsAdmin( IRequest *req );
 
-     IResponse *getIsMember( IRequest *req );
+     IResponse *getIsMember( IRequest *req);
 
     IResponse *joinGroup(IRequest *req);
 
