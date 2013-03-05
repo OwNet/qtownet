@@ -13,11 +13,15 @@ class RatingManager : public QObject
 public:
     explicit RatingManager(IProxyConnection *proxyConnection, QObject *parent = 0);
 
-    IResponse::Status createRating(IRequest *req, QString curUser_id, QVariantMap &error);
-    IResponse::Status showRating(IRequest *req, QVariantList &ratings, QVariantMap &error);
-    IResponse::Status deleteRating(IRequest *req, QString uid, QString curUser_id, QVariantMap &error);
+    IResponse::Status createRating(uint userId, QString uri, int value, QVariantMap &error);
+    IResponse::Status showRating(uint id, QVariantMap &rating, QVariantMap &error);
+    IResponse::Status editRating(uint id, uint userId, int value, QVariantMap &error);
+    IResponse::Status deleteRating(uint id, uint userId, QVariantMap &error);
 
-    
+    IResponse::Status showAllPageRatings(QString uri, QVariantList &ratings, QVariantMap &error);
+    IResponse::Status showAllUserRatings(uint userId, QVariantList &ratings, QVariantMap &error);
+    IResponse::Status showPageStats(QString uri, QVariantMap &stats, QVariantMap &error);
+
 private:
     ActivityManager *m_activityManager;
     IProxyConnection *m_proxyConnection;
