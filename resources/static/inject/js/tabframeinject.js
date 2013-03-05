@@ -233,7 +233,7 @@ owNetGLOBAL.ProxyContact = {
                 owNetGLOBAL.loadScript(owNetGLOBAL.localUri + "visit/?page=" + owNetGLOBAL.encodedPageUri + "&ref=" + owNetGLOBAL.encodedReferrerUri + "&gid=" + Math.floor((Math.random() * 1000) + 1), function () {
                     if (owNetPAGEID !== null) {
                         owNetGLOBAL.ProxyContact.pageId = owNetPAGEID;
-                        owNetGLOBAL.loadScript(owNetGlobal.prefetchUri + "create/?page=" + owNetGLOBAL.encodedPageUri + "&gid=" + Math.floor((Math.random() * 1000) + 1), function () { });
+                        owNetGLOBAL.loadScript(owNetGlobal.prefetchUri + "create/?page=" + owNetPAGEID + "&gid=" + Math.floor((Math.random() * 1000) + 1), function () { });
                     }
                 });
                 this.hasReportedPrimary = 1;

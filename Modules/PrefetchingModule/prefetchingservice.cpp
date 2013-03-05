@@ -37,10 +37,6 @@ void PrefetchingService::init(IRouter *router)
             ->on(IRequest::GET, ROUTE(done));
     router->addRoute("/load/")
             ->on(IRequest::GET, ROUTE(load));
-
-
-
-
 }
 
 void PrefetchingService::registerPredictionQuery(int from, QString url)
@@ -84,7 +80,7 @@ void PrefetchingService::registerPredictionQuery(int from, QString url)
         group->where("page_id_from", select->value("page_id_from"));
         group->where("page_hash_to", select->value("page_hash_to"));
 
-        if (select->value("page_id_from") == from && select->value("page_hash_to").toInt() == hash)
+        if (select->value("page_id_from").toInt() == from && select->value("page_hash_to").toInt() == hash)
         {
            // qDebug("---increment");
             query->setColumnValue("priority", select->value("priority").toInt() + 1);
@@ -97,13 +93,16 @@ void PrefetchingService::registerPredictionQuery(int from, QString url)
     }
 
     // register new prediction
-    query = m_proxyConnection->databaseUpdateQuery("prefetch_orders",  &parent, false);
-    query->setColumnValue("page_id_from", from);
-    query->setColumnValue("page_hash_to", hash);
-    query->setColumnValue("absolute_uri", url);
-    query->setColumnValue("priority", DEFAULT_PRIORITY);
-    query->setUpdateDates(true);
-    query->executeQuery();
+    if (existed == false)
+    {
+        query = m_proxyConnection->databaseUpdateQuery("prefetch_orders",  &parent, false);
+        query->setColumnValue("page_id_from", from);
+        query->setColumnValue("page_hash_to", hash);
+        query->setColumnValue("absolute_uri", url);
+        query->setColumnValue("priority", DEFAULT_PRIORITY);
+        query->setUpdateDates(true);
+        query->executeQuery();
+    }
 }
 
 bool PrefetchingService::completedPrefetchingQuery(QString url)
@@ -140,23 +139,31 @@ IResponse *PrefetchingService::link(IRequest *req)
 
 
             QList<QString *> *list = getTopLinks("http://www.mtbiker.sk/");
+            if (list != NULL) {
 
-            int count = list->size();
+                int count = list->size();
 
-            int xF = qFloor(count * 0.35);
-            int yF = qFloor(count * 0.5);
-            int zF = qFloor(count * 0.65);
+                if (count > 0) {
+                    int xF = qFloor(count * 0.35);
+                    if (xF >= 0 && xF < count)
+                        registerPredictionQuery(page_id, *(list->at(xF)));
 
-            registerPredictionQuery(page_id, *(list->at(xF)));
-            registerPredictionQuery(page_id, *(list->at(yF)));
-            registerPredictionQuery(page_id, *(list->at(zF)));
+                    int yF = qFloor(count * 0.5);
+                    if (yF > xF && yF < count)
+                        registerPredictionQuery(page_id, *(list->at(yF)));
 
-            int i;
-            for (i = 0; i < count; ++i) {
-                delete list->at(i);
+
+                    int zF = qFloor(count * 0.65);
+                    if (zF > yF && zF < count)
+                        registerPredictionQuery(page_id, *(list->at(zF)));
+
+                    int i;
+                    for (i = 0; i < count; ++i) {
+                        delete list->at(i);
+                    }
+                }
+                delete list;
             }
-            delete list;
-
             //update->execute();
         }
     }
