@@ -18,8 +18,14 @@ public:
     QString name() const { return "ratings"; }
 
     IResponse *create(IRequest *req);
-    IResponse *show( IRequest *req);
-    IResponse *del(IRequest *req, QString uid);
+    IResponse *index(IRequest *req);
+    IResponse *show( IRequest *req, uint id);
+    IResponse *edit( IRequest *req, uint id);
+    IResponse *del(IRequest *req, uint uid);
+
+    IResponse *showPageStats(IRequest *req);    
+    IResponse *showAllPageRatings(IRequest *req);
+
 
 private:
 
