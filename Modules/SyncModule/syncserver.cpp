@@ -10,6 +10,7 @@
 #include <QSqlRecord>
 #include <QSqlField>
 #include <QStringList>
+#include <QDebug>
 
 SyncServer::SyncServer(IProxyConnection *proxyConnection, QObject *parent)
     : QObject(parent),
@@ -246,7 +247,7 @@ void SyncServer::saveAndApplyUpdates(const QVariantList &changes)
         where->where("client_id", clientId.toUInt());
 
         updateQuery->setColumnValue("last_client_rec_num", lastRecords.value(key));
-        updateQuery->setColumnValue("client_id", clientId.toInt());
+        updateQuery->setColumnValue("client_id", clientId.toUInt());
 
         if (!groupId.isEmpty())
             updateQuery->setColumnValue("group_id", groupId.toInt());
