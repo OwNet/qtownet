@@ -38,7 +38,7 @@ private:
     bool completedPrefetchingQuery(QString url);
     bool disablePredictionQuery(int hash);
 
-    QList<QString *> *getTopLinks(QString url);
+    QList<QString> getTopLinks(QString url);
 
    //int registerPage(QString &url);
 };

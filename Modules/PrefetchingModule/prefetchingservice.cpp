@@ -137,35 +137,26 @@ IResponse *PrefetchingService::link(IRequest *req)
         if (ok) {
             //registerPredictionQuery(page_id, target);
 
+            QList<QString> list = getTopLinks("http://www.mtbiker.sk/");
 
-            QList<QString *> *list = getTopLinks("http://www.mtbiker.sk/");
-            if (list != NULL) {
+            int count = list.length();
 
-                int count = list->length();
+            if (count > 0) {
+                int xF = qFloor(count * 0.35);
+                if (xF >= 0 && xF < count)
+                    registerPredictionQuery(page_id, (list.at(xF)));
 
-                if (count > 0) {
-                    int xF = qFloor(count * 0.35);
-                    if (xF >= 0 && xF < count)
-                        registerPredictionQuery(page_id, *(list->at(xF)));
-
-                    int yF = qFloor(count * 0.5);
-                    if (yF > xF && yF < count)
-                        registerPredictionQuery(page_id, *(list->at(yF)));
+                int yF = qFloor(count * 0.5);
+                if (yF > xF && yF < count)
+                    registerPredictionQuery(page_id, (list.at(yF)));
 
 
-                    int zF = qFloor(count * 0.65);
-                    if (zF > yF && zF < count)
-                        registerPredictionQuery(page_id, *(list->at(zF)));
-
-                    int i;
-                    for (i = 0; i < count; ++i) {
-                        delete list->at(i);
-                    }
-                }
-                delete list;
+                int zF = qFloor(count * 0.65);
+                if (zF > yF && zF < count)
+                    registerPredictionQuery(page_id, (list.at(zF)));
             }
-            //update->execute();
         }
+
     }
     return req->response(IResponse::OK);
 }
@@ -180,7 +171,6 @@ IResponse *PrefetchingService::close(IRequest *req)
         if (ok)
         {
             disablePredictionQuery(page_id);
-            //MessageHelper::debug(QString("PREFETCH: Removed %0").arg(page));
         }
     }
     return req->response(IResponse::OK);
@@ -202,7 +192,6 @@ IResponse *PrefetchingService::load(IRequest *req)
 
 IResponse *PrefetchingService::done(IRequest *req)
 {
-
     if (req->hasParameter("page") && !req->parameterValue("page").isEmpty()) {
         completedPrefetchingQuery(req->parameterValue("page"));
     }
@@ -211,21 +200,21 @@ IResponse *PrefetchingService::done(IRequest *req)
 }
 
 
-
-
-QList<QString *> *PrefetchingService::getTopLinks(QString url) {
+QList<QString> PrefetchingService::getTopLinks(QString url)
+{
     QObject parent;
-    IDatabaseSelectQuery *query = m_proxyConnection->databaseSelect("caches", &parent);
-    query->singleWhere("absolute_uri", url);
-    query->select("id");
-    query->limit(1);
 
     QList<QSgmlTag *> *elems = new QList<QSgmlTag *>();
-    QList<QString> *links = new QList<QString>();
-    QList<QString*> *result = new QList<QString*>();
+    QList<QString> links;
+
     QUrl baseUrl(url);
 
     if (baseUrl.isValid()) {
+        IDatabaseSelectQuery *query = m_proxyConnection->databaseSelect("caches", &parent);
+        query->singleWhere("absolute_uri", url);
+        query->select("id");
+        query->limit(1);
+
         int i;
         if (query->next()) {
             bool ok = false;
@@ -236,7 +225,6 @@ QList<QString *> *PrefetchingService::getTopLinks(QString url) {
 
                 QString path = dir.absoluteFilePath(QString("%1-0.cache").arg(id));
                 QFile file(path);
-
                 if (file.exists()) {
                     QSgml o(file);
 
@@ -246,26 +234,27 @@ QList<QString *> *PrefetchingService::getTopLinks(QString url) {
 
                     for (i = 0; i < count; ++i ) {
                         QSgmlTag* tag = elems->at(i);
-// BUG
+
                         QString linkHref = tag->getArgValue("href");
-                        QUrl link(linkHref);
-                        if (link.isValid()) {
-                            QString newLink = QUrl(baseUrl.resolved(link)).toString();
-                            if (!links->contains(newLink)) {
-                                links->push_back(newLink);
+                        try {
+                            QUrl link(linkHref);
+                            if (link.isValid()) {
+                                QString newLink = QUrl(baseUrl.resolved(link)).toString();
+                                if (!links.contains(newLink)) {
+                                    links.push_back(newLink);
+                                }
                             }
                         }
-                        delete tag;
+                        catch (...) {
+
+                        }
                     }
                 }
             }
         }
-        for (i = 0; i < links->length(); ++i) {
-            result->push_back(new QString(links->at(i)));
-        }
     }
-    delete links;
+    elems->clear();
     delete elems;
 
-    return result;
+    return links;
 }
