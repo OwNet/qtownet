@@ -13,6 +13,7 @@
 #include "ijobaction.h"
 #include "modulejob.h"
 #include "messagehelper.h"
+#include "uniqueidhelper.h"
 
 ProxyConnection::ProxyConnection(QObject *parent) :
     QObject(parent)
@@ -95,4 +96,9 @@ IResponse *ProxyConnection::callModule(IRequest *req)
 void ProxyConnection::debugMessage(const QVariant &message) const
 {
     MessageHelper::debug(message);
+}
+
+QString ProxyConnection::generateUniqueId() const
+{
+    return UniqueIdHelper::generate();
 }

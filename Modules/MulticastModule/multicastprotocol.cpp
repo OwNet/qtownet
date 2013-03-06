@@ -56,6 +56,9 @@ void MulticastProtocol::initialized()
 
 void MulticastProtocol::processMessage(const QVariantMap &message)
 {
+    if (message.value("address").toString().isEmpty())
+        return;
+
     QMutexLocker locker(&m_nodesMutex);
 
     QObject parent;

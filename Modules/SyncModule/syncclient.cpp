@@ -5,6 +5,7 @@
 #include "idatabaseselectquery.h"
 #include "syncserver.h"
 #include "isession.h"
+#include "synclock.h"
 
 #include <QDebug>
 
@@ -34,6 +35,9 @@ int SyncClient::updateFromClients()
 {
     QObject parent;
     ISession *session = m_proxyConnection->session(&parent);
+    if (!session->isServer())
+        return 0;
+
     int clients = 0;
 
     foreach (QString clientId, session->availableClients().keys())
@@ -41,6 +45,15 @@ int SyncClient::updateFromClients()
             clients++;
 
     return clients;
+}
+
+/**
+ * @brief Download updates from clients if is server, or from server.
+ */
+void SyncClient::sync()
+{
+    updateFromClients();
+    updateFromServer();
 }
 
 /**

@@ -1,5 +1,5 @@
-#ifndef SYNCJOB_H
-#define SYNCJOB_H
+#ifndef CENTRALSERVICESYNCJOB_H
+#define CENTRALSERVICESYNCJOB_H
 
 #include <QObject>
 #include <QMutex>
@@ -8,11 +8,11 @@
 
 class IProxyConnection;
 
-class SyncJob : public QObject, public IJobAction
+class CentralServiceSyncJob : public QObject, public IJobAction
 {
     Q_OBJECT
 public:
-    explicit SyncJob(IProxyConnection *proxyConnection, QObject *parent = 0);
+    explicit CentralServiceSyncJob(IProxyConnection *proxyConnection, QObject *parent = 0);
 
     int interval() { return 15 * 1000; }
 
@@ -23,4 +23,4 @@ private:
     IProxyConnection *m_proxyConnection;
 };
 
-#endif // SYNCJOB_H
+#endif // CENTRALSERVICESYNCJOB_H

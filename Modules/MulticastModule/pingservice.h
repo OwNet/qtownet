@@ -18,6 +18,7 @@ public:
 
 private:
     IResponse *availableClients(IRequest *request);
+    IResponse *hi(IRequest *request);
 
     PingServer *m_pingServer;
 };

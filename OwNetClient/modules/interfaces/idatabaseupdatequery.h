@@ -11,7 +11,7 @@ class IDatabaseUpdateQuery
 public:
     enum EntryType {
         InsertOrUpdate = 1,
-        Delete = 4
+        Delete = 2
     };
     enum UpdateDates {
         None = 0,

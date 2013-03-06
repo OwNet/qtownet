@@ -10,6 +10,7 @@
 #include <QSqlRecord>
 #include <QSqlField>
 #include <QStringList>
+#include <QDebug>
 
 SyncServer::SyncServer(IProxyConnection *proxyConnection, QObject *parent)
     : QObject(parent),
@@ -35,7 +36,7 @@ QVariantList SyncServer::updates(const QVariantMap &clientRecordNumbers, bool sy
 
         if (clientRecordNumbers.keys().count() > 0) {
             foreach (QString groupId, clientRecordNumbers.keys()) {
-                if (groupId.isNull())
+                if (groupId.isEmpty())
                     baseOr->where("group_id", "NULL", IDatabaseSelectQuery::Is, false);
                 else
                     baseOr->where("group_id", groupId.toInt());
@@ -239,14 +240,14 @@ void SyncServer::saveAndApplyUpdates(const QVariantList &changes)
         IDatabaseSelectQueryWhereGroup *where = updateQuery->whereGroup(IDatabaseSelectQuery::And);
 
         if (groupId.isEmpty())
-            where->where("group_id", "NULL", IDatabaseSelectQuery::Is);
+            where->where("group_id", "NULL", IDatabaseSelectQuery::Is, false);
         else
             where->where("group_id", groupId.toInt());
 
         where->where("client_id", clientId.toUInt());
 
         updateQuery->setColumnValue("last_client_rec_num", lastRecords.value(key));
-        updateQuery->setColumnValue("client_id", clientId.toInt());
+        updateQuery->setColumnValue("client_id", clientId.toUInt());
 
         if (!groupId.isEmpty())
             updateQuery->setColumnValue("group_id", groupId.toInt());
