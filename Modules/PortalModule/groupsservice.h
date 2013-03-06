@@ -53,6 +53,12 @@ public:
 
     IResponse *del( IRequest *req, uint id);
 
+    /**
+     * @brief allCount
+     * @param req
+     * @return count of pages for all groups
+     */
+    IResponse *allPagesCount(IRequest *req);
 private:
 
     bool isMember(uint user_id, uint group_id);
