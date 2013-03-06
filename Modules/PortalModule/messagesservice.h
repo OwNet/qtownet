@@ -20,7 +20,7 @@ public:
      IResponse *create( IRequest *req);
     // QVariant *show(IBus *bus, IRequest *req);
     IResponse  *index(IRequest *req);
-    IResponse  *del(IRequest *req, int id);
+    IResponse  *del(IRequest *req, uint id);
 
 private:
     IProxyConnection *m_proxyConnection;
