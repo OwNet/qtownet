@@ -12,6 +12,9 @@ DatabaseSelectQueryWhereExpression::DatabaseSelectQueryWhereExpression(const QSt
     m_operator(op),
     m_bind(bind)
 {
+    if (m_operator == IDatabaseSelectQuery::Is)
+        m_bind = false;
+
     if (m_bind)
         m_id = m_nextId++;
 }

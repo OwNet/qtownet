@@ -32,7 +32,9 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->btnSync, SIGNAL(clicked()), this, SLOT(sync()));
     connect(ui->btnEditWorkspaceName, SIGNAL(clicked()), this, SLOT(editWorkspaceName()));
 
+#if defined(Q_WS_WIN) || defined(Q_WS_MAC)
     createTrayIcon();
+#endif
 
     QShortcut *dumpSockets = new QShortcut(QKeySequence(tr("Ctrl+L", "Dump Open Socket")), this);
     dumpSockets->setContext(Qt::ApplicationShortcut);

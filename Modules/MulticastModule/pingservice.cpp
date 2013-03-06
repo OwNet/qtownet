@@ -13,6 +13,8 @@ void PingService::init(IRouter *router)
 {
     router->addRoute("/available_clients")
             ->on(IRequest::POST, ROUTE(availableClients));
+    router->addRoute("/hi")
+            ->on(IRequest::GET, ROUTE(hi));
 }
 
 IResponse *PingService::availableClients(IRequest *request)
@@ -25,4 +27,12 @@ IResponse *PingService::availableClients(IRequest *request)
     m_pingServer->updateClient(requestBody);
 
     return request->response(m_pingServer->availableClients());
+}
+
+IResponse *PingService::hi(IRequest *request)
+{
+    QVariantMap map;
+    map.insert("Hi!", "Nice to meet you.");
+    map.insert("Lots of love and kisses", "Team OwNet");
+    return request->response(map);
 }

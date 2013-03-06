@@ -102,7 +102,8 @@ void ProxyWebInputObject::createReply()
     QNetworkRequest request;
 
     if (m_clientsToTry.count()) {
-        manager->setProxy(QNetworkProxy(QNetworkProxy::HttpProxy, clientIp(m_clientsToTry.takeFirst()), 8081));
+        QStringList ipAndPort = clientIpAndPort(m_clientsToTry.takeFirst()).split(":");
+        manager->setProxy(QNetworkProxy(QNetworkProxy::HttpProxy, ipAndPort.first(), ipAndPort.last().toInt()));
         m_retryIfFailed = true;
     }
 
@@ -144,7 +145,7 @@ bool ProxyWebInputObject::isClientOnline(uint clientId) const
     return Session().availableClients().contains(QString::number(clientId));
 }
 
-QString ProxyWebInputObject::clientIp(uint clientId) const
+QString ProxyWebInputObject::clientIpAndPort(uint clientId) const
 {
     return Session().availableClients().value(QString::number(clientId)).toString();
 }
