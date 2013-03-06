@@ -325,6 +325,17 @@ IResponse *GroupsService::show(IRequest *req, uint id)
         group.insert("has_password", query.value(query.record().indexOf("has_password")));
         group.insert("has_approvement", query.value(query.record().indexOf("has_approvement")));
 
+        if(isAdmin(user_id.toUInt(), id))
+            group.insert("admin","1");
+        else
+            group.insert("admin","0");
+
+        if(isMember(user_id.toUInt(), id))
+            group.insert("member","1");
+        else
+            group.insert("member","0");
+
+
         QSqlQuery q_type;
 
         q_type.prepare("SELECT name FROM group_types WHERE _id = :id");
@@ -566,7 +577,6 @@ IResponse *GroupsService::joinGroup(IRequest *req)
          }
          // group has approvement
          else if(query.value(query.record().indexOf("has_approvement")) == "1"){
-
              IDatabaseUpdateQuery *q = m_proxyConnection->databaseUpdateQuery("group_users", &parent);
 
              q->setUpdateDates(true); // sam nastavi v tabulke datumy date_created a date_updated
@@ -827,7 +837,7 @@ IResponse *GroupsService::deleteUser( IRequest *req)
         query1.prepare("SELECT * FROM group_users WHERE user_id = :user_id AND group_id = :group_id");
         query1.bindValue(":user_id", reqJson["user_id"]);
         query1.bindValue(":group_id", reqJson["group_id"]);
-        if(query1.exec())
+        if(!query1.exec())
             return req->response(IResponse::INTERNAL_SERVER_ERROR);
         if(query1.first()){
 

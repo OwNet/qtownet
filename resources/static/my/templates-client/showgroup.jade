@@ -1,13 +1,25 @@
 .row
-		.span1
-			label #{group[0].name}
-		.span2
-			label #{group[0].description}
-		.span2
-			a( href="#" data-id="#{group[0].id}" name="edit") Edit group
-		.span2
-			a( href="#" data-id="#{group[0].id}" name="delete") Delete group
+	.span6.offset3
 
-.row
-	.span1
-			a( href="#/groups" name="back") Go back
+		.row
+			.span6.center
+				img( src="img/ownet.png" )
+
+		.row
+			if (group[0].admin == "1")
+				.span5
+					a( href="#/editGroup" data-id="#{group[0].id}" name="edit") Edit group
+					a( href="#/groups" data-id="#{group[0].id}" name="delete") Delete group
+			if (group[0].admin == "0" && group[0].member == "1")
+				.span5
+					a( href="#/groups" data-id="#{group[0].id}" name="leave") Leave group
+
+			.span6
+				a( href="#/groups" data-id="#{group[0].id}" name="leave") Show members
+
+			.span1
+				label #{group[0].name}
+			.span2
+				label #{group[0].description}
+			.span3
+				//-label created #{new Date(group[0].date_created).toLocaleDateString()}

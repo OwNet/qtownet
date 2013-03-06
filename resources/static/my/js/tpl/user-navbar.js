@@ -15,7 +15,7 @@ __jade.unshift({ lineno: 2, filename: __jade[0].filename });
 buf.push('\n<li>');
 __jade.unshift({ lineno: undefined, filename: __jade[0].filename });
 __jade.unshift({ lineno: 2, filename: __jade[0].filename });
-buf.push('<a href="#/login">');
+buf.push('<a href="#/profile">');
 __jade.unshift({ lineno: undefined, filename: __jade[0].filename });
 __jade.unshift({ lineno: 2, filename: __jade[0].filename });
 buf.push('' + escape((interp = user.first_name) == null ? '' : interp) + ' ' + escape((interp = user.last_name) == null ? '' : interp) + '');

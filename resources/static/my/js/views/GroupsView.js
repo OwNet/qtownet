@@ -16,12 +16,6 @@ define( function (require) {
 
 	  , Form = require("share/utils/form")
 
-	  , Action = Backbone.Model.extend({
-	  		urlRoot: '/api/groups',
-			defaults: {	}
-
-		})
-
 
 	var GroupsView = Backbone.View.extend({
 
@@ -31,7 +25,8 @@ define( function (require) {
 				'click a[name="delete"]': "deleteGroup", 
 				'click a[name="edit"]': "editGroup", 
 				'click a[name="join"]': "joinGroup", 
-				'click a[name="all"]' : "showWithFilter",
+				'click a[name="filter"]' : "showWithFilter",
+				'click a[name="leave"]' : "deleteUser",
 			},
 
 			initialize: function() {
@@ -52,13 +47,51 @@ define( function (require) {
 			joinGroup: function(e){
 				e.preventDefault();
 				var id = $(e.currentTarget).data("id");
-				$.post('/api/groups/joinGroup', { group_id: id }, function(data) {
-    				App.router.navigate("#/groups", {trigger: true})
-    				App.showMessage("Group joined")
-					this.show("all")
-    			}, 'json').error(
-    				App.showMessage("Cannot join")
-    			);
+
+				var Action = Backbone.Model.extend({
+			  		urlRoot: '/api/groups/joinGroup',
+					defaults: {	}
+				})
+
+				var action = new Action()
+
+
+				action.save({group_id: id },{
+					wait: true,
+					success: function() {
+						App.router.navigate('groups', {trigger: true})
+						App.showMessage("Joined", "alert-success")
+						this.show("all")
+					},
+					error: function() {
+						App.showMessage("Joining failed")
+					},
+				})
+			},
+
+			deleteUser: function(e){
+				e.preventDefault();
+				var id = $(e.currentTarget).data("id");
+
+				var Action = Backbone.Model.extend({
+			  		urlRoot: '/api/groups/deleteUser',
+					defaults: {	}
+				})
+
+				var action = new Action()
+
+
+				action.save({group_id: id, user_id: App.user ? App.user.id : "0"},{
+					wait: true,
+					success: function() {
+						App.router.navigate('groups', {trigger: true})
+						App.showMessage("Leaved", "alert-success")
+						this.show("all")
+					},
+					error: function() {
+						App.showMessage("Leaving failed")
+					},
+				})
 			},
 
 			showWithFilter: function(e){
@@ -82,7 +115,6 @@ define( function (require) {
         				App.router.navigate("#/groups", {trigger: true})
         				App.showMessage("Group deleted")
 						this.show("all")
-        				
 					},
 					error: function() {
 						App.showMessage("Cannot delete")
@@ -136,15 +168,12 @@ define( function (require) {
 					if(data.has_password != "1") {
 						data.has_password = "0"
 					}
-				}else{
-					data.has_approvement = "0"
-					data.has_password = "0"
 				}
 
 				var group = new GroupsModel(data)
 
 
-				group.save({group_type: "1", user_id: App.user ? App.user.id : "0"},{
+				group.save({password: "", has_password: "0", group_type: "1", user_id: App.user ? App.user.id : "0"},{
 					wait: true,
 					success: function() {
 						App.router.navigate('groups', {trigger: true})
@@ -166,8 +195,7 @@ define( function (require) {
         		group.fetch({
         			success: function() {
         				App.router.navigate("#/showgroup", {trigger: true})
-						$('div#groups_list').html( showGroupTemplate({group :group.toJSON()}))
-						
+						self.$el.html( showGroupTemplate({group :group.toJSON()}) )
 					}
         		})
 			},
