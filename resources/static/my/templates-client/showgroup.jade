@@ -15,11 +15,7 @@
 					a( href="#/groups" data-id="#{group[0].id}" name="leave") Leave group
 
 			.span6
-				a( href="#/groups" data-id="#{group[0].id}" name="leave") Show members
+				a( href="#/listmembers" data-id="#{group[0].id}" name="listMembers") Show members
 
-			.span1
-				label #{group[0].name}
-			.span2
-				label #{group[0].description}
-			.span3
-				//-label created #{new Date(group[0].date_created).toLocaleDateString()}
+			.span#group_detail
+			

@@ -39,6 +39,7 @@ define( function (require) {
 			editgroup: "editgroup",
 			profile: "profile",
 			editprofile: "editprofile",
+			listmembers: "listmembers",
 
 		},
 
@@ -73,11 +74,14 @@ define( function (require) {
 
 		showgroup: function() {
 			this.activate("#/showgroups")
-
 		},
 
 		editgroup: function() {
 			this.activate("#/editgroups")
+		},
+
+		listmembers: function() {
+			this.activate("#/listmembers")
 		},
 
 		profile: function() {

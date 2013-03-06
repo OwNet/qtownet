@@ -9,6 +9,8 @@ define( function (require) {
 	  , groupsTableTemplate = require ("tpl/groupstable")
 	  , showGroupTemplate = require ("tpl/showgroup")
 	  , groupFormTemplate = require ("tpl/groupform")
+	  , groupDetailTemplate = require ("tpl/showgroupdetail")
+	  , listMembersGroupTemplate = require ("tpl/listmembersgroup")
 	  , UserModel = require ("share/models/UserModel")
 	  , GroupsModel = require ("share/models/GroupsModel")
 
@@ -27,6 +29,7 @@ define( function (require) {
 				'click a[name="join"]': "joinGroup", 
 				'click a[name="filter"]' : "showWithFilter",
 				'click a[name="leave"]' : "deleteUser",
+				'click a[name="listMembers"]' : "listMembers",
 			},
 
 			initialize: function() {
@@ -196,6 +199,42 @@ define( function (require) {
         			success: function() {
         				App.router.navigate("#/showgroup", {trigger: true})
 						self.$el.html( showGroupTemplate({group :group.toJSON()}) )
+						$('div#group_detail').html( groupDetailTemplate({group :group.toJSON()}))
+					}
+        		})
+			},
+
+			listMembers: function(e){
+				e.preventDefault();
+        		var id = $(e.currentTarget).data("id");
+
+        		var Action = Backbone.Model.extend({
+			  		urlRoot: '/api/groups/getGroupUsers',
+					defaults: {	}
+				})
+
+				var action = new Action()
+        		
+        		var group = new GroupsModel()
+        		group.id = id
+        		var self = this
+        		group.fetch({
+        			success: function() {
+
+						action.save({group_id: id },{
+							wait: true,
+							success: function() {
+								App.router.navigate('listMembers', {trigger: true})
+								$('div#group_detail').html( listMembersGroupTemplate({group :group.toJSON(), action : action.toJSON(),  user:  App.user ? App.user.toJSON() : false}))
+							},
+							error: function() {
+								App.showMessage("Joining failed")
+							},
+						})
+
+        				/*App.router.navigate("#/showgroup", {trigger: true})
+						self.$el.html( showGroupTemplate({group :group.toJSON()}) )
+						$('div#group_detail').html( groupDetailTemplate({group :group.toJSON()}))*/
 					}
         		})
 			},
