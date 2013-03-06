@@ -4,7 +4,8 @@ define( function (require) {
 	require('init')
 
 	var Backbone = require( 'backbone' )
-	  , TabstarRatings = require('views/TabstarRatings')
+	  , LoginView = require( 'views/LoginView' )
+	  , PageRatingView = require( 'views/PageRatingView' )
 	  , App = require('App')
 
 
@@ -13,10 +14,13 @@ define( function (require) {
 		initialize: function(options){
 
 			this.views = {
-				tabstar: new TabstarRatings({ el: $('#star-ratings') })
+				login : new LoginView({ el: $('#login') }),
+				pageRatingView : new PageRatingView({ el:$('#page-ratings') }),
 			}
 
-			App.on('OwNet:tabselect',this.onTabSelect,this)
+			this.$tabs = $('#page > .tab-content > .tab-pane')
+
+			App.on('OwNet:tabselect',this.tabSelect,this)
 
 		},
 
@@ -24,19 +28,24 @@ define( function (require) {
 			Backbone.history.start()
 		},
 
-		onTabSelect: function(tab) {
+		tabSelect: function(tab) {
+			this.$tabs.filter('.active').removeClass('active')
+			this.$tabs.filter('[data-tab="'+tab+'"]').addClass('active')
 			this.navigate('#/'+tab,{trigger:true})
 		},
 
 		routes: {
-			'page_rating' : 'page_rating'
+			'login'       : 'login',
+			'page_rating' : 'page_rating',
+		},
+
+		login: function() {
+
 		},
 
 		page_rating: function() {
-			this.views.tabstar.render()
-		}
-
-
+			this.views.page_rating
+		},
 
 	});
 

@@ -184,10 +184,10 @@ IResponse::Status RatingManager::showAllUserRatings(uint userId, QVariantList &r
     return IResponse::OK;
 }
 
-IResponse::Status RatingManager::showPageStats(QString uri, QVariantMap &stats, QVariantMap &error)
+IResponse::Status RatingManager::showPageStats(QString uri, uint userId, QVariantMap &stats, QVariantMap &error)
 {
     QSqlQuery query;
-    query.prepare("SELECT _id, count(*) as count, AVG(val) as average FROM ratings WHERE absolute_uri=:uri");
+    query.prepare("SELECT count(*) as count, AVG(val) as average FROM ratings WHERE absolute_uri=:uri");
     query.bindValue(":uri",uri);
 
     if(!query.exec())
@@ -197,10 +197,25 @@ IResponse::Status RatingManager::showPageStats(QString uri, QVariantMap &stats, 
         return IResponse::NOT_FOUND;
 
     QSqlRecord row = query.record();
-
-    stats.insert("id", row.value("_id"));
     stats.insert("count", row.value("count"));
     stats.insert("average", row.value("average"));
+
+
+    if (userId != -1) {
+        QSqlQuery userQuery;
+        userQuery.prepare("SELECT _id, val FROM ratings WHERE user_id=:user_id AND absolute_uri=:uri");
+        userQuery.bindValue(":user_id",userId);
+        userQuery.bindValue(":uri",uri);
+
+        if(!userQuery.exec())
+            return IResponse::INTERNAL_SERVER_ERROR;
+
+        if (userQuery.first()) {
+            QSqlRecord userRow = userQuery.record();
+            stats.insert("id", userRow.value("_id"));
+            stats.insert("val", userRow.value("val"));
+       }
+    }
 
     return IResponse::OK;
 }

@@ -207,9 +207,13 @@
 			this._toggleTab('cache_settings')
 		},
 
+		sendURI: function() {
+			this.sendMessage('URI', location.hostname + (location.pathname !== '/' ? location.pathname:'') )
+		},
+
 		/* events */
 		onOwnetReady: function() {
-			console.log( 'ownet ready' )
+			this.sendURI()
 		},
 
 		/* private */

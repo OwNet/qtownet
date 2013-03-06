@@ -14,7 +14,7 @@ html(lang='en')
 	body
 		#page
 			.tab-content
-				#login.tab-pane.active
+				#login.tab-pane(data-tab="login")
 					include login
-				#page-ratings.tab-pane
-					include page-ratings
+				#page-ratings.tab-pane(data-tab="page_rating")
+					include page-rating
