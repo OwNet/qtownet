@@ -188,11 +188,11 @@
 			this.iframe.contentWindow.postMessage( {name:name, data:data, OwNet:true}, this.iframeHost)
 		},
 
-		receiveMessage: function(e) {
-			if (e.origin !==  'http://inject.ownet')
+		receiveMessage: function(event) {
+			if (event.origin !==  'http://inject.ownet')
 				return
-
-			this.trigger('OwNet:'+e.data.name, e.data)
+			var msg = event.data
+			this.trigger('OwNet:'+msg.name, msg.data)
 		},
 
 		hide: function() {
@@ -311,7 +311,7 @@
 				this._closeIFrameTab()
 			else {
 				this.activeTab = tab
-				// this.iframe.api.activateTab(tab)
+				this.sendMessage('tabselect',tab)
 				this.iframeBox.style.display = 'block'
 			}
 		},

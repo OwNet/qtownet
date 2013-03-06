@@ -32,10 +32,10 @@ define( function (require) {
 		},
 
 		receiveMessage: function(event) {
-			if (!event.OwNet)
+			var msg = event.data
+			if (!msg.OwNet)
 				return
-
-			App.trigger('OwNet:'+event.name, event.data)
+			App.trigger('OwNet:'+msg.name, msg.data)
 		},
 
 		sendMessage: function(name, data) {
