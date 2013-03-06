@@ -32,6 +32,10 @@ require.config({
 
 
 require(['App', 'router'], function(App, Router) {
+	App.once('ready', function() {
+		App.router = new Router()
+		App.router.start()
+	})
+
 	App.initialize()
-	new Router({ App:App })
 });

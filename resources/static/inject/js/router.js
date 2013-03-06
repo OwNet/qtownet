@@ -11,14 +11,15 @@ define( function (require) {
 
 		initialize: function(options){
 
-			options.App.router = this
-
 			this.views = {
 				tabstar: new TabstarRatings({ el: $('#star-ratings') })
 			}
 
 		},
 
+		start: function(){
+			Backbone.history.start()
+		},
 
 		routes: {
 
