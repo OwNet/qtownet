@@ -58,7 +58,7 @@
     }
 
     $.setPageId = function (id) {
-        this.page = id;
+        this.pageId = id;
     }
     $.getPageId = function () {
         return this.pageId;
@@ -72,14 +72,14 @@
     }
 
     var PrefetchContact = { 
-        apiUri               : "http://api.ownet/api/prefetch/",
+        apiUri               : "http://prefetch.ownet/api/prefetch/",
         hasRequestedPrefetch : 0,
         requestTimeout       : 0,
         hasReportedClose     : 0,
         hasReportedPrefetch  : 0,
         TIMEOUT_DELAY_SECS   : 10,
-        startRequestTimeout: function() {
-            this.requestTimeout = setTimeout(this.requestPrefetch, TIMEOUT_DELAY_SECS * 1000);
+        startRequestTimeout: function () {
+            this.requestTimeout = setTimeout(function () { PrefetchContact.requestPrefetch(); }, this.TIMEOUT_DELAY_SECS * 1000);
         },
         stopRequestTimeout: function() { 
             if (this.requestTimeout) clearTimeout(this.requestTimeout);

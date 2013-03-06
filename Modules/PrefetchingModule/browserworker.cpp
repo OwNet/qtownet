@@ -45,7 +45,7 @@ void BrowserWorker::finished(bool) {
 }
 
 void BrowserWorker::resetBrowser() {
-    disconnect(m_timer, SIGNAL(loadFinished(bool)), this, SLOT(finished(bool)));
+    disconnect(&m_webView, SIGNAL(loadFinished(bool)), this, SLOT(finished(bool)));
     m_webView.load(QUrl("about:blank"));
     emit workCompleted();
 }

@@ -141,7 +141,7 @@ IResponse *PrefetchingService::link(IRequest *req)
             QList<QString *> *list = getTopLinks("http://www.mtbiker.sk/");
             if (list != NULL) {
 
-                int count = list->size();
+                int count = list->length();
 
                 if (count > 0) {
                     int xF = qFloor(count * 0.35);
@@ -242,9 +242,11 @@ QList<QString *> *PrefetchingService::getTopLinks(QString url) {
 
                     o.getElementsByName("a", elems);
 
-                    for (i = 0; i < elems->size(); ++i ) {
-                        QSgmlTag* tag = elems->at(i);
+                    int count = elems->length();
 
+                    for (i = 0; i < count; ++i ) {
+                        QSgmlTag* tag = elems->at(i);
+// BUG
                         QString linkHref = tag->getArgValue("href");
                         QUrl link(linkHref);
                         if (link.isValid()) {
@@ -258,7 +260,7 @@ QList<QString *> *PrefetchingService::getTopLinks(QString url) {
                 }
             }
         }
-        for (i = 0; i < links->size(); ++i) {
+        for (i = 0; i < links->length(); ++i) {
             result->push_back(new QString(links->at(i)));
         }
     }
