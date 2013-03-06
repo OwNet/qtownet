@@ -184,7 +184,6 @@
 		},
 
 		sendMessage: function(name,data) {
-			this.trigger('Ownet:'+name, data)
 			this.iframe.contentWindow.postMessage( {name:name, data:data, OwNet:true}, this.iframeHost)
 		},
 

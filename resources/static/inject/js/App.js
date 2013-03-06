@@ -22,12 +22,12 @@ define( function (require) {
 						success: function(){
 							App.session = session
 							App.user = user
-							App.sendMessage('ready')
+							App.trigger('ready')
 						},
 						error:   function(){ App._userLoadError() },
 					})
 				},
-				error: function() { App.sendMessage('ready') } // user is not logged in
+				error: function() { App.trigger('ready') } // user is not logged in
 			})
 
 		},
@@ -40,7 +40,6 @@ define( function (require) {
 		},
 
 		sendMessage: function(name, data) {
-			App.trigger(name, data)
 			parent.postMessage({name:name, data:data}, '*')
 		},
 

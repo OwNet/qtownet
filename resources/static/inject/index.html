@@ -45,14 +45,23 @@
           <h1>Rate this website</h1>
           <div class="row">
             <div class="span2"><img id="people" src="img/people.png"></div>
-            <div class="span4">
-              <ul id="star-ratings" class="tabstar-ratings">
-                <li><a data-rate="1" title="1 stars out of 5"></a></li>
-                <li><a data-rate="2" title="2 stars out of 5"></a></li>
-                <li><a data-rate="3" title="3 stars out of 5"></a></li>
-                <li><a data-rate="4" title="4 stars out of 5"></a></li>
-                <li><a data-rate="5" title="5 stars out of 5"></a></li>
-              </ul>
+            <div class="span3">
+              <div id="page_stats_box">
+                <div id="star-ratings-box">
+                  <ul id="star-ratings" class="tabstar-ratings">
+                    <li><a data-rate="1" title="1 stars out of 5"></a></li>
+                    <li><a data-rate="2" title="2 stars out of 5"></a></li>
+                    <li><a data-rate="3" title="3 stars out of 5"></a></li>
+                    <li><a data-rate="4" title="4 stars out of 5"></a></li>
+                    <li><a data-rate="5" title="5 stars out of 5"></a></li>
+                  </ul><span id="user-rate-text">Your rating</span>
+                </div>
+                <div id="average-rating-box">
+                  <div id="average-rating"></div>
+                  <div class="average-info">Average rating</div>
+                  <div id="average-count" class="average-info"></div>
+                </div>
+              </div>
             </div>
           </div>
         </div>

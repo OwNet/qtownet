@@ -5,10 +5,20 @@ h1 Rate this website
 	.span2
 		img#people(src="img/people.png")
 
-	.span4
-			ul#star-ratings.tabstar-ratings()
-				li: a(data-rate="1", title="1 stars out of 5")
-				li: a(data-rate="2", title="2 stars out of 5")
-				li: a(data-rate="3", title="3 stars out of 5")
-				li: a(data-rate="4", title="4 stars out of 5")
-				li: a(data-rate="5", title="5 stars out of 5")
+	.span3
+			#page_stats_box
+
+				#star-ratings-box
+					ul#star-ratings.tabstar-ratings()
+						li: a(data-rate="1", title="1 stars out of 5")
+						li: a(data-rate="2", title="2 stars out of 5")
+						li: a(data-rate="3", title="3 stars out of 5")
+						li: a(data-rate="4", title="4 stars out of 5")
+						li: a(data-rate="5", title="5 stars out of 5")
+					span#user-rate-text Your rating
+
+
+				#average-rating-box
+					#average-rating
+					.average-info Average rating
+					#average-count.average-info

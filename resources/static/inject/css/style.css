@@ -5474,3 +5474,44 @@ h1 {
   line-height: 30px;
   padding: 5px 0px 6px 5px;
   margin: 5px 0 5px 0; }
+
+@media -sass-debug-info{filename{font-family:file\:\/\/\/home\/dorny\/Workspace\/OwNet\/qtownet\/resources\/static\/inject\/style\/page\.sass}line{font-family:\0000311}}
+#page_stats_box {
+  margin-top: 30px; }
+
+@media -sass-debug-info{filename{font-family:file\:\/\/\/home\/dorny\/Workspace\/OwNet\/qtownet\/resources\/static\/inject\/style\/page\.sass}line{font-family:\0000314}}
+#star-ratings-box {
+  margin-top: 15px;
+  float: left;
+  text-align: center; }
+
+@media -sass-debug-info{filename{font-family:file\:\/\/\/home\/dorny\/Workspace\/OwNet\/qtownet\/resources\/static\/inject\/style\/page\.sass}line{font-family:\0000321}}
+#average-rating-box {
+  float: left;
+  text-align: center;
+  margin-left: 5px; }
+
+@media -sass-debug-info{filename{font-family:file\:\/\/\/home\/dorny\/Workspace\/OwNet\/qtownet\/resources\/static\/inject\/style\/page\.sass}line{font-family:\0000326}}
+#average-rating {
+  display: inline-block;
+  width: 30px;
+  height: 30px;
+  padding: 10px;
+  background: #ff7c0b;
+  color: white;
+  font-weight: bold;
+  font-size: 25px;
+  line-height: 30px;
+  text-align: center;
+  -webkit-border-radius: 30px;
+  -moz-border-radius: 30px;
+  border-radius: 30px; }
+
+@media -sass-debug-info{filename{font-family:file\:\/\/\/home\/dorny\/Workspace\/OwNet\/qtownet\/resources\/static\/inject\/style\/page\.sass}line{font-family:\0000339}}
+#average-rating-text {
+  font-size: 10px;
+  padding-left: 7px; }
+
+@media -sass-debug-info{filename{font-family:file\:\/\/\/home\/dorny\/Workspace\/OwNet\/qtownet\/resources\/static\/inject\/style\/page\.sass}line{font-family:\0000343}}
+.average-info {
+  font-size: 10px; }

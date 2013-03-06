@@ -23,7 +23,7 @@ define( function (require) {
 					login: fields.login,
 					password: fields.password,
 					success: function() {
-						console.log( 'login' )
+
 					},
 				})
 			},

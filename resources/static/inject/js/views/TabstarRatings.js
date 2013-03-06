@@ -19,6 +19,7 @@ define( function (require) {
 			},
 
 			setValue: function(val) {
+				console.log( 'set',val )
 				this.$el.attr('data-rating',val)
 			},
 
@@ -27,7 +28,9 @@ define( function (require) {
 			},
 
 			onStarClick: function(e) {
-				this.setValue( $(e.target).attr('data-rate') )
+				var val = $(e.target).attr('data-rate')
+				this.setValue(val)
+				this.trigger('change',val)
 			},
 
 			onStarMouseOver: function(e) {

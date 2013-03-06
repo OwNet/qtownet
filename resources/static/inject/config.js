@@ -35,6 +35,7 @@ require(['App', 'router'], function(App, Router) {
 	App.once('ready', function() {
 		App.router = new Router()
 		App.router.start()
+		App.sendMessage('ready')
 	})
 
 	App.initialize()
