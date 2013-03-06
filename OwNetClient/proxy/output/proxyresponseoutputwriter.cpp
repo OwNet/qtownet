@@ -64,16 +64,26 @@ void ProxyResponseOutputWriter::read(QIODevice *ioDevice)
     if (m_response->hasSentLastPart())
         return;
 
+    ProxyInputObject *inputObject = m_proxyDownload->inputObject();
+
     if (!m_hasWrittenResponseHeaders) {
         m_hasWrittenResponseHeaders = true;
         m_response->setStatus(m_proxyDownload->inputObject()->httpStatusCode().toInt(),
                               m_proxyDownload->inputObject()->httpStatusDescription().toUtf8());
 
-        foreach (QString key, m_proxyDownload->inputObject()->responseHeaders().keys())
-            m_response->setHeader(key.toUtf8(), m_proxyDownload->inputObject()->responseHeaders().value(key).toByteArray());
+        /// Remove the Content-Length header for html because it will change after injecting the scripts
+        VariantMap responseHeaders = m_proxyDownload->inputObject()->responseHeaders();
+        if (inputObject->contentType().toLower().contains("text/html")) {
+            if (responseHeaders.contains("Content-Length"))
+                responseHeaders.remove("Content-Length");
+            else if (responseHeaders.contains("Content-length"))
+                responseHeaders.remove("Content-length");
+        }
+
+        foreach (QString key, responseHeaders.keys())
+            m_response->setHeader(key.toUtf8(), responseHeaders.value(key).toByteArray());
     }
     QRegularExpression rx("(.*<body[^>]*>)(.*)");
-    ProxyInputObject *inputObject = m_proxyDownload->inputObject();
 
     if (!m_foundBody &&
             !inputObject->request()->isLocalRequest() &&
@@ -87,11 +97,11 @@ void ProxyResponseOutputWriter::read(QIODevice *ioDevice)
             if (match.hasMatch() && match.capturedTexts().length() == 3) {
                 QStringList listx = match.capturedTexts();
 
-                m_response->write(listx.at(1).toLatin1());
+                m_response->write(listx.at(1).toUtf8());
 
                 m_response->write(QString("<script type=\"text/javascript\" src=\"http://inject.ownet/js/inject.js\"></script>")
                                 .toLatin1());
-                m_response->write(listx.at(2).toLatin1());
+                m_response->write(listx.at(2).toUtf8());
                 m_response->write("\n");
                 m_foundBody = true;
             }
