@@ -9,18 +9,14 @@ define( function (require) {
 	  , groupsTableTemplate = require ("tpl/groupstable")
 	  , showGroupTemplate = require ("tpl/showgroup")
 	  , groupFormTemplate = require ("tpl/groupform")
+	  , groupDetailTemplate = require ("tpl/showgroupdetail")
+	  , listMembersGroupTemplate = require ("tpl/listmembersgroup")
 	  , UserModel = require ("share/models/UserModel")
 	  , GroupsModel = require ("share/models/GroupsModel")
 
 	  , userNavbarTemplate = require ("tpl/user-navbar")
 
 	  , Form = require("share/utils/form")
-
-	  , Action = Backbone.Model.extend({
-	  		urlRoot: '/api/groups',
-			defaults: {	}
-
-		})
 
 
 	var GroupsView = Backbone.View.extend({
@@ -30,6 +26,10 @@ define( function (require) {
 				'click a[name="show"]': "showGroup", 
 				'click a[name="delete"]': "deleteGroup", 
 				'click a[name="edit"]': "editGroup", 
+				'click a[name="join"]': "joinGroup", 
+				'click a[name="filter"]' : "showWithFilter",
+				'click a[name="leave"]' : "deleteUser",
+				'click a[name="listMembers"]' : "listMembers",
 			},
 
 			initialize: function() {
@@ -47,6 +47,62 @@ define( function (require) {
 				return this
 			},
 
+			joinGroup: function(e){
+				e.preventDefault();
+				var id = $(e.currentTarget).data("id");
+
+				var Action = Backbone.Model.extend({
+			  		urlRoot: '/api/groups/joinGroup',
+					defaults: {	}
+				})
+
+				var action = new Action()
+
+
+				action.save({group_id: id },{
+					wait: true,
+					success: function() {
+						App.router.navigate('groups', {trigger: true})
+						App.showMessage("Joined", "alert-success")
+						this.show("all")
+					},
+					error: function() {
+						App.showMessage("Joining failed")
+					},
+				})
+			},
+
+			deleteUser: function(e){
+				e.preventDefault();
+				var id = $(e.currentTarget).data("id");
+
+				var Action = Backbone.Model.extend({
+			  		urlRoot: '/api/groups/deleteUser',
+					defaults: {	}
+				})
+
+				var action = new Action()
+
+
+				action.save({group_id: id, user_id: App.user ? App.user.id : "0"},{
+					wait: true,
+					success: function() {
+						App.router.navigate('groups', {trigger: true})
+						App.showMessage("Leaved", "alert-success")
+						this.show("all")
+					},
+					error: function() {
+						App.showMessage("Leaving failed")
+					},
+				})
+			},
+
+			showWithFilter: function(e){
+				e.preventDefault();
+				var filter = $(e.currentTarget).data("filter");
+				this.show(filter)
+			},
+
 			deleteGroup: function(e){
 				e.preventDefault();
         		var id = $(e.currentTarget).data("id");
@@ -60,9 +116,8 @@ define( function (require) {
         			wait: true,
         			success: function() {
         				App.router.navigate("#/groups", {trigger: true})
-        				App.showMessage("Groups deleted")
-						this.show()
-        				
+        				App.showMessage("Group deleted")
+						this.show("all")
 					},
 					error: function() {
 						App.showMessage("Cannot delete")
@@ -71,7 +126,7 @@ define( function (require) {
 
 			},
 
-			show: function(message) {
+			show: function(filter) {
 				var GroupsCollection = Backbone.Collection.extend({
 		  			url: '/api/groups',
 		  			model: GroupsModel
@@ -81,7 +136,7 @@ define( function (require) {
 
 				groups.fetch({
 					success: function() {
-						$('div#groups_list').html( groupsTableTemplate({groups :groups.toJSON()}))
+						$('div#groups_list').html( groupsTableTemplate({groups :groups.toJSON(), filter: filter}))
 
 					},
 					error: function() {
@@ -116,15 +171,12 @@ define( function (require) {
 					if(data.has_password != "1") {
 						data.has_password = "0"
 					}
-				}else{
-					data.has_approvement = "0"
-					data.has_password = "0"
 				}
 
 				var group = new GroupsModel(data)
 
 
-				group.save({group_type: "1", user_id: App.user ? App.user.id : "0"},{
+				group.save({password: "", has_password: "0", group_type: "1", user_id: App.user ? App.user.id : "0"},{
 					wait: true,
 					success: function() {
 						App.router.navigate('groups', {trigger: true})
@@ -146,8 +198,43 @@ define( function (require) {
         		group.fetch({
         			success: function() {
         				App.router.navigate("#/showgroup", {trigger: true})
-						$('div#groups_list').html( showGroupTemplate({group :group.toJSON()}))
-						
+						self.$el.html( showGroupTemplate({group :group.toJSON()}) )
+						$('div#group_detail').html( groupDetailTemplate({group :group.toJSON()}))
+					}
+        		})
+			},
+
+			listMembers: function(e){
+				e.preventDefault();
+        		var id = $(e.currentTarget).data("id");
+
+        		var Action = Backbone.Model.extend({
+			  		urlRoot: '/api/groups/getGroupUsers',
+					defaults: {	}
+				})
+
+				var action = new Action()
+        		
+        		var group = new GroupsModel()
+        		group.id = id
+        		var self = this
+        		group.fetch({
+        			success: function() {
+
+						action.save({group_id: id },{
+							wait: true,
+							success: function() {
+								App.router.navigate('listMembers', {trigger: true})
+								$('div#group_detail').html( listMembersGroupTemplate({group :group.toJSON(), action : action.toJSON(),  user:  App.user ? App.user.toJSON() : false}))
+							},
+							error: function() {
+								App.showMessage("Joining failed")
+							},
+						})
+
+        				/*App.router.navigate("#/showgroup", {trigger: true})
+						self.$el.html( showGroupTemplate({group :group.toJSON()}) )
+						$('div#group_detail').html( groupDetailTemplate({group :group.toJSON()}))*/
 					}
         		})
 			},
