@@ -1,6 +1,8 @@
 #ifndef ISYNCEDDATABASEUPDATEQUERY_H
 #define ISYNCEDDATABASEUPDATEQUERY_H
 
+#include <QString>
+
 class ISyncedDatabaseUpdateQuery
 {
 public:
@@ -9,6 +11,8 @@ public:
 
     virtual int groupId() = 0;
     virtual void setGroupId(int groupId) = 0;
+
+    virtual QString lastSyncId() const = 0;
 };
 
 #endif // ISYNCEDDATABASEUPDATEQUERY_H

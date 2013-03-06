@@ -53,6 +53,7 @@ IResponse *SyncService::getUpdates(IRequest *request)
 IResponse *SyncService::syncNow(IRequest *request)
 {
     SyncClient client(m_proxyConnection);
+
     QVariantMap json;
 
     json.insert("number_of_available_clients", m_proxyConnection->session(&client)->availableClients().count());

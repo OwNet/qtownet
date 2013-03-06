@@ -13,6 +13,10 @@
   <property name="windowTitle">
    <string>OwNet Client</string>
   </property>
+  <property name="windowIcon">
+   <iconset resource="../resources.qrc">
+    <normaloff>:/images/images/icon128.png</normaloff>:/images/images/icon128.png</iconset>
+  </property>
   <widget class="QWidget" name="centralWidget">
    <layout class="QVBoxLayout" name="verticalLayout">
     <item>
@@ -133,7 +137,7 @@
      <x>0</x>
      <y>0</y>
      <width>538</width>
-     <height>22</height>
+     <height>25</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">

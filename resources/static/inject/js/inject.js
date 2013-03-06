@@ -11,11 +11,28 @@
 			element.style[key] = styles[key]
 	}
 
-	$.onDocumentReady = function(callback) {
+	$.onDocumentReady = function(callback, document) {
+		document || (document = window.document)
 		document.addEventListener("DOMContentLoaded", function once() {
 			document.removeEventListener("DOMContentLoaded", once, false)
 			callback()
 		}, false);
+	}
+
+	var Events = {
+		__callbacks__ : {},
+		on: function(event, callback, context) {
+			if ( ! this.__callbacks__[event] ) this.__callbacks__[event] = []
+			this.__callbacks__[event].push( {callback:callback, ctx:context})
+		},
+		trigger: function(event) {
+			var clb
+			if ( (clb = this.__callbacks__[event]) != null ) {
+				var args = Array.prototype.slice.call(arguments,1)
+				for (var i=0; i<clb.length; i++)
+						clb[i].callback.apply(clb[i].ctx, args)
+			}
+		},
 	}
 
 	/* Ownet */
@@ -27,7 +44,8 @@
 
 		ifrmae     :    null,
 		iframeBox  :    null,
-		iframeUrl  :    'http://inject.ownet/index.html',
+		iframeHost :    'http://inject.ownet',
+		iframePath  :   '/index.html',
 
 		imgBaseURI :    'http://inject.ownet/img/',
 
@@ -148,11 +166,32 @@
 			},
 		},
 
+		events: {
+			'OwNet:ready' : 'onOwnetReady',
+		},
 
 		/* public */
 		initialize: function() {
+
+			this._initEvents()
+
+			window.addEventListener("message", function(e) {
+				Ownet.receiveMessage(e)
+			}, false)
+
 			this._initControls()
 			this._initIFrame()
+		},
+
+		sendMessage: function(name,data) {
+			this.iframe.contentWindow.postMessage( {name:name, data:data, OwNet:true}, this.iframeHost)
+		},
+
+		receiveMessage: function(event) {
+			if (event.origin !==  'http://inject.ownet')
+				return
+			var msg = event.data
+			this.trigger('OwNet:'+msg.name, msg.data)
 		},
 
 		hide: function() {
@@ -167,7 +206,25 @@
 			this._toggleTab('cache_settings')
 		},
 
+		sendURI: function() {
+			this.sendMessage('URI', location.hostname + (location.pathname !== '/' ? location.pathname:'') )
+		},
+
+		/* events */
+		onOwnetReady: function() {
+			this.sendURI()
+		},
+
 		/* private */
+		_initEvents: function() {
+			for (var key in Events)
+				this[key] = Events[key]
+
+			var events = this.events
+			for (var key in events)
+				this.on(key, this[events[key]], this)
+		},
+
 		_initControls: function() {
 			this.root = document.createElement('div')
 
@@ -216,7 +273,7 @@
 			document.getElementsByTagName("body")[0].appendChild(this.root);
 		},
 
-		_initIFrame: function() {
+		_initIFrame: function(onload) {
 			var box = document.createElement('div')
 			$.setCSS(box, this.style.iframeBox)
 			this.iframeBox = box
@@ -240,16 +297,16 @@
 			box.appendChild(title_bar)
 
 			var iframe = document.createElement('iframe')
-
-			iframe.setAttribute("src", this.iframeUrl)
+			iframe.setAttribute("src", this.iframeHost + this.iframePath)
 			iframe.setAttribute("width", "460")
 			iframe.setAttribute("height", "460");
 			iframe.setAttribute("scrolling", "auto")
 			iframe.setAttribute("frameborder", "0")
-			this.iframe = iframe;
 
 			box.appendChild(iframe)
 			this.root.appendChild(box)
+
+			this.iframe = iframe
 		},
 
 		_toggleTab: function(tab) {
@@ -257,7 +314,7 @@
 				this._closeIFrameTab()
 			else {
 				this.activeTab = tab
-				// this.iframe.api.activateTab(tab)
+				this.sendMessage('tabselect',tab)
 				this.iframeBox.style.display = 'block'
 			}
 		},

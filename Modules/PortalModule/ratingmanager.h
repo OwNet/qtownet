@@ -20,7 +20,7 @@ public:
 
     IResponse::Status showAllPageRatings(QString uri, QVariantList &ratings, QVariantMap &error);
     IResponse::Status showAllUserRatings(uint userId, QVariantList &ratings, QVariantMap &error);
-    IResponse::Status showPageStats(QString uri, QVariantMap &stats, QVariantMap &error);
+    IResponse::Status showPageStats(QString uri, uint userId, QVariantMap &stats, QVariantMap &error);
 
 private:
     ActivityManager *m_activityManager;

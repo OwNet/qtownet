@@ -1,6 +1,7 @@
 define( function (require) {
 
 	"use_strict"
+	require('init')
 
 	var Backbone = require( 'backbone' )
 	  , NavbarView = require( 'views/NavbarView')
