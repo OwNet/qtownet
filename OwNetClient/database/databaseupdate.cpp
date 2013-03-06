@@ -27,7 +27,7 @@ void DatabaseUpdate::saveLastRecordNumbers()
 
         IDatabaseSelectQueryWhereGroup *where = query.whereGroup(IDatabaseSelectQuery::And);
         if (i.key() == -1) {
-            where->where("group_id", "NULL", IDatabaseSelectQuery::Is);
+            where->where("group_id", "NULL", IDatabaseSelectQuery::Is, false);
         } else {
             where->where("group_id", i.key());
             query.setColumnValue("group_id", i.key());

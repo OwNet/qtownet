@@ -145,10 +145,10 @@ IResponse *UsersService::edit(IRequest *req, uint id)
 
     query->setColumnValue("first_name", user["first_name"]);
     query->setColumnValue("last_name", user["last_name"]);
-    query->setColumnValue("login", user["login"]);
+    //query->setColumnValue("login", user["login"]);
     query->setColumnValue("email", user["email"]);
 
-    query->singleWhere("id", id);
+    query->singleWhere("id", user["id"]);
 
     if (user.contains("password"))
         query->setColumnValue("password", user["password"]);

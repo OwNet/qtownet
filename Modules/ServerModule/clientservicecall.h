@@ -17,7 +17,9 @@ public:
     explicit ClientServiceCall(IProxyConnection *proxyConnection, QObject *parent = 0);
 
     IResponse *callClientService(uint clientId, const QString &apiUrl, IRequest *request);
-    IResponse *callClientService(QString ip, int port, const QString &apiUrl, IRequest *request);
+    IResponse *callClientService(const QString &ip, int port, const QString &apiUrl, IRequest *request);
+    IResponse *callCentralService(const QString &relativeUrl, IRequest *request);
+    IResponse *callService(const QString &url, IRequest *request, QNetworkAccessManager *manager);
 
 private:
     IProxyConnection *m_proxyConnection;

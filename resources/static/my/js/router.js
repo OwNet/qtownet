@@ -1,11 +1,14 @@
 define( function (require) {
 
 	"use_strict"
+	require('init')
 
 	var Backbone = require( 'backbone' )
+	  , NavbarView = require( 'views/NavbarView')
 	  , LoginView = require( 'views/LoginView' )
 	  , RegistrationView = require( 'views/RegistrationView' )
-	  , GroupsView = require( 'views/GroupsView' )	  
+	  , GroupsView = require( 'views/GroupsView' )
+	  , ProfileView = require( 'views/ProfileView' )
 
 
 
@@ -13,27 +16,31 @@ define( function (require) {
 
 		initialize: function(options){
 
-			options.App.router = this
-
 			this.views = {
+				navbar: new NavbarView({ el:$('#appmenu') }),
 				login : new LoginView({ el:$("#content") }),
 				registration: new RegistrationView({ el:$("#content") }),
 				groups: new GroupsView({ el:$("#content") }),
+				profile: new ProfileView({ el:$("#content") }),
 			}
 
-			Backbone.history.start()
 		},
 
+		start: function(){
+			Backbone.history.start()
+		},
 
 		routes: {
 			""    : "home",
 			login : "login",
-			logout: "logout",
 			registration: "registration",
 			groups : "groups",
 			creategroups : "creategroups",
 			showgroup: "showgroup",
-			editgroup: "editgroup"
+			editgroup: "editgroup",
+			profile: "profile",
+			editprofile: "editprofile",
+			listmembers: "listmembers",
 
 		},
 
@@ -57,7 +64,7 @@ define( function (require) {
 		},
 
 		groups: function() {
-			this.views.groups.show()
+			this.views.groups.show("all")
 			this.activate("#/groups")
 		},
 
@@ -72,6 +79,19 @@ define( function (require) {
 
 		editgroup: function() {
 			this.activate("#/editgroups")
+		},
+
+		listmembers: function() {
+			this.activate("#/listmembers")
+		},
+
+		profile: function() {
+			this.views.profile.show()
+			this.activate("#/profile")
+		},
+
+		editprofile: function() {
+			this.activate("#/editprofile")
 		},
 
 	});
