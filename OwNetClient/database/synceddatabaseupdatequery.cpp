@@ -94,8 +94,10 @@ bool SyncedDatabaseUpdateQuery::executeDelete(const QString &syncId) const
                         .arg(syncId));
 }
 
-void SyncedDatabaseUpdateQuery::saveSyncJournalItem(const QString &syncId, int clientRecNum) const
+void SyncedDatabaseUpdateQuery::saveSyncJournalItem(const QString &syncId, int clientRecNum)
 {
+    m_lastSyncId = syncId;
+
     DatabaseSettings settings;
     QStringList columns;
     columns << "client_id"
