@@ -42,7 +42,10 @@ IResponse *SyncService::getUpdates(IRequest *request)
 
     SyncServer server(m_proxyConnection);
 
-    return request->response(server.updates(clientRecordNumbers, syncAllGroups, clientId));
+    QVariantList updates = server.updates(clientRecordNumbers, syncAllGroups, clientId);
+    if (updates.count() > 100)
+        return request->response(updates.mid(0, 100));
+    return request->response(updates);
 }
 
 /**
