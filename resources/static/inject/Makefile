@@ -46,7 +46,7 @@ SASS_FLAGS :=  $(SASS_FLAGS)  -t compressed
 else
 JADE_FLAGS :=  $(JADE_FLAGS)  --obj '{"config":{"debug":true}}'  --pretty  --error-format '%f:%l: Error: %m'
 JADE_CL_FLAGS := $(JADE_CL_FLAGS)  --pretty
-SASS_FLAGS :=  $(SASS_FLAGS)  -l
+SASS_FLAGS :=  $(SASS_FLAGS)  --debug-info
 # SASS_ERR_FORMATTER :=  2>&1 | sed '$$d' | tr -d '\n' | sed 's/^\(.*\)\s*on line \([0-9]\+\) of \([^ ,]\+\).*/\3:\2: \1\n/' 1>&2; exit $${PIPESTATUS[0]};
 SILENT :=  >/dev/null
 endif
