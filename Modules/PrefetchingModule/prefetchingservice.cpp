@@ -54,24 +54,22 @@ void PrefetchingService::registerPredictionsQuery(int from, QStringList &urls)
 
     // check if the prediction already exists and whether it was completed
     IDatabaseSelectQuery *select = m_proxyConnection->databaseSelect("prefetch_orders", &parent);
-    IDatabaseSelectQueryWhereGroup *group = select->whereGroup(IDatabaseSelectQuery::Or);
+    IDatabaseSelectQueryWhereGroup *group = select->whereGroup(IDatabaseSelectQuery::And);
+    group->where("completed", true);
+    IDatabaseSelectQueryWhereGroup *inner = group->whereGroup(IDatabaseSelectQuery::Or);
     for (i = 0; i < urls.count(); ++i) {
         hash = qHash(QUrl(urls.at(i)));
         predictions.insert(hash, urls.at(i));
-        group->where("page_hash_to", hash);
+        inner->where("page_hash_to", hash);
     }
 
-
-    //"page_hash_to", hash);
-    bool completed = false;
     select->select("completed");
     select->select("page_hash_to");
 
     while (select->next()) {    // remove completed predictions from the map
-        completed = select->value("completed").toBool();
         hash = select->value("page_hash_to").toInt();
 
-        if (completed && predictions.contains(hash)) {
+        if (predictions.contains(hash)) {
             predictions.remove(hash);
         }
     }
@@ -100,7 +98,6 @@ void PrefetchingService::registerPredictionsQuery(int from, QStringList &urls)
             query->singleWhere("page_hash_to", hash);
             query->setColumnValue("page_hash_to", hash);
             query->setColumnValue("page_id_from", from);
-    //        query->setColumnValue("page_hash_to", hash);
             query->setColumnValue("absolute_uri", predictions.value(hash));
             query->setColumnValue("priority", priority);
             query->setUpdateDates(true);

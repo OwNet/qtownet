@@ -22,15 +22,18 @@ public:
     void execute();
 
 private:
+    static const int CLEAN_THRESHOLD = 50;
     IProxyConnection *m_proxyConnection;
     bool prefetch();
     void resetWorker();
     void startWorker(QString &link);
-
+    void tryClean();
     bool m_running;
 
     QThread *m_workerThread;
     QMutex m_activeMutex;
+
+    int runs;
 private slots:
     void workerCompleted();
 };

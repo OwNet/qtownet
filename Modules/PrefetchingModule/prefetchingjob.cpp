@@ -11,6 +11,7 @@
 
 #include "iproxyconnection.h"
 #include "idatabaseselectquery.h"
+#include "idatabaseupdatequery.h"
 #include "idatabaseselectquerywheregroup.h"
 #include <QDebug>
 #include <QThread>
@@ -22,6 +23,7 @@ PrefetchingJob::PrefetchingJob(IProxyConnection *proxyConnection, QObject* paren
 {
     m_workerThread = NULL;
     m_running = false;
+    runs = 0;
 }
 
 
@@ -31,13 +33,16 @@ void PrefetchingJob::execute()
         return;
     }
 
-    if (m_running == true) {
+    if (m_running == true || m_proxyConnection->lastConnectionTraffic() > 50) {
         m_activeMutex.unlock();
         return;
     }
-    m_running = true;
 
+    m_running = true;
+    runs += 1;
     m_activeMutex.unlock();
+
+    tryClean();
 
     bool running = prefetch();
 
@@ -64,6 +69,30 @@ void PrefetchingJob::resetWorker() {
     }
 }
 
+void PrefetchingJob::tryClean() {
+    if (runs > CLEAN_THRESHOLD) {
+        QObject parent;
+
+        IDatabaseSelectQuery *select = m_proxyConnection->databaseSelect("prefetch_orders", &parent);
+        select->select("priority");
+        select->orderBy("priority desc");
+        select->offset(10);
+        select->limit(1);
+        if (select->next()) {
+            bool ok = false;
+            int priority = select->value("priority").toInt(&ok);
+            if (ok) {
+                IDatabaseUpdateQuery *query = m_proxyConnection->databaseUpdateQuery("prefetch_orders", &parent, false);
+                query->setType(IDatabaseUpdateQuery::Delete);
+                query->singleWhere("priority", priority, IDatabaseSelectQuery::LessThan);
+                query->executeQuery();
+            }
+        }
+
+        runs = 1;
+    }
+}
+
 bool PrefetchingJob::prefetch()
 {
     QObject parent;
@@ -76,15 +105,14 @@ bool PrefetchingJob::prefetch()
     IDatabaseSelectQuery *select = m_proxyConnection->databaseSelect("prefetch_orders", &parent);
     select->orderBy("priority desc");
     select->select("absolute_uri");
+
     QString link = "";
     if (select->next()) {
          link = select->value("absolute_uri").toString();
     }
 
-    link = "http://www.mtbiker.sk";
     if (!link.isEmpty())
     {
-
         startWorker(link);
         return true;
     }
@@ -93,14 +121,10 @@ bool PrefetchingJob::prefetch()
 
 void PrefetchingJob::startWorker(QString &link) {
     m_workerThread = new QThread(this);
-    //m_workerThread = new BrowserWorker(link, m_workerThread);
     BrowserWorker *worker = new BrowserWorker(link, m_workerThread);
-   // m_workerThread->doWork();
     connect(m_workerThread, SIGNAL(started()), worker, SLOT(doWork()));
     connect(m_workerThread, SIGNAL(finished()), worker, SLOT(deleteLater()));
-//        connect(m_workerThread, SIGNAL(loadCompleted()), this, SLOT(workerCompleted()));
     connect(worker, SIGNAL(workCompleted()), this, SLOT(workerCompleted()));
-
 
     m_workerThread->start();
 }
