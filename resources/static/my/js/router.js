@@ -9,6 +9,7 @@ define( function (require) {
 	  , RegistrationView = require( 'views/RegistrationView' )
 	  , GroupsView = require( 'views/GroupsView' )
 	  , ProfileView = require( 'views/ProfileView' )
+	  , RecommendationsRatingView = require( 'views/RecommendationsRatingView')
 
 
 
@@ -22,6 +23,8 @@ define( function (require) {
 				registration: new RegistrationView({ el:$("#content") }),
 				groups: new GroupsView({ el:$("#content") }),
 				profile: new ProfileView({ el:$("#content") }),
+				recommendations: new RecommendationsRatingView({ el:$("#content")}),
+				ratings: new RecommendationsRatingView({el:$("#content")}),
 			}
 
 		},
@@ -41,6 +44,8 @@ define( function (require) {
 			profile: "profile",
 			editprofile: "editprofile",
 			listmembers: "listmembers",
+			recommendations: "recommendations",
+			ratings: "ratings",
 
 		},
 
@@ -92,6 +97,16 @@ define( function (require) {
 
 		editprofile: function() {
 			this.activate("#/editprofile")
+		},
+
+		recommendations: function() {
+			this.views.recommendations.showRecommendations()
+			this.activate("#/recommendations")
+		},
+
+		ratings: function() {
+			this.views.recommendations.showRatings()
+			this.activate("#/ratings")
 		},
 
 	});
