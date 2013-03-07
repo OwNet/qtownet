@@ -36,8 +36,6 @@ void BrowserWorker::doWork() {
 
 void BrowserWorker::finished(bool) {
     QUrl url = m_webView.url();
-    qDebug() << url.toString() << " " << url.toString().remove("/");
-    qDebug() << m_link.toString() << " " << m_link.toString().remove("/");
 
     if (url.toString().remove("/") == m_link.toString().remove("/")) {
         resetBrowser();
