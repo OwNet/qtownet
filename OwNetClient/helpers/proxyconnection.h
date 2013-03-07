@@ -32,7 +32,9 @@ public:
     QVariant fromJson(const QByteArray &content, bool *ok = NULL) const;
     QByteArray toJson(const QVariant &content) const;
     void debugMessage(const QVariant &message) const;
+    int lastConnectionTraffic() const;
     QString generateUniqueId() const;
+
 };
 
 #endif // PROXYCONNECTION_H

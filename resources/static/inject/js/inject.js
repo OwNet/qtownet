@@ -4,8 +4,11 @@
 
 
 	/* Utils  */
-	var $ = {}
-
+	var $ = {
+	    pageId: 0
+	}
+    
+    
 	$.setCSS = function(element, styles) {
 		for (var key in styles)
 			element.style[key] = styles[key]
@@ -18,6 +21,138 @@
 			callback()
 		}, false);
 	}
+
+
+	$.getEncodedPageUri = function () {
+	    return encodeURIComponent(document.location.href.replace(/#.*$/, ""));
+	}
+	$.getEncodedReferrerUri = function () {
+	    return encodeURIComponent(document.referrer.replace(/#.*$/, ""));
+	}
+
+    $.loadScript = function (url, callback) {
+        var body = document.body;
+        var script = document.createElement('script');
+        script.type = 'text/javascript';
+        script.src = url;
+
+        var callback_called = 0;
+        if (document.all) {
+            script.onreadystatechange = function () {
+                if ((script.readyState === "loaded" || script.readyState === "complete") && callback_called == 0) {
+                    callback();
+                    callback_called = 1;
+                }
+            };
+        }
+        else {
+            script.onload = function () {
+                callback();
+                callback_called = 1;
+            };
+        }
+
+        body.appendChild(script);
+    }
+
+    $.getRandomId = function() {
+        return Math.floor((Math.random() * 1000) + 1);
+    }
+
+    $.setPageId = function (id) {
+        this.pageId = id;
+    }
+    $.getPageId = function () {
+        return this.pageId;
+    }
+
+    $.isNotOwnet = function () {
+        return document.location.href.match(/[a-zA-Z]+.ownet\/api\/[a-zA-Z]+/) === null;
+    }
+    $.isFromOwnet = function () {
+        return document.referrer.match(/[a-zA-Z]+.ownet\/api\/[a-zA-Z]+/) !== null;
+    }
+
+    var PrefetchContact = { 
+        apiUri               : "http://prefetch.ownet/api/prefetch/",
+        hasRequestedPrefetch : 0,
+        requestTimeout       : 0,
+        hasReportedClose     : 0,
+        hasReportedPrefetch  : 0,
+        TIMEOUT_DELAY_SECS   : 10,
+        startRequestTimeout: function () {
+            this.requestTimeout = setTimeout(function () { PrefetchContact.requestPrefetch(); }, this.TIMEOUT_DELAY_SECS * 1000);
+        },
+        stopRequestTimeout: function() { 
+            if (this.requestTimeout) clearTimeout(this.requestTimeout);
+        },
+        requestPrefetch: function () {
+            if ($.getPageId() != 0) {
+                $.loadScript(this.apiUri + "create/?page=" + $.getEncodedPageUri() + "&pid=" + $.getPageId() + "&gid=" + $.getRandomId(), function () {
+                    PrefetchContact.hasRequestedPrefetch = 1;
+                });
+            }
+            else {
+                this.startRequestTimeout();
+            }
+        },
+
+        reportClose: function () {
+            try {
+                if (this.hasReportedClose == 0 && $.getPageId() != 0) {
+                    this.stopRequestTimeout();
+                    /*         owNetGLOBAL.loadScript(owNetGLOBAL.localUri + "cancel/?page=" + this.pageId, function () {
+                    return true;
+                    });*/
+                    $.ajaxGet(this.apiUri + "close/?pid=" + $.getPageId() + "&gid=" + $.getRandomId(), function (xmlHttp) {
+                        if (xmlHttp.readyState == 4 && xmlHttp.status == 200) {
+                            return true;
+                        }
+                        return true;
+                    });
+                    this.hasReportedClose = 1;
+                }
+            }
+            catch (e) {
+            }
+        },
+
+        reportPrefetch: function () {
+            try {
+                if (this.hasReportedPrefetch == 0 && document.referrer.match(/[a-zA-Z]+.ownet\/api\/prefetch/) !== null) {
+                    // var target = owNetGLOBAL.encodedReferrerUri;
+                    // if (target === null || target.match(/\S/g) === null)
+                    owNetGLOBAL.loadScript(this.apiUri + "done/?page=" + $.getEncodedPageUri() + "&gid=" + $.getRandomId(), function () {
+                        return true;
+                    });
+                    this.hasReportedPrefetch = 1;
+                }
+            }
+            catch (e) {
+            }
+        }
+    }
+
+    var HistoryContact = {
+        hasReportedVisit: 0,
+        apiUri: "http://api.ownet/api/history/",
+
+        reportVisit: function () {
+            try {
+                if (this.hasReportedVisit == 0) {
+                    $.loadScript(this.apiUri + "visit/?page=" + $.getEncodedPageUri() + "&ref=" + $.getEncodedReferrerUri() + "&gid=" + $.getRandomId(), function () {
+                        if (owNetPAGEID !== null) {
+                            $.setPageId(owNetPAGEID);
+                        }
+                    });
+                    this.hasReportedVisit = 1;
+                }
+            }
+            catch (e) {
+                // throw e;
+            }
+        }
+    }
 
 	var Events = {
 		__callbacks__ : {},
@@ -34,6 +169,7 @@
 			}
 		},
 	}
+
 
 	/* Ownet */
 	var Ownet = {
@@ -326,9 +462,20 @@
 	}
 
 	if (top === self) { // do not apply for iframes
-		$.onDocumentReady(function() {
-			Ownet.initialize()
-		})
+
+	    if ($.isFromOwnet()) {
+	        $.onDocumentReady(function () {
+	            PrefetchContact.reportPrefetch();
+	        });
+	    }
+	    else if ($.isNotOwnet()) {
+	        HistoryContact.reportVisit();
+
+	        $.onDocumentReady(function () {
+	            Ownet.initialize();
+	            PrefetchContact.startRequestTimeout();
+	        });
+	    }
 	}
 
 }());
