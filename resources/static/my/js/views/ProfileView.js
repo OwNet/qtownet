@@ -6,7 +6,6 @@ define( function (require) {
 	  , Backbone = require("backbone")
 	  , profileTemplate = require ("tpl/profile")
 	  , profileTableTemplate = require ("tpl/profiletable")
-	  , showAllTemplate = require ("tpl/showallprofiles")
 	  , profileFormTemplate = require ("tpl/profileform")
 	  , UserModel = require ("share/models/UserModel")
 
@@ -26,7 +25,6 @@ define( function (require) {
 			events: {
 				'click form[name="profile-form"] button[name="update"]': 'saveProfile', 
 				'click a[name="editprofile"]': "editProfile",
-				'click a[name="showAll"]' :"showAll",
 			},
 
 			initialize: function() {
@@ -40,7 +38,7 @@ define( function (require) {
 				return this
 			}, 
 		
-			showAll: function(message) {
+			/*showAll: function(message) {
 				var UsersCollection = Backbone.Collection.extend({
 		  			url: '/api/users/',
 		  			model: UserModel
@@ -60,7 +58,7 @@ define( function (require) {
 
 				this.$el.html( profileTemplate({ }) )
 				return this
-			},
+			},*/
 
 			show: function(){
 				        		     		

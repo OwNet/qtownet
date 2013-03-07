@@ -15,6 +15,8 @@ public:
     int groupId() { return m_groupId; }
     void setGroupId(int groupId) { m_groupId = groupId; }
 
+    QString lastSyncId() const { return m_lastSyncId; }
+
 protected:
     bool executeInsert();
     bool executeUpdate();
@@ -26,10 +28,11 @@ private:
     bool executeDelete(const QString &syncId) const;
 
     QStringList getSyncIdsToModify() const;
-    void saveSyncJournalItem(const QString &syncId, int clientRecNum = -1) const;
+    void saveSyncJournalItem(const QString &syncId, int clientRecNum = -1);
 
     int m_syncWith;
     int m_groupId;
+    QString m_lastSyncId;
 };
 
 #endif // SYNCEDDATABASEUPDATEQUERY_H

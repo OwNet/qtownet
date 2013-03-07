@@ -13,6 +13,7 @@ public:
 
     bool updateFromServer();
     int updateFromClients();
+    void sync();
 
 private:
     bool downloadUpdatesFromClient(uint clientId);

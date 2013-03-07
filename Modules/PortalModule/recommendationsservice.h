@@ -19,10 +19,10 @@ public:
     QString name() const { return "recommendations"; }
 
      IResponse *create (IRequest *req);
-     IResponse *show (IRequest *req, QString id);
+     IResponse *show (IRequest *req, uint id);
      //IResponse *index(IRequest *req);
-     IResponse *edit (IRequest *, QString uid);
-     IResponse *del (IRequest *req, QString uid);
+     IResponse *edit (IRequest *, uint id);
+     IResponse *del (IRequest *req, uint id);
 
 private:
     IProxyConnection *m_proxyConnection;

@@ -9,18 +9,59 @@
   <body>
     <div id="page">
       <div class="tab-content">
-        <div id="page-ratings" class="tab-pane active">
+        <div id="login" data-tab="login" class="tab-pane">
+          <div class="row">
+            <div class="span5">
+              <div class="row">
+                <div class="span5 center"><a href="my.ownet"><img src="/img/ownet.png"></a></div>
+              </div>
+              <div class="row">
+                <div class="span5">
+                  <form name="login-form" class="form-horizontal">
+                    <div class="control-group">
+                      <label class="control-label">Login:</label>
+                      <div class="controls">
+                        <input type="text" name="login"><span class="help-block"></span>
+                      </div>
+                    </div>
+                    <div class="control-group">
+                      <label class="control-label">Password:</label>
+                      <div class="controls">
+                        <input type="password" name="password"><span class="help-block"></span>
+                      </div>
+                    </div>
+                    <div class="control-group">
+                      <div class="controls">
+                        <button id="login" type="button" name="submit" class="btn">Log In</button>
+                      </div>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div id="page-ratings" data-tab="page_rating" class="tab-pane">
           <h1>Rate this website</h1>
           <div class="row">
             <div class="span2"><img id="people" src="img/people.png"></div>
-            <div class="span4">
-              <ul id="star-ratings" class="tabstar-ratings">
-                <li><a data-rate="1" title="1 stars out of 5"></a></li>
-                <li><a data-rate="2" title="2 stars out of 5"></a></li>
-                <li><a data-rate="3" title="3 stars out of 5"></a></li>
-                <li><a data-rate="4" title="4 stars out of 5"></a></li>
-                <li><a data-rate="5" title="5 stars out of 5"></a></li>
-              </ul>
+            <div class="span3">
+              <div id="page_stats_box">
+                <div id="star-ratings-box">
+                  <ul id="star-ratings" class="tabstar-ratings">
+                    <li><a data-rate="1" title="1 stars out of 5"></a></li>
+                    <li><a data-rate="2" title="2 stars out of 5"></a></li>
+                    <li><a data-rate="3" title="3 stars out of 5"></a></li>
+                    <li><a data-rate="4" title="4 stars out of 5"></a></li>
+                    <li><a data-rate="5" title="5 stars out of 5"></a></li>
+                  </ul><span id="user-rate-text">Your rating</span>
+                </div>
+                <div id="average-rating-box">
+                  <div id="average-rating"></div>
+                  <div class="average-info">Average rating</div>
+                  <div id="average-count" class="average-info"></div>
+                </div>
+              </div>
             </div>
           </div>
         </div>

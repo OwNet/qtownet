@@ -149,9 +149,6 @@ IResponse *RatingsService::del(IRequest *req, uint id)
 
 IResponse *RatingsService::showPageStats(IRequest *req)
 {
-    if ( !m_proxyConnection->session()->isLoggedIn() )
-           return req->response(IResponse::UNAUTHORIEZED);
-
     QVariantMap error;
     QVariantMap stats;
 
@@ -160,8 +157,10 @@ IResponse *RatingsService::showPageStats(IRequest *req)
         return req->response(QVariant(error), IResponse::BAD_REQUEST);
     }
 
-    IResponse::Status responseStatus;
-    responseStatus = this->m_ratingManager->showPageStats( req->parameterValue("uri"), stats, error);
+    uint userId = m_proxyConnection->session()->isLoggedIn() ? m_proxyConnection->session()->userId() : -1;
+
+    IResponse::Status responseStatus;    
+    responseStatus = this->m_ratingManager->showPageStats( req->parameterValue("uri"), userId, stats, error);
 
     if (responseStatus != IResponse::OK)
         return req->response(QVariant(error), responseStatus);

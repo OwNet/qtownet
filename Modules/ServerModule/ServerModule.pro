@@ -11,14 +11,16 @@ SOURCES        += servermodule.cpp \
     serverservice.cpp \
     clientservice.cpp \
     clientservicecall.cpp \
-    customserverservice.cpp
+    customserverservice.cpp \
+    centralserviceservice.cpp
 
 
 HEADERS        += servermodule.h \
     serverservice.h \
     clientservice.h \
     clientservicecall.h \
-    customserverservice.h
+    customserverservice.h \
+    centralserviceservice.h
 
 TARGET          = $$qtLibraryTarget(ownet_servermodule)
 macx:DESTDIR    = ../../OwNetClient/OwNetClient.app/Contents/MacOS/modules

@@ -13,6 +13,7 @@
 #include "ijobaction.h"
 #include "modulejob.h"
 #include "messagehelper.h"
+#include "uniqueidhelper.h"
 
 #include "proxydownloads.h"
 #include "proxytrafficcounter.h"
@@ -101,7 +102,13 @@ void ProxyConnection::debugMessage(const QVariant &message) const
 }
 
 
+
 int ProxyConnection::lastConnectionTraffic() const
 {
     return ProxyDownloads::instance()->trafficCounter()->lastTraffic();
+}
+
+QString ProxyConnection::generateUniqueId() const
+{
+    return UniqueIdHelper::generate();
 }
