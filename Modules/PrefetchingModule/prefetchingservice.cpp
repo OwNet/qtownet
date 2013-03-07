@@ -10,6 +10,7 @@
 #include "iproxyconnection.h"
 #include "idatabaseselectquery.h"
 #include "idatabaseselectquerywheregroup.h"
+#include "irouter.h"
 
 #include <QDir>
 #include "QSgml.h"

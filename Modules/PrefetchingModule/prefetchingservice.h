@@ -3,10 +3,7 @@
 
 #include <QObject>
 #include <QList>
-#include "irestservice.h"
 #include "iservice.h"
-#include "irouter.h"
-#include "iresponse.h"
 
 class IProxyConnection;
 class PrefetchingModule;
