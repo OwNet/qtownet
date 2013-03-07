@@ -25,20 +25,20 @@ public:
 
     QString name() const { return "prefetch"; }
 
-    IResponse *link(IRequest *);
+    IResponse *create(IRequest *);
     IResponse *close(IRequest *);
     IResponse *load(IRequest *);
     IResponse *done(IRequest *);
 
 
 private:
-    static const int DEFAULT_PRIORITY = 30;
+    static const int DEFAULT_PRIORITY = 10;
     IProxyConnection *m_proxyConnection;
-    void registerPredictionQuery(int from, QString url);
+    void registerPredictionsQuery(int from, QStringList &url);
     bool completedPrefetchingQuery(QString url);
     bool disablePredictionQuery(int hash);
 
-    QList<QString> getTopLinks(QString url);
+    QStringList getTopLinks(QString url);
 
    //int registerPage(QString &url);
 };

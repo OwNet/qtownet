@@ -86,7 +86,7 @@
         },
         requestPrefetch: function () {
             if ($.getPageId() != 0) {
-                $.loadScript(this.apiUri + "create/?page=" + $.getPageId() + "&gid=" + $.getRandomId(), function () {
+                $.loadScript(this.apiUri + "create/?page=" + $.getEncodedPageUri() + "&pid=" + $.getPageId() + "&gid=" + $.getRandomId(), function () {
                     PrefetchContact.hasRequestedPrefetch = 1;
                 });
             }
@@ -102,7 +102,7 @@
                     /*         owNetGLOBAL.loadScript(owNetGLOBAL.localUri + "cancel/?page=" + this.pageId, function () {
                     return true;
                     });*/
-                    $.ajaxGet(this.apiUri + "close/?page=" + $.getPageId() + "&gid=" + $.getRandomId(), function (xmlHttp) {
+                    $.ajaxGet(this.apiUri + "close/?pid=" + $.getPageId() + "&gid=" + $.getRandomId(), function (xmlHttp) {
                         if (xmlHttp.readyState == 4 && xmlHttp.status == 200) {
                             return true;
                         }

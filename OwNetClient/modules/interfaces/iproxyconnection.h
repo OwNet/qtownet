@@ -27,6 +27,7 @@ public:
     virtual QVariant fromJson(const QByteArray &content, bool *ok = NULL) const = 0;
     virtual QByteArray toJson(const QVariant &content) const = 0;
     virtual void debugMessage(const QVariant &message) const = 0;
+    virtual int lastConnectionTraffic() const = 0;
 
     virtual void registerService(IService*) = 0;
     virtual void registerRestService(IRestService*) = 0;

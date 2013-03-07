@@ -14,6 +14,9 @@
 #include "modulejob.h"
 #include "messagehelper.h"
 
+#include "proxydownloads.h"
+#include "proxytrafficcounter.h"
+
 ProxyConnection::ProxyConnection(QObject *parent) :
     QObject(parent)
 {
@@ -95,4 +98,10 @@ IResponse *ProxyConnection::callModule(IRequest *req)
 void ProxyConnection::debugMessage(const QVariant &message) const
 {
     MessageHelper::debug(message);
+}
+
+
+int ProxyConnection::lastConnectionTraffic() const
+{
+    return ProxyDownloads::instance()->trafficCounter()->lastTraffic();
 }

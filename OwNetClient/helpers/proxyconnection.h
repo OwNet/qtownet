@@ -22,6 +22,7 @@ public:
     QByteArray toJson(const QVariant &content) const;
     IResponse *callModule(IRequest *req);
     void debugMessage(const QVariant &message) const;
+    int lastConnectionTraffic() const;
 
     void registerService(IService* service);
     void registerRestService(IRestService* service);

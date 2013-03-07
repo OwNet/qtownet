@@ -20,6 +20,7 @@
 #include <QFile>
 #include <qmath.h>
 #include <QSettings>
+#include <QMap>
 
 PrefetchingService::PrefetchingService(IProxyConnection *proxyConnection, QObject* parent) :
     QObject(parent),
@@ -30,7 +31,7 @@ PrefetchingService::PrefetchingService(IProxyConnection *proxyConnection, QObjec
 void PrefetchingService::init(IRouter *router)
 {
     router->addRoute("/create/")
-            ->on(IRequest::GET, ROUTE(link) );
+            ->on(IRequest::GET, ROUTE(create) );
     router->addRoute("/close/")
             ->on(IRequest::GET, ROUTE(close));
     router->addRoute("/done/")
@@ -39,70 +40,116 @@ void PrefetchingService::init(IRouter *router)
             ->on(IRequest::GET, ROUTE(load));
 }
 
-void PrefetchingService::registerPredictionQuery(int from, QString url)
+
+void PrefetchingService::registerPredictionsQuery(int from, QStringList &urls)
 {
-    int hash = qHash(url);
-    bool existed = false;
+    if (urls.count() == 0) {
+         return;
+    }
+
+    int i;
+    int hash;
     QObject parent;
+    QMap<int, QString> predictions;
 
     // check if the prediction already exists and whether it was completed
     IDatabaseSelectQuery *select = m_proxyConnection->databaseSelect("prefetch_orders", &parent);
-    IDatabaseSelectQueryWhereGroup *group = select->whereGroup(IDatabaseSelectQuery::And);
-    group->where("page_id_from", from);
-    group->where("page_hash_to", hash);
+    IDatabaseSelectQueryWhereGroup *group = select->whereGroup(IDatabaseSelectQuery::Or);
+    for (i = 0; i < urls.count(); ++i) {
+        hash = qHash(QUrl(urls.at(i)));
+        predictions.insert(hash, urls.at(i));
+        group->where("page_hash_to", hash);
+    }
+
+
+    //"page_hash_to", hash);
     bool completed = false;
     select->select("completed");
-    select->limit(1);
+    select->select("page_hash_to");
 
-    if (select->next()) {
-      //  qDebug("----- hey hey hey ------");
-        existed = true;
+    while (select->next()) {    // remove completed predictions from the map
         completed = select->value("completed").toBool();
+        hash = select->value("page_hash_to").toInt();
+
+        if (completed && predictions.contains(hash)) {
+            predictions.remove(hash);
+        }
     }
 
-    if (completed) {
-        return;
+    if (predictions.count() > 0) {    // if any prediction has left
+        select = m_proxyConnection->databaseSelect("prefetch_orders", &parent);
+        select->select("max(priority) AS maxpriority");
+
+        int priority = DEFAULT_PRIORITY;
+
+        if (select->next()) {
+            int val = select->value("maxpriority").toInt();// + 1;
+            priority = val < DEFAULT_PRIORITY ? DEFAULT_PRIORITY : (val + 1);
+        }
+
+        IDatabaseUpdateQuery *query = NULL;
+
+        // register new prediction
+        for (i = 0; i < predictions.keys().count(); ++i) {
+
+
+            query = m_proxyConnection->databaseUpdateQuery("prefetch_orders",  &parent, false);
+            query->setType(IDatabaseUpdateQuery::InsertOrUpdate);
+
+            hash = predictions.keys().at(i);
+            query->singleWhere("page_hash_to", hash);
+            query->setColumnValue("page_hash_to", hash);
+            query->setColumnValue("page_id_from", from);
+    //        query->setColumnValue("page_hash_to", hash);
+            query->setColumnValue("absolute_uri", predictions.value(hash));
+            query->setColumnValue("priority", priority);
+            query->setUpdateDates(true);
+            query->executeQuery();
+        }
     }
+
 
 
     // update all other predictions
-    IDatabaseUpdateQuery *query = NULL;
 
-    select = m_proxyConnection->databaseSelect("prefetch_orders", &parent);
-    select->singleWhere("completed", false);
-    select->select("page_id_from");
-    select->select("page_hash_to");
-    select->select("priority");
 
-    while (select->next()) {
-        query = m_proxyConnection->databaseUpdateQuery("prefetch_orders", &parent, false);
-        group = query->whereGroup(IDatabaseSelectQuery::And);
-        group->where("page_id_from", select->value("page_id_from"));
-        group->where("page_hash_to", select->value("page_hash_to"));
+//    select = m_proxyConnection->databaseSelect("prefetch_orders", &parent);
+//    select->singleWhere("completed", false);
+//    select->select("page_id_from");
+//    select->select("page_hash_to");
+//    select->select("priority");
 
-        if (select->value("page_id_from").toInt() == from && select->value("page_hash_to").toInt() == hash)
-        {
-           // qDebug("---increment");
-            query->setColumnValue("priority", select->value("priority").toInt() + 1);
-        } else {
-           // qDebug("---decrement");
-            query->setColumnValue("priority", select->value("priority").toInt() - 1);
-        }
-        query->setUpdateDates(true);
-        query->executeQuery();
-    }
+//    while (select->next()) {
+//        query = m_proxyConnection->databaseUpdateQuery("prefetch_orders", &parent, false);
 
-    // register new prediction
-    if (existed == false)
-    {
-        query = m_proxyConnection->databaseUpdateQuery("prefetch_orders",  &parent, false);
-        query->setColumnValue("page_id_from", from);
-        query->setColumnValue("page_hash_to", hash);
-        query->setColumnValue("absolute_uri", url);
-        query->setColumnValue("priority", DEFAULT_PRIORITY);
-        query->setUpdateDates(true);
-        query->executeQuery();
-    }
+//        group = query->whereGroup(IDatabaseSelectQuery::And);
+//        group->where("page_id_from", select->value("page_id_from"));
+//        group->where("page_hash_to", select->value("page_hash_to"));
+
+//        if (select->value("page_id_from").toInt() == from && select->value("page_hash_to").toInt() == hash)
+//        {
+//           // qDebug("---increment");
+//            query->setColumnValue("priority", select->value("priority").toInt() + 1);
+//        } else {
+//           // qDebug("---decrement");
+//            query->setColumnValue("priority", select->value("priority").toInt() - 1);
+//        }
+//        query->setUpdateDates(true);
+//        query->executeQuery();
+//    }
+
+
+//    if (existed == false)
+//    {
+//        query = m_proxyConnection->databaseUpdateQuery("prefetch_orders",  &parent, false);
+//        query->setColumnValue("page_id_from", from);
+//        query->setColumnValue("page_hash_to", hash);
+//        query->setColumnValue("absolute_uri", url);
+//        query->setColumnValue("priority", DEFAULT_PRIORITY);
+//        query->setUpdateDates(true);
+//        query->executeQuery();
+//    }
+//    }
 }
 
 bool PrefetchingService::completedPrefetchingQuery(QString url)
@@ -122,41 +169,42 @@ bool PrefetchingService::disablePredictionQuery(int hash)
     QObject parent;
     // delete prediction
     IDatabaseUpdateQuery *query = m_proxyConnection->databaseUpdateQuery("prefetch_orders", &parent, false);
-    query->singleWhere("page_hash_to", hash);
+    query->singleWhere("page_id_from", hash);
     query->setType(IDatabaseUpdateQuery::Delete);
     return query->executeQuery();
 }
 
-IResponse *PrefetchingService::link(IRequest *req)
+IResponse *PrefetchingService::create(IRequest *req)
 {
-    //qDebug("------------Hey, I just met you.");
-    if (req->hasParameter("page")) {
+    if (req->hasParameter("page") && req->hasParameter("pid")) {
         QString page = req->parameterValue("page");
+        QString padeIdString = req->parameterValue("pid");
         bool ok = false;
-        int page_id = page.toInt(&ok);
-        if (ok) {
-            //registerPredictionQuery(page_id, target);
+        int pageId = padeIdString.toInt(&ok);
 
-            QList<QString> list = getTopLinks("http://www.mtbiker.sk/");
+        if (ok) {
+            QStringList list = getTopLinks(page);
 
             int count = list.length();
 
             if (count > 0) {
+                QStringList predictions;
                 int xF = qFloor(count * 0.35);
                 if (xF >= 0 && xF < count)
-                    registerPredictionQuery(page_id, (list.at(xF)));
+                    predictions.push_back(list.at(xF));
 
                 int yF = qFloor(count * 0.5);
                 if (yF > xF && yF < count)
-                    registerPredictionQuery(page_id, (list.at(yF)));
+                    predictions.push_back(list.at(yF));
 
 
                 int zF = qFloor(count * 0.65);
                 if (zF > yF && zF < count)
-                    registerPredictionQuery(page_id, (list.at(zF)));
+                    predictions.push_back(list.at(zF));
+
+                registerPredictionsQuery(pageId, predictions);
             }
         }
-
     }
     return req->response(IResponse::OK);
 }
@@ -164,8 +212,8 @@ IResponse *PrefetchingService::link(IRequest *req)
 
 IResponse *PrefetchingService::close(IRequest *req)
 {
-    if (req->hasParameter("page")) {
-        QString page = req->parameterValue("page");
+    if (req->hasParameter("pid")) {
+        QString page = req->parameterValue("pid");
         bool ok = false;
         int page_id = page.toInt(&ok, 10);
         if (ok)
@@ -200,12 +248,11 @@ IResponse *PrefetchingService::done(IRequest *req)
 }
 
 
-QList<QString> PrefetchingService::getTopLinks(QString url)
+QStringList PrefetchingService::getTopLinks(QString url)
 {
     QObject parent;
-
-    QList<QSgmlTag *> *elems = new QList<QSgmlTag *>();
-    QList<QString> links;
+    QList<QSgmlTag *> elems;
+    QStringList links;
 
     QUrl baseUrl(url);
 
@@ -228,12 +275,13 @@ QList<QString> PrefetchingService::getTopLinks(QString url)
                 if (file.exists()) {
                     QSgml o(file);
 
-                    o.getElementsByName("a", elems);
 
-                    int count = elems->length();
+                    o.getElementsByName("a", &elems);
+
+                    int count = elems.length();
 
                     for (i = 0; i < count; ++i ) {
-                        QSgmlTag* tag = elems->at(i);
+                        QSgmlTag* tag = elems.at(i);
 
                         QString linkHref = tag->getArgValue("href");
                         try {
@@ -249,12 +297,13 @@ QList<QString> PrefetchingService::getTopLinks(QString url)
 
                         }
                     }
+
+                    elems.clear();
+
                 }
             }
         }
     }
-    elems->clear();
-    delete elems;
 
     return links;
 }
