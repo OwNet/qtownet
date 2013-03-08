@@ -14,6 +14,7 @@
 #include "modulejob.h"
 #include "messagehelper.h"
 #include "uniqueidhelper.h"
+#include "cachehelper.h"
 
 #include "proxydownloads.h"
 #include "proxytrafficcounter.h"
@@ -111,4 +112,9 @@ int ProxyConnection::lastConnectionTraffic() const
 QString ProxyConnection::generateUniqueId() const
 {
     return UniqueIdHelper::generate();
+}
+
+uint ProxyConnection::cacheId(const QString &url) const
+{
+    return CacheHelper::cacheId(url);
 }

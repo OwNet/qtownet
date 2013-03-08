@@ -46,6 +46,7 @@ public:
     virtual void debugMessage(const QVariant &message) const = 0;
     virtual QString generateUniqueId() const = 0;
     virtual int lastConnectionTraffic() const = 0;
+    virtual uint cacheId(const QString &url) const = 0;
 };
 
 #endif // IPROXYCONNECTION_H
