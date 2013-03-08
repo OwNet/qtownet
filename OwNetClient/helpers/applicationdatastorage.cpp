@@ -11,7 +11,7 @@ ApplicationDataStorage::ApplicationDataStorage(QObject *parent) :
 {
 }
 
-QDir ApplicationDataStorage::appDataDirectory()
+QDir ApplicationDataStorage::appDataDirectory() const
 {
     QDir dir;
     QString path = Settings().value("application/data_folder_path").toString();
@@ -24,7 +24,7 @@ QDir ApplicationDataStorage::appDataDirectory()
     return dir;
 }
 
-QDir ApplicationDataStorage::appResourcesDirectory()
+QDir ApplicationDataStorage::appResourcesDirectory() const
 {
     QDir dir;
     QString path = Settings().value("application/resources_folder_path").toString();
@@ -35,4 +35,9 @@ QDir ApplicationDataStorage::appResourcesDirectory()
         return dir;
     }
     return dir;
+}
+
+QString ApplicationDataStorage::databaseFilePath(const QString &workspaceId) const
+{
+    return appDataDirectory().absoluteFilePath(QString("%1.sqlite").arg(workspaceId));
 }
