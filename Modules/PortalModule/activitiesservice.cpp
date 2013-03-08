@@ -4,10 +4,12 @@
 #include "iproxyconnection.h"
 #include "isession.h"
 #include "idatabaseselectquerywheregroup.h"
+#include "irouter.h"
 
 #include <QSqlQuery>
 #include <QSqlRecord>
 #include <QDateTime>
+
 
 ActivitiesService::ActivitiesService(IProxyConnection *proxyConnection, QObject *parent) :
     QObject(parent),
@@ -18,7 +20,19 @@ ActivitiesService::ActivitiesService(IProxyConnection *proxyConnection, QObject 
 
 void ActivitiesService::init(IRouter *router)
 {
+    router->addRoute("/allPagesCount")->on(IRequest::GET, ROUTE(pagesCount));
 
+}
+
+IResponse *ActivitiesService::pagesCount(IRequest *req)
+{
+    if(!m_proxyConnection->session()->isLoggedIn())
+        req->response(IResponse::UNAUTHORIEZED);
+
+    QVariantMap response;
+    response.insert("pages", m_activityManager->PagesCount(req));
+
+    return req->response(QVariant(response), IResponse::OK);
 }
 
 IResponse *ActivitiesService::index(IRequest *req)
@@ -39,7 +53,7 @@ IResponse *ActivitiesService::index(IRequest *req)
     }
 
     bool ok;
-    QVariantList activities = m_activityManager->getActivities(&ok);
+    QVariantList activities = m_activityManager->getActivities(&ok, req);
 
     if(ok)
         return req->response(QVariant(activities), IResponse::OK);

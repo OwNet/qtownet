@@ -86,7 +86,7 @@ IResponse *RecommendationsService::create(IRequest *req)
     return req->response(IResponse::BAD_REQUEST);
 }*/
 
-IResponse *RecommendationsService::show(IRequest *req, uint id)
+IResponse *RecommendationsService::show(IRequest *req, uint uid)
 {
 
     QString curUser_id = m_proxyConnection->session()->value("logged").toString();
@@ -100,7 +100,7 @@ IResponse *RecommendationsService::show(IRequest *req, uint id)
     QVariantMap recommendation;
     IResponse::Status responseStatus;
 
-    responseStatus= this->m_recommendationManager->showRecomm(req, curUser_id, recommendation, error);
+    responseStatus= this->m_recommendationManager->showRecomm(req, uid ,curUser_id, recommendation, error);
 
     if(!error.empty() || responseStatus == IResponse::INTERNAL_SERVER_ERROR)
         return req->response(QVariant(error), responseStatus);
@@ -109,7 +109,7 @@ IResponse *RecommendationsService::show(IRequest *req, uint id)
 
 }
 
-IResponse *RecommendationsService::edit(IRequest *req, uint id)
+IResponse *RecommendationsService::edit(IRequest *req, uint uid)
 {
 
     QString curUser_id = m_proxyConnection->session()->value("logged").toString();
@@ -122,7 +122,7 @@ IResponse *RecommendationsService::edit(IRequest *req, uint id)
     QVariantMap error;
     IResponse::Status responseStatus;
 
-    responseStatus= this->m_recommendationManager->editRecomm(req, curUser_id, error);
+    responseStatus= this->m_recommendationManager->editRecomm(req, uid, curUser_id, error);
 
     if(!error.empty() || responseStatus == IResponse::INTERNAL_SERVER_ERROR)
         return req->response(QVariant(error), responseStatus);
@@ -131,7 +131,7 @@ IResponse *RecommendationsService::edit(IRequest *req, uint id)
 
 }
 
-IResponse *RecommendationsService::del(IRequest *req, uint id)
+IResponse *RecommendationsService::del(IRequest *req, uint uid)
 {
     QString curUser_id = m_proxyConnection->session()->value("logged").toString();
 
@@ -143,7 +143,7 @@ IResponse *RecommendationsService::del(IRequest *req, uint id)
     QVariantMap error;
     IResponse::Status responseStatus;
 
-    responseStatus= this->m_recommendationManager->deleteRecomm(req, curUser_id, error);
+    responseStatus= this->m_recommendationManager->deleteRecomm(req, uid,curUser_id, error);
 
     if(!error.empty() || responseStatus == IResponse::INTERNAL_SERVER_ERROR)
         return req->response(QVariant(error), responseStatus);
