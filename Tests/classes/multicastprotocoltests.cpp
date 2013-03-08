@@ -5,6 +5,7 @@
 #include "stub/stubdatabase.h"
 #include "proxyconnection.h"
 #include "session.h"
+#include "settings.h"
 #include "databasesettings.h"
 
 #include "multicastprotocol.h"
@@ -80,7 +81,7 @@ void MulticastProtocolTests::testFirstNode()
 
     // message
     message = protocol.message();
-    QCOMPARE(message.value("id").toUInt(), databaseSettings.clientId());
+    QCOMPARE(message.value("id").toString(), databaseSettings.clientId());
     QCOMPARE(message.value("score").toUInt(), protocol.currentNode()->score());
     QCOMPARE(message.value("port").toInt(), 8081);
     QCOMPARE(message.value("initialized").toUInt(), (uint) 0);
@@ -100,7 +101,7 @@ void MulticastProtocolTests::testFirstNode()
 
     // message
     message = protocol.message();
-    QCOMPARE(message.value("id").toUInt(), databaseSettings.clientId());
+    QCOMPARE(message.value("id").toString(), databaseSettings.clientId());
     QCOMPARE(message.value("score").toUInt(), protocol.currentNode()->score());
     QCOMPARE(message.value("port").toInt(), 8081);
     QCOMPARE(message.value("initialized").toUInt(), (uint) 0);
@@ -117,7 +118,7 @@ void MulticastProtocolTests::testFirstNode()
 
     // message
     message = protocol.message();
-    QCOMPARE(message.value("id").toUInt(), databaseSettings.clientId());
+    QCOMPARE(message.value("id").toString(), databaseSettings.clientId());
     QCOMPARE(message.value("score").toUInt(), protocol.currentNode()->score());
     QCOMPARE(message.value("port").toInt(), 8081);
     QVERIFY(message.value("initialized").toUInt() > (uint) 0);
@@ -137,7 +138,7 @@ void MulticastProtocolTests::testFirstNode()
 
     // message
     message = protocol.message();
-    QCOMPARE(message.value("id").toUInt(), databaseSettings.clientId());
+    QCOMPARE(message.value("id").toString(), databaseSettings.clientId());
     QCOMPARE(message.value("score").toUInt(), protocol.currentNode()->score());
     QCOMPARE(message.value("port").toInt(), 8081);
     QVERIFY(message.value("initialized").toUInt() > (uint) 0);
@@ -156,6 +157,7 @@ void MulticastProtocolTests::testWeakerNode()
     StubDatabase::init();
     DatabaseSettings databaseSettings;
     databaseSettings.createClientId();
+    Settings settings;
 
     MulticastProtocol protocol(m_proxyConnection, this);
     MulticastProtocolNode *node;
@@ -169,11 +171,13 @@ void MulticastProtocolTests::testWeakerNode()
     sendMessage->insert("initialized", "10");
     sendMessage->insert("status", "client");
     sendMessage->insert("address", "10.10.10.10"); // test IPs
+    sendMessage->insert("workspace_id", settings.value("current_workspace/id").toString());
+    sendMessage->insert("workspace_name", settings.value("current_workspace/name").toString());
 
     protocol.processMessage(*sendMessage);
     protocol.update();
 
-    QVERIFY(protocol.nodes().count() == 2);
+    QCOMPARE(protocol.nodes().count(), 2);
 
     // node list and map
     node = protocol.nodes().first();
@@ -185,7 +189,7 @@ void MulticastProtocolTests::testWeakerNode()
     QCOMPARE(node->address(), QString("127.0.0.1"));
 
     node = protocol.nodes().at(1);
-    QCOMPARE(node->id(), (uint) 1);
+    QCOMPARE(node->id(), QString("1"));
     QCOMPARE(node->score(), (uint) 0);
     QCOMPARE(node->initialized(), (uint) 10);
     QCOMPARE(node->status(), MulticastProtocol::CLIENT);
@@ -208,7 +212,7 @@ void MulticastProtocolTests::testWeakerNode()
 
     // message
     message = protocol.message();
-    QCOMPARE(message.value("id").toUInt(), databaseSettings.clientId());
+    QCOMPARE(message.value("id").toString(), databaseSettings.clientId());
     QCOMPARE(message.value("score").toUInt(), protocol.currentNode()->score());
     QCOMPARE(message.value("port").toInt(), 8081);
     QCOMPARE(message.value("initialized").toUInt(), (uint) 0);
@@ -225,7 +229,7 @@ void MulticastProtocolTests::testWeakerNode()
 
     // message
     message = protocol.message();
-    QCOMPARE(message.value("id").toUInt(), databaseSettings.clientId());
+    QCOMPARE(message.value("id").toString(), databaseSettings.clientId());
     QCOMPARE(message.value("score").toUInt(), protocol.currentNode()->score());
     QCOMPARE(message.value("port").toInt(), 8081);
     QVERIFY(message.value("initialized").toUInt() > (uint) 0);
@@ -248,7 +252,7 @@ void MulticastProtocolTests::testWeakerNode()
 
     // message
     message = protocol.message();
-    QCOMPARE(message.value("id").toUInt(), databaseSettings.clientId());
+    QCOMPARE(message.value("id").toString(), databaseSettings.clientId());
     QCOMPARE(message.value("score").toUInt(), protocol.currentNode()->score());
     QCOMPARE(message.value("port").toInt(), 8081);
     QVERIFY(message.value("initialized").toUInt() > (uint) 0);
@@ -266,6 +270,7 @@ void MulticastProtocolTests::testStrongerNode()
 
     DatabaseSettings databaseSettings;
     databaseSettings.createClientId();
+    Settings settings;
 
     MulticastProtocol protocol(m_proxyConnection, this);
     MulticastProtocolNode *node;
@@ -279,6 +284,8 @@ void MulticastProtocolTests::testStrongerNode()
     sendMessage->insert("initialized", "10");
     sendMessage->insert("status", "server");
     sendMessage->insert("address", "10.10.10.10");
+    sendMessage->insert("workspace_id", settings.value("current_workspace/id").toString());
+    sendMessage->insert("workspace_name", settings.value("current_workspace/name").toString());
 
     protocol.processMessage(*sendMessage);
     protocol.update();
@@ -287,7 +294,7 @@ void MulticastProtocolTests::testStrongerNode()
 
     // node list and map
     node = protocol.nodes().first();
-    QCOMPARE(node->id(), (uint) 1);
+    QCOMPARE(node->id(), QString("1"));
     QCOMPARE(node->score(), (uint) 1000000);
     QCOMPARE(node->initialized(), (uint) 10);
     QCOMPARE(node->status(), MulticastProtocol::SERVER);
@@ -306,7 +313,7 @@ void MulticastProtocolTests::testStrongerNode()
 
     // message
     message = protocol.message();
-    QCOMPARE(message.value("id").toUInt(), databaseSettings.clientId());
+    QCOMPARE(message.value("id").toString(), databaseSettings.clientId());
     QCOMPARE(message.value("score").toUInt(), protocol.currentNode()->score());
     QCOMPARE(message.value("port").toInt(), 8081);
     QCOMPARE(message.value("initialized").toUInt(), (uint) 0);
@@ -318,7 +325,7 @@ void MulticastProtocolTests::testStrongerNode()
     // session
     QObject parent;
     ISession *session = m_proxyConnection->session(&parent);
-    QCOMPARE(session->availableClients().value(QString::number(session->serverId())).toString(),
+    QCOMPARE(session->availableClients().value(session->serverId()).toString(),
              QString("10.10.10.10:5000"));
 
     QCOMPARE(session->availableClients().value("1").toString(),
@@ -336,7 +343,7 @@ void MulticastProtocolTests::testStrongerNode()
 
     // message
     message = protocol.message();
-    QCOMPARE(message.value("id").toUInt(), databaseSettings.clientId());
+    QCOMPARE(message.value("id").toString(), databaseSettings.clientId());
     QCOMPARE(message.value("score").toUInt(), protocol.currentNode()->score());
     QCOMPARE(message.value("port").toInt(), 8081);
     QVERIFY(message.value("initialized").toUInt() > (uint) 0);
@@ -356,7 +363,7 @@ void MulticastProtocolTests::testStrongerNode()
 
     // message
     message = protocol.message();
-    QCOMPARE(message.value("id").toUInt(), databaseSettings.clientId());
+    QCOMPARE(message.value("id").toString(), databaseSettings.clientId());
     QCOMPARE(message.value("score").toUInt(), protocol.currentNode()->score());
     QCOMPARE(message.value("port").toInt(), 8081);
     QVERIFY(message.value("initialized").toUInt() > (uint) 0);
@@ -375,6 +382,7 @@ void MulticastProtocolTests::testInitializingNode()
     StubDatabase::init();
     DatabaseSettings databaseSettings;
     databaseSettings.createClientId();
+    Settings settings;
 
     MulticastProtocol protocol(m_proxyConnection, this);
     MulticastProtocolNode *node;
@@ -387,6 +395,8 @@ void MulticastProtocolTests::testInitializingNode()
     sendMessage->insert("port", "5000");
     sendMessage->insert("initialized", "0");
     sendMessage->insert("status", "initializing");
+    sendMessage->insert("workspace_id", settings.value("current_workspace/id").toString());
+    sendMessage->insert("workspace_name", settings.value("current_workspace/name").toString());
 
     protocol.processMessage(*sendMessage);
     protocol.update();
@@ -395,7 +405,7 @@ void MulticastProtocolTests::testInitializingNode()
 
     // node list and map
     node = protocol.nodes().first();
-    QCOMPARE(node->id(), (uint) 1);
+    QCOMPARE(node->id(), QString(1));
     QCOMPARE(node->score(), (uint) 1000000);
     QCOMPARE(node->initialized(), (uint) 0);
     QCOMPARE(node->status(), MulticastProtocol::INITIALIZING);
@@ -413,7 +423,7 @@ void MulticastProtocolTests::testInitializingNode()
 
     // message
     message = protocol.message();
-    QCOMPARE(message.value("id").toUInt(), databaseSettings.clientId());
+    QCOMPARE(message.value("id").toString(), databaseSettings.clientId());
     QCOMPARE(message.value("score").toUInt(), protocol.currentNode()->score());
     QCOMPARE(message.value("port").toInt(), 8081);
     QCOMPARE(message.value("initialized").toUInt(), (uint) 0);
@@ -434,7 +444,7 @@ void MulticastProtocolTests::testInitializingNode()
 
     // message
     message = protocol.message();
-    QCOMPARE(message.value("id").toUInt(), databaseSettings.clientId());
+    QCOMPARE(message.value("id").toString(), databaseSettings.clientId());
     QCOMPARE(message.value("score").toUInt(), protocol.currentNode()->score());
     QCOMPARE(message.value("port").toInt(), 8081);
     QVERIFY(message.value("initialized").toUInt() > (uint) 0);
@@ -462,7 +472,7 @@ void MulticastProtocolTests::testInitializingNode()
 
     // message
     message = protocol.message();
-    QCOMPARE(message.value("id").toUInt(), databaseSettings.clientId());
+    QCOMPARE(message.value("id").toString(), databaseSettings.clientId());
     QCOMPARE(message.value("score").toUInt(), protocol.currentNode()->score());
     QCOMPARE(message.value("port").toInt(), 8081);
     QVERIFY(message.value("initialized").toUInt() > (uint) 0);
@@ -486,6 +496,7 @@ void MulticastProtocolTests::testMultipleNodes()
     MulticastProtocolNode *node;
     QVariantMap message;
     QVariantMap *sendMessage;
+    Settings settings;
 
     sendMessage = new QVariantMap();
     sendMessage->insert("id", "1");
@@ -493,6 +504,8 @@ void MulticastProtocolTests::testMultipleNodes()
     sendMessage->insert("port", "5000");
     sendMessage->insert("initialized", "10");
     sendMessage->insert("status", "server");
+    sendMessage->insert("workspace_id", settings.value("current_workspace/id").toString());
+    sendMessage->insert("workspace_name", settings.value("current_workspace/name").toString());
 
     protocol.processMessage(*sendMessage);
     protocol.update();
@@ -503,6 +516,8 @@ void MulticastProtocolTests::testMultipleNodes()
     sendMessage->insert("port", "5000");
     sendMessage->insert("initialized", "9");
     sendMessage->insert("status", "client");
+    sendMessage->insert("workspace_id", settings.value("current_workspace/id").toString());
+    sendMessage->insert("workspace_name", settings.value("current_workspace/name").toString());
 
     protocol.processMessage(*sendMessage);
     protocol.update();
@@ -511,14 +526,14 @@ void MulticastProtocolTests::testMultipleNodes()
 
     // node list and map
     node = protocol.nodes().first();
-    QCOMPARE(node->id(), (uint) 1);
+    QCOMPARE(node->id(), QString(1));
     QCOMPARE(node->score(), (uint) 2000000);
     QCOMPARE(node->initialized(), (uint) 10);
     QCOMPARE(node->status(), MulticastProtocol::SERVER);
     QCOMPARE(node->port(), (uint) 5000);
 
     node = protocol.nodes().at(1);
-    QCOMPARE(node->id(), (uint) 2);
+    QCOMPARE(node->id(), QString(2));
     QCOMPARE(node->score(), (uint) 1000000);
     QCOMPARE(node->initialized(), (uint) 9);
     QCOMPARE(node->status(), MulticastProtocol::CLIENT);
@@ -536,7 +551,7 @@ void MulticastProtocolTests::testMultipleNodes()
 
     // message
     message = protocol.message();
-    QCOMPARE(message.value("id").toUInt(), databaseSettings.clientId());
+    QCOMPARE(message.value("id").toString(), databaseSettings.clientId());
     QCOMPARE(message.value("score").toUInt(), protocol.currentNode()->score());
     QCOMPARE(message.value("port").toInt(), 8081);
     QCOMPARE(message.value("initialized").toUInt(), (uint) 0);
@@ -557,7 +572,7 @@ void MulticastProtocolTests::testMultipleNodes()
 
     // message
     message = protocol.message();
-    QCOMPARE(message.value("id").toUInt(), databaseSettings.clientId());
+    QCOMPARE(message.value("id").toString(), databaseSettings.clientId());
     QCOMPARE(message.value("score").toUInt(), protocol.currentNode()->score());
     QCOMPARE(message.value("port").toInt(), 8081);
     QVERIFY(message.value("initialized").toUInt() > (uint) 0);
@@ -577,7 +592,7 @@ void MulticastProtocolTests::testMultipleNodes()
 
     // message
     message = protocol.message();
-    QCOMPARE(message.value("id").toUInt(), databaseSettings.clientId());
+    QCOMPARE(message.value("id").toString(), databaseSettings.clientId());
     QCOMPARE(message.value("score").toUInt(), protocol.currentNode()->score());
     QCOMPARE(message.value("port").toInt(), 8081);
     QVERIFY(message.value("initialized").toUInt() > (uint) 0);
@@ -604,7 +619,7 @@ void MulticastProtocolTests::testMultipleNodes()
 
     // node list and map
     node = protocol.nodes().first();
-    QCOMPARE(node->id(), (uint) 2);
+    QCOMPARE(node->id(), QString("2"));
     QCOMPARE(node->score(), (uint) 3000000);
     QCOMPARE(node->initialized(), (uint) 9);
     QCOMPARE(node->status(), MulticastProtocol::SERVER);
@@ -622,7 +637,7 @@ void MulticastProtocolTests::testMultipleNodes()
 
     // message
     message = protocol.message();
-    QCOMPARE(message.value("id").toUInt(), databaseSettings.clientId());
+    QCOMPARE(message.value("id").toString(), databaseSettings.clientId());
     QCOMPARE(message.value("score").toUInt(), protocol.currentNode()->score());
     QCOMPARE(message.value("port").toInt(), 8081);
     QVERIFY(message.value("initialized").toUInt() > (uint) 0);
@@ -638,6 +653,7 @@ void MulticastProtocolTests::testMultipleWeakerNodes()
     StubDatabase::init();
     DatabaseSettings databaseSettings;
     databaseSettings.createClientId();
+    Settings settings;
 
     MulticastProtocol protocol(m_proxyConnection, this);
     MulticastProtocolNode *node;
@@ -649,6 +665,8 @@ void MulticastProtocolTests::testMultipleWeakerNodes()
     sendMessage->insert("score", "0");
     sendMessage->insert("status", "client");
     sendMessage->insert("initialized", "3");    // test sort by initialized
+    sendMessage->insert("workspace_id", settings.value("current_workspace/id").toString());
+    sendMessage->insert("workspace_name", settings.value("current_workspace/name").toString());
 
     protocol.processMessage(*sendMessage);
     protocol.update();
@@ -658,6 +676,8 @@ void MulticastProtocolTests::testMultipleWeakerNodes()
     sendMessage->insert("score", "0");
     sendMessage->insert("status", "client");
     sendMessage->insert("initialized", "2");    // test sort by initialized
+    sendMessage->insert("workspace_id", settings.value("current_workspace/id").toString());
+    sendMessage->insert("workspace_name", settings.value("current_workspace/name").toString());
 
     protocol.processMessage(*sendMessage);
     protocol.update();
@@ -667,6 +687,8 @@ void MulticastProtocolTests::testMultipleWeakerNodes()
     sendMessage->insert("score", "0");
     sendMessage->insert("status", "server");
     sendMessage->insert("initialized", "1");    // test sort by initialized
+    sendMessage->insert("workspace_id", settings.value("current_workspace/id").toString());
+    sendMessage->insert("workspace_name", settings.value("current_workspace/name").toString());
 
     protocol.processMessage(*sendMessage);
     protocol.update();
@@ -679,17 +701,17 @@ void MulticastProtocolTests::testMultipleWeakerNodes()
     QCOMPARE(node->score(), protocol.currentNode()->score());
 
     node = protocol.nodes().at(1);
-    QCOMPARE(node->id(), (uint) 3);
+    QCOMPARE(node->id(), QString("3"));
     QCOMPARE(node->score(), (uint) 0);
     QCOMPARE(node->initialized(), (uint) 1);
 
     node = protocol.nodes().at(2);
-    QCOMPARE(node->id(), (uint) 2);
+    QCOMPARE(node->id(), QString("2"));
     QCOMPARE(node->score(), (uint) 0);
     QCOMPARE(node->initialized(), (uint) 2);
 
     node = protocol.nodes().at(3);
-    QCOMPARE(node->id(), (uint) 1);
+    QCOMPARE(node->id(), QString("1"));
     QCOMPARE(node->score(), (uint) 0);
     QCOMPARE(node->initialized(), (uint) 3);
 
@@ -698,7 +720,7 @@ void MulticastProtocolTests::testMultipleWeakerNodes()
 
     // message
     message = protocol.message();
-    QCOMPARE(message.value("id").toUInt(), databaseSettings.clientId());
+    QCOMPARE(message.value("id").toString(), databaseSettings.clientId());
     QCOMPARE(message.value("score").toUInt(), protocol.currentNode()->score());
     QCOMPARE(message.value("port").toInt(), 8081);
     QCOMPARE(message.value("initialized").toUInt(), (uint) 0);
@@ -719,7 +741,7 @@ void MulticastProtocolTests::testMultipleWeakerNodes()
 
     // message
     message = protocol.message();
-    QCOMPARE(message.value("id").toUInt(), databaseSettings.clientId());
+    QCOMPARE(message.value("id").toString(), databaseSettings.clientId());
     QCOMPARE(message.value("score").toUInt(), protocol.currentNode()->score());
     QCOMPARE(message.value("port").toInt(), 8081);
     QVERIFY(message.value("initialized").toUInt() > (uint) 0);

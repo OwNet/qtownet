@@ -2,6 +2,7 @@
 #include "idatabaseupdate.h"
 #include "iproxyconnection.h"
 #include "idatabaseselectquerywheregroup.h"
+#include "isynceddatabaseupdatequery.h"
 
 #include<QSqlRecord>
 #include <QSqlQuery>
@@ -87,13 +88,10 @@ IResponse::Status RecommendationManager::createRecomm(IRequest *req, QString cur
         query->setColumnValue("description", description);
         query->setColumnValue("user_id", curUser_id);
 
-        QString uid = QUuid::createUuid().toString();
-        query->setColumnValue("uid", uid);
-
         if(!query->executeQuery()){
             return IResponse::INTERNAL_SERVER_ERROR;
         }
-
+        QString uid = ((ISyncedDatabaseUpdateQuery*)query)->lastUid();
 
         // create activity
 

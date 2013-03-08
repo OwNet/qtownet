@@ -46,10 +46,10 @@ QVariantMap Session::availableClients() const
     return QVariantMap();
 }
 
-uint Session::serverId() const
+QString Session::serverId() const
 {
     if (m_sessionData->contains("server_id") && !m_sessionData->value("server_id").isNull())
-        return m_sessionData->value("server_id").toUInt();
+        return m_sessionData->value("server_id").toString();
     return DatabaseSettings().clientId();
 }
 

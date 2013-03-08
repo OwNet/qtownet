@@ -33,8 +33,8 @@ IResponse *SyncService::getUpdates(IRequest *request)
     if (!ok)
         return request->response(IResponse::BAD_REQUEST);
 
-    int clientId = requestBody.value("client_id", -1).toUInt();
-    if (clientId == -1)
+    QString clientId = requestBody.value("client_id").toString();
+    if (clientId.isEmpty())
         return request->response(IResponse::BAD_REQUEST);
 
     bool syncAllGroups = requestBody.value("sync_all_groups", false).toBool();

@@ -34,7 +34,7 @@ bool CentralServiceReporter::report()
     }
 
     SyncServer syncServer(m_proxyConnection);
-    QVariantList updates = syncServer.updates(serverState, true, -1);
+    QVariantList updates = syncServer.updates(serverState, true, QString());
     if (!updates.count())
         return true;
 

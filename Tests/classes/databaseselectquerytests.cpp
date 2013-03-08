@@ -16,7 +16,7 @@ void DatabaseSelectQueryTests::init()
 {
     StubDatabase::close();
     StubDatabase::init();
-    QSqlQuery query("CREATE TABLE tst_settings (_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,key TEXT NOT NULL,value TEXT NOT NULL,date_created TEXT NOT NULL,date_updated TEXT NOT NULL,sync_id TEXT);");
+    QSqlQuery query("CREATE TABLE tst_settings (_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,key TEXT NOT NULL,value TEXT NOT NULL,date_created TEXT NOT NULL,date_updated TEXT NOT NULL,uid TEXT);");
     query.exec();
 }
 

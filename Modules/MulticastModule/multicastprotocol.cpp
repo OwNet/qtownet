@@ -18,7 +18,7 @@ MulticastProtocol::MulticastProtocol(IProxyConnection *connection, QObject *pare
     QObject parentObject;
     QSettings *settings = m_proxyConnection->settings(&parentObject);
 
-    uint myId = connection->databaseSettings(this)->clientId();
+    QString myId = connection->databaseSettings(this)->clientId();
     int port = settings->value("application/listen_port", 8081).toInt();
 
     // add self as first instance
@@ -69,7 +69,7 @@ void MulticastProtocol::processMessage(const QVariantMap &message)
 
     if (workspaceId == settings->value("current_workspace/id")) { // Same as current workspace
         MulticastProtocolNode *node = NULL;
-        uint id = message.value("id").toUInt();
+        QString id = message.value("id").toString();
         uint score = message.value("score").toUInt();
         uint port = message.value("port").toUInt();
         uint initialized = message.value("initialized").toUInt();
@@ -152,7 +152,7 @@ void MulticastProtocol::update()
     // save nodes to session
     QVariantMap availableClients;
     for (int i = 0; i < m_nodes.size(); i++) {
-        availableClients.insert(QString::number(m_nodes.at(i)->id()),
+        availableClients.insert(m_nodes.at(i)->id(),
                                 QString("%1:%2").arg(m_nodes.at(i)->address()).arg(m_nodes.at(i)->port()));
     }
     session->setValue("available_clients", availableClients);

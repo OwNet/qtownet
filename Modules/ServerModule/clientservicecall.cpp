@@ -20,11 +20,11 @@ ClientServiceCall::ClientServiceCall(IProxyConnection *proxyConnection, QObject 
 {
 }
 
-IResponse *ClientServiceCall::callClientService(uint clientId, const QString &apiUrl, IRequest *request)
+IResponse *ClientServiceCall::callClientService(const QString &clientId, const QString &apiUrl, IRequest *request)
 {
     QObject parent;
     ISession *session = m_proxyConnection->session(&parent);
-    QStringList ipPort = session->availableClients().value(QString::number(clientId)).toString().split(":");
+    QStringList ipPort = session->availableClients().value(clientId).toString().split(":");
 
     if (ipPort.count() < 2)
         return request->response(IResponse::SERVICE_UNAVAILABLE);
