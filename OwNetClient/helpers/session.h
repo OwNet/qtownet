@@ -21,7 +21,7 @@ public:
     bool isLoggedIn() const;
     uint userId() const;
     QVariantMap availableClients() const;
-    uint serverId() const;
+    QString serverId() const;
     bool isServer() const;
 
 private:

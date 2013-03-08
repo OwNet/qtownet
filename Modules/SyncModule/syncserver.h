@@ -12,7 +12,7 @@ class SyncServer : public QObject
 public:
     SyncServer(IProxyConnection *proxyConnection, QObject *parent = 0);
 
-    QVariantList updates(const QVariantMap &clientRecordNumbers, bool syncAllGroups, int requestingClientId);
+    QVariantList updates(const QVariantMap &clientRecordNumbers, bool syncAllGroups, const QString &requestingClientId);
     QVariantMap clientRecordNumbers();
     void saveAndApplyUpdates(const QVariantList &changes);
 

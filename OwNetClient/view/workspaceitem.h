@@ -21,6 +21,7 @@ public:
 
 private slots:
     void openButtonClicked();
+    void removeButtonClicked();
     
 private:
     QString m_id;
@@ -31,6 +32,7 @@ private:
     QTreeWidgetItem *m_treeItem;
     QTreeWidget *m_treeWidget;
     QPushButton *m_openButton;
+    QPushButton *m_removeButton;
 };
 
 #endif // WORKSPACEITEM_H

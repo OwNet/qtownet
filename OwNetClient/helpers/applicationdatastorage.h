@@ -10,8 +10,10 @@ class ApplicationDataStorage : public QObject
 public:
     explicit ApplicationDataStorage(QObject *parent = 0);
 
-    QDir appDataDirectory();
-    QDir appResourcesDirectory();
+    QDir appDataDirectory() const;
+    QDir appResourcesDirectory() const;
+
+    QString databaseFilePath(const QString &workspaceId) const;
     
 signals:
     

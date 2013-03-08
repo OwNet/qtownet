@@ -9,13 +9,13 @@ class SyncedDatabaseUpdateQuery : public DatabaseUpdateQuery, public ISyncedData
 public:
     SyncedDatabaseUpdateQuery(const QString &table, EntryType type = InsertOrUpdate, QObject *parent = 0);
 
-    int syncWith() { return m_syncWith; }
-    void setSyncWith(int clientId) { m_syncWith = clientId; }
+    QString syncWith() { return m_syncWith; }
+    void setSyncWith(const QString &clientId) { m_syncWith = clientId; }
 
     int groupId() { return m_groupId; }
     void setGroupId(int groupId) { m_groupId = groupId; }
 
-    QString lastSyncId() const { return m_lastSyncId; }
+    QString lastUid() const { return m_lastUid; }
 
 protected:
     bool executeInsert();
@@ -23,16 +23,16 @@ protected:
     bool executeDelete();
 
 private:
-    bool executeInsert(const QString &syncId);
-    bool executeUpdate(const QString &syncId) const;
-    bool executeDelete(const QString &syncId) const;
+    bool executeInsert(const QString &uid);
+    bool executeUpdate(const QString &uid) const;
+    bool executeDelete(const QString &uid) const;
 
-    QStringList getSyncIdsToModify() const;
-    void saveSyncJournalItem(const QString &syncId, int clientRecNum = -1);
+    QStringList getUidsToModify() const;
+    void saveSyncJournalItem(const QString &uid, int clientRecNum = -1);
 
-    int m_syncWith;
+    QString m_syncWith;
     int m_groupId;
-    QString m_lastSyncId;
+    QString m_lastUid;
 };
 
 #endif // SYNCEDDATABASEUPDATEQUERY_H

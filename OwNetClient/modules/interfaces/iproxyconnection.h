@@ -32,6 +32,7 @@ public:
     /// Proxy requests
     virtual IRequest *createRequest(IRequest::RequestType requestType, const QString &service, const QString &url = QString(), QObject *parent = 0) = 0;
     virtual IRequest *createRequest(IRequest::RequestType requestType, const QString &service, const int id, QObject *parent = 0) = 0;
+
     /**
      * @brief CallModule to enable calls between modules
      * @param req
@@ -44,6 +45,7 @@ public:
     virtual QByteArray toJson(const QVariant &content) const = 0;
     virtual void debugMessage(const QVariant &message) const = 0;
     virtual QString generateUniqueId() const = 0;
+    virtual int lastConnectionTraffic() const = 0;
 };
 
 #endif // IPROXYCONNECTION_H

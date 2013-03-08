@@ -2,6 +2,7 @@
 #include "idatabaseupdate.h"
 #include "iproxyconnection.h"
 #include "idatabaseselectquerywheregroup.h"
+#include "isynceddatabaseupdatequery.h"
 
 #include <QSqlRecord>
 #include <QSqlQuery>
@@ -37,11 +38,10 @@ IResponse::Status RatingManager::createRating(uint userId, QString  uri, int val
      query->setColumnValue("absolute_uri", uri);
      query->setColumnValue("val", value);
      query->setColumnValue("user_id", userId);
-     QString uid = QUuid::createUuid().toString();
-     query->setColumnValue("uid", uid);
 
      if(!query->executeQuery())
          return IResponse::INTERNAL_SERVER_ERROR;
+     QString uid = ((ISyncedDatabaseUpdateQuery*)query)->lastUid();
 
      // create activity
 

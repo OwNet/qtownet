@@ -1,0 +1,16 @@
+each activity in activities
+	.row
+		.span1
+			label #{activity.content}
+		.span2
+		.offset
+			label #{new Date(activity.date_created).toLocaleDateString()}
+		.span4
+			label #{activity.user_name}
+		if (activity.type == 0)
+			.span4
+				label Aha
+				label #{activity.type}
+		else
+			.span4
+				label Nieee

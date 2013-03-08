@@ -7,7 +7,9 @@ define( function (require) {
 	  , profileTemplate = require ("tpl/profile")
 	  , profileTableTemplate = require ("tpl/profiletable")
 	  , profileFormTemplate = require ("tpl/profileform")
+	  , showactivitiesTemplate = require ("tpl/showactivities")
 	  , UserModel = require ("share/models/UserModel")
+	  , ActivityModel = require ("share/models/ActivityModel")
 
 	  , userNavbarTemplate = require ("tpl/user-navbar")
 
@@ -60,6 +62,48 @@ define( function (require) {
 				return this
 			},*/
 
+			showActivities: function() {
+				var ActivitiesCollection = Backbone.Collection.extend({
+					url: '/api/activities',
+					model: ActivityModel
+				})
+
+				var activities = new ActivitiesCollection()
+
+				activities.fetch({
+					success: function() {
+						$('div#activities').html( showactivitiesTemplate({activities: activities.toJSON()}))
+					},
+					error: function(){
+						App.showMessage("Error reading activities")
+					},
+				})
+				this.$el.html( profileTemplate({ }) )
+				return this
+
+			},
+
+			showActivities: function() {
+				var ActivitiesCollection = Backbone.Collection.extend({
+					url: '/api/activities',
+					model: ActivityModel
+				})
+
+				var activities = new ActivitiesCollection()
+
+				activities.fetch({
+					success: function() {
+						$('div#activities').html( showactivitiesTemplate({activities: activities.toJSON()}))
+					},
+					error: function(){
+						App.showMessage("Error reading activities")
+					},
+				})
+				this.$el.html( profileTemplate({ }) )
+				return this
+
+			},
+
 			show: function(){
 				        		     		
         		App.user.fetch({
@@ -68,6 +112,8 @@ define( function (require) {
 						
 					}
         		})
+
+        		this.showActivities()
         		
 
 				this.$el.html( profileTemplate({ }) )

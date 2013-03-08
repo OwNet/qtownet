@@ -20,7 +20,7 @@ ProxyWebInputObject::ProxyWebInputObject(ProxyRequest *request, QObject *parent)
 
 void ProxyWebInputObject::readRequest()
 {
-    uint myId = DatabaseSettings().clientId();
+    QString myId = DatabaseSettings().clientId();
 
     DatabaseSelectQuery query("client_caches");
     IDatabaseSelectQueryWhereGroup *where = query.whereGroup(IDatabaseSelectQuery::And);
@@ -28,8 +28,8 @@ void ProxyWebInputObject::readRequest()
     where->where("client_id", myId, IDatabaseSelectQuery::NotEqual);
     query.orderBy("date_created", IDatabaseSelectQuery::Descending);
     while (query.next())
-        if (isClientOnline(query.value("client_id").toUInt()))
-            m_clientsToTry.append(query.value("client_id").toUInt());
+        if (isClientOnline(query.value("client_id").toString()))
+            m_clientsToTry.append(query.value("client_id").toString());
 
     createReply();
 
@@ -140,12 +140,12 @@ void ProxyWebInputObject::createReply()
     connect(reply, SIGNAL(error(QNetworkReply::NetworkError)), this, SLOT(error(QNetworkReply::NetworkError)));
 }
 
-bool ProxyWebInputObject::isClientOnline(uint clientId) const
+bool ProxyWebInputObject::isClientOnline(const QString &clientId) const
 {
-    return Session().availableClients().contains(QString::number(clientId));
+    return Session().availableClients().contains(clientId);
 }
 
-QString ProxyWebInputObject::clientIpAndPort(uint clientId) const
+QString ProxyWebInputObject::clientIpAndPort(const QString &clientId) const
 {
-    return Session().availableClients().value(QString::number(clientId)).toString();
+    return Session().availableClients().value(clientId).toString();
 }

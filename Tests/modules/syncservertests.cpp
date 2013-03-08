@@ -24,7 +24,7 @@ void SyncServerTests::init()
     StubDatabase::close();
     StubDatabase::init();
     DatabaseSettings().clearCache();
-    QSqlQuery query("CREATE TABLE tst_settings (_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,key TEXT NOT NULL,value TEXT NOT NULL,sync_id TEXT NOT NULL);");
+    QSqlQuery query("CREATE TABLE tst_settings (_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,key TEXT NOT NULL,value TEXT NOT NULL,uid TEXT NOT NULL);");
     query.exec();
 }
 
@@ -51,7 +51,7 @@ void SyncServerTests::testClientRecordNumbers()
     groupsMap = server.clientRecordNumbers();
     QCOMPARE(groupsMap.count(), 1);
     QVariantMap clientsMap = groupsMap.value(QString()).toMap();
-    int value = clientsMap.value(QString::number(DatabaseSettings().clientId())).toInt();
+    int value = clientsMap.value(DatabaseSettings().clientId()).toInt();
     QCOMPARE(value, 0);
 
     {
@@ -66,7 +66,7 @@ void SyncServerTests::testClientRecordNumbers()
     groupsMap = server.clientRecordNumbers();
     QCOMPARE(groupsMap.count(), 2);
     clientsMap = groupsMap.value("1").toMap();
-    value = clientsMap.value(QString::number(DatabaseSettings().clientId())).toInt();
+    value = clientsMap.value(DatabaseSettings().clientId()).toInt();
     QCOMPARE(value, 1);
 }
 
@@ -74,7 +74,7 @@ void SyncServerTests::testUpdates()
 {
     ProxyConnection proxyConnection;
     SyncServer server(&proxyConnection);
-    QCOMPARE(server.updates(QVariantMap(), true, -1).count(), 0);
+    QCOMPARE(server.updates(QVariantMap(), true, QString()).count(), 0);
 
     {
         SyncedDatabaseUpdateQuery query("tst_settings");
@@ -83,7 +83,7 @@ void SyncServerTests::testUpdates()
         query.executeQuery();
         DatabaseUpdate::saveLastRecordNumbers();
     }
-    QCOMPARE(server.updates(QVariantMap(), true, -1).count(), 1);
+    QCOMPARE(server.updates(QVariantMap(), true, "K1").count(), 1);
 
     {
         SyncedDatabaseUpdateQuery query("tst_settings");
@@ -93,14 +93,14 @@ void SyncServerTests::testUpdates()
         DatabaseUpdate::saveLastRecordNumbers();
     }
 
-    int clientId1 = DatabaseSettings().clientId();
-    QVariantList updates1 = server.updates(QVariantMap(), true, -1);
+    QString clientId1 = DatabaseSettings().clientId();
+    QVariantList updates1 = server.updates(QVariantMap(), true, "K1");
     QVariantMap clientRecordNumbers1 = server.clientRecordNumbers();
     QCOMPARE(updates1.count(), 2);
 
     init();
 
-    int clientId2 = DatabaseSettings().clientId();
+    QString clientId2 = DatabaseSettings().clientId();
     QVERIFY2(clientId1 != clientId2, "Client IDs are the same");
 
     {
@@ -130,14 +130,14 @@ void SyncServerTests::testUpdates()
     selectQuery.first();
     QCOMPARE(selectQuery.value("count").toInt(), 3);
 
-    QCOMPARE(server.updates(clientRecordNumbers2, true, -1).count(), 2);
+    QCOMPARE(server.updates(clientRecordNumbers2, true, "K1").count(), 2);
 
     {
         DatabaseSelectQuery selectQuery("tst_settings");
         selectQuery.singleWhere("key", "Just testing");
         QCOMPARE(selectQuery.first(), true);
         QCOMPARE(selectQuery.value("value").toString(), QString("Stress"));
-        QCOMPARE(server.updates(QVariantMap(), true, -1).count(), 4);
+        QCOMPARE(server.updates(QVariantMap(), true, "K1").count(), 4);
     }
 
     clientRecordNumbers2 = server.clientRecordNumbers();
@@ -156,6 +156,6 @@ void SyncServerTests::testUpdates()
         selectQuery.singleWhere("key", "Yet another test");
         QCOMPARE(selectQuery.first(), true);
         QCOMPARE(selectQuery.value("value").toString(), QString("Went well"));
-        QCOMPARE(server.updates(QVariantMap(), true, -1).count(), 4);
+        QCOMPARE(server.updates(QVariantMap(), true, "K1").count(), 4);
     }
 }

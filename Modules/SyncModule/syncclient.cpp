@@ -41,7 +41,7 @@ int SyncClient::updateFromClients()
     int clients = 0;
 
     foreach (QString clientId, session->availableClients().keys())
-        if (downloadUpdatesFromClient(clientId.toUInt()))
+        if (downloadUpdatesFromClient(clientId))
             clients++;
 
     return clients;
@@ -60,7 +60,7 @@ void SyncClient::sync()
  * @brief Download sync updates from the specified client
  * @param clientId ID of the client
  */
-bool SyncClient::downloadUpdatesFromClient(uint clientId)
+bool SyncClient::downloadUpdatesFromClient(const QString &clientId)
 {
     QObject parent;
     if (clientId == m_proxyConnection->databaseSettings(&parent)->clientId())

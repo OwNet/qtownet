@@ -2,6 +2,7 @@
 
 #include "settings.h"
 #include "uniqueidhelper.h"
+#include "applicationdatastorage.h"
 #ifndef TEST
 #include <QApplication>
 #include <QProcess>
@@ -50,15 +51,39 @@ void WorkspaceHelper::createCurrentWorkspaceIfDoesntExist()
 {
     Settings settings;
     settings.beginGroup("current_workspace");
-    QString name = tr("OwNet Network");
+
     if (!settings.contains("id")) {
         QString id = UniqueIdHelper::generate();
+        QString name = tr("OwNet Network");
         settings.setValue("id", id);
         settings.setValue("name", name);
         settings.endGroup();
         settings.beginGroup("workspaces");
         settings.setValue(id, name);
     }
+}
+
+/**
+ * @brief Creates a new workspace with the given name. This requires the app to be restarted and loaded
+ * with a different database.
+ * @param name Name of the workspace
+ */
+void WorkspaceHelper::createAndLoadNewWorkspace(const QString &name)
+{
+    {
+        QString id = UniqueIdHelper::generate();
+        Settings settings;
+        settings.beginGroup("current_workspace");
+        settings.setValue("id", id);
+        settings.setValue("name", name);
+        settings.endGroup();
+        settings.beginGroup("workspaces");
+        settings.setValue(id, name);
+    }
+#ifndef TEST
+    qApp->quit();
+    QProcess::startDetached(qApp->arguments()[0], qApp->arguments());
+#endif
 }
 
 /**
@@ -79,4 +104,24 @@ void WorkspaceHelper::loadWorkspace(const QString &id, const QString &name)
     qApp->quit();
     QProcess::startDetached(qApp->arguments()[0], qApp->arguments());
 #endif
+}
+
+/**
+ * @brief Remove the workspace from settings and also remove the database file from disk
+ * @param id ID of the workspace
+ */
+bool WorkspaceHelper::removeWorkspace(const QString &id)
+{
+    if (id == currentWorkspaceId())
+        return false;
+
+    QFile file(ApplicationDataStorage().databaseFilePath(id));
+    if (file.exists())
+        if (!file.remove())
+            return false;
+
+    Settings settings;
+    settings.beginGroup("workspaces");
+    settings.remove(id);
+    return true;
 }

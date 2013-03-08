@@ -46,7 +46,7 @@ void HistoryService::init(IRouter *router)
 bool HistoryService::registerPageQuery(QString url, QString title, int &id)
 {
     QObject parent;
-    IDatabaseUpdateQuery *query = m_proxyConnection->databaseUpdateQuery("pages", &parent);
+    IDatabaseUpdateQuery *query = m_proxyConnection->databaseUpdateQuery("pages", &parent, false);
     query->setUpdateDates(true);
     query->setColumnValue("absolute_uri", url);
     query->setColumnValue("title", title);
@@ -75,7 +75,7 @@ bool HistoryService::registerVisitQuery(int user_id, int page_id)
     count += 1;
 
 
-    IDatabaseUpdateQuery *query = m_proxyConnection->databaseUpdateQuery("user_visits_pages", &parent);
+    IDatabaseUpdateQuery *query = m_proxyConnection->databaseUpdateQuery("user_visits_pages", &parent, false);
     IDatabaseSelectQueryWhereGroup *where = query->whereGroup(IDatabaseSelectQuery::And);
     where->where("user_id", user_id);
     where->where("page_id", page_id);
@@ -96,7 +96,7 @@ bool HistoryService::registerEdgeQuery(int page_from_id, int page_to_id)
     group->where("page_id_to", page_to_id);
 
     if (!select->next()) {
-        IDatabaseUpdateQuery *query = m_proxyConnection->databaseUpdateQuery("edges", &parent);
+        IDatabaseUpdateQuery *query = m_proxyConnection->databaseUpdateQuery("edges", &parent, false);
         query->setUpdateDates(true);
         query->setColumnValue("page_id_from", page_from_id);
         query->setColumnValue("page_id_to", page_to_id);
@@ -119,12 +119,12 @@ bool HistoryService::registerTraverseQuery(int user_id, int page_from_id, int pa
     select->select("frequency");
     select->limit(1);
 
-    while (select->next()) {
+    if (select->next()) {
         freq = select->value("frequency").toInt();
     }
 
     freq += 1;
-    IDatabaseUpdateQuery *query = m_proxyConnection->databaseUpdateQuery("user_traverses_edges", &parent);
+    IDatabaseUpdateQuery *query = m_proxyConnection->databaseUpdateQuery("user_traverses_edges", &parent, false);
     IDatabaseSelectQueryWhereGroup *where = query->whereGroup(IDatabaseSelectQuery::And);
     where->where("edge_page_id_from", page_from_id);
     where->where("edge_page_id_to", page_to_id);

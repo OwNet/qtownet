@@ -16,7 +16,7 @@ public:
     void sync();
 
 private:
-    bool downloadUpdatesFromClient(uint clientId);
+    bool downloadUpdatesFromClient(const QString &clientId);
 
     IProxyConnection *m_proxyConnection;
 };
