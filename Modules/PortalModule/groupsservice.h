@@ -59,6 +59,15 @@ public:
      * @return count of pages for all groups
      */
     IResponse *allPagesCount(IRequest *req);
+    IResponse *myPagesCount(IRequest *req);
+
+    IResponse *myAdminPagesCount(IRequest *req);
+    IResponse *getMyAdminGroups(IRequest *req);
+
+    IResponse *getNotMyGroups(IRequest *req);
+    IResponse *notMyPagesCount(IRequest *req);
+
+    IResponse *declineUser(IRequest *req);
 private:
 
     bool isMember(uint user_id, uint group_id);
