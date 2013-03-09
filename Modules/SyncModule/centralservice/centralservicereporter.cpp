@@ -4,7 +4,10 @@
 #include "iproxyconnection.h"
 #include "syncserver.h"
 #include "isession.h"
+#include "idatabaseselectquery.h"
+#include "idatabasesettings.h"
 
+#include <QDateTime>
 #include <QSettings>
 #include <QDebug>
 
@@ -14,7 +17,11 @@ CentralServiceReporter::CentralServiceReporter(IProxyConnection *proxyConnection
 {
 }
 
-bool CentralServiceReporter::report()
+/**
+ * @brief If is currently a server, reports updates in sync journal to the central services.
+ * @return True if success
+ */
+bool CentralServiceReporter::reportSyncJournal()
 {
     QObject parent;
     if (!m_proxyConnection->session(&parent)->isServer())
@@ -60,6 +67,40 @@ bool CentralServiceReporter::report()
     return success;
 }
 
+/**
+ * @brief Reports the visited websites to the central services.
+ * @return True if success
+ */
+bool CentralServiceReporter::reportBrowsingHistory()
+{
+    QVariantList history;
+    IDatabaseSettings *settings = m_proxyConnection->databaseSettings(this);
+
+    IDatabaseSelectQuery *query = m_proxyConnection->databaseSelect("pages", this);
+    QString lastReport = settings->value("last_central_service_report", "");
+    if (lastReport != "")
+        query->singleWhere("date_updated", lastReport, IDatabaseSelectQuery::GreaterThan);
+
+    QString currentDate = QDateTime::currentDateTime().toString(Qt::ISODate);
+
+    while (query->next()) {
+        QVariantMap item;
+        item.insert("cache_id", m_proxyConnection->cacheId(query->value("absolute_uri").toString()));
+        item.insert("absolute_uri", query->value("absolute_uri").toString());
+        item.insert("accessed_at", query->value("date_updated").toString());
+        history.append(item);
+    }
+    if (!history.count())
+        return true;
+
+    if (sendHistory(history)) {
+        settings->setValue("last_central_service_report", currentDate);
+        return true;
+    }
+    m_proxyConnection->debugMessage("Central Service Report: Failed to report browsing hitory to the service");
+    return false;
+}
+
 QVariantMap CentralServiceReporter::getServerSyncState(bool *ok)
 {
     if (ok) *ok = false;
@@ -85,6 +126,22 @@ bool CentralServiceReporter::sendUpdates(const QVariantMap &message)
                                                          "Sync/ReportUpdates",
                                                          this);
     request->setPostBody(message);
+
+    IResponse *response = m_proxyConnection->callModule(request);
+    return response->status() == IResponse::OK;
+}
+
+bool CentralServiceReporter::sendHistory(const QVariantList &history)
+{
+    QVariantMap report;
+    report.insert("workspace_id", workspaceId());
+    report.insert("history", history);
+
+    IRequest *request = m_proxyConnection->createRequest(IRequest::POST,
+                                                         "central_service",
+                                                         "Sync/ReportHistory",
+                                                         this);
+    request->setPostBody(report);
 
     IResponse *response = m_proxyConnection->callModule(request);
     return response->status() == IResponse::OK;

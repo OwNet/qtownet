@@ -14,7 +14,8 @@ void CentralServiceSyncJob::execute()
         return;
 
     CentralServiceReporter reporter(m_proxyConnection);
-    reporter.report();
+    reporter.reportSyncJournal();
+    reporter.reportBrowsingHistory();
 
     m_syncMutex.unlock();
 }

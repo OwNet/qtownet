@@ -14,11 +14,13 @@ class CentralServiceReporter : public QObject
 public:
     explicit CentralServiceReporter(IProxyConnection *proxyConnection, QObject *parent = 0);
 
-    bool report();
+    bool reportSyncJournal();
+    bool reportBrowsingHistory();
 
 private:
     QVariantMap getServerSyncState(bool *ok = NULL);
     bool sendUpdates(const QVariantMap &message);
+    bool sendHistory(const QVariantList &history);
     QString workspaceId() const;
 
     IProxyConnection *m_proxyConnection;
