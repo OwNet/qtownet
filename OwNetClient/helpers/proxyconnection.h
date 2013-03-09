@@ -34,7 +34,7 @@ public:
     void debugMessage(const QVariant &message) const;
     int lastConnectionTraffic() const;
     QString generateUniqueId() const;
-
+    uint cacheId(const QString &url) const;
 };
 
 #endif // PROXYCONNECTION_H

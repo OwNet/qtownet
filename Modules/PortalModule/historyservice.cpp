@@ -43,19 +43,19 @@ void HistoryService::init(IRouter *router)
 //    return new QByteArray("{ ERROR : 'PROBLEM'}");
 //}
 
-bool HistoryService::registerPageQuery(QString url, QString title, int &id)
+bool HistoryService::registerPageQuery(QString url, QString title, uint &id)
 {
     QObject parent;
     IDatabaseUpdateQuery *query = m_proxyConnection->databaseUpdateQuery("pages", &parent, false);
     query->setUpdateDates(true);
     query->setColumnValue("absolute_uri", url);
     query->setColumnValue("title", title);
-    id = qHash(url);
+    id = m_proxyConnection->cacheId(url);
     query->singleWhere("id", id);
     return query->executeQuery();
 }
 
-bool HistoryService::registerVisitQuery(int user_id, int page_id)
+bool HistoryService::registerVisitQuery(int user_id, uint page_id)
 {
     int count = 0;
     QObject parent;
@@ -87,7 +87,7 @@ bool HistoryService::registerVisitQuery(int user_id, int page_id)
     return query->executeQuery();
 }
 
-bool HistoryService::registerEdgeQuery(int page_from_id, int page_to_id)
+bool HistoryService::registerEdgeQuery(uint page_from_id, uint page_to_id)
 {
     QObject parent;
     IDatabaseSelectQuery *select = m_proxyConnection->databaseSelect("edges", &parent);
@@ -105,7 +105,7 @@ bool HistoryService::registerEdgeQuery(int page_from_id, int page_to_id)
     return false;
 }
 
-bool HistoryService::registerTraverseQuery(int user_id, int page_from_id, int page_to_id)
+bool HistoryService::registerTraverseQuery(int user_id, uint page_from_id, uint page_to_id)
 {
 
     QObject parent;
@@ -140,8 +140,8 @@ bool HistoryService::registerTraverseQuery(int user_id, int page_from_id, int pa
 IResponse *HistoryService::visit(IRequest *req)
 {
     QObject parent;
-    int idfrom = -1;
-    int idto = -1;
+    uint idfrom = 0;
+    uint idto = 0;
     bool referrer = false;
     bool success = true;
     if (req->hasParameter("page")) {

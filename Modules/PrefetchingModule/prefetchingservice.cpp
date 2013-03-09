@@ -42,16 +42,16 @@ void PrefetchingService::init(IRouter *router)
 }
 
 
-void PrefetchingService::registerPredictionsQuery(int from, QStringList &urls)
+void PrefetchingService::registerPredictionsQuery(uint from, QStringList &urls)
 {
     if (urls.count() == 0) {
          return;
     }
 
     int i;
-    int hash;
+    uint hash;
     QObject parent;
-    QMap<int, QString> predictions;
+    QMap<uint, QString> predictions;
 
     // check if the prediction already exists and whether it was completed
     IDatabaseSelectQuery *select = m_proxyConnection->databaseSelect("prefetch_orders", &parent);
@@ -59,7 +59,7 @@ void PrefetchingService::registerPredictionsQuery(int from, QStringList &urls)
     group->where("completed", true);
     IDatabaseSelectQueryWhereGroup *inner = group->whereGroup(IDatabaseSelectQuery::Or);
     for (i = 0; i < urls.count(); ++i) {
-        hash = qHash(QUrl(urls.at(i)));
+        hash = m_proxyConnection->cacheId(urls.at(i));
         predictions.insert(hash, urls.at(i));
         inner->where("page_hash_to", hash);
     }
@@ -68,7 +68,7 @@ void PrefetchingService::registerPredictionsQuery(int from, QStringList &urls)
     select->select("page_hash_to");
 
     while (select->next()) {    // remove completed predictions from the map
-        hash = select->value("page_hash_to").toInt();
+        hash = select->value("page_hash_to").toUInt();
 
         if (predictions.contains(hash)) {
             predictions.remove(hash);
@@ -152,7 +152,7 @@ void PrefetchingService::registerPredictionsQuery(int from, QStringList &urls)
 
 bool PrefetchingService::completedPrefetchingQuery(QString url)
 {
-    int hash = qHash(url);
+    uint hash = m_proxyConnection->cacheId(url);
     QObject parent;
     IDatabaseUpdateQuery *query = NULL;
     query = m_proxyConnection->databaseUpdateQuery("prefetch_orders",  &parent,  false);
@@ -162,7 +162,7 @@ bool PrefetchingService::completedPrefetchingQuery(QString url)
     return query->executeQuery();
 }
 
-bool PrefetchingService::disablePredictionQuery(int hash)
+bool PrefetchingService::disablePredictionQuery(uint hash)
 {
     QObject parent;
     // delete prediction
@@ -178,7 +178,7 @@ IResponse *PrefetchingService::create(IRequest *req)
         QString page = req->parameterValue("page");
         QString padeIdString = req->parameterValue("pid");
         bool ok = false;
-        int pageId = padeIdString.toInt(&ok);
+        uint pageId = padeIdString.toUInt(&ok);
 
         if (ok) {
             QStringList list = getTopLinks(page);
@@ -213,7 +213,7 @@ IResponse *PrefetchingService::close(IRequest *req)
     if (req->hasParameter("pid")) {
         QString page = req->parameterValue("pid");
         bool ok = false;
-        int page_id = page.toInt(&ok, 10);
+        uint page_id = page.toUInt(&ok);
         if (ok)
         {
             disablePredictionQuery(page_id);
@@ -263,7 +263,7 @@ QStringList PrefetchingService::getTopLinks(QString url)
         int i;
         if (query->next()) {
             bool ok = false;
-            int id = query->value("id").toInt(&ok);
+            uint id = query->value("id").toUInt(&ok);
             if (ok) {
                 QDir dir(m_proxyConnection->settings(&parent)->value("application/data_folder_path").toString());
                 dir.cd("cache");

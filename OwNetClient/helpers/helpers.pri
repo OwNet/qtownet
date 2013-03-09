@@ -13,7 +13,8 @@ SOURCES += $${OwNetClientPath}/helpers/messagehelper.cpp \
     $${OwNetClientPath}/helpers/jsondocument/qjsonwriter.cpp \
     $${OwNetClientPath}/helpers/jsondocument/qjson.cpp \
     $${OwNetClientPath}/helpers/uniqueidhelper.cpp \
-    $${OwNetClientPath}/helpers/workspacehelper.cpp
+    $${OwNetClientPath}/helpers/workspacehelper.cpp \
+    $${OwNetClientPath}/helpers/cachehelper.cpp
 
 
 HEADERS  += $${OwNetClientPath}/helpers/messagehelper.h \
@@ -30,7 +31,8 @@ HEADERS  += $${OwNetClientPath}/helpers/messagehelper.h \
     $${OwNetClientPath}/helpers/jsondocument/jsondocument.h \
     $${OwNetClientPath}/helpers/jsondocument/qjson_p.h \
     $${OwNetClientPath}/helpers/uniqueidhelper.h \
-    $${OwNetClientPath}/helpers/workspacehelper.h
+    $${OwNetClientPath}/helpers/workspacehelper.h \
+    $${OwNetClientPath}/helpers/cachehelper.h
 
 INCLUDEPATH += $${OwNetClientPath}/helpers \
     $${OwNetClientPath}/helpers/jsondocument

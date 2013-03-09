@@ -31,9 +31,9 @@ public:
 private:
     static const int DEFAULT_PRIORITY = 10;
     IProxyConnection *m_proxyConnection;
-    void registerPredictionsQuery(int from, QStringList &url);
+    void registerPredictionsQuery(uint from, QStringList &url);
     bool completedPrefetchingQuery(QString url);
-    bool disablePredictionQuery(int hash);
+    bool disablePredictionQuery(uint hash);
 
     QStringList getTopLinks(QString url);
 
