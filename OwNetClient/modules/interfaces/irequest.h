@@ -4,6 +4,8 @@
 #include <QVariantMap>
 #include "iresponse.h"
 
+#undef DELETE
+
 class IRequest
 {
 public:
