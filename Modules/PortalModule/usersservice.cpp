@@ -145,14 +145,18 @@ IResponse *UsersService::edit(IRequest *req, uint id)
 
     query->setColumnValue("first_name", user["first_name"]);
     query->setColumnValue("last_name", user["last_name"]);
-    //query->setColumnValue("login", user["login"]);
+    query->setColumnValue("login", user["login"]);
     query->setColumnValue("email", user["email"]);
 
     query->singleWhere("id", user["id"]);
 
-    if (user.contains("password"))
-        query->setColumnValue("password", user["password"]);
+    if (user.contains("password")){
+        QString password = user["password"];
 
+        //ad salt
+        PortalHelper::addSalt(&password,&salt);
+        query->setColumnValue("password", password);
+    }
     if ( query->executeQuery() )
         return req->response(IResponse::OK);
     else
