@@ -56,10 +56,13 @@ bool HistoryService::registerPageQuery(QString url, QString title, uint &id)
     return query->executeQuery();
 }
 
-bool HistoryService::registerVisitQuery(int user_id, uint page_id)
+bool HistoryService::registerVisitQuery(QString user_id, uint page_id)
 {
     int count = 0;
     QObject parent;
+
+
+
 
     IDatabaseSelectQuery *select = m_proxyConnection->databaseSelect("user_visits_pages", &parent);
     IDatabaseSelectQueryWhereGroup *group = select->whereGroup(IDatabaseSelectQuery::And);
@@ -69,7 +72,7 @@ bool HistoryService::registerVisitQuery(int user_id, uint page_id)
     select->select("count");
     select->limit(1);
 
-    while (select->next()) {
+    if (select->next()) {
         count = select->value("count").toInt();
     }
 
@@ -83,7 +86,7 @@ bool HistoryService::registerVisitQuery(int user_id, uint page_id)
     query->setColumnValue("user_id", user_id);
     query->setColumnValue("page_id", page_id);
     query->setColumnValue("count", count);
-    query->setColumnValue("visited_at", QDateTime::currentDateTime().toString(Qt::ISODate));
+    //query->setColumnValue("visited_at", QDateTime::currentDateTime().toString(Qt::ISODate));
     query->setUpdateDates(true);
     return query->executeQuery();
 }
@@ -103,10 +106,10 @@ bool HistoryService::registerEdgeQuery(uint page_from_id, uint page_to_id)
         query->setColumnValue("page_id_to", page_to_id);
         return query->executeQuery();
     }
-    return false;
+    return true;
 }
 
-bool HistoryService::registerTraverseQuery(int user_id, uint page_from_id, uint page_to_id)
+bool HistoryService::registerTraverseQuery(QString user_id, uint page_from_id, uint page_to_id)
 {
 
     QObject parent;
@@ -143,7 +146,7 @@ IResponse *HistoryService::visit(IRequest *req)
     QObject parent;
     uint idfrom = 0;
     uint idto = 0;
-    bool referrer = false;
+
     bool success = true;
     if (req->hasParameter("page")) {
 
@@ -151,12 +154,15 @@ IResponse *HistoryService::visit(IRequest *req)
         if (page.contains("prefetch.ownet/api"))
             return req->response(IResponse::NOT_FOUND);
 
-        int user_id = -1;
+        int uid = -1;
+        QString user_id = "NULL";
         bool t = false;
 
         if (m_proxyConnection->session(&parent)->isLoggedIn()) {
-            user_id = m_proxyConnection->session(&parent)->value("logged").toInt(&t);
-            if (t == false) user_id = -1;
+            uid = m_proxyConnection->session(&parent)->value("logged").toInt(&t);
+            if (t == true && uid != -1) {
+                user_id = QString::number(uid);
+            }
         }
 
         // m_module->prefetchJob()->registerPage(id,  page);
@@ -164,33 +170,30 @@ IResponse *HistoryService::visit(IRequest *req)
         if (!registerPageQuery(page, "Titulok stranky", idto))
             success = false;
 
-        if (user_id != -1) {
-            if (!registerVisitQuery(user_id, idto))
-                success = false;
-        }
+
+        if (!registerVisitQuery(user_id, idto))
+            success = false;
+
 
 
         if (req->hasParameter("ref")) {
             page = req->parameterValue("ref");
             if (!page.isEmpty() && !page.contains("prefetch.ownet/api")) {
 
-                if (!registerPageQuery(page, "Titulok stranky", idfrom))
+                if (registerPageQuery(page, "Titulok stranky", idfrom)) {
+                    if (registerEdgeQuery(idfrom, idto)) {
+                        registerTraverseQuery(user_id, idfrom, idto);
+                    }
+                }
+                else {
                     success = false;
-                referrer = true;
+                }
                 // m_module->prefetchJob()->removePage(page);
             }
         }
 
 
-        if(success) {
-
-            if (referrer) {
-                registerEdgeQuery(idfrom, idto);
-
-                if (user_id != -1) {
-                    registerTraverseQuery(user_id, idfrom, idto);
-                }
-            }
+        if (success) {
             return req->response(QString("owNetPAGEID = %1;").arg(QString::number(idto)).toLatin1());
         }
     }
