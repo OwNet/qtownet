@@ -6,6 +6,8 @@
 #include "isession.h"
 #include "idatabaseselectquery.h"
 #include "idatabasesettings.h"
+#include "idatabaseselectqueryjoin.h"
+#include "idatabaseselectquerywheregroup.h"
 
 #include <QDateTime>
 #include <QSettings>
@@ -78,16 +80,19 @@ bool CentralServiceReporter::reportBrowsingHistory()
 
     IDatabaseSelectQuery *query = m_proxyConnection->databaseSelect("pages", this);
     QString lastReport = settings->value("last_central_service_report", "");
+    IDatabaseSelectQueryWhereGroup *joinOn = query->join("edges")->whereGroup(IDatabaseSelectQuery::And);
+    joinOn->where("edges.page_id_to", "pages.id", IDatabaseSelectQuery::Equal, false);
     if (lastReport != "")
-        query->singleWhere("date_updated", lastReport, IDatabaseSelectQuery::GreaterThan);
+        joinOn->where("edges.date_created", lastReport, IDatabaseSelectQuery::GreaterThan);
+    query->select("pages.id, pages.absolute_uri, edges.date_created");
 
     QString currentDate = QDateTime::currentDateTime().toString(Qt::ISODate);
 
     while (query->next()) {
         QVariantMap item;
-        item.insert("cache_id", m_proxyConnection->cacheId(query->value("absolute_uri").toString()));
+        item.insert("cache_id", query->value("id").toUInt());
         item.insert("absolute_uri", query->value("absolute_uri").toString());
-        item.insert("accessed_at", query->value("date_updated").toString());
+        item.insert("accessed_at", query->value("date_created").toString());
         history.append(item);
     }
     if (!history.count())

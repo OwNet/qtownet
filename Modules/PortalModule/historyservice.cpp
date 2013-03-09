@@ -51,6 +51,7 @@ bool HistoryService::registerPageQuery(QString url, QString title, uint &id)
     query->setColumnValue("absolute_uri", url);
     query->setColumnValue("title", title);
     id = m_proxyConnection->cacheId(url);
+    query->setColumnValue("id", id);
     query->singleWhere("id", id);
     return query->executeQuery();
 }
