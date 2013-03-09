@@ -1,5 +1,5 @@
 DROP TABLE user_traverses_edges;
-DROP TABLE user_visits_edges;
+DROP TABLE user_visits_pages;
 
 CREATE TABLE user_traverses_edges(user_id INTEGER,
 edge_page_id_from INTEGER NOT NULL,

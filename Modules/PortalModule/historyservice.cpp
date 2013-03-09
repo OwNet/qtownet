@@ -58,34 +58,31 @@ bool HistoryService::registerPageQuery(QString url, QString title, uint &id)
 
 bool HistoryService::registerVisitQuery(QString user_id, uint page_id)
 {
-    int count = 0;
+
     QObject parent;
 
 
+// Way of aggregation
+//    int count = 0;
+//    IDatabaseSelectQuery *select = m_proxyConnection->databaseSelect("user_visits_pages", &parent);
+//    IDatabaseSelectQueryWhereGroup *group = select->whereGroup(IDatabaseSelectQuery::And);
+//    group->where("user_id", user_id);
+//    group->where("page_id", page_id);
+//    select->select("count");
+//    select->limit(1);
 
+//    if (select->next()) {
+//        count = select->value("count").toInt();
+//    }
 
-    IDatabaseSelectQuery *select = m_proxyConnection->databaseSelect("user_visits_pages", &parent);
-    IDatabaseSelectQueryWhereGroup *group = select->whereGroup(IDatabaseSelectQuery::And);
-    group->where("user_id", user_id);
-    group->where("page_id", page_id);
-
-    select->select("count");
-    select->limit(1);
-
-    if (select->next()) {
-        count = select->value("count").toInt();
-    }
-
-    count += 1;
+//    count += 1;
 
 
     IDatabaseUpdateQuery *query = m_proxyConnection->databaseUpdateQuery("user_visits_pages", &parent, false);
-    IDatabaseSelectQueryWhereGroup *where = query->whereGroup(IDatabaseSelectQuery::And);
-    where->where("user_id", user_id);
-    where->where("page_id", page_id);
+    query->setType(IDatabaseUpdateQuery::InsertOrUpdate);
+    //IDatabaseSelectQueryWhereGroup *where = query->whereGroup(IDatabaseSelectQuery::And);
     query->setColumnValue("user_id", user_id);
     query->setColumnValue("page_id", page_id);
-    query->setColumnValue("count", count);
     //query->setColumnValue("visited_at", QDateTime::currentDateTime().toString(Qt::ISODate));
     query->setUpdateDates(true);
     return query->executeQuery();
@@ -176,21 +173,20 @@ IResponse *HistoryService::visit(IRequest *req)
 
 
 
-        if (req->hasParameter("ref")) {
-            page = req->parameterValue("ref");
-            if (!page.isEmpty() && !page.contains("prefetch.ownet/api")) {
+//        if (req->hasParameter("ref")) {
+//            page = req->parameterValue("ref");
+//            if (!page.isEmpty() && !page.contains("prefetch.ownet/api")) {
 
-                if (registerPageQuery(page, "Titulok stranky", idfrom)) {
-                    if (registerEdgeQuery(idfrom, idto)) {
-                        registerTraverseQuery(user_id, idfrom, idto);
-                    }
-                }
-                else {
-                    success = false;
-                }
-                // m_module->prefetchJob()->removePage(page);
-            }
-        }
+//                if (registerPageQuery(page, "Titulok stranky", idfrom)) {
+//                    if (registerEdgeQuery(idfrom, idto)) {
+//                        registerTraverseQuery(user_id, idfrom, idto);
+//                    }
+//                }
+//                else {
+//                    success = false;
+//                }
+//            }
+//        }
 
 
         if (success) {
