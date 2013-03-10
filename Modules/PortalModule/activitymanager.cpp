@@ -112,7 +112,7 @@ QVariantList ActivityManager::getActivities(bool *ok, QVariantMap &error, IReque
     else
     {
         QSqlQuery query;
-        query.prepare("SELECT * SELECT * FROM activities WHERE type=:type ORDER BY date_created DESC LIMIT :limit OFFSET :offset");
+        query.prepare("SELECT * FROM activities WHERE type = :type ORDER BY date_created DESC LIMIT :limit OFFSET :offset");
         query.bindValue(":limit",PER_PAGE);
         query.bindValue(":offset", (intPage-1)* PER_PAGE);
         query.bindValue(":type",type);
