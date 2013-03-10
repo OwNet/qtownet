@@ -51,17 +51,22 @@ int ActivityManager::PagesCount(IRequest *req)
     if(type == "")
     {
         QSqlQuery query;
-        query.prepare("SELECT * FROM activities");
+        query.prepare("SELECT COUNT(*) AS n FROM activities");
         if(query.exec())
-            return qCeil(query.numRowsAffected()/PER_PAGE);
+            query.first();
+            int x =  query.value(query.record().indexOf("n")).toInt();
+            return qCeil(x/(double)PER_PAGE);
 
     }
     else{
         QSqlQuery query;
-        query.prepare("SELECT * FROM activities WHERE type=:type");
+        query.prepare("SELECT COUNT(*) AS n FROM activities WHERE type=:type");
         query.bindValue(":type",type);
         if(query.exec())
-            return qCeil(query.numRowsAffected()/PER_PAGE);
+            query.first();
+            int x =  query.value(query.record().indexOf("n")).toInt();
+            return qCeil(x/(double)PER_PAGE);
+
     }
 }
 
@@ -82,7 +87,7 @@ QVariantList ActivityManager::getActivities(bool *ok, QVariantMap &error, IReque
     if(type == "")
     {
         QSqlQuery query;
-        query.prepare("SELECT * FROM activities ORDER BY date_create DESC LIMIT :limit OFFSET :offset");
+        query.prepare("SELECT * FROM activities ORDER BY date_created DESC LIMIT :limit OFFSET :offset");
         query.bindValue(":limit",PER_PAGE);
         query.bindValue(":offset", (intPage-1)* PER_PAGE);
         if(!query.exec())
@@ -107,7 +112,7 @@ QVariantList ActivityManager::getActivities(bool *ok, QVariantMap &error, IReque
     else
     {
         QSqlQuery query;
-        query.prepare("SELECT * SELECT * FROM activities WHERE type=:type ORDER BY date_create DESC LIMIT :limit OFFSET :offset");
+        query.prepare("SELECT * SELECT * FROM activities WHERE type=:type ORDER BY date_created DESC LIMIT :limit OFFSET :offset");
         query.bindValue(":limit",PER_PAGE);
         query.bindValue(":offset", (intPage-1)* PER_PAGE);
         query.bindValue(":type",type);
