@@ -18,6 +18,8 @@ public:
 
     IResponse *index(IRequest *req);
 
+    IResponse *pagesCount(IRequest *req);
+
 private:
 
     ActivityManager *m_activityManager;
