@@ -1,16 +1,15 @@
 each activity in activities
 	.row
-		.span1
+		.span2
 			label #{activity.content}
 		.span2
-		.offset
 			label #{new Date(activity.date_created).toLocaleDateString()}
-		.span4
+		.span2
 			label #{activity.user_name}
 		if (activity.type == 0)
-			.span4
+			.span3
 				label Aha
 		else
-			.span4
+			.span3
 				label Nieee
 

@@ -93,6 +93,7 @@ define( function (require) {
 
 				action.fetch({
 					success: function() {
+						$('div#user_profile').html( profileTableTemplate({user :App.user.toJSON()}))
 						$('div#pager').html( pagerRecommTemplate({action :action.toJSON()}))
 					},
 					error: function() {
