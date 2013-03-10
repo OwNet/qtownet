@@ -16,7 +16,7 @@
 #include <QCryptographicHash>
 #include "qmath.h"
 
-#define PER_PAGE 10
+#define PER_PAGE 2
 
 
 GroupsService::GroupsService(IProxyConnection *proxyConnection, QObject *parent) :
@@ -269,6 +269,8 @@ IResponse *GroupsService::create( IRequest *req)
         query->setColumnValue("has_approvement", has_approvement);
         query->setColumnValue("parent",parent);
         query->setColumnValue("salt", salt);
+
+       // m_proxyConnection->debugMessage(id + " name: " + name + " desc:" + description + " type:"+ group_type + " pass:" + password + " has_pass:" + has_password + " has_app:" + has_approvement + " parent: " + parent + " salt:" + salt);
 
         if (!query->executeQuery()){
              return req->response(IResponse::INTERNAL_SERVER_ERROR);

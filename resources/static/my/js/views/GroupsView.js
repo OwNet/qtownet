@@ -11,6 +11,7 @@ define( function (require) {
 	  , groupFormTemplate = require ("tpl/groupform")
 	  , groupDetailTemplate = require ("tpl/showgroupdetail")
 	  , listMembersGroupTemplate = require ("tpl/listmembersgroup")
+	  , pagerTemplate = require ("tpl/groups_pager")
 	  , UserModel = require ("share/models/UserModel")
 	  , GroupsModel = require ("share/models/GroupsModel")
 
@@ -134,15 +135,32 @@ define( function (require) {
 				
 				var groups = new GroupsCollection()
 
-				groups.fetch({data: {group_id: "1"}, 
+				groups.fetch({data: {page: "1"}, 
 					success: function() {
 						$('div#groups_list').html( groupsTableTemplate({groups :groups.toJSON(), filter: filter}))
-
 					},
 					error: function() {
 						App.showMessage("No groups founded")
 					},
 				})
+				var Action = Backbone.Model.extend({
+			  		urlRoot: '/api/groups/allPagesCount',
+					defaults: {	}
+				})
+
+				var action = new Action()
+
+
+				action.fetch({
+					success: function() {
+						$('div#pager').html( pagerTemplate({pages :action.pages.toJSON()}))
+					},
+					error: function() {
+						
+					},
+				})
+
+				
 
 				this.$el.html( groupsTemplate({ }) )
 				return this
@@ -166,17 +184,17 @@ define( function (require) {
 			saveGroup: function() {
 				var form = Form( $('form[name="create-group-form"]', this.$el) )
 				var data = form.toJSON()
-				if(data.has_approvement != "1"){
-					data.has_approvement = "0"
-					if(data.has_password != "1") {
-						data.has_password = "0"
+				if(data.has_approvement != 1){
+					data.has_approvement = 0
+					if(data.has_password != 1) {
+						data.has_password = 0
 					}
 				}
 
 				var group = new GroupsModel(data)
 
 
-				group.save({password: "", has_password: "0", group_type: "1", user_id: App.user ? App.user.id : "0"},{
+				group.save({group_type: 0},{
 					wait: true,
 					success: function() {
 						App.router.navigate('groups', {trigger: true})
