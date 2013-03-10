@@ -67,17 +67,17 @@ int ActivityManager::PagesCount(IRequest *req)
 
 
 
-QVariantList ActivityManager::getActivities(bool *ok, IRequest *req)
+QVariantList ActivityManager::getActivities(bool *ok, QVariantMap &error, IRequest *req)
 {
+
 
     QString type = req->parameterValue("type");
 
-    if(!(page= req->parameterValue("page").toInt())){
-        QVariantMap error;
+    int intPage;
+    if(!(intPage= req->parameterValue("page").toInt())){
         error.insert("page_number","error");
-        return req->response(QVariant(error), IResponse::BAD_REQUEST);
     }
-    int intPage = page.toInt();
+
 
     if(type == "")
     {

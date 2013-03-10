@@ -15,7 +15,7 @@ public:
     explicit ActivityManager(IProxyConnection *proxyConnection, QObject *parent = 0);
     
     bool createActivity(Activity &ac);
-    QVariantList getActivities(bool *ok, IRequest *req);
+    QVariantList getActivities(bool *ok, QVariantMap &error, IRequest *req);
     bool deleteActivity(uint objectId);
     bool editActivity(uint objectId, QString content);
     int PagesCount(IRequest *req);
