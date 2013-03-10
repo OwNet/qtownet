@@ -143,7 +143,7 @@ IResponse *MessagesService::index(IRequest *req)
 
         QSqlQuery query;
 
-        query.prepare("SELECT * FROM messages WHERE group_id = :group_id");
+        query.prepare("SELECT * FROM messages WHERE group_id = :group_id AND parent_id = 0 ORDER BY date_created");
         query.bindValue(":group_id",group_id);
 
         if(!query.exec())
@@ -157,11 +157,56 @@ IResponse *MessagesService::index(IRequest *req)
             message.insert("message", query.value(query.record().indexOf("message")));
             message.insert("user_id", query.value(query.record().indexOf("user_id")));
             message.insert("parent_id", query.value(query.record().indexOf("parent_id")));
+            message.insert("uid", query.value(query.record().indexOf("uid")));
+            message.insert("type", "message");
 
             messages.append(message);
         }
 
-        return req->response(QVariant(messages), IResponse::OK);
+
+        query.prepare("SELECT * FROM messages WHERE group_id = :group_id AND parent !=0 ORDER BY parent, date_created");
+        query.bindValue(":group_id",group_id);
+
+        if(!query.exec())
+            return req->response(IResponse::INTERNAL_SERVER_ERROR);
+
+        QVariantList comments;
+
+        while (query.next()) {
+            QVariantMap comment;
+            comment.insert("id", query.value(query.record().indexOf("_id")));
+            comment.insert("message", query.value(query.record().indexOf("message")));
+            comment.insert("user_id", query.value(query.record().indexOf("user_id")));
+            comment.insert("parent_id", query.value(query.record().indexOf("parent_id")));
+            comment.insert("uid", query.value(query.record().indexOf("uid")));
+            comment.insert("type", "comment");
+
+
+            comments.append(comment);
+        }
+        QVariantList response;
+        int n = messages.count();
+        bool atSpot = false;
+        int j=0;
+        for(int i = 0; i< n; i++)
+        {
+            QVariantMap v = messages.at(i).toMap();
+            response.append(v);
+            atSpot = false;
+            j = 0;
+            while(!atSpot || comments.at(j).toMap().value("parent_id") == v.value("uid")){
+                if(comments.at(j).toMap().value("parent_id") == v.value("uid")){
+                    response.append(comments.at(j));
+                    atSpot = true;
+                    comments.removeAt(j);
+                }
+                j++;
+            }
+
+
+        }
+
+        return req->response(QVariant(response), IResponse::OK);
     }
 
     else{
