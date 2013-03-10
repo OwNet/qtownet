@@ -34,10 +34,10 @@ void GroupsService::init(IRouter *router)
     router->addRoute("/addAdmin")->on(IRequest::POST, ROUTE(addAdmin) );
 
     router->addRoute("/my")->on(IRequest::GET, ROUTE(getUsersGroups) );
-    router->addRoute("/myPagesCount")->on(IRequest::GET, ROUTE(getUsersGroups) );
+    router->addRoute("/myPagesCount")->on(IRequest::GET, ROUTE(myPagesCount) );
 
     router->addRoute("/admin")->on(IRequest::GET, ROUTE(getMyAdminGroups) );
-    router->addRoute("/AdminPagesCount")->on(IRequest::GET, ROUTE(myAdminPagesCount) );
+    router->addRoute("/adminPagesCount")->on(IRequest::GET, ROUTE(myAdminPagesCount) );
 
     router->addRoute("/notMy")->on(IRequest::GET, ROUTE(getNotMyGroups) );
     router->addRoute("/notMyPagesCount")->on(IRequest::GET, ROUTE(notMyPagesCount) );
@@ -483,19 +483,19 @@ IResponse *GroupsService::myPagesCount(IRequest *req)
         req->response(IResponse::UNAUTHORIEZED);
 
     QSqlQuery query;
-    query.prepare("SELECT COUNT(*) AS n FROM groups"
-                  "INNER JOIN group_users ON groups.id = group_users.group_id"
-                  "WHERE group_users.status = 1 AND group_users.user_id = :user_id");
-    query.bindValue(":user_id", m_proxyConnection->session()->value("logged").toInt());
+    query.prepare("SELECT COUNT(*) AS n FROM groups "
+                  "INNER JOIN group_users ON groups.id = group_users.group_id "
+                  "WHERE group_users.status = 1 AND group_users.user_id = :user_id ");
+    query.bindValue(":user_id", m_proxyConnection->session()->value("logged").toString());
 
     if(!query.exec())
         return req->response(IResponse::INTERNAL_SERVER_ERROR);
 
-        query.first();
-        QVariantMap response;
-        int x =  query.value(query.record().indexOf("n")).toInt();
-        response.insert("pages", qCeil(x/(double)PER_PAGE));
-        return req->response(QVariant(response), IResponse::OK);
+    query.first();
+    QVariantMap response;
+    int x =  query.value(query.record().indexOf("n")).toInt();
+    response.insert("pages", qCeil(x/(double)PER_PAGE));
+    return req->response(QVariant(response), IResponse::OK);
 
 }
 
@@ -512,11 +512,11 @@ IResponse *GroupsService::getUsersGroups( IRequest *req)
             return req->response(QVariant(error), IResponse::BAD_REQUEST);
         }
 
-        query.prepare("SELECT * FROM groups"
-                      "INNER JOIN group_users ON groups.id = group_users.group_id"
-                      "WHERE group_users.status = 1 AND group_users.user_id = :user_id"
-                      "ORDER BY groups.name ASC LIMIT :limit OFFSET :offset");
-        query.bindValue(":user_id", m_proxyConnection->session()->value("logged").toInt());
+        query.prepare("SELECT * FROM groups "
+                      "INNER JOIN group_users ON groups.id = group_users.group_id "
+                      "WHERE group_users.status = 1 AND group_users.user_id = :user_id "
+                      "ORDER BY groups.name ASC LIMIT :limit OFFSET :offset ");
+        query.bindValue(":user_id", m_proxyConnection->session()->value("logged").toString());
         query.bindValue(":limit",PER_PAGE);
         query.bindValue(":offset", (page-1)* PER_PAGE);
 
@@ -534,7 +534,7 @@ IResponse *GroupsService::getUsersGroups( IRequest *req)
            groups.append(group);
         }
 
-        return req->response(groups,IResponse::OK);
+        return req->response(QVariant(groups),IResponse::OK);
     }
     return req->response(IResponse::UNAUTHORIEZED);
 
@@ -546,10 +546,10 @@ IResponse *GroupsService::myAdminPagesCount(IRequest *req)
         req->response(IResponse::UNAUTHORIEZED);
 
     QSqlQuery query;
-    query.prepare("SELECT COUNT(*) AS n FROM groups"
-                  "INNER JOIN group_users ON groups.id = group_users.group_id"
-                  "WHERE group_users.status = 1 AND group_users.user_id = :user_id");
-    query.bindValue(":user_id", m_proxyConnection->session()->value("logged").toInt());
+    query.prepare("SELECT COUNT(*) AS n FROM groups "
+                  "INNER JOIN group_users ON groups.id = group_users.group_id "
+                  "WHERE group_users.status = 1 AND group_users.user_id = :user_id ");
+    query.bindValue(":user_id", m_proxyConnection->session()->value("logged").toString());
 
     if(!query.exec())
         return req->response(IResponse::INTERNAL_SERVER_ERROR);
@@ -576,11 +576,11 @@ IResponse *GroupsService::getMyAdminGroups( IRequest *req)
             return req->response(QVariant(error), IResponse::BAD_REQUEST);
         }
 
-        query.prepare("SELECT * FROM groups"
-                      "INNER JOIN group_admins ON groups.id = group_admins.group_id"
-                      "WHERE group_admins.user_id = :user_id"
-                      "ORDER BY groups.name ASC LIMIT :limit OFFSET :offset");
-        query.bindValue(":user_id", m_proxyConnection->session()->value("logged").toInt());
+        query.prepare("SELECT * FROM groups "
+                      "INNER JOIN group_admins ON groups.id = group_admins.group_id "
+                      "WHERE group_admins.user_id = :user_id "
+                      "ORDER BY groups.name ASC LIMIT :limit OFFSET :offset ");
+        query.bindValue(":user_id", m_proxyConnection->session()->value("logged").toString());
         query.bindValue(":limit",PER_PAGE);
         query.bindValue(":offset", (page-1)* PER_PAGE);
 
@@ -610,10 +610,10 @@ IResponse *GroupsService::awaitingPagesCount(IRequest *req)
         req->response(IResponse::UNAUTHORIEZED);
 
     QSqlQuery query;
-    query.prepare("SELECT COUNT(*) AS n FROM groups"
-                  "INNER JOIN group_users ON groups.id = group_users.group_id"
-                  "WHERE group_users.status = 0 AND group_users.user_id = :user_id");
-    query.bindValue(":user_id", m_proxyConnection->session()->value("logged").toInt());
+    query.prepare("SELECT COUNT(*) AS n FROM groups "
+                  "INNER JOIN group_users ON groups.id = group_users.group_id "
+                  "WHERE group_users.status = 0 AND group_users.user_id = :user_id ");
+    query.bindValue(":user_id", m_proxyConnection->session()->value("logged").toString());
 
     if(!query.exec())
         return req->response(IResponse::INTERNAL_SERVER_ERROR);
@@ -639,11 +639,11 @@ IResponse *GroupsService::getAwaitingGroups( IRequest *req)
             return req->response(QVariant(error), IResponse::BAD_REQUEST);
         }
 
-        query.prepare("SELECT * FROM groups"
-                      "INNER JOIN group_users ON groups.id = group_users.group_id"
-                      "WHERE group_users.status = 0 AND group_users.user_id = :user_id"
-                      "ORDER BY groups.name ASC LIMIT :limit OFFSET :offset");
-        query.bindValue(":user_id", m_proxyConnection->session()->value("logged").toInt());
+        query.prepare("SELECT * FROM groups "
+                      "INNER JOIN group_users ON groups.id = group_users.group_id "
+                      "WHERE group_users.status = 0 AND group_users.user_id = :user_id "
+                      "ORDER BY groups.name ASC LIMIT :limit OFFSET :offset ");
+        query.bindValue(":user_id", m_proxyConnection->session()->value("logged").toString());
         query.bindValue(":limit",PER_PAGE);
         query.bindValue(":offset", (page-1)* PER_PAGE);
 
@@ -675,9 +675,9 @@ IResponse *GroupsService::notMyPagesCount(IRequest *req)
 
     QSqlQuery query;
     query.prepare("SELECT COUNT(*) AS n FROM groups WHERE id NOT IN "
-                  "(SELECT group_id FROM user_groups WHERE user_id = :user_id)");
+                  "(SELECT group_id FROM group_users WHERE user_id = :user_id)");
 
-    query.bindValue(":user_id", m_proxyConnection->session()->value("logged").toInt());
+    query.bindValue(":user_id", m_proxyConnection->session()->value("logged").toString());
 
     if(!query.exec())
         return req->response(IResponse::INTERNAL_SERVER_ERROR);
@@ -707,9 +707,9 @@ IResponse *GroupsService::getNotMyGroups( IRequest *req)
         }
 
         query.prepare("SELECT * FROM groups WHERE id NOT IN "
-                      "(SELECT group_id FROM user_groups WHERE user_id = :user_id)"
-                      "ORDER BY groups.name ASC LIMIT :limit OFFSET :offset");
-        query.bindValue(":user_id", m_proxyConnection->session()->value("logged").toInt());
+                      "(SELECT group_id FROM group_users WHERE user_id = :user_id) "
+                      "ORDER BY name ASC LIMIT :limit OFFSET :offset ");
+        query.bindValue(":user_id", m_proxyConnection->session()->value("logged").toString());
         query.bindValue(":limit",PER_PAGE);
         query.bindValue(":offset", (page-1)* PER_PAGE);
 
@@ -719,9 +719,9 @@ IResponse *GroupsService::getNotMyGroups( IRequest *req)
         while(query.next()){
 
            QVariantMap group;
-           group.insert("id",query.value(query.record().indexOf("groups.id")));
-           group.insert("name",query.value(query.record().indexOf("groups.name")));
-           group.insert("description",query.value(query.record().indexOf("groups.description")));
+           group.insert("id",query.value(query.record().indexOf("id")));
+           group.insert("name",query.value(query.record().indexOf("name")));
+           group.insert("description",query.value(query.record().indexOf("description")));
            group.insert("date_created", query.value(query.record().indexOf("date_created")));
            group.insert("status","not_member");
 
