@@ -72,14 +72,17 @@ QVariantList ActivityManager::getActivities(bool *ok, IRequest *req)
 
     QString type = req->parameterValue("type");
 
-    QString page = req->parameterValue("page");
-    //TODO add validation if page == ""
+    if(!(page= req->parameterValue("page").toInt())){
+        QVariantMap error;
+        error.insert("page_number","error");
+        return req->response(QVariant(error), IResponse::BAD_REQUEST);
+    }
     int intPage = page.toInt();
 
     if(type == "")
     {
         QSqlQuery query;
-        query.prepare("SELECT * FROM activities ORDERBY date_create DESC LIMIT :limit OFFSET :offset");
+        query.prepare("SELECT * FROM activities ORDER BY date_create DESC LIMIT :limit OFFSET :offset");
         query.bindValue(":limit",PER_PAGE);
         query.bindValue(":offset", (intPage-1)* PER_PAGE);
         if(!query.exec())
@@ -104,7 +107,7 @@ QVariantList ActivityManager::getActivities(bool *ok, IRequest *req)
     else
     {
         QSqlQuery query;
-        query.prepare("SELECT * SELECT * FROM activities WHERE type=:type ORDERBY date_create DESC LIMIT :limit OFFSET :offset");
+        query.prepare("SELECT * SELECT * FROM activities WHERE type=:type ORDER BY date_create DESC LIMIT :limit OFFSET :offset");
         query.bindValue(":limit",PER_PAGE);
         query.bindValue(":offset", (intPage-1)* PER_PAGE);
         query.bindValue(":type",type);
