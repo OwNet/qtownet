@@ -7,6 +7,7 @@ define( function (require) {
 	  , profileTemplate = require ("tpl/profile")
 	  , profileTableTemplate = require ("tpl/profiletable")
 	  , profileFormTemplate = require ("tpl/profileform")
+	  , pagerRecommTemplate = require ("tpl/profilepager")
 	  , showactivitiesTemplate = require ("tpl/showactivities")
 	  , UserModel = require ("share/models/UserModel")
 	  , ActivityModel = require ("share/models/ActivityModel")
@@ -27,6 +28,7 @@ define( function (require) {
 			events: {
 				'click form[name="profile-form"] button[name="update"]': 'saveProfile', 
 				'click a[name="editprofile"]': "editProfile",
+				'click a[name="RecommendationPager"]' : "showPage",
 			},
 
 			initialize: function() {
@@ -62,7 +64,48 @@ define( function (require) {
 				return this
 			},*/
 
-			showActivities: function() {
+			showActivities: function(page) {
+				var Action;
+				var ActivitiesCollection;
+				ActivitiesCollection = Backbone.Collection.extend({
+					url: '/api/activities',
+					model: ActivityModel
+				})
+
+				Action = Backbone.Model.extend({
+					urlRoot: '/api/activities/allPagesCount',
+					defaults: {	}
+				})
+
+				var activities = new ActivitiesCollection()
+
+				activities.fetch({data: {page: page},
+					success: function() {
+						$('div#activities').html( showactivitiesTemplate({activities: activities.toJSON()}))
+					},
+					error: function(){
+						App.showMessage("Error reading activities")
+					},
+				})
+
+				var action = new Action()
+
+
+				action.fetch({
+					success: function() {
+						$('div#pager').html( pagerRecommTemplate({action :action.toJSON()}))
+					},
+					error: function() {
+						
+					},
+				})
+
+				this.$el.html( profileTemplate({ }) )
+				return this
+
+			},
+
+			/*showActivities: function() {
 				var ActivitiesCollection = Backbone.Collection.extend({
 					url: '/api/activities',
 					model: ActivityModel
@@ -81,28 +124,7 @@ define( function (require) {
 				this.$el.html( profileTemplate({ }) )
 				return this
 
-			},
-
-			showActivities: function() {
-				var ActivitiesCollection = Backbone.Collection.extend({
-					url: '/api/activities',
-					model: ActivityModel
-				})
-
-				var activities = new ActivitiesCollection()
-
-				activities.fetch({
-					success: function() {
-						$('div#activities').html( showactivitiesTemplate({activities: activities.toJSON()}))
-					},
-					error: function(){
-						App.showMessage("Error reading activities")
-					},
-				})
-				this.$el.html( profileTemplate({ }) )
-				return this
-
-			},
+			},*/
 
 			show: function(){
 				        		     		
@@ -113,11 +135,17 @@ define( function (require) {
 					}
         		})
 
-        		this.showActivities()
+        		this.showActivities(1)
         		
 
 				this.$el.html( profileTemplate({ }) )
 				return this
+			},
+
+			showPage: function(e){
+				e.preventDefault();
+				var id = $(e.currentTarget).data("id");
+				this.showActivities(id)
 			},
 			saveProfile: function() {
 				var form = Form( $('form[name="profile-form"]', this.$el) )
