@@ -150,13 +150,13 @@ IResponse *UsersService::edit(IRequest *req, uint id)
 
     query->singleWhere("id", user["id"]);
 
-    if (user.contains("password")){
+    /*if (user.contains("password")){
         QString password = user["password"];
 
         //ad salt
         PortalHelper::addSalt(&password,&salt);
         query->setColumnValue("password", password);
-    }
+    }*/
     if ( query->executeQuery() )
         return req->response(IResponse::OK);
     else

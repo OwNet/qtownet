@@ -134,7 +134,7 @@ define( function (require) {
 				
 				var groups = new GroupsCollection()
 
-				groups.fetch({
+				groups.fetch({data: {group_id: "1"}, 
 					success: function() {
 						$('div#groups_list').html( groupsTableTemplate({groups :groups.toJSON(), filter: filter}))
 
