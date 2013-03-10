@@ -507,6 +507,7 @@ IResponse *GroupsService::getUsersGroups( IRequest *req)
     QSqlQuery query;
 
     if(m_proxyConnection->session()->value("logged") !=""){
+
         int page;
         if(!(page= req->parameterValue("page").toInt())){
             QVariantMap error;
@@ -526,12 +527,20 @@ IResponse *GroupsService::getUsersGroups( IRequest *req)
             return req->response(IResponse::INTERNAL_SERVER_ERROR);
 
         while(query.next()){
+           QString user_id = m_proxyConnection->session()->value("logged").toString();
 
            QVariantMap group;
            group.insert("id",query.value(query.record().indexOf("id")));
            group.insert("name",query.value(query.record().indexOf("name")));
            group.insert("description",query.value(query.record().indexOf("description")));
            group.insert("date_created", query.value(query.record().indexOf("date_created")));
+
+           if(isAdmin(user_id.toUInt(), query.record().indexOf("id")))
+               group.insert("admin","1");
+           else
+               group.insert("admin","0");
+
+          group.insert("member","1");
 
            groups.append(group);
         }
@@ -549,8 +558,9 @@ IResponse *GroupsService::myAdminPagesCount(IRequest *req)
 
     QSqlQuery query;
     query.prepare("SELECT COUNT(*) AS n FROM groups "
-                  "INNER JOIN group_users ON groups.id = group_users.group_id "
-                  "WHERE group_users.status = 1 AND group_users.user_id = :user_id ");
+                  "INNER JOIN group_admins ON groups.id = group_admins.group_id "
+                   "WHERE group_admins.user_id = :user_id ");
+
     query.bindValue(":user_id", m_proxyConnection->session()->value("logged").toString());
 
     if(!query.exec())
@@ -592,10 +602,13 @@ IResponse *GroupsService::getMyAdminGroups( IRequest *req)
         while(query.next()){
 
            QVariantMap group;
-           group.insert("id",query.value(query.record().indexOf("groups.id")));
-           group.insert("name",query.value(query.record().indexOf("groups.name")));
-           group.insert("description",query.value(query.record().indexOf("groups.description")));
+           group.insert("id",query.value(query.record().indexOf("id")));
+           group.insert("name",query.value(query.record().indexOf("name")));
+           group.insert("description",query.value(query.record().indexOf("description")));
            group.insert("date_created", query.value(query.record().indexOf("date_created")));
+           group.insert("admin","1");
+           group.insert("member","1");
+
            groups.append(group);
         }
 
@@ -659,6 +672,8 @@ IResponse *GroupsService::getAwaitingGroups( IRequest *req)
            group.insert("name",query.value(query.record().indexOf("name")));
            group.insert("description",query.value(query.record().indexOf("description")));
            group.insert("date_created", query.value(query.record().indexOf("date_created")));
+           group.insert("admin","0");
+           group.insert("member","0");
 
            groups.append(group);
         }
@@ -726,6 +741,8 @@ IResponse *GroupsService::getNotMyGroups( IRequest *req)
            group.insert("description",query.value(query.record().indexOf("description")));
            group.insert("date_created", query.value(query.record().indexOf("date_created")));
            group.insert("status","not_member");
+           group.insert("admin","0");
+           group.insert("member","0");
 
            groups.append(group);
         }
@@ -1175,7 +1192,6 @@ IResponse *GroupsService::getApprovements(IRequest *req)
 
 IResponse *GroupsService::getGroupUsers( IRequest *req)
 {
-
     bool ok;
     QVariantMap error;
 

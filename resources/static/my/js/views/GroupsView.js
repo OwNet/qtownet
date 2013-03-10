@@ -108,7 +108,8 @@ define( function (require) {
 			showPage: function(e){
 				e.preventDefault();
 				var id = $(e.currentTarget).data("id");
-				this.show("all",id)
+				var filter = $(e.currentTarget).data("filter");
+				this.show(filter,id)
 			},
 
 			deleteGroup: function(e){
@@ -155,7 +156,7 @@ define( function (require) {
 					})
 				
 					Action = Backbone.Model.extend({
-				  		urlRoot: '/api/groups/AdminPagesCount',
+				  		urlRoot: '/api/groups/adminPagesCount',
 						defaults: {	}
 					})
 				} else if (filter == "my") {
@@ -208,7 +209,7 @@ define( function (require) {
 
 				action.fetch({
 					success: function() {
-						$('div#pager').html( pagerTemplate({action :action.toJSON()}))
+						$('div#pager').html( pagerTemplate({action :action.toJSON(), filter: filter}))
 					},
 					error: function() {
 						
@@ -296,7 +297,7 @@ define( function (require) {
         		group.fetch({
         			success: function() {
 
-						action.save({group_id: id },{
+						action.fetch({data: {group_id: group.id}, 
 							wait: true,
 							success: function() {
 								App.router.navigate('listMembers', {trigger: true})
