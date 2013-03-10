@@ -16,7 +16,7 @@
 #include <QCryptographicHash>
 #include "qmath.h"
 
-#define PER_PAGE 2
+#define PER_PAGE 1
 
 
 GroupsService::GroupsService(IProxyConnection *proxyConnection, QObject *parent) :
@@ -34,7 +34,7 @@ void GroupsService::init(IRouter *router)
     router->addRoute("/addAdmin")->on(IRequest::POST, ROUTE(addAdmin) );
 
     router->addRoute("/my")->on(IRequest::GET, ROUTE(getUsersGroups) );
-    router->addRoute("/myPagesCount")->on(IRequest::GET, ROUTE(getUsersGroups) );
+    router->addRoute("/myPagesCount")->on(IRequest::GET, ROUTE(myPagesCount) );
 
     router->addRoute("/admin")->on(IRequest::GET, ROUTE(getMyAdminGroups) );
     router->addRoute("/AdminPagesCount")->on(IRequest::GET, ROUTE(myAdminPagesCount) );

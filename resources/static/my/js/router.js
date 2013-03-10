@@ -69,7 +69,7 @@ define( function (require) {
 		},
 
 		groups: function() {
-			this.views.groups.show("all")
+			this.views.groups.show("all", 1)
 			this.activate("#/groups")
 		},
 

@@ -31,6 +31,7 @@ define( function (require) {
 				'click a[name="filter"]' : "showWithFilter",
 				'click a[name="leave"]' : "deleteUser",
 				'click a[name="listMembers"]' : "listMembers",
+				'click a[name="pager"]' : "showPage",
 			},
 
 			initialize: function() {
@@ -65,7 +66,7 @@ define( function (require) {
 					success: function() {
 						App.router.navigate('groups', {trigger: true})
 						App.showMessage("Joined", "alert-success")
-						this.show("all")
+						this.show("all",1)
 					},
 					error: function() {
 						App.showMessage("Joining failed")
@@ -90,7 +91,7 @@ define( function (require) {
 					success: function() {
 						App.router.navigate('groups', {trigger: true})
 						App.showMessage("Leaved", "alert-success")
-						this.show("all")
+						this.show("all",1)
 					},
 					error: function() {
 						App.showMessage("Leaving failed")
@@ -101,7 +102,13 @@ define( function (require) {
 			showWithFilter: function(e){
 				e.preventDefault();
 				var filter = $(e.currentTarget).data("filter");
-				this.show(filter)
+				this.show(filter,1)
+			},
+
+			showPage: function(e){
+				e.preventDefault();
+				var id = $(e.currentTarget).data("id");
+				this.show("all",id)
 			},
 
 			deleteGroup: function(e){
@@ -118,7 +125,7 @@ define( function (require) {
         			success: function() {
         				App.router.navigate("#/groups", {trigger: true})
         				App.showMessage("Group deleted")
-						this.show("all")
+						this.show("all", 1)
 					},
 					error: function() {
 						App.showMessage("Cannot delete")
@@ -127,15 +134,66 @@ define( function (require) {
 
 			},
 
-			show: function(filter) {
-				var GroupsCollection = Backbone.Collection.extend({
-		  			url: '/api/groups',
-		  			model: GroupsModel
-				})
+			show: function(filter, page) {
+
+				var GroupsCollection ;
+				var Action;
+				if (filter == "all") {
+					GroupsCollection= Backbone.Collection.extend({
+			  			url: '/api/groups',
+			  			model: GroupsModel
+					})
 				
+					Action = Backbone.Model.extend({
+				  		urlRoot: '/api/groups/allPagesCount',
+						defaults: {	}
+					})
+				} else if (filter == "admin") {
+					GroupsCollection= Backbone.Collection.extend({
+			  			url: '/api/groups/admin',
+			  			model: GroupsModel
+					})
+				
+					Action = Backbone.Model.extend({
+				  		urlRoot: '/api/groups/AdminPagesCount',
+						defaults: {	}
+					})
+				} else if (filter == "my") {
+					GroupsCollection= Backbone.Collection.extend({
+			  			url: '/api/groups/my',
+			  			model: GroupsModel
+					})
+				
+					Action = Backbone.Model.extend({
+				  		urlRoot: '/api/groups/myPagesCount',
+						defaults: {	}
+					})
+				} else if (filter == "wait") {
+					GroupsCollection= Backbone.Collection.extend({
+			  			url: '/api/groups/awaiting',
+			  			model: GroupsModel
+					})
+				
+					Action = Backbone.Model.extend({
+				  		urlRoot: '/api/groups/awaitingPagesCount',
+						defaults: {	}
+					})
+				} else if (filter == "notMy") {
+					GroupsCollection= Backbone.Collection.extend({
+			  			url: '/api/groups/notMy',
+			  			model: GroupsModel
+					})
+				
+					Action = Backbone.Model.extend({
+				  		urlRoot: '/api/groups/notMyPagesCount',
+						defaults: {	}
+					})
+				}
+
+
 				var groups = new GroupsCollection()
 
-				groups.fetch({data: {page: "1"}, 
+				groups.fetch({data: {page: page}, 
 					success: function() {
 						$('div#groups_list').html( groupsTableTemplate({groups :groups.toJSON(), filter: filter}))
 					},
@@ -143,17 +201,14 @@ define( function (require) {
 						App.showMessage("No groups founded")
 					},
 				})
-				var Action = Backbone.Model.extend({
-			  		urlRoot: '/api/groups/allPagesCount',
-					defaults: {	}
-				})
+				
 
 				var action = new Action()
 
 
 				action.fetch({
 					success: function() {
-						$('div#pager').html( pagerTemplate({pages :action.pages.toJSON()}))
+						$('div#pager').html( pagerTemplate({action :action.toJSON()}))
 					},
 					error: function() {
 						
@@ -184,17 +239,19 @@ define( function (require) {
 			saveGroup: function() {
 				var form = Form( $('form[name="create-group-form"]', this.$el) )
 				var data = form.toJSON()
-				if(data.has_approvement != 1){
-					data.has_approvement = 0
-					if(data.has_password != 1) {
-						data.has_password = 0
+				if(data.has_approvement != "1"){
+					data.has_approvement = "0"
+					if(data.has_password != "1") {
+						data.has_password = "0"
 					}
+				} else {
+					data.has_approvement = "0"
 				}
 
 				var group = new GroupsModel(data)
 
 
-				group.save({group_type: 0},{
+				group.save({group_type: 0, has_password: 0},{
 					wait: true,
 					success: function() {
 						App.router.navigate('groups', {trigger: true})
