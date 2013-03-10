@@ -418,7 +418,7 @@ IResponse *GroupsService::index(IRequest *req)
 {
     int  page;
 
-    if(!(page= req->parameterValue("group_id").toInt())){
+    if(!(page= req->parameterValue("page").toInt())){
         QVariantMap error;
         error.insert("page_number","error");
         return req->response(QVariant(error), IResponse::BAD_REQUEST);
@@ -430,7 +430,7 @@ IResponse *GroupsService::index(IRequest *req)
 
 
     QSqlQuery query;
-    query.prepare("SELECT * FROM groups ORDERBY name LIMIT :limit OFFSET :offset");
+    query.prepare("SELECT * FROM groups ORDER BY name LIMIT :limit OFFSET :offset");
     query.bindValue(":limit",PER_PAGE);
     query.bindValue(":offset", (page-1)* PER_PAGE);
 
