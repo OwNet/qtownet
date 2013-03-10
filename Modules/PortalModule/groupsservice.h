@@ -68,6 +68,9 @@ public:
     IResponse *notMyPagesCount(IRequest *req);
 
     IResponse *declineUser(IRequest *req);
+
+    IResponse *getAwaitingGroups(IRequest *req);
+    IResponse *awaitingPagesCount(IRequest *req);
 private:
 
     bool isMember(uint user_id, uint group_id);
