@@ -35,12 +35,6 @@ bool CentralServiceReporter::reportSyncJournal()
         m_proxyConnection->debugMessage("Central Service Report: Failed to access the service");
         return false;
     }
-    foreach (QString key, serverState.keys()) {
-        foreach (QString p, serverState.value(key).toMap().keys()) {
-            int val = serverState.value(key).toMap().value(p).toInt();
-            qDebug() << val;
-        }
-    }
 
     SyncServer syncServer(m_proxyConnection);
     QVariantList updates = syncServer.updates(serverState, true, QString());
@@ -80,11 +74,11 @@ bool CentralServiceReporter::reportBrowsingHistory()
 
     IDatabaseSelectQuery *query = m_proxyConnection->databaseSelect("pages", this);
     QString lastReport = settings->value("last_central_service_report", "");
-    IDatabaseSelectQueryWhereGroup *joinOn = query->join("edges")->whereGroup(IDatabaseSelectQuery::And);
-    joinOn->where("edges.page_id_to", "pages.id", IDatabaseSelectQuery::Equal, false);
+    IDatabaseSelectQueryWhereGroup *joinOn = query->join("user_visits_pages")->whereGroup(IDatabaseSelectQuery::And);
+    joinOn->where("user_visits_pages.page_id", "pages.id", IDatabaseSelectQuery::Equal, false);
     if (lastReport != "")
-        joinOn->where("edges.date_created", lastReport, IDatabaseSelectQuery::GreaterThan);
-    query->select("pages.id, pages.absolute_uri, edges.date_created");
+        joinOn->where("user_visits_pages.date_created", lastReport, IDatabaseSelectQuery::GreaterThan);
+    query->select("pages.id, pages.absolute_uri, user_visits_pages.date_created");
 
     QString currentDate = QDateTime::currentDateTime().toString(Qt::ISODate);
 
