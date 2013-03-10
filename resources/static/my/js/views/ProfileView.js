@@ -156,7 +156,7 @@ define( function (require) {
 			},
 
 			updateNavbar: function() {
-				$('ul#user-navbar').html( userNavbarTemplate({ user:  App.user ? App.user.toJSON() : false }))
+				$('#navbar').html( userNavbarTemplate({ user:  App.user ? App.user.toJSON() : false }))
 			},
 
 			

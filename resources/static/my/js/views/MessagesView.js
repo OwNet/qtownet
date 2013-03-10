@@ -20,7 +20,7 @@ define( function (require) {
 	  , Form = require("share/utils/form")
 
 
-	var GroupsView = Backbone.View.extend({
+	var Messages = Backbone.View.extend({
 
 			events: {
 				'click form[name="create-group-form"] button[name="submit"]': 'saveGroup',
@@ -338,6 +338,6 @@ define( function (require) {
 			
 	})
 
-	return GroupsView;
+	return MessagesView;
 
 });

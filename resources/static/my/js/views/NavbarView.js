@@ -25,7 +25,7 @@ define( function (require) {
 			},
 
 			render: function() {
-				var $el = $('ul#user-navbar').html( userNavbarTemplate({ user:  App.user ? App.user.toJSON() : false }))
+				var $el = $('#navbar').html( userNavbarTemplate({ user:  App.user ? App.user.toJSON() : false }))
 			},
 
 			onLogoutClick: function() {
