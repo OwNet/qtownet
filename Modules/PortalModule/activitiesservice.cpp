@@ -53,7 +53,13 @@ IResponse *ActivitiesService::index(IRequest *req)
     }
 
     bool ok;
-    QVariantList activities = m_activityManager->getActivities(&ok, req);
+
+    QVariantList activities = m_activityManager->getActivities(&ok, error,req);
+
+    if(!error.empty())
+    {
+       return req->response(QVariant(error), IResponse::BAD_REQUEST);
+    }
 
     if(ok)
         return req->response(QVariant(activities), IResponse::OK);

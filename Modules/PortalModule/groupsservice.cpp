@@ -125,8 +125,12 @@ bool GroupsService::checkGroupPassword(QString password, QString group_id)
     if(!query.exec()){
         return false;
     }
+
+    query.first();
+
     QString salt = query.value(query.record().indexOf("salt")).toString();
     QString group_password = query.value(query.record().indexOf("password")).toString();
+
 
     QByteArray pass_plus_salt = (password+salt).toLatin1();
     QString salted_pass(QCryptographicHash::hash(pass_plus_salt,QCryptographicHash::Sha1).toHex());
@@ -756,7 +760,7 @@ IResponse *GroupsService::joinGroup(IRequest *req)
     QString group_id = reqJson["group_id"].toString();
 
     if(!m_proxyConnection->session()->isLoggedIn())
-        req->response(IResponse::UNAUTHORIEZED);
+        return req->response(IResponse::UNAUTHORIEZED);
     QString user_id = m_proxyConnection->session()->value("logged").toString();
 
 
@@ -770,82 +774,37 @@ IResponse *GroupsService::joinGroup(IRequest *req)
     query.prepare("SELECT * FROM group_users WHERE user_id=:user_id");
     query.bindValue(":user_id",user_id);
     if(!query.exec())
-        req->response(IResponse::INTERNAL_SERVER_ERROR);
+        return req->response(IResponse::INTERNAL_SERVER_ERROR);
 
     if(this->isMember(user_id.toUInt(),group_id.toUInt()) || query.value(query.record().indexOf("status")).toString() == "0" ){
-       req->response(IResponse::CONFLICT);
+       return req->response(IResponse::CONFLICT);
     }
 
     query.prepare("SELECT * FROM groups WHERE id = :id");
     query.bindValue(":id", group_id);
 
 
-    if(!query.exec()){
-        if(!query.first()){
-             error.insert("error","group_id");
-             return req->response(QVariant(error),IResponse::BAD_REQUEST);
-
-        }
+    if(!query.exec())
         return req->response(QVariant(error),IResponse::INTERNAL_SERVER_ERROR);
+
+    if(!query.first()){
+         error.insert("error","group_id");
+         return req->response(QVariant(error),IResponse::BAD_REQUEST);
+
     }
 
+     // if group has password
+     if( query.value(query.record().indexOf("has_password")).toString() == "1"){
+         QString password = reqJson["password"].toString();
 
-         // if group has password
-         if( query.value(query.record().indexOf("has_password")) == "1"){
-             QString password = reqJson["password"].toString();
+         if(password == ""){
 
-             if(password == ""){
-
-                 error.insert("password","required");
-                 return req->response(QVariant(error),IResponse::BAD_REQUEST);
-             }
-
-             if(this->checkGroupPassword(password,group_id)){
-                   //vytvorime zaznam so statusom 1
-                 IDatabaseUpdateQuery *q = m_proxyConnection->databaseUpdateQuery("group_users", &parent);
-
-                 q->setUpdateDates(true); // sam nastavi v tabulke datumy date_created a date_updated
-
-                 q->setColumnValue("user_id", user_id);
-                 q->setColumnValue("group_id", group_id);
-                 q->setColumnValue("status", "1");
-
-                 if(!q->executeQuery()){
-                     return req->response(IResponse::INTERNAL_SERVER_ERROR);
-                 }
-                 else{
-                     QVariantMap result;
-                     result.insert("satus","member");
-                     return req->response(QVariant(result), IResponse::OK);
-                 }
-             }
-             else{
-                 error.insert("error","password");
-                 return req->response(QVariant(error),IResponse::BAD_REQUEST);
-             }
-
+             error.insert("password","required");
+             return req->response(QVariant(error),IResponse::BAD_REQUEST);
          }
-         // group has approvement
-         else if(query.value(query.record().indexOf("has_approvement")) == "1"){
-             IDatabaseUpdateQuery *q = m_proxyConnection->databaseUpdateQuery("group_users", &parent);
 
-             q->setUpdateDates(true); // sam nastavi v tabulke datumy date_created a date_updated
-
-             q->setColumnValue("user_id", user_id);
-             q->setColumnValue("group_id", group_id);
-             q->setColumnValue("status", "0");
-
-             if(!q->executeQuery()){
-                 return req->response(QVariant(error),IResponse::INTERNAL_SERVER_ERROR);
-             }
-             else{
-                 QVariantMap result;
-                 result.insert("status","waiting");
-                 return req->response(QVariant(result), IResponse::OK);
-             }
-         }
-         // group has no password and no approvement
-         else{
+         if(this->checkGroupPassword(password,group_id)){
+               //vytvorime zaznam so statusom 1
              IDatabaseUpdateQuery *q = m_proxyConnection->databaseUpdateQuery("group_users", &parent);
 
              q->setUpdateDates(true); // sam nastavi v tabulke datumy date_created a date_updated
@@ -855,12 +814,56 @@ IResponse *GroupsService::joinGroup(IRequest *req)
              q->setColumnValue("status", "1");
 
              if(!q->executeQuery()){
-                 return req->response(QVariant(error),IResponse::INTERNAL_SERVER_ERROR);
+                 return req->response(IResponse::INTERNAL_SERVER_ERROR);
+             }
+             else{
+                 QVariantMap result;
+                 result.insert("satus","member");
+                 return req->response(QVariant(result), IResponse::OK);
              }
          }
-         QVariantMap result;
-         result.insert("satus","member");
-         return req->response(QVariant(result), IResponse::OK);
+         else{
+             error.insert("error","password");
+             return req->response(QVariant(error),IResponse::BAD_REQUEST);
+         }
+
+     }
+         // group has approvement
+     if(query.value(query.record().indexOf("has_approvement")).toString() == "1"){
+         IDatabaseUpdateQuery *q = m_proxyConnection->databaseUpdateQuery("group_users", &parent);
+
+         q->setUpdateDates(true); // sam nastavi v tabulke datumy date_created a date_updated
+
+         q->setColumnValue("user_id", user_id);
+         q->setColumnValue("group_id", group_id);
+         q->setColumnValue("status", "0");
+
+         if(!q->executeQuery()){
+             return req->response(QVariant(error),IResponse::INTERNAL_SERVER_ERROR);
+         }
+         else{
+             QVariantMap result;
+             result.insert("status","waiting");
+             return req->response(QVariant(result), IResponse::OK);
+         }
+     }
+     // group has no password and no approvement
+     else{
+         IDatabaseUpdateQuery *q = m_proxyConnection->databaseUpdateQuery("group_users", &parent);
+
+         q->setUpdateDates(true); // sam nastavi v tabulke datumy date_created a date_updated
+
+         q->setColumnValue("user_id", user_id);
+         q->setColumnValue("group_id", group_id);
+         q->setColumnValue("status", "1");
+
+         if(!q->executeQuery()){
+             return req->response(QVariant(error),IResponse::INTERNAL_SERVER_ERROR);
+         }
+     }
+     QVariantMap result;
+     result.insert("satus","member");
+     return req->response(QVariant(result), IResponse::OK);
 }
 
 
