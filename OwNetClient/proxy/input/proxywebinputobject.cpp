@@ -14,23 +14,12 @@
 #include <QBuffer>
 
 ProxyWebInputObject::ProxyWebInputObject(ProxyRequest *request, QObject *parent)
-    : ProxyInputObject(request, parent), m_readHeaders(false), m_retryIfFailed(false)
+    : ProxyInputObject(request, parent), m_readHeaders(false)
 {
 }
 
 void ProxyWebInputObject::readRequest()
 {
-    QString myId = DatabaseSettings().clientId();
-
-    DatabaseSelectQuery query("client_caches");
-    IDatabaseSelectQueryWhereGroup *where = query.whereGroup(IDatabaseSelectQuery::And);
-    where->where("cache_id", m_request->hashCode());
-    where->where("client_id", myId, IDatabaseSelectQuery::NotEqual);
-    query.orderBy("date_created", IDatabaseSelectQuery::Descending);
-    while (query.next())
-        if (isClientOnline(query.value("client_id").toString()))
-            m_clientsToTry.append(query.value("client_id").toString());
-
     createReply();
 
     ProxyDownloads::instance()->trafficCounter()->increaseCurrentTraffic();
@@ -49,13 +38,6 @@ void ProxyWebInputObject::readReply()
 void ProxyWebInputObject::error(QNetworkReply::NetworkError)
 {
     QNetworkReply *reply = qobject_cast<QNetworkReply*>(sender());
-
-    if (m_retryIfFailed) {
-        reply->deleteLater();
-        m_retryIfFailed = false;
-        createReply();
-        return;
-    }
 
     if (!m_readHeaders) {
         readResponseHeaders(reply);
@@ -101,10 +83,9 @@ void ProxyWebInputObject::createReply()
     QNetworkReply *reply = NULL;
     QNetworkRequest request;
 
-    if (m_clientsToTry.count()) {
-        QStringList ipAndPort = clientIpAndPort(m_clientsToTry.takeFirst()).split(":");
+    if (!m_proxy.isEmpty()) {
+        QStringList ipAndPort = clientIpAndPort(m_proxy).split(":");
         manager->setProxy(QNetworkProxy(QNetworkProxy::HttpProxy, ipAndPort.first(), ipAndPort.last().toInt()));
-        m_retryIfFailed = true;
     }
 
     request.setUrl(QUrl(m_request->url()));
