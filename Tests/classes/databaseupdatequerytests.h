@@ -16,6 +16,7 @@ private slots:
     void testInsert();
     void testUpdate();
     void testDelete();
+    void testListeners();
 };
 
 #endif // DATABASEUPDATEQUERYTESTS_H

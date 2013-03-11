@@ -26,7 +26,8 @@ SOURCES +=  main.cpp \
     classes/databaseupdatequerytests.cpp \
     classes/workspaceinitializertests.cpp \
     helpers/workspacehelpertests.cpp \
-    classes/databaseselectquerytests.cpp
+    classes/databaseselectquerytests.cpp \
+    stub/stubdatabaseupdatelistener.cpp
 
 
 HEADERS +=  autotest.h \
@@ -38,7 +39,8 @@ HEADERS +=  autotest.h \
     classes/databaseupdatequerytests.h \
     classes/workspaceinitializertests.h \
     helpers/workspacehelpertests.h \
-    classes/databaseselectquerytests.h
+    classes/databaseselectquerytests.h \
+    stub/stubdatabaseupdatelistener.h
 
 OwNetClientPath = ../OwNetClient
 ModulesPath = ../Modules

@@ -15,6 +15,7 @@ public:
     void registerService(IService* service);
     void registerRestService(IRestService* service);
     void registerJob(IJobAction* job);
+    void registerDatabaseUpdateListener(IDatabaseUpdateListener *listener);
 
     /// App storage
     ISession *session(QObject *parent = 0);

@@ -9,10 +9,10 @@
 
 class QSqlQuery;
 class DatabaseSelectQuery;
+class IDatabaseUpdateListener;
 
 /**
  * @brief Database query to update, insert or delete data.
- * Can be exported to JSON.
  */
 class DatabaseUpdateQuery : public QObject, public IDatabaseUpdateQuery
 {
@@ -20,8 +20,8 @@ class DatabaseUpdateQuery : public QObject, public IDatabaseUpdateQuery
 public:
     DatabaseUpdateQuery(const QString &table, EntryType type = InsertOrUpdate, QObject *parent = 0);
 
-    void setTable(const QString &table);
-    void setType(EntryType type);
+    void setTable(const QString &table) { m_table = table; }
+    void setType(EntryType type) { m_type = type; }
     void setColumnValue(const QString &name, const QVariant &value);
     void setUpdateDates(bool setDates);
     void setUpdateDates(IDatabaseUpdateQuery::UpdateDates updateDates);
@@ -30,8 +30,12 @@ public:
     void singleWhere(const QString &column, const QVariant &value, IDatabaseSelectQuery::WhereOperator op = IDatabaseSelectQuery::Equal, bool bind = true);
     IDatabaseSelectQueryWhereGroup *whereGroup(IDatabaseSelectQuery::JoinOperator op);
 
-    QString table() const;
-    EntryType type() const;
+    QString table() const { return m_table; }
+    EntryType type() const { return m_type; }
+    QVariantMap columns() const { return m_columns; }
+
+    static void registerListener(IDatabaseUpdateListener *listener);
+    static void deregisterListener(IDatabaseUpdateListener *listener);
 
 protected:
     virtual bool executeInsert();
@@ -48,6 +52,7 @@ private:
     QString m_table;
     DatabaseUpdateQuery::EntryType m_type;
     QVariantMap m_temporaryBindings;
+    static QMap<QString, QList<IDatabaseUpdateListener*>* > *m_listeners;
 };
 
 #endif // DATABASEUPDATEQUERY_H
