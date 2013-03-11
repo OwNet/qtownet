@@ -27,7 +27,7 @@ void WebPinger::ping()
     connect(manager, SIGNAL(finished(QNetworkReply*)),
             this, SLOT(replyFinished(QNetworkReply*)));
 
-    manager->get(QNetworkRequest(QUrl("http://www.google.com")));
+    manager->get(QNetworkRequest(QUrl(nextUrl())));
 }
 
 void WebPinger::replyFinished(QNetworkReply *reply)
@@ -48,4 +48,5 @@ QString WebPinger::nextUrl()
     QString url = m_urlsToPing.at(m_nextUrlIndex);
     m_nextUrlIndex++;
     m_nextUrlIndex %= m_urlsToPing.count();
+    return url;
 }
