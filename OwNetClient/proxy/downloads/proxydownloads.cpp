@@ -159,6 +159,7 @@ ProxyInputObject *ProxyDownloads::newInputObject(ProxyRequest *request, ProxyHan
         inputObject = new ProxyRequestBus(request, handlerSession);
     } else {
         QVariantMap availableClients = Session().availableClients();
+        bool isOnline = Session().isOnline();
 
         if (m_cacheLocations.contains(request->hashCode())) {
             QList<ProxyCacheLocation*> locations = m_cacheLocations.value(request->hashCode())->sortedLocations();
@@ -173,6 +174,8 @@ ProxyInputObject *ProxyDownloads::newInputObject(ProxyRequest *request, ProxyHan
                     }
                 } else {
                     if (!location->isWeb() && !availableClients.contains(location->clientId()))
+                        continue;
+                    if (location->isWeb() && !isOnline)
                         continue;
 
                     ProxyWebInputObject *webObject = new ProxyWebInputObject(request, handlerSession);

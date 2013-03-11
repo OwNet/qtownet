@@ -11,6 +11,7 @@ public:
     virtual QVariantMap availableClients() const = 0;
     virtual QString serverId() const = 0;
     virtual bool isServer() const = 0;
+    virtual bool isOnline() const = 0;
 
     virtual void clear() = 0;
 

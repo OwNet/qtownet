@@ -9,6 +9,7 @@
 #include "pingjob.h"
 #include "pingserver.h"
 #include "pingservice.h"
+#include "webpingerjob.h"
 
 #include <QHostAddress>
 #include <QSettings>
@@ -33,6 +34,7 @@ void MulticastModule::init(IProxyConnection *proxyConnection)
     proxyConnection->registerJob(new MulticastJob(groupAddress, port, m_multicastProtocol, m_proxyConnection, this));
     proxyConnection->registerJob(new UpdateJob(m_multicastProtocol, this));
     proxyConnection->registerJob(new PingJob(pingServer, m_proxyConnection, this));
+    proxyConnection->registerJob(new WebPingerJob(m_proxyConnection, this));
 
     m_proxyConnection->registerService(new MulticastService(m_proxyConnection, m_multicastProtocol, this));
     m_proxyConnection->registerService(new PingService(pingServer, this));
