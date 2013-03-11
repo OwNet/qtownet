@@ -28,14 +28,14 @@ void ProxyCacheLocations::addLocation(const QString &clientId, const QDateTime &
 
     if (m_locations.contains(key)) {
         QList<ProxyCacheLocation*> *list = m_locations.value(key);
-        if (location->isLocal()) {
+        if (location->isLocalCache()) {
             list->prepend(location);
         } else if (location->isWeb()) {
             list->append(location);
         } else {
             bool inserted = false;
             for (int i = 0; i < list->count(); ++i) {
-                if (list->at(i)->isLocal())
+                if (list->at(i)->isLocalCache())
                     continue;
                 list->insert(i, location);
                 inserted = true;
@@ -78,16 +78,11 @@ QList<ProxyCacheLocation *> ProxyCacheLocations::sortedLocations() const
 
 ProxyCacheLocation::ProxyCacheLocation(const QString &clientId, QObject *parent) :
     QObject(parent),
-    m_clientId(clientId)
+    m_clientId(clientId),
+    m_locationType(NetworkCache)
 {
-}
-
-bool ProxyCacheLocation::isLocal() const
-{
-    return m_clientId == DatabaseSettings().clientId();
-}
-
-bool ProxyCacheLocation::isWeb() const
-{
-    return m_clientId == "WEB";
+    if (m_clientId == "WEB")
+        m_locationType = Web;
+    else if (m_clientId == DatabaseSettings().clientId())
+        m_locationType = LocalCache;
 }

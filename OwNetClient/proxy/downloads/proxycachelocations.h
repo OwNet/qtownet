@@ -29,14 +29,23 @@ class ProxyCacheLocation : public QObject
 {
     Q_OBJECT
 public:
+    enum LocationTypes {
+        LocalCache,
+        NetworkCache,
+        Web
+    };
     explicit ProxyCacheLocation(const QString &clientId, QObject *parent = 0);
 
-    bool isLocal() const;
-    bool isWeb() const;
+    LocationTypes locationType() const { return m_locationType; }
+    bool isLocalCache() const { return m_locationType == LocalCache; }
+    bool isWeb() const { return m_locationType == Web; }
+    bool isNetworkCache() const { return m_locationType == NetworkCache; }
+
     QString clientId() const { return m_clientId; }
 
 private:
     QString m_clientId;
+    LocationTypes m_locationType;
 };
 
 #endif // PROXYCACHELOCATION_H

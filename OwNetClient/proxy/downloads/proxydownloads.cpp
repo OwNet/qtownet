@@ -163,7 +163,7 @@ ProxyInputObject *ProxyDownloads::newInputObject(ProxyRequest *request, ProxyHan
         if (m_cacheLocations.contains(request->hashCode())) {
             QList<ProxyCacheLocation*> locations = m_cacheLocations.value(request->hashCode())->sortedLocations();
             foreach (ProxyCacheLocation *location, locations) {
-                if (location->isLocal()) {
+                if (location->isLocalCache()) {
                     ProxyCacheInputObject *cacheInput = new ProxyCacheInputObject(request, handlerSession);
                     if (cacheInput->exists()) {
                         inputObject = cacheInput;
