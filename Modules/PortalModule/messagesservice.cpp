@@ -9,6 +9,11 @@
 #include <QSqlRecord>
 #include <QDateTime>
 #include <QMap>
+#include <qmath.h>
+
+#include "irouter.h"
+
+#define PER_PAGE 10
 
 MessagesService::MessagesService(IProxyConnection *proxyConnection, QObject *parent) :
     QObject(parent),
@@ -18,7 +23,7 @@ MessagesService::MessagesService(IProxyConnection *proxyConnection, QObject *par
 
 void MessagesService::init(IRouter *router)
 {
-
+        router->addRoute("/allPagesCount")->on(IRequest::GET, ROUTE(allPagesCount));
 }
 
 // create element
@@ -118,7 +123,8 @@ IResponse *MessagesService::create(IRequest *req)
 
 }
 
-IResponse *MessagesService::index(IRequest *req)
+
+IResponse *MessagesService::allPagesCount(IRequest *req)
 {
     QVariantMap error;
 
@@ -142,8 +148,58 @@ IResponse *MessagesService::index(IRequest *req)
     if(member == "1"){
 
         QSqlQuery query;
+        query.prepare("SELECT COUNT(*) AS n FROM messages WHERE group_id = :group_id");
+        query.bindValue(":group_id",group_id);
+        if(query.exec()){
+            query.first();
+            int x =  query.value(query.record().indexOf("n")).toInt();
+            QVariantMap response;
+            response.insert("pages",qCeil(x/(double)PER_PAGE));
+            return req->response(QVariant(response),IResponse::OK);
+        }
+        else
+            return req->response(IResponse::INTERNAL_SERVER_ERROR);
 
-        query.prepare("SELECT * FROM messages WHERE group_id = :group_id AND parent_id = 0 ORDER BY date_created");
+    }
+}
+
+
+IResponse *MessagesService::index(IRequest *req)
+{
+    QVariantMap error;
+
+    int page;
+    if(!(page= req->parameterValue("page").toInt())){
+        QVariantMap error;
+        error.insert("page_number","error");
+        return req->response(QVariant(error), IResponse::BAD_REQUEST);
+    }
+
+    QString curUser_id = m_proxyConnection->session()->value("logged").toString();
+    if(curUser_id == "")
+        return req->response(IResponse::UNAUTHORIEZED);
+
+    QString group_id = req->parameterValue("group_id");
+    if(group_id == ""){
+        error.insert("group_id_parameter","required");
+        return req->response(QVariant(error),IResponse::BAD_REQUEST);
+    }
+
+    IRequest *request = m_proxyConnection->createRequest(IRequest::POST, "groups", "isMember");
+    request->setParamater("user_id", curUser_id);
+    request->setParamater("group_id", group_id);
+
+    QString member = m_proxyConnection->callModule(request)->body().toMap().value("member").toString();
+
+    // overit ci je userom skupiny d
+    if(member == "1"){
+
+        QSqlQuery query;
+
+        query.prepare("SELECT * FROM messages WHERE group_id = :group_id AND parent_id = 0 "
+                      "ORDER BY date_created LIMIT :limit OFFSET :offset");
+        query.bindValue(":limit",PER_PAGE);
+        query.bindValue(":offset", (page-1)* PER_PAGE);
         query.bindValue(":group_id",group_id);
 
         if(!query.exec())
@@ -164,7 +220,11 @@ IResponse *MessagesService::index(IRequest *req)
         }
 
 
-        query.prepare("SELECT * FROM messages WHERE group_id = :group_id AND parent !=0 ORDER BY parent, date_created");
+        query.prepare("SELECT * FROM messages WHERE group_id = :group_id AND "
+                      "parent_id !=0 AND parent_id IN (SELECT uid FROM messages WHERE group_id = :group_id AND parent_id = 0 "
+                      "ORDER BY date_created LIMIT :limit OFFSET :offset ) ORDER BY parent, date_created");
+        query.bindValue(":limit",PER_PAGE);
+        query.bindValue(":offset", (page-1)* PER_PAGE);
         query.bindValue(":group_id",group_id);
 
         if(!query.exec())

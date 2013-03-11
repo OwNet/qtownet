@@ -46,6 +46,7 @@ int ActivityManager::PagesCount(IRequest *req)
 {
 
     //TODO add some validations + error response trought parameter
+
     QString type = req->parameterValue("type");
 
     if(type == "")
@@ -62,10 +63,12 @@ int ActivityManager::PagesCount(IRequest *req)
         QSqlQuery query;
         query.prepare("SELECT COUNT(*) AS n FROM activities WHERE type=:type");
         query.bindValue(":type",type);
-        if(query.exec())
+        if(query.exec()){
             query.first();
             int x =  query.value(query.record().indexOf("n")).toInt();
             return qCeil(x/(double)PER_PAGE);
+        }
+        return 0;
 
     }
 }
