@@ -62,3 +62,8 @@ bool Session::isOnline() const
 {
     return m_sessionData->value("is_online", true).toBool();
 }
+
+bool Session::isRefreshSession() const
+{
+    return m_sessionData->value("refresh_session", false).toBool();
+}

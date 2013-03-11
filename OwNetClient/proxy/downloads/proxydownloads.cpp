@@ -159,29 +159,33 @@ ProxyInputObject *ProxyDownloads::newInputObject(ProxyRequest *request, ProxyHan
         inputObject = new ProxyRequestBus(request, handlerSession);
     } else {
         QVariantMap availableClients = Session().availableClients();
-        bool isOnline = Session().isOnline();
+        Session session;
 
-        if (m_cacheLocations.contains(request->hashCode())) {
-            QList<ProxyCacheLocation*> locations = m_cacheLocations.value(request->hashCode())->sortedLocations();
-            foreach (ProxyCacheLocation *location, locations) {
-                if (location->isLocalCache()) {
-                    ProxyCacheInputObject *cacheInput = new ProxyCacheInputObject(request, handlerSession);
-                    if (cacheInput->exists()) {
-                        inputObject = cacheInput;
-                        break;
+        if (!session.isRefreshSession()) {
+            bool isOnline = Session().isOnline();
+
+            if (m_cacheLocations.contains(request->hashCode())) {
+                QList<ProxyCacheLocation*> locations = m_cacheLocations.value(request->hashCode())->sortedLocations();
+                foreach (ProxyCacheLocation *location, locations) {
+                    if (location->isLocalCache()) {
+                        ProxyCacheInputObject *cacheInput = new ProxyCacheInputObject(request, handlerSession);
+                        if (cacheInput->exists()) {
+                            inputObject = cacheInput;
+                            break;
+                        } else {
+                            continue;
+                        }
                     } else {
-                        continue;
-                    }
-                } else {
-                    if (!location->isWeb() && !availableClients.contains(location->clientId()))
-                        continue;
-                    if (location->isWeb() && !isOnline)
-                        continue;
+                        if (!location->isWeb() && !availableClients.contains(location->clientId()))
+                            continue;
+                        if (location->isWeb() && !isOnline)
+                            continue;
 
-                    ProxyWebInputObject *webObject = new ProxyWebInputObject(request, handlerSession);
-                    if (!location->isWeb())
-                        webObject->setProxy(availableClients.value(location->clientId()).toString());
-                    break;
+                        ProxyWebInputObject *webObject = new ProxyWebInputObject(request, handlerSession);
+                        if (!location->isWeb())
+                            webObject->setProxy(availableClients.value(location->clientId()).toString());
+                        break;
+                    }
                 }
             }
         }

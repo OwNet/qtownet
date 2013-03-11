@@ -13,9 +13,7 @@ SOURCES        += $${ModulePath}/multicastmodule.cpp \
     $${ModulePath}/updatejob.cpp \
     $${ModulePath}/ping/pingserver.cpp \
     $${ModulePath}/ping/pingservice.cpp \
-    $${ModulePath}/ping/pingjob.cpp \
-    $${ModulePath}/ping/webpinger.cpp \
-    $${ModulePath}/ping/webpingerjob.cpp
+    $${ModulePath}/ping/pingjob.cpp
 
 
 HEADERS        += $${ModulePath}/multicastmodule.h \
@@ -27,6 +25,4 @@ HEADERS        += $${ModulePath}/multicastmodule.h \
     $${ModulePath}/updatejob.h \
     $${ModulePath}/ping/pingserver.h \
     $${ModulePath}/ping/pingservice.h \
-    $${ModulePath}/ping/pingjob.h \
-    $${ModulePath}/ping/webpinger.h \
-    $${ModulePath}/ping/webpingerjob.h
+    $${ModulePath}/ping/pingjob.h
