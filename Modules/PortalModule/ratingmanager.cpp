@@ -18,6 +18,7 @@ RatingManager::RatingManager(IProxyConnection *proxyConnection, QObject *parent)
 
 IResponse::Status RatingManager::createRating(uint userId, QString  uri, int value, QVariantMap &error)
  {
+
      // if rating already exist throw error
      QSqlQuery q;
      q.prepare("SELECT 1 FROM ratings WHERE absolute_uri=:absolute_uri AND user_id=:user_id");
@@ -52,6 +53,8 @@ IResponse::Status RatingManager::createRating(uint userId, QString  uri, int val
      ac.content = uri + ";" + value;
      ac.group_id = 0;
      ac.object_id = uid;
+     ac.user_id = (int)userId;
+
 
      m_activityManager->createActivity(ac);
 
