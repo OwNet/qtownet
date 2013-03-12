@@ -23,7 +23,7 @@ void ProxyCacheLocations::addLocation(const QString &clientId, const QDateTime &
     QTime time = dateTime.time();
     roundedDateTime.setTime(QTime(time.hour(), 0));
 
-    ProxyCacheLocation *location = new ProxyCacheLocation(clientId, this);
+    ProxyCacheLocation *location = new ProxyCacheLocation(clientId);
     QString key = roundedDateTime.toString(Qt::ISODate);
 
     if (m_locations.contains(key)) {
