@@ -22,7 +22,6 @@ HttpConnectionHandler::HttpConnectionHandler(QSettings* settings, HttpRequestHan
     socket.moveToThread(this);
     readTimer.moveToThread(this);
     connect(&socket, SIGNAL(readyRead()), SLOT(read()));
-    connect(&socket, SIGNAL(disconnected()), SLOT(disconnected()));
     connect(&readTimer, SIGNAL(timeout()), SLOT(readTimeout()));
     readTimer.setSingleShot(true);
     qDebug("HttpConnectionHandler (%p): constructed", this);
@@ -122,6 +121,7 @@ void HttpConnectionHandler::read() {
         socket.disconnectFromHost();
         delete currentRequest;
         currentRequest=0;
+        disconnected();
         return;
     }
 
@@ -159,4 +159,5 @@ void HttpConnectionHandler::read() {
         delete currentRequest;
         currentRequest=0;
     }
+    disconnected();
 }

@@ -23,6 +23,8 @@ public:
     QVariantMap availableClients() const;
     QString serverId() const;
     bool isServer() const;
+    bool isOnline() const;
+    bool isRefreshSession() const;
 
 private:
     static QVariantMap *m_sessionData;

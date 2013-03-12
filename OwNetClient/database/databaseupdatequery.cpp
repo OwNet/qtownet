@@ -5,12 +5,15 @@
 #include "databasesettings.h"
 #include "databaseupdate.h"
 #include "idatabaseselectquerywhere.h"
+#include "idatabaseupdatelistener.h"
 
 #include <QSqlQuery>
 #include <QSqlError>
 #include <QSqlRecord>
 #include <QStringList>
 #include <QDateTime>
+
+QMap<QString, QList<IDatabaseUpdateListener*>* > *DatabaseUpdateQuery::m_listeners = new QMap<QString, QList<IDatabaseUpdateListener*>* >();
 
 DatabaseUpdateQuery::DatabaseUpdateQuery(const QString &table, EntryType type, QObject *parent) :
     QObject(parent),
@@ -84,24 +87,6 @@ bool DatabaseUpdateQuery::executeQuery(QSqlQuery &query) const
 }
 
 /**
- * @brief Set the name of the table
- * @param table Name of the table
- */
-void DatabaseUpdateQuery::setTable(const QString &table)
-{
-    m_table = table;
-}
-
-/**
- * @brief Set the type of the query, i.e. update, insert, delete
- * @param type Type of the query
- */
-void DatabaseUpdateQuery::setType(DatabaseUpdateQuery::EntryType type)
-{
-    m_type = type;
-}
-
-/**
  * @brief Set the values for the column
  * @param name Name of the column
  * @param value Value of the column
@@ -137,24 +122,34 @@ void DatabaseUpdateQuery::setUpdateDates(IDatabaseUpdateQuery::UpdateDates updat
 
 
 /**
- * @brief Execute the query
+ * @brief Executes the query and notify the listeners for the table
  * @return True if successful
  */
 bool DatabaseUpdateQuery::executeQuery()
 {
-    if (type() == Delete)
-        return executeDelete();
-
-    if (type() == InsertOrUpdate) {
+    bool success = false;
+    if (type() == Delete) {
+        success = executeDelete();
+    } else if (type() == InsertOrUpdate) {
+        bool update = false;
         if (m_selectQuery) {
             m_selectQuery->select("1");
-            if (m_selectQuery->first())
-                return executeUpdate();
+            update = m_selectQuery->first();
         }
 
-        return executeInsert();
+        if (update)
+            success = executeUpdate();
+        else
+            success = executeInsert();
     }
-    return false;
+
+    /// Notify the listeners
+    if (success)
+        if (m_listeners->contains(table()))
+            foreach (IDatabaseUpdateListener *listener, *(m_listeners->value(table())))
+                listener->tableUpdated(this);
+
+    return success;
 }
 
 /**
@@ -185,19 +180,24 @@ IDatabaseSelectQueryWhereGroup *DatabaseUpdateQuery::whereGroup(IDatabaseSelectQ
 }
 
 /**
- * @return Name of the table
+ * @brief Add a new listener that will be notified when the listened table is updated
+ * @param listener Listener object
  */
-QString DatabaseUpdateQuery::table() const
+void DatabaseUpdateQuery::registerListener(IDatabaseUpdateListener *listener)
 {
-    return m_table;
+    if (m_listeners->contains(listener->tableName())) {
+        (*m_listeners)[listener->tableName()]->append(listener);
+    } else {
+        QList<IDatabaseUpdateListener *> *list = new QList<IDatabaseUpdateListener*>();
+        list->append(listener);
+        m_listeners->insert(listener->tableName(), list);
+    }
 }
 
-/**
- * @return Type of the query - insert, update, delete
- */
-DatabaseUpdateQuery::EntryType DatabaseUpdateQuery::type() const
+void DatabaseUpdateQuery::deregisterListener(IDatabaseUpdateListener *listener)
 {
-    return m_type;
+    if (m_listeners->contains(listener->tableName()))
+        (*m_listeners)[listener->tableName()]->removeAll(listener);
 }
 
 /**

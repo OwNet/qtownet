@@ -9,4 +9,5 @@ SUBDIRS += \
 #    RecommendationsModule \
     SyncModule \
     ServerModule \
-    MulticastModule
+    MulticastModule \
+    ProxyModule
