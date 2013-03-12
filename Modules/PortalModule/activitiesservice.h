@@ -20,6 +20,8 @@ public:
 
     IResponse *pagesCount(IRequest *req);
 
+    IResponse *myPagesCount(IRequest *req);
+    IResponse *getMyActivities(IRequest *req);
 private:
 
     ActivityManager *m_activityManager;

@@ -18,8 +18,11 @@ public:
     QVariantList getActivities(bool *ok, QVariantMap &error, IRequest *req);
     bool deleteActivity(uint objectId);
     bool editActivity(uint objectId, QString content);
-    int PagesCount(IRequest *req);
+    int pagesCount(IRequest *req);
 
+
+    QVariantList getMyActivities(bool *ok, QVariantMap &error, IRequest *req);
+    int myPagesCount(IRequest *req);
 
 private:
     IProxyConnection *m_proxyConnection;

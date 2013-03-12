@@ -14,6 +14,7 @@ public:
     QString date_created;
     int activity_type;
     int group_id;
+    int user_id;
     QString object_id;
 
     enum ActivitiesTypes
