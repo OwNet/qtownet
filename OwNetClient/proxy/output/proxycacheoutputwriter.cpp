@@ -67,14 +67,15 @@ void ProxyCacheOutputWriter::read(QIODevice *ioDevice)
     if (m_partSizeWritten > MaxFileSize)
         finishedWritingToCacheFile();
 
-    long size = ioDevice->size();
+    QByteArray ba = ioDevice->readAll();
+    long size = ba.size();
     if (size == 0)
         return;
 
     if (!m_cacheFile)
         createCacheFile();
 
-    m_cacheFile->write(ioDevice->readAll());
+    m_cacheFile->write(ba);
     m_partSizeWritten += size;
     m_sizeWritten += size;
 }
