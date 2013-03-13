@@ -122,6 +122,12 @@ __jade.shift();
 __jade.shift();
 buf.push('\n</div>');
 __jade.shift();
+__jade.unshift({ lineno: 22, filename: __jade[0].filename });
+buf.push('\n<div id="group_messages" class="span">');
+__jade.unshift({ lineno: undefined, filename: __jade[0].filename });
+__jade.shift();
+buf.push('</div>');
+__jade.shift();
 __jade.shift();
 }
 return buf.join("");

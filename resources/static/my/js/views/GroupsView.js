@@ -15,6 +15,8 @@ define( function (require) {
 	  , UserModel = require ("share/models/UserModel")
 	  , GroupsModel = require ("share/models/GroupsModel")
 
+	  , MessagesView = require( 'views/MessagesView' )
+ 
 	  , userNavbarTemplate = require ("tpl/user-navbar")
 
 	  , Form = require("share/utils/form")
@@ -59,14 +61,14 @@ define( function (require) {
 				})
 
 				var action = new Action()
-
+				var self = this
 
 				action.save({group_id: id },{
 					wait: true,
 					success: function() {
 						App.router.navigate('groups', {trigger: true})
 						App.showMessage("Joined", "alert-success")
-						this.show("all",1)
+						self.show("all",1)
 					},
 					error: function() {
 						App.showMessage("Joining failed")
@@ -84,14 +86,14 @@ define( function (require) {
 				})
 
 				var action = new Action()
-
+				var self = this
 
 				action.save({group_id: id, user_id: App.user ? App.user.id : "0"},{
 					wait: true,
 					success: function() {
 						App.router.navigate('groups', {trigger: true})
 						App.showMessage("Leaved", "alert-success")
-						this.show("all",1)
+						self.show("all",1)
 					},
 					error: function() {
 						App.showMessage("Leaving failed")
@@ -120,13 +122,14 @@ define( function (require) {
 
         		var group = new GroupsModel(data)
         		group.id = id
+        		var self = this
 
         		group.destroy({
         			wait: true,
         			success: function() {
         				App.router.navigate("#/groups", {trigger: true})
         				App.showMessage("Group deleted")
-						this.show("all", 1)
+						self.show("all", 1)
 					},
 					error: function() {
 						App.showMessage("Cannot delete")
@@ -216,8 +219,6 @@ define( function (require) {
 					},
 				})
 
-				
-
 				this.$el.html( groupsTemplate({ }) )
 				return this
 			},
@@ -276,6 +277,9 @@ define( function (require) {
         				App.router.navigate("#/showgroup", {trigger: true})
 						self.$el.html( showGroupTemplate({group :group.toJSON()}) )
 						$('div#group_detail').html( groupDetailTemplate({group :group.toJSON()}))
+
+						var messageView = new MessagesView({el:$("#group_messages")})
+						messageView.showHome(1, group.id)
 					}
         		})
 			},
