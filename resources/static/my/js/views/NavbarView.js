@@ -9,7 +9,7 @@ define( function (require) {
 	var NavbarView = Backbone.View.extend({
 
 			events: {
-				'click #user-navbar a[href="#/logout"]': 'onLogoutClick',
+				'click #navbar a[href="#/logout"]': 'onLogoutClick',
 			},
 
 			initialize: function() {

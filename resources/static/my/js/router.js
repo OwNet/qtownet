@@ -51,7 +51,7 @@ define( function (require) {
 
 		activate: function(href) {
 			$("#appmenu .active").removeClass("active")
-			$.query('#user-navbar a[href="?"]', href).parent().addClass('active')
+			$.query('.navbar a[href="?"]', href).parent().addClass('active')
 		},
 
 		home: function() {

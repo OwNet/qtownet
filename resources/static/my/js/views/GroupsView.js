@@ -333,7 +333,7 @@ define( function (require) {
 			},
 
 			updateNavbar: function() {
-				$('#user-navbar').html( userNavbarTemplate({ user:  App.user ? App.user.toJSON() : false }))
+				$('#navbar').html( userNavbarTemplate({ user:  App.user ? App.user.toJSON() : false }))
 			},
 
 			
