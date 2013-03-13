@@ -5,6 +5,7 @@
 #include "databaseselectquery.h"
 #include "databasesettings.h"
 #include "databaseupdate.h"
+#include "stubdatabaseupdatelistener.h"
 
 #include <QtTest>
 #include <QSqlQuery>
@@ -201,4 +202,40 @@ void DatabaseUpdateQueryTests::testDelete()
         QCOMPARE(selectJournal.first(), true);
         QCOMPARE(selectJournal.value("count").toInt(), 2);
     }
+}
+
+void DatabaseUpdateQueryTests::testListeners()
+{
+    StubDatabaseUpdateListener listener1("tst_settings");
+    StubDatabaseUpdateListener listener2("wrong_table");
+    DatabaseUpdateQuery::registerListener(&listener1);
+    DatabaseUpdateQuery::registerListener(&listener2);
+
+    {
+        DatabaseUpdateQuery query("tst_settings", DatabaseUpdateQuery::InsertOrUpdate);
+
+        query.setColumnValue("key", "Peter");
+        query.setColumnValue("value", "Brown");
+        query.setUpdateDates(true);
+
+        query.executeQuery();
+    }
+
+    QVERIFY(listener1.updateQuery() != NULL);
+    QVERIFY(listener2.updateQuery() == NULL);
+
+    DatabaseUpdateQuery::deregisterListener(&listener1);
+    DatabaseUpdateQuery::deregisterListener(&listener2);
+    listener1.clear();
+
+    {
+        DatabaseUpdateQuery query("tst_settings", DatabaseUpdateQuery::InsertOrUpdate);
+
+        query.setColumnValue("key", "John");
+        query.setColumnValue("value", "Brown");
+        query.setUpdateDates(true);
+
+        query.executeQuery();
+    }
+    QVERIFY(listener1.updateQuery() == NULL);
 }

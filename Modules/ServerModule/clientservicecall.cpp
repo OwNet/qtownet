@@ -93,7 +93,6 @@ IResponse *ClientServiceCall::callService(const QString &url, IRequest *request,
     reply->waitForReadyRead(15000);
 
     bool ok = false;
-
     if (reply->error() == QNetworkReply::NoError) {
         QVariant json = m_proxyConnection->fromJson(reply->readAll(), &ok);
         if (ok)

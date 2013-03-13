@@ -5,6 +5,8 @@
 #include <QMutex>
 #include <QNetworkProxy>
 
+#include "idatabaseupdatelistener.h"
+
 class ProxyDownload;
 class ProxyInputObject;
 class ProxyRequest;
@@ -12,12 +14,13 @@ class ProxyHandlerSession;
 class GDSFClock;
 class ProxyTrafficCounter;
 class ProxyOutputWriter;
+class ProxyCacheLocations;
 
 /**
  * @brief Contains a list of all active downloads. Creates a new download or reuses an active one on request.
  * Singleton.
  */
-class ProxyDownloads
+class ProxyDownloads : public IDatabaseUpdateListener
 {
 public:
     static ProxyDownloads *instance() {
@@ -43,13 +46,21 @@ public:
     bool isSetApplicationProxy() const;
     void setApplicationProxy(const QString &ip, int port);
 
+    /// IDatabaseUpdateListener functions
+    QString tableName() const { return "client_caches"; }
+    void tableUpdated(IDatabaseUpdateQuery *query);
+
 private:
     ProxyDownloads();
     ProxyInputObject *newInputObject(ProxyRequest *request, ProxyHandlerSession *handlerSession);
     void connectDownloadAndOutputWriter(ProxyDownload *download, ProxyOutputWriter *outputWriter) const;
+    void initCacheLocations();
+    void addCacheLocation(uint cacheId, const QString &clientId, const QString &dateCreated);
 
     QMap<uint, ProxyDownload*> m_openDownloads;
     QMutex m_openDownloadsMutex;
+    QMap<uint, ProxyCacheLocations*> m_cacheLocations;
+
     GDSFClock *m_gdsfClock;
     ProxyTrafficCounter *m_trafficCounter;
 

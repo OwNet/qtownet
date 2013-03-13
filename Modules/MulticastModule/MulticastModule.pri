@@ -1,7 +1,8 @@
 ModulePath = $${ModulesPath}/MulticastModule
 
 INCLUDEPATH    += $${OwNetClientPath}/modules/interfaces \
-    $${ModulePath}
+    $${ModulePath} \
+    $${ModulePath}/ping
 
 SOURCES        += $${ModulePath}/multicastmodule.cpp \
     $${ModulePath}/multicastserver.cpp \
@@ -10,9 +11,9 @@ SOURCES        += $${ModulePath}/multicastmodule.cpp \
     $${ModulePath}/multicastprotocol.cpp \
     $${ModulePath}/multicastservice.cpp \
     $${ModulePath}/updatejob.cpp \
-    $${ModulePath}/pingserver.cpp \
-    $${ModulePath}/pingservice.cpp \
-    $${ModulePath}/pingjob.cpp
+    $${ModulePath}/ping/pingserver.cpp \
+    $${ModulePath}/ping/pingservice.cpp \
+    $${ModulePath}/ping/pingjob.cpp
 
 
 HEADERS        += $${ModulePath}/multicastmodule.h \
@@ -22,6 +23,6 @@ HEADERS        += $${ModulePath}/multicastmodule.h \
     $${ModulePath}/multicastprotocol.h \
     $${ModulePath}/multicastservice.h \
     $${ModulePath}/updatejob.h \
-    $${ModulePath}/pingserver.h \
-    $${ModulePath}/pingservice.h \
-    $${ModulePath}/pingjob.h
+    $${ModulePath}/ping/pingserver.h \
+    $${ModulePath}/ping/pingservice.h \
+    $${ModulePath}/ping/pingjob.h

@@ -67,11 +67,15 @@ void ProxyCacheOutputWriter::read(QIODevice *ioDevice)
     if (m_partSizeWritten > MaxFileSize)
         finishedWritingToCacheFile();
 
+    QByteArray ba = ioDevice->readAll();
+    long size = ba.size();
+    if (size == 0)
+        return;
+
     if (!m_cacheFile)
         createCacheFile();
 
-    m_cacheFile->write(ioDevice->readAll());
-    long size = ioDevice->size();
+    m_cacheFile->write(ba);
     m_partSizeWritten += size;
     m_sizeWritten += size;
 }
@@ -131,12 +135,14 @@ void ProxyCacheOutputWriter::error()
         m_cacheFile->close();
     m_cacheFile = NULL;
 
-    CacheFolder cacheFolder;
-    for (int i = 0; i < m_numFileParts; ++i) {
-        QFile *file = cacheFolder.cacheFile(m_hashCode, i);
-        if (file->exists())
-            file->remove();
-        delete file;
+    if (m_numFileParts > 1 || m_partSizeWritten > 0) {
+        CacheFolder cacheFolder;
+        for (int i = 0; i < m_numFileParts; ++i) {
+            QFile *file = cacheFolder.cacheFile(m_hashCode, i);
+            if (file->exists())
+                file->remove();
+            delete file;
+        }
     }
 }
 

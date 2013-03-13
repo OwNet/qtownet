@@ -1,4 +1,4 @@
-#include "proxyconnection.h"
+﻿#include "proxyconnection.h"
 
 #include "settings.h"
 #include "databasesettings.h"
@@ -49,6 +49,11 @@ QSettings *ProxyConnection::settings(QObject *parent)
 IDatabaseSettings *ProxyConnection::databaseSettings(QObject *parent)
 {
     return new DatabaseSettings(parent);
+}
+
+void ProxyConnection::registerDatabaseUpdateListener(IDatabaseUpdateListener *listener)
+{
+    DatabaseUpdateQuery::registerListener(listener);
 }
 
 IRequest *ProxyConnection::createRequest(IRequest::RequestType requestType, const QString &service, const QString &url, QObject *parent)
