@@ -52,7 +52,10 @@ void ModuleInitializer::loadPlugins()
             if (module)
                 initModule(module);
         } else {
+             QString kokot = loader.errorString();
             MessageHelper::debug( loader.errorString() );
+
+
         }
     }
 }

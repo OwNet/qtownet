@@ -18,7 +18,7 @@ public:
     QString name() const { return "ratings"; }
 
     IResponse *create(IRequest *req);
-    IResponse *index(IRequest *req);
+    //IResponse *index(IRequest *req);
     IResponse *show( IRequest *req, uint id);
     IResponse *edit( IRequest *req, uint id);
     IResponse *del(IRequest *req, uint uid);
