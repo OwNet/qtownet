@@ -65,7 +65,7 @@ IResponse *RatingsService::create(IRequest *req)
 }
 
 
-IResponse *RatingsService::index(IRequest *req)
+/*IResponse *RatingsService::index(IRequest *req)
 {
     if ( !m_proxyConnection->session()->isLoggedIn() )
            return req->response(IResponse::UNAUTHORIEZED);
@@ -82,7 +82,7 @@ IResponse *RatingsService::index(IRequest *req)
     else
        return req->response(QVariant(ratings),responseStatus);
 
-}
+}*/
 
 IResponse *RatingsService::show(IRequest *req, uint id)
 {

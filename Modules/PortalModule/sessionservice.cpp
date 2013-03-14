@@ -64,7 +64,7 @@ IResponse *SessionService::create(IRequest *req)
     QString password = reqJson["password"].toString();
 
     QSqlQuery q;
-    q.prepare("SELECT id FROM users WHERE login = :login");
+    q.prepare("SELECT id FROM users WHERE login =:login");
     q.bindValue(":login", login);
 
     if(!q.exec())

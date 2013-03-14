@@ -102,6 +102,7 @@ IResponse::Status RecommendationManager::createRecomm(IRequest *req, QString cur
         ac.content = absolute_uri + ";" + title;
         ac.group_id = group_id.toInt();
         ac.object_id = uid;
+        ac.user_id = curUser_id;
 
         m_activityManager->createActivity(ac);
 
@@ -115,7 +116,7 @@ IResponse::Status RecommendationManager::createRecomm(IRequest *req, QString cur
     }
 }
 
-IResponse::Status RecommendationManager::showRecomm(IRequest *req, QString curUser_id, QVariantMap &recommendation, QVariantMap &error)
+IResponse::Status RecommendationManager::showRecomm(IRequest *req, uint uid ,QString curUser_id, QVariantMap &recommendation, QVariantMap &error)
 {
 
     bool missingValue = false;
@@ -126,11 +127,7 @@ IResponse::Status RecommendationManager::showRecomm(IRequest *req, QString curUs
         missingValue = true;
     }
 
-    QString uid = req->parameterValue("uid");
-    if(uid == ""){
-        error.insert("uid","required");
-        missingValue = true;
-    }
+
 
     if(missingValue)
         return IResponse::BAD_REQUEST;
@@ -181,16 +178,9 @@ IResponse::Status RecommendationManager::showRecomm(IRequest *req, QString curUs
 
 
 
-IResponse::Status RecommendationManager::editRecomm(IRequest *req, QString curUser_id, QVariantMap &error)
+IResponse::Status RecommendationManager::editRecomm(IRequest *req, uint uid, QString curUser_id, QVariantMap &error)
 {
     bool ok = true;
-
-    QString uid = req->parameterValue("uid");
-
-    if(uid == ""){
-        error.insert("uid_parameter","required");
-        return IResponse::BAD_REQUEST;
-    }
 
 
     QVariantMap reqJson = req->postBodyFromJson(&ok).toMap();
@@ -248,7 +238,7 @@ IResponse::Status RecommendationManager::editRecomm(IRequest *req, QString curUs
 
             //edit activity
             if(reqJson.contains("title"))
-                m_activityManager->editActivity(uid, absolute_uri + ";" + reqJson["title"].toString());
+                m_activityManager->editActivity( uid, absolute_uri + ";" + reqJson["title"].toString());
             return IResponse::OK;
         }
         else{
@@ -261,16 +251,9 @@ IResponse::Status RecommendationManager::editRecomm(IRequest *req, QString curUs
     }
 }
 
-IResponse::Status RecommendationManager::deleteRecomm(IRequest *req,  QString curUser_id, QVariantMap &error)
+IResponse::Status RecommendationManager::deleteRecomm(IRequest *req, uint uid,  QString curUser_id, QVariantMap &error)
 {
      bool missingValue = false;
-
-    QString uid = req->parameterValue("uid");
-
-    if(uid == ""){
-        error.insert("uid_parameter","required");
-        missingValue = true;
-    }
 
     QString group_id = req->parameterValue("group_id");
     if(group_id == ""){

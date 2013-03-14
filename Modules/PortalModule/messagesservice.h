@@ -22,6 +22,7 @@ public:
     IResponse  *index(IRequest *req);
     IResponse  *del(IRequest *req, uint id);
 
+    IResponse *allPagesCount(IRequest *req);
 private:
     IProxyConnection *m_proxyConnection;
 };
