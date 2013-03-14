@@ -121,6 +121,7 @@ void ProxyCacheOutputWriter::save()
         IDatabaseSelectQueryWhereGroup *where = query.whereGroup(IDatabaseSelectQuery::And);
         where->where("client_id", DatabaseSettings().clientId());
         where->where("cache_id", m_hashCode);
+        query.setGroupId(ISyncedDatabaseUpdateQuery::GroupCaches);
         query.executeQuery();
     }
 }
