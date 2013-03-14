@@ -63,8 +63,8 @@ IResponse *MessagesService::create(IRequest *req)
     }
     else if(parent_id != "0"){
         QSqlQuery q;
-        q.prepare("SELECT * FROM messages WHERE _id=:id ");
-        q.bindValue(":id", parent_id);
+        q.prepare("SELECT * FROM messages WHERE uid=:uid ");
+        q.bindValue(":uid", parent_id);
         q.exec();
 
         if(!q.first()){
@@ -222,7 +222,7 @@ IResponse *MessagesService::index(IRequest *req)
 
         query.prepare("SELECT * FROM messages WHERE group_id = :group_id AND "
                       "parent_id !=0 AND parent_id IN (SELECT uid FROM messages WHERE group_id = :group_id AND parent_id = 0 "
-                      "ORDER BY date_created LIMIT :limit OFFSET :offset ) ORDER BY parent, date_created");
+                      "ORDER BY date_created LIMIT :limit OFFSET :offset ) ORDER BY date_created");
         query.bindValue(":limit",PER_PAGE);
         query.bindValue(":offset", (page-1)* PER_PAGE);
         query.bindValue(":group_id",group_id);
@@ -254,11 +254,12 @@ IResponse *MessagesService::index(IRequest *req)
             response.append(v);
             atSpot = false;
             j = 0;
-            while(!atSpot || comments.at(j).toMap().value("parent_id") == v.value("uid")){
+            while(j < comments.count() &&  (!atSpot || comments.at(j).toMap().value("parent_id") == v.value("uid"))){
                 if(comments.at(j).toMap().value("parent_id") == v.value("uid")){
-                    response.append(comments.at(j));
+                    response.append(comments.at(j).toMap());
                     atSpot = true;
                     comments.removeAt(j);
+                    j--;
                 }
                 j++;
             }

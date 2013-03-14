@@ -155,12 +155,12 @@ int ActivityManager::myPagesCount(IRequest *req)
     if(type == "")
     {
         QSqlQuery query;
-        query.prepare("SELECT COUNT(*) AS n FROM activities WHERE user_id=:user_id");
+        query.prepare("SELECT COUNT(*) AS n FROM activities WHERE user_id = :user_id");
         query.bindValue(":user_id",curUserId);
         if(query.exec())
             query.first();
             int x =  query.value(query.record().indexOf("n")).toInt();
-            return qCeil(x/(double)PER_PAGE);
+            return qCeil((double)x/(double)PER_PAGE);
 
     }
     else{

@@ -181,7 +181,7 @@ IDatabaseSelectQueryWhereGroup *DatabaseUpdateQuery::whereGroup(IDatabaseSelectQ
 {
     if (!m_selectQuery)
         m_selectQuery = new DatabaseSelectQuery(m_table);
-    return m_selectQuery->whereGroup(op);
+    return m_selectQuery->whereGroup(op);// ten call stack som chcel
 }
 
 /**
