@@ -102,7 +102,7 @@ IResponse::Status RecommendationManager::createRecomm(IRequest *req, QString cur
         ac.content = absolute_uri + ";" + title;
         ac.group_id = group_id.toInt();
         ac.object_id = uid;
-        ac.user_id = curUser_id.toInt();
+        ac.user_id = curUser_id;
 
         m_activityManager->createActivity(ac);
 
