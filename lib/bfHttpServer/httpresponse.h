@@ -33,7 +33,9 @@
   a progress bar.
 */
 
-class HttpResponse {
+class HttpResponse : public QObject
+{
+    Q_OBJECT
     Q_DISABLE_COPY(HttpResponse)
 public:
 
@@ -41,7 +43,7 @@ public:
       Constructor.
       @param socket used to write the response
     */
-    HttpResponse(QTcpSocket* socket);
+    HttpResponse(QTcpSocket* socket, QObject *parent);
 
     /**
       Set a HTTP response header
@@ -95,6 +97,9 @@ public:
       call to write() occurs.
     */
     void setCookie(const HttpCookie& cookie);
+
+signals:
+    void finished();
 
 private:
 

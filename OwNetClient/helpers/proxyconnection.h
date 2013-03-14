@@ -15,6 +15,7 @@ public:
     void registerService(IService* service);
     void registerRestService(IRestService* service);
     void registerJob(IJobAction* job);
+    void registerDatabaseUpdateListener(IDatabaseUpdateListener *listener);
 
     /// App storage
     ISession *session(QObject *parent = 0);
@@ -34,7 +35,7 @@ public:
     void debugMessage(const QVariant &message) const;
     int lastConnectionTraffic() const;
     QString generateUniqueId() const;
-
+    uint cacheId(const QString &url) const;
 };
 
 #endif // PROXYCONNECTION_H

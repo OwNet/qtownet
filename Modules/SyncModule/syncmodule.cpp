@@ -5,6 +5,7 @@
 #include "syncserver.h"
 #include "syncservice.h"
 #include "centralservicesyncjob.h"
+#include "cleansyncjournaljob.h"
 
 void SyncModule::init(IProxyConnection *proxyConnection)
 {
@@ -14,4 +15,5 @@ void SyncModule::init(IProxyConnection *proxyConnection)
 
     m_proxyConnection->registerJob(new SyncJob(m_proxyConnection, this));
     m_proxyConnection->registerJob(new CentralServiceSyncJob(m_proxyConnection, this));
+    m_proxyConnection->registerJob(new CleanSyncJournalJob(m_proxyConnection, this));
 }

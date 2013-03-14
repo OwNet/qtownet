@@ -91,7 +91,7 @@ IResponse::Status RecommendationManager::createRecomm(IRequest *req, QString cur
         if(!query->executeQuery()){
             return IResponse::INTERNAL_SERVER_ERROR;
         }
-        QString uid = ((ISyncedDatabaseUpdateQuery*)query)->lastUid();
+        QString uid = query->syncedQuery()->lastUid();
 
         // create activity
 

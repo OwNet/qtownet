@@ -1,4 +1,4 @@
-#include "proxyconnection.h"
+﻿#include "proxyconnection.h"
 
 #include "settings.h"
 #include "databasesettings.h"
@@ -14,6 +14,7 @@
 #include "modulejob.h"
 #include "messagehelper.h"
 #include "uniqueidhelper.h"
+#include "cachehelper.h"
 
 #include "proxydownloads.h"
 #include "proxytrafficcounter.h"
@@ -48,6 +49,11 @@ QSettings *ProxyConnection::settings(QObject *parent)
 IDatabaseSettings *ProxyConnection::databaseSettings(QObject *parent)
 {
     return new DatabaseSettings(parent);
+}
+
+void ProxyConnection::registerDatabaseUpdateListener(IDatabaseUpdateListener *listener)
+{
+    DatabaseUpdateQuery::registerListener(listener);
 }
 
 IRequest *ProxyConnection::createRequest(IRequest::RequestType requestType, const QString &service, const QString &url, QObject *parent)
@@ -111,4 +117,9 @@ int ProxyConnection::lastConnectionTraffic() const
 QString ProxyConnection::generateUniqueId() const
 {
     return UniqueIdHelper::generate();
+}
+
+uint ProxyConnection::cacheId(const QString &url) const
+{
+    return CacheHelper::cacheId(url);
 }

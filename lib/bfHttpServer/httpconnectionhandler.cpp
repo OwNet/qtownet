@@ -9,7 +9,8 @@
 #include <QCoreApplication>
 
 HttpConnectionHandler::HttpConnectionHandler(QSettings* settings, HttpRequestHandler* requestHandler)
-    : QThread()
+    : QThread(),
+      currentResponse(NULL)
 {
     Q_ASSERT(settings!=0);
     Q_ASSERT(requestHandler!=0);
@@ -22,7 +23,6 @@ HttpConnectionHandler::HttpConnectionHandler(QSettings* settings, HttpRequestHan
     socket.moveToThread(this);
     readTimer.moveToThread(this);
     connect(&socket, SIGNAL(readyRead()), SLOT(read()));
-    connect(&socket, SIGNAL(disconnected()), SLOT(disconnected()));
     connect(&readTimer, SIGNAL(timeout()), SLOT(readTimeout()));
     readTimer.setSingleShot(true);
     qDebug("HttpConnectionHandler (%p): constructed", this);
@@ -90,6 +90,21 @@ void HttpConnectionHandler::readTimeout() {
 
 
 void HttpConnectionHandler::disconnected() {
+
+    // Finalize sending the response if not already done
+    if (currentResponse && !currentResponse->hasSentLastPart()) {
+        currentResponse->write(QByteArray(),true);
+        currentResponse->deleteLater();
+        currentResponse = NULL;
+    }
+
+    socket.flush();
+    socket.disconnectFromHost();
+
+    // Prepare for next request
+    delete currentRequest;
+    currentRequest=0;
+
     socket.close();
     readTimer.stop();
     busy = false;
@@ -122,41 +137,20 @@ void HttpConnectionHandler::read() {
         socket.disconnectFromHost();
         delete currentRequest;
         currentRequest=0;
+        disconnected();
         return;
     }
 
     // If the request is complete, let the request mapper dispatch it
     if (currentRequest->getStatus()==HttpRequest::complete) {
         readTimer.stop();
-        HttpResponse response(&socket);
+        currentResponse = new HttpResponse(&socket, this);
+        connect(currentResponse, SIGNAL(finished()), this, SLOT(disconnected()));
         try {
-            requestHandler->service(currentRequest, &response);
+            requestHandler->service(currentRequest, currentResponse);
         }
         catch (...) {
             qCritical("HttpConnectionHandler (%p): An uncaught exception occured in the request handler",this);
         }
-
-        // Finalize sending the response if not already done
-        if (!response.hasSentLastPart()) {
-            response.write(QByteArray(),true);
-        }
-
-        socket.flush();
-        socket.disconnectFromHost();
-
-/* The following code caused EXC_BAD_ACCESS
-        // Close the connection after delivering the response, if requested
-        if (QString::compare(currentRequest->getHeader("Connection"),"close",Qt::CaseInsensitive)==0) {
-            socket.disconnectFromHost();
-        }
-        else {
-            // Start timer for next request
-            int readTimeout=settings->value("readTimeout",10000).toInt();
-            readTimer.start(readTimeout);
-        }
-*/
-        // Prepare for next request
-        delete currentRequest;
-        currentRequest=0;
     }
 }

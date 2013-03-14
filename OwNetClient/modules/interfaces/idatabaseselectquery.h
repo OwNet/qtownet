@@ -19,7 +19,8 @@ public:
         GreaterThanOrEqual,
         Like,
         In,
-        Is
+        Is,
+        NotIn
     };
     enum JoinOperator {
         And,

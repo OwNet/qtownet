@@ -10,7 +10,9 @@ SOURCES        += $${ModulePath}/syncjob.cpp \
     $${ModulePath}/syncclient.cpp \
     $${ModulePath}/synclock.cpp \
     $${ModulePath}/centralservice/centralservicesyncjob.cpp \
-    $${ModulePath}/centralservice/centralservicereporter.cpp
+    $${ModulePath}/centralservice/centralservicereporter.cpp \
+    $${ModulePath}/centralservice/centralserviceupdater.cpp \
+    $${ModulePath}/cleansyncjournaljob.cpp
 
 HEADERS        += $${ModulePath}/syncjob.h \
     $${ModulePath}/syncserver.h \
@@ -18,4 +20,6 @@ HEADERS        += $${ModulePath}/syncjob.h \
     $${ModulePath}/syncclient.h \
     $${ModulePath}/synclock.h \
     $${ModulePath}/centralservice/centralservicesyncjob.h \
-    $${ModulePath}/centralservice/centralservicereporter.h
+    $${ModulePath}/centralservice/centralservicereporter.h \
+    $${ModulePath}/centralservice/centralserviceupdater.h \
+    $${ModulePath}/cleansyncjournaljob.h

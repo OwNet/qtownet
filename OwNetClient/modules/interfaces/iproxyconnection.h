@@ -13,6 +13,7 @@ class IDatabaseSelectQuery;
 class IService;
 class IRestService;
 class IJobAction;
+class IDatabaseUpdateListener;
 
 class IProxyConnection
 {
@@ -21,6 +22,7 @@ public:
     virtual void registerService(IService*) = 0;
     virtual void registerRestService(IRestService*) = 0;
     virtual void registerJob(IJobAction*) = 0;
+    virtual void registerDatabaseUpdateListener(IDatabaseUpdateListener *listener) = 0;
 
     /// App storage
     virtual ISession *session(QObject *parent = 0) = 0;
@@ -46,6 +48,7 @@ public:
     virtual void debugMessage(const QVariant &message) const = 0;
     virtual QString generateUniqueId() const = 0;
     virtual int lastConnectionTraffic() const = 0;
+    virtual uint cacheId(const QString &url) const = 0;
 };
 
 #endif // IPROXYCONNECTION_H

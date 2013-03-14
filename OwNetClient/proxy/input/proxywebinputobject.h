@@ -14,6 +14,7 @@ public:
     ProxyWebInputObject(ProxyRequest *request, QObject *parent = 0);
 
     InputType inputType() const { return Web; }
+    void setProxy(const QString &proxy) { m_proxy = proxy; }
 
 protected:
     void readRequest();
@@ -30,8 +31,8 @@ private:
     QString clientIpAndPort(const QString &clientId) const;
 
     bool m_readHeaders;
-    bool m_retryIfFailed;
     QStringList m_clientsToTry;
+    QString m_proxy;
 };
 
 #endif // PROXYWEBINPUTOBJECT_H

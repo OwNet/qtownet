@@ -206,11 +206,11 @@ void SyncServer::saveAndApplyUpdates(const QVariantList &changes)
         updateJournalQuery->setColumnValue("uid", changeMap.value("uid").toString());
         updateJournalQuery->setColumnValue("operation_type", changeMap.value("operation_type").toInt());
 
-        if (!changeMap.value("group_id").isNull())
+        if (!changeMap.value("group_id").toString().isEmpty())
             updateJournalQuery->setColumnValue("group_id", changeMap.value("group_id").toInt());
 
-        if (!changeMap.value("sync_with").isNull())
-            updateJournalQuery->setColumnValue("sync_with", changeMap.value("sync_with").toInt());
+        if (!changeMap.value("sync_with").toString().isEmpty())
+            updateJournalQuery->setColumnValue("sync_with", changeMap.value("sync_with").toString());
 
         updateJournalQuery->setUpdateDates(IDatabaseUpdateQuery::DateCreated);
         bool ok = updateJournalQuery->executeQuery();
@@ -224,6 +224,8 @@ void SyncServer::saveAndApplyUpdates(const QVariantList &changes)
                 executeUpdateQuery->setColumnValue(columnName, columns.value(columnName));
             }
         }
+        if ((IDatabaseUpdateQuery::EntryType)changeMap.value("operation_type").toInt() == IDatabaseUpdateQuery::InsertOrUpdate)
+            executeUpdateQuery->setColumnValue("uid", changeMap.value("uid").toString());
         executeUpdateQuery->singleWhere("uid", changeMap.value("uid").toString());
         ok = executeUpdateQuery->executeQuery();
 
