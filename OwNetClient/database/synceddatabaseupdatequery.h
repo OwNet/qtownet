@@ -17,6 +17,8 @@ public:
 
     QString lastUid() const { return m_lastUid; }
 
+    ISyncedDatabaseUpdateQuery *syncedQuery() { return this; }
+
 protected:
     bool executeInsert();
     bool executeUpdate();

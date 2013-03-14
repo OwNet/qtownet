@@ -239,3 +239,16 @@ void DatabaseUpdateQueryTests::testListeners()
     }
     QVERIFY(listener1.updateQuery() == NULL);
 }
+
+void DatabaseUpdateQueryTests::testLastUid()
+{
+    SyncedDatabaseUpdateQuery query("tst_settings", DatabaseUpdateQuery::InsertOrUpdate);
+    query.setColumnValue("key", "John");
+    query.setColumnValue("value", "Doe");
+    query.setUpdateDates(true);
+    query.executeQuery();
+    DatabaseSelectQuery selectQuery("tst_settings");
+    selectQuery.first();
+    QCOMPARE(((IDatabaseUpdateQuery*)&query)->syncedQuery()->lastUid(),
+             selectQuery.value("uid").toString());
+}

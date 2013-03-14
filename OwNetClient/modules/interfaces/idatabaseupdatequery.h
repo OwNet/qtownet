@@ -6,6 +6,8 @@
 
 #include "idatabaseselectquery.h"
 
+class ISyncedDatabaseUpdateQuery;
+
 class IDatabaseUpdateQuery
 {
 public:
@@ -26,6 +28,8 @@ public:
 
     virtual void singleWhere(const QString &column, const QVariant &value, IDatabaseSelectQuery::WhereOperator op = IDatabaseSelectQuery::Equal, bool bind = true) = 0;
     virtual IDatabaseSelectQueryWhereGroup *whereGroup(IDatabaseSelectQuery::JoinOperator op) = 0;
+
+    virtual ISyncedDatabaseUpdateQuery *syncedQuery() { return NULL; }
 
     virtual QString table() const = 0;
     virtual EntryType type() const = 0;
