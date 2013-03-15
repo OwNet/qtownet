@@ -38,11 +38,10 @@ void HttpListener::incomingConnection(qintptr socketDescriptor) {
 
     // Let the handler process the new connection.
     if (freeHandler) {
+        freeHandler->setSocketDescriptor(socketDescriptor);
         // The descriptor is passed via signal/slot because the handler lives in another
         // thread and cannot open the socket when called by another thread.
-        connect(this,SIGNAL(handleConnection(int)),freeHandler,SLOT(handleConnection(int)));
-        emit handleConnection(socketDescriptor);
-        disconnect(this,SIGNAL(handleConnection(int)),freeHandler,SLOT(handleConnection(int)));
+        freeHandler->startHandling();
     }
     else {
         // Reject the connection
