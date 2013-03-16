@@ -91,7 +91,7 @@ IResponse::Status RecommendationManager::createRecomm(IRequest *req, QString cur
         if(!query->executeQuery()){
             return IResponse::INTERNAL_SERVER_ERROR;
         }
-        QString uid = ((ISyncedDatabaseUpdateQuery*)query)->lastUid();
+        QString uid = query->syncedQuery()->lastUid();
 
         // create activity
 
@@ -102,6 +102,7 @@ IResponse::Status RecommendationManager::createRecomm(IRequest *req, QString cur
         ac.content = absolute_uri + ";" + title;
         ac.group_id = group_id.toInt();
         ac.object_id = uid;
+        ac.user_id = curUser_id;
 
         m_activityManager->createActivity(ac);
 

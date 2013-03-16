@@ -31,6 +31,7 @@ bool ActivityManager::createActivity(Activity &ac)
     query->setColumnValue("content", ac.content);
     query->setColumnValue("type", ac.activity_type);
     query->setColumnValue("group_id", ac.group_id);
+    query->setColumnValue("user_id", ac.user_id);
     query->setColumnValue("object_id", ac.object_id);
 
     if(!query->executeQuery()){
@@ -42,10 +43,11 @@ bool ActivityManager::createActivity(Activity &ac)
     }
 }
 
-int ActivityManager::PagesCount(IRequest *req)
+int ActivityManager::pagesCount(IRequest *req)
 {
 
     //TODO add some validations + error response trought parameter
+
     QString type = req->parameterValue("type");
 
     if(type == "")
@@ -62,14 +64,15 @@ int ActivityManager::PagesCount(IRequest *req)
         QSqlQuery query;
         query.prepare("SELECT COUNT(*) AS n FROM activities WHERE type=:type");
         query.bindValue(":type",type);
-        if(query.exec())
+        if(query.exec()){
             query.first();
             int x =  query.value(query.record().indexOf("n")).toInt();
             return qCeil(x/(double)PER_PAGE);
+        }
+        return 0;
 
     }
 }
-
 
 
 QVariantList ActivityManager::getActivities(bool *ok, QVariantMap &error, IRequest *req)
@@ -112,9 +115,117 @@ QVariantList ActivityManager::getActivities(bool *ok, QVariantMap &error, IReque
     else
     {
         QSqlQuery query;
-        query.prepare("SELECT * SELECT * FROM activities WHERE type=:type ORDER BY date_created DESC LIMIT :limit OFFSET :offset");
+        query.prepare("SELECT * FROM activities WHERE type = :type ORDER BY date_created DESC LIMIT :limit OFFSET :offset");
         query.bindValue(":limit",PER_PAGE);
         query.bindValue(":offset", (intPage-1)* PER_PAGE);
+        query.bindValue(":type",type);
+        if(!query.exec())
+            *ok = false;
+
+        QVariantList activities;
+
+        while (query.next()) {
+            QVariantMap activity;
+            activity.insert("id", query.value(query.record().indexOf("id")));
+            activity.insert("user_name", query.value(query.record().indexOf("user_name")));
+            activity.insert("content", query.value(query.record().indexOf("content")));
+            activity.insert("type", query.value(query.record().indexOf("type")));
+            activity.insert("date_created", query.value(query.record().indexOf("date_created")));
+
+            activities.append(activity);
+        }
+
+        *ok = true;
+        return activities;
+
+    }
+
+}
+
+
+int ActivityManager::myPagesCount(IRequest *req)
+{
+
+    QString curUserId = m_proxyConnection->session()->value("logged").toString();
+
+    //TODO add some validations + error response trought parameter
+
+    QString type = req->parameterValue("type");
+
+    if(type == "")
+    {
+        QSqlQuery query;
+        query.prepare("SELECT COUNT(*) AS n FROM activities WHERE user_id = :user_id");
+        query.bindValue(":user_id",curUserId);
+        if(query.exec())
+            query.first();
+            int x =  query.value(query.record().indexOf("n")).toInt();
+            return qCeil((double)x/(double)PER_PAGE);
+
+    }
+    else{
+        QSqlQuery query;
+        query.prepare("SELECT COUNT(*) AS n FROM activities WHERE type=:type AND user_id=:user_id");
+        query.bindValue(":type",type);
+        query.bindValue(":user_id",curUserId);
+        if(query.exec()){
+            query.first();
+            int x =  query.value(query.record().indexOf("n")).toInt();
+            return qCeil(x/(double)PER_PAGE);
+        }
+        return 0;
+
+    }
+}
+
+
+
+
+QVariantList ActivityManager::getMyActivities(bool *ok, QVariantMap &error, IRequest *req)
+{
+    QString curUserId = m_proxyConnection->session()->value("logged").toString();
+
+    QString type = req->parameterValue("type");
+
+    int intPage;
+    if(!(intPage= req->parameterValue("page").toInt())){
+        error.insert("page_number","error");
+    }
+
+
+    if(type == "")
+    {
+        QSqlQuery query;
+        query.prepare("SELECT * FROM activities WHERE user_id = :user_id ORDER BY date_created DESC LIMIT :limit OFFSET :offset");
+        query.bindValue(":user_id",curUserId);
+        query.bindValue(":limit",PER_PAGE);
+        query.bindValue(":offset", (intPage-1)* PER_PAGE);
+        if(!query.exec())
+            *ok = false;
+
+        QVariantList activities;
+
+        while (query.next()) {
+            QVariantMap activity;
+            activity.insert("id", query.value(query.record().indexOf("id")));
+            activity.insert("user_name", query.value(query.record().indexOf("user_name")));
+            activity.insert("content", query.value(query.record().indexOf("content")));
+            activity.insert("type", query.value(query.record().indexOf("type")));
+            activity.insert("date_created", query.value(query.record().indexOf("date_created")));
+
+            activities.append(activity);
+        }
+
+        *ok = true;
+        return activities;
+    }
+    else
+    {
+        QSqlQuery query;
+        query.prepare("SELECT * FROM activities WHERE type = :type AND user_id=:user_id ORDER BY date_created DESC LIMIT :limit OFFSET :offset");
+        query.bindValue(":limit",PER_PAGE);
+        query.bindValue(":offset", (intPage-1)* PER_PAGE);
+        query.bindValue(":user_id",curUserId);
         query.bindValue(":type",type);
         if(!query.exec())
             *ok = false;

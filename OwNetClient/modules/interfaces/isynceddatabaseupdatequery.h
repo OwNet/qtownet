@@ -6,6 +6,10 @@
 class ISyncedDatabaseUpdateQuery
 {
 public:
+    enum Groups {
+        GroupCaches = 10
+    };
+
     virtual QString syncWith() = 0;
     virtual void setSyncWith(const QString &clientId) = 0;
 

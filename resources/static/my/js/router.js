@@ -102,7 +102,7 @@ define( function (require) {
 		},
 
 		recommendations: function() {
-			this.views.recommendations.showRecommendations()
+			this.views.recommendations.showRecommendations("all", 1)
 			this.activate("#/recommendations")
 		},
 
