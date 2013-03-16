@@ -830,12 +830,23 @@ IResponse *GroupsService::del(IRequest *req, uint id)
             query->setType(IDatabaseUpdateQuery::Delete);
             query->setUpdateDates(true);
             query->singleWhere("id", id);
-            if(query->executeQuery()){
-                return req->response(IResponse::OK);
-            }
-            else{
+            if(!query->executeQuery())
                 return req->response(IResponse::INTERNAL_SERVER_ERROR);
-            }
+
+            query = m_proxyConnection->databaseUpdateQuery("group_users", &parent);
+            query->setType(IDatabaseUpdateQuery::Delete);
+            query->setUpdateDates(true);
+            query->singleWhere("group_id", id);
+            if(!query->executeQuery())
+                return req->response(IResponse::INTERNAL_SERVER_ERROR);
+
+            query = m_proxyConnection->databaseUpdateQuery("group_admins", &parent);
+            query->setType(IDatabaseUpdateQuery::Delete);
+            query->setUpdateDates(true);
+            query->singleWhere("group_id", id);
+            if(!query->executeQuery())
+                return req->response(IResponse::INTERNAL_SERVER_ERROR);
+
      }
      else{
             return req->response(IResponse::FORBIDDEN);
