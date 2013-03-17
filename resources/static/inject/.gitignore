@@ -1,6 +1,6 @@
 *.sublime-project
 *.sublime-workspace
 js/share
-.sass-cache
+node_modules
 
 !Makefile
