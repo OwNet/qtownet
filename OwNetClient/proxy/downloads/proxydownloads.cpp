@@ -10,6 +10,10 @@
 #include "proxycacheinputobject.h"
 #include "proxycacheoutputwriter.h"
 #include "proxyrequestbus.h"
+#include "databaseselectquery.h"
+#include "proxycachelocations.h"
+#include "session.h"
+#include "databaseupdatequery.h"
 
 ProxyDownloads *ProxyDownloads::m_instance = 0;
 
@@ -109,11 +113,34 @@ void ProxyDownloads::setApplicationProxy(const QString &ip, int port)
     m_proxyPort = port;
 }
 
+/**
+ * @brief IDatabaseUpdateListener event triggered when a query changes the table client_caches.
+ * @param query
+ */
+void ProxyDownloads::tableUpdated(IDatabaseUpdateQuery *query)
+{
+    QVariantMap columns = query->columns();
+    uint id = columns.value("cache_id").toUInt();
+    QString clientId = columns.value("client_id").toString();
+
+    if (query->type() == IDatabaseUpdateQuery::InsertOrUpdate) {
+        addCacheLocation(id, clientId, columns.value("date_created").toString());
+    } else if (query->type() == IDatabaseUpdateQuery::Delete) {
+        if (m_cacheLocations.contains(id)) {
+            m_cacheLocations.value(id)->removeLocation(clientId);
+        }
+    }
+}
+
 ProxyDownloads::ProxyDownloads()
     : m_proxyPort(-1)
 {
     m_gdsfClock = new GDSFClock;
     m_trafficCounter = new ProxyTrafficCounter;
+
+    initCacheLocations();
+
+    DatabaseUpdateQuery::registerListener(this);
 }
 
 /**
@@ -131,14 +158,40 @@ ProxyInputObject *ProxyDownloads::newInputObject(ProxyRequest *request, ProxyHan
     } else if (request->isLocalRequest()) {
         inputObject = new ProxyRequestBus(request, handlerSession);
     } else {
-        if (request->requestType() == ProxyRequest::GET) {
-            ProxyCacheInputObject *cacheInput = new ProxyCacheInputObject(request, handlerSession);
-            if (cacheInput->exists())
-                inputObject = cacheInput;
-        }
+        QVariantMap availableClients = Session().availableClients();
+        Session session;
 
-        if (!inputObject)
+        if (!session.isRefreshSession()) {
+            bool isOnline = Session().isOnline();
+
+            if (m_cacheLocations.contains(request->hashCode())) {
+                QList<ProxyCacheLocation*> locations = m_cacheLocations.value(request->hashCode())->sortedLocations();
+                foreach (ProxyCacheLocation *location, locations) {
+                    if (location->isLocalCache()) {
+                        ProxyCacheInputObject *cacheInput = new ProxyCacheInputObject(request, handlerSession);
+                        if (cacheInput->exists()) {
+                            inputObject = cacheInput;
+                            break;
+                        } else {
+                            continue;
+                        }
+                    } else {
+                        if (!location->isWeb() && !availableClients.contains(location->clientId()))
+                            continue;
+                        if (location->isWeb() && !isOnline)
+                            continue;
+
+                        ProxyWebInputObject *webObject = new ProxyWebInputObject(request, handlerSession);
+                        if (!location->isWeb())
+                            webObject->setProxy(availableClients.value(location->clientId()).toString());
+                        break;
+                    }
+                }
+            }
+        }
+        if (!inputObject) {
             inputObject = new ProxyWebInputObject(request, handlerSession);
+        }
     }
 
     return inputObject;
@@ -153,4 +206,25 @@ void ProxyDownloads::connectDownloadAndOutputWriter(ProxyDownload *download, Pro
 {
     QObject::connect(download, SIGNAL(downloadFinished()), outputWriter, SLOT(readAvailableParts()), Qt::QueuedConnection);
     QObject::connect(download, SIGNAL(bytePartAvailable()), outputWriter, SLOT(readAvailableParts()), Qt::QueuedConnection);
+}
+
+void ProxyDownloads::initCacheLocations()
+{
+    DatabaseSelectQuery query("client_caches");
+    while (query.next()) {
+        addCacheLocation(query.value("cache_id").toUInt(),
+                         query.value("client_id").toString(),
+                         query.value("date_created").toString());
+    }
+}
+
+void ProxyDownloads::addCacheLocation(uint cacheId, const QString &clientId, const QString &dateCreated)
+{
+    if (m_cacheLocations.contains(cacheId)) {
+        m_cacheLocations.value(cacheId)->addLocation(clientId, dateCreated);
+    } else {
+        ProxyCacheLocations *locations = new ProxyCacheLocations;
+        locations->addLocation(clientId, dateCreated);
+        m_cacheLocations.insert(cacheId, locations);
+    }
 }

@@ -136,22 +136,43 @@ IResponse *UsersService::edit(IRequest *req, uint id)
     IDatabaseUpdateQuery *query = m_proxyConnection->databaseUpdateQuery("users", &parent);
 
     bool ok = false;
-    QVariant body = req->postBodyFromJson(&ok);
 
+    QVariantMap reqJson = req->postBodyFromJson(&ok).toMap();
     if (!ok)
-        return req->response(IResponse::BAD_REQUEST);
+        return req->response(IResponse::INTERNAL_SERVER_ERROR);
 
-    QVariantMap user = body.toMap();
 
-    query->setColumnValue("first_name", user["first_name"]);
-    query->setColumnValue("last_name", user["last_name"]);
-    query->setColumnValue("login", user["login"]);
-    query->setColumnValue("email", user["email"]);
+    QString first_name = reqJson["first_name"].toString();
+    if(first_name != "")
+        query->setColumnValue("first_name", first_name);
+
+    QString last_name = reqJson["last_name"].toString();
+    if(last_name != "")
+        query->setColumnValue("last_name", last_name);
+
+    QString login = reqJson["login"].toString();
+    if(login != "")
+        query->setColumnValue("login", login);
+
+    QString email = reqJson["email"].toString();
+    if(email != "")
+        query->setColumnValue("email", email);
 
     query->singleWhere("id", id);
 
-    if (user.contains("password"))
-        query->setColumnValue("password", user["password"]);
+    QString password = reqJson["password"].toString();
+    if(password != ""){
+        query->setColumnValue("password", password);
+        QSqlQuery q;
+        q.prepare("SELECT salt FROM groups WHERE id = :id");
+        q.bindValue(":id",id);
+        q.exec();
+
+        QString salt =  q.value(q.record().indexOf("salt")).toString();
+        PortalHelper::addSalt(&password,&salt);
+        query->setColumnValue("password", password);
+
+    }
 
     if ( query->executeQuery() )
         return req->response(IResponse::OK);

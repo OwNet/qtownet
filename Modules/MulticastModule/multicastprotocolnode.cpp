@@ -8,7 +8,7 @@
 
 #include <QSettings>
 
-MulticastProtocolNode::MulticastProtocolNode(const uint &id, IProxyConnection *proxyConnection, QObject *parent) :
+MulticastProtocolNode::MulticastProtocolNode(const QString &id, IProxyConnection *proxyConnection, QObject *parent) :
     m_id(id),
     m_lastUpdated(QDateTime()),
     m_proxyConnection(proxyConnection),
@@ -93,7 +93,7 @@ QVariantMap MulticastProtocolNode::message() const
     return message;
 }
 
-uint MulticastProtocolNode::id() const
+QString MulticastProtocolNode::id() const
 {
     return m_id;
 }

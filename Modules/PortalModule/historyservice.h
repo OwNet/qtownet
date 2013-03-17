@@ -29,10 +29,10 @@ private:
 
 
 
-   bool registerPageQuery(QString url, QString title, int &id);
-   bool registerVisitQuery(int user_id, int page_id);
-   bool registerEdgeQuery(int page_from_id, int page_to_id);
-   bool registerTraverseQuery(int user_id, int page_from_id, int page_to_id);
+   bool registerPageQuery(QString url, QString title, uint &id);
+   bool registerVisitQuery(QString user_id, uint page_id);
+   bool registerEdgeQuery(uint page_from_id, uint page_to_id);
+   bool registerTraverseQuery(QString user_id, uint page_from_id, uint page_to_id);
 };
 
 

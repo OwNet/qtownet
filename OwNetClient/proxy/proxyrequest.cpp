@@ -4,6 +4,7 @@
 #include "messagehelper.h"
 #include "jsondocument.h"
 #include "httprequest.h"
+#include "cachehelper.h"
 
 #include <QNetworkRequest>
 #include <QStringList>
@@ -137,7 +138,7 @@ bool ProxyRequest::hasParameter(const QString &key) const
 
 uint ProxyRequest::hashCode() const
 {
-    return qHash(url());
+    return CacheHelper::cacheId(url());
 }
 
 QString ProxyRequest::relativeUrl() const

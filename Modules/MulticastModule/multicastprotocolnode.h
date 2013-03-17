@@ -12,13 +12,13 @@ class MulticastProtocolNode : public QObject
 {
     Q_OBJECT
 public:
-    MulticastProtocolNode(const uint &id, IProxyConnection *proxyConnection, QObject *parent = 0);
+    MulticastProtocolNode(const QString &id, IProxyConnection *proxyConnection, QObject *parent = 0);
 
     static bool lessThan(const MulticastProtocolNode *, const MulticastProtocolNode *);
     void update(uint score, MulticastProtocol::Status status,
                 uint port, QString address, uint initialized);
 
-    uint id() const;
+    QString id() const;
     uint score() const;
     uint port() const;
     QString address() const;
@@ -33,7 +33,7 @@ public:
 
 private:
 
-    uint m_id;
+    QString m_id;
     uint m_score;
     uint m_port;
     QString m_address;

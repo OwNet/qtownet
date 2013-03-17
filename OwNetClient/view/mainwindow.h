@@ -1,4 +1,4 @@
-#ifndef MAINWINDOW_H
+﻿#ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
 #include <QMainWindow>
@@ -29,6 +29,7 @@ private slots:
     void sync();
     void crash();
     void editWorkspaceName();
+    void newWorkspace();
     
 private:
     void createTrayIcon();

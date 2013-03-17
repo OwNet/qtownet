@@ -19,9 +19,12 @@ public:
     void clear();
 
     bool isLoggedIn() const;
+    uint userId() const;
     QVariantMap availableClients() const;
-    uint serverId() const;
+    QString serverId() const;
     bool isServer() const;
+    bool isOnline() const;
+    bool isRefreshSession() const;
 
 private:
     static QVariantMap *m_sessionData;

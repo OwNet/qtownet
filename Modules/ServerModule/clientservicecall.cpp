@@ -20,11 +20,11 @@ ClientServiceCall::ClientServiceCall(IProxyConnection *proxyConnection, QObject 
 {
 }
 
-IResponse *ClientServiceCall::callClientService(uint clientId, const QString &apiUrl, IRequest *request)
+IResponse *ClientServiceCall::callClientService(const QString &clientId, const QString &apiUrl, IRequest *request)
 {
     QObject parent;
     ISession *session = m_proxyConnection->session(&parent);
-    QStringList ipPort = session->availableClients().value(QString::number(clientId)).toString().split(":");
+    QStringList ipPort = session->availableClients().value(clientId).toString().split(":");
 
     if (ipPort.count() < 2)
         return request->response(IResponse::SERVICE_UNAVAILABLE);
@@ -38,15 +38,31 @@ IResponse *ClientServiceCall::callClientService(uint clientId, const QString &ap
     return callClientService(ip, port, apiUrl, request);
 }
 
-IResponse *ClientServiceCall::callClientService(QString ip, int port, const QString &apiUrl, IRequest *request)
+IResponse *ClientServiceCall::callClientService(const QString &ip, int port, const QString &apiUrl, IRequest *request)
 {
-    QUrlQuery urlQuery(QString("http://external.ownet/api/%1").arg(apiUrl));
+    QNetworkAccessManager *manager = new QNetworkAccessManager(this);
+    manager->setProxy(QNetworkProxy(QNetworkProxy::HttpProxy, ip, port));
+
+    return callService(QString("http://external.ownet/api/%1").arg(apiUrl),
+                       request,
+                       manager);
+}
+
+IResponse *ClientServiceCall::callCentralService(const QString &relativeUrl, IRequest *request)
+{
+    QNetworkAccessManager *manager = new QNetworkAccessManager(this);
+
+    return callService(QString("http://yatta.fiit.stuba.sk/OwNetRestService/%1").arg(relativeUrl),
+                       request,
+                       manager);
+}
+
+IResponse *ClientServiceCall::callService(const QString &url, IRequest *request, QNetworkAccessManager *manager)
+{
+    QUrlQuery urlQuery(url);
     /*foreach (QString key, parameters.keys()) {
         urlQuery.addQueryItem(key, parameters.value(key).toString());
     }*/
-
-    QNetworkAccessManager *manager = new QNetworkAccessManager(this);
-    manager->setProxy(QNetworkProxy(QNetworkProxy::HttpProxy, ip, port));
 
     QNetworkReply *reply = NULL;
     QNetworkRequest networkRequest(QUrl(urlQuery.toString(QUrl::FullyEncoded)));
@@ -74,10 +90,14 @@ IResponse *ClientServiceCall::callClientService(QString ip, int port, const QStr
     QEventLoop loop;
     connect(reply, SIGNAL(finished()), &loop, SLOT(quit()));
     loop.exec();
+    reply->waitForReadyRead(15000);
 
     bool ok = false;
-    QVariant json = m_proxyConnection->fromJson(reply->readAll(), &ok);
-    if (ok)
-        return request->response(json);
+    if (reply->error() == QNetworkReply::NoError) {
+        QVariant json = m_proxyConnection->fromJson(reply->readAll(), &ok);
+        if (ok)
+            return request->response(json);
+        return request->response(IResponse::OK);
+    }
     return request->response(IResponse::NOT_FOUND);
 }

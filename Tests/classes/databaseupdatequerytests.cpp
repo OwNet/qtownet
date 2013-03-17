@@ -5,6 +5,7 @@
 #include "databaseselectquery.h"
 #include "databasesettings.h"
 #include "databaseupdate.h"
+#include "stubdatabaseupdatelistener.h"
 
 #include <QtTest>
 #include <QSqlQuery>
@@ -18,7 +19,7 @@ void DatabaseUpdateQueryTests::init()
 {
     StubDatabase::close();
     StubDatabase::init();
-    QSqlQuery query("CREATE TABLE tst_settings (_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,key TEXT NOT NULL,value TEXT NOT NULL,date_created TEXT NOT NULL,date_updated TEXT NOT NULL,sync_id TEXT);");
+    QSqlQuery query("CREATE TABLE tst_settings (_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,key TEXT NOT NULL,value TEXT NOT NULL,date_created TEXT NOT NULL,date_updated TEXT NOT NULL,uid TEXT);");
     query.exec();
 }
 
@@ -50,9 +51,9 @@ void DatabaseUpdateQueryTests::testInsert()
         /// Check that the inserted item is in the sync journal
         DatabaseSelectQuery selectJournal("sync_journal");
         QCOMPARE(selectJournal.first(), true);
-        QCOMPARE(selectJournal.value("client_id").toUInt(), settings.clientId());
+        QCOMPARE(selectJournal.value("client_id").toString(), settings.clientId());
         QCOMPARE(selectJournal.value("table_name").toString(), QString("tst_settings"));
-        QCOMPARE(selectJournal.value("sync_id").toString(), QString("%1/%2").arg(settings.clientId())
+        QCOMPARE(selectJournal.value("uid").toString(), QString("%1_%2").arg(settings.clientId())
                  .arg(selectJournal.value("client_rec_num").toInt()));
     }
     {
@@ -201,4 +202,53 @@ void DatabaseUpdateQueryTests::testDelete()
         QCOMPARE(selectJournal.first(), true);
         QCOMPARE(selectJournal.value("count").toInt(), 2);
     }
+}
+
+void DatabaseUpdateQueryTests::testListeners()
+{
+    StubDatabaseUpdateListener listener1("tst_settings");
+    StubDatabaseUpdateListener listener2("wrong_table");
+    DatabaseUpdateQuery::registerListener(&listener1);
+    DatabaseUpdateQuery::registerListener(&listener2);
+
+    {
+        DatabaseUpdateQuery query("tst_settings", DatabaseUpdateQuery::InsertOrUpdate);
+
+        query.setColumnValue("key", "Peter");
+        query.setColumnValue("value", "Brown");
+        query.setUpdateDates(true);
+
+        query.executeQuery();
+    }
+
+    QVERIFY(listener1.updateQuery() != NULL);
+    QVERIFY(listener2.updateQuery() == NULL);
+
+    DatabaseUpdateQuery::deregisterListener(&listener1);
+    DatabaseUpdateQuery::deregisterListener(&listener2);
+    listener1.clear();
+
+    {
+        DatabaseUpdateQuery query("tst_settings", DatabaseUpdateQuery::InsertOrUpdate);
+
+        query.setColumnValue("key", "John");
+        query.setColumnValue("value", "Brown");
+        query.setUpdateDates(true);
+
+        query.executeQuery();
+    }
+    QVERIFY(listener1.updateQuery() == NULL);
+}
+
+void DatabaseUpdateQueryTests::testLastUid()
+{
+    SyncedDatabaseUpdateQuery query("tst_settings", DatabaseUpdateQuery::InsertOrUpdate);
+    query.setColumnValue("key", "John");
+    query.setColumnValue("value", "Doe");
+    query.setUpdateDates(true);
+    query.executeQuery();
+    DatabaseSelectQuery selectQuery("tst_settings");
+    selectQuery.first();
+    QCOMPARE(((IDatabaseUpdateQuery*)&query)->syncedQuery()->lastUid(),
+             selectQuery.value("uid").toString());
 }

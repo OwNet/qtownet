@@ -12,6 +12,9 @@ DatabaseSelectQueryWhereExpression::DatabaseSelectQueryWhereExpression(const QSt
     m_operator(op),
     m_bind(bind)
 {
+    if (m_operator == IDatabaseSelectQuery::Is || m_operator == IDatabaseSelectQuery::In || m_operator == IDatabaseSelectQuery::NotIn)
+        m_bind = false;
+
     if (m_bind)
         m_id = m_nextId++;
 }
@@ -56,6 +59,8 @@ QString DatabaseSelectQueryWhereExpression::operatorToString() const
         return "IN";
     case IDatabaseSelectQuery::Is:
         return "IS";
+    case IDatabaseSelectQuery::NotIn:
+        return "NOT IN";
     }
     return "=";
 }

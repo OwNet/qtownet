@@ -6,6 +6,7 @@
 #include "databaseselectquery.h"
 #include "databasesettings.h"
 #include "session.h"
+#include "idatabaseselectquerywheregroup.h"
 
 #include <QNetworkReply>
 #include <QNetworkProxy>
@@ -13,20 +14,12 @@
 #include <QBuffer>
 
 ProxyWebInputObject::ProxyWebInputObject(ProxyRequest *request, QObject *parent)
-    : ProxyInputObject(request, parent), m_readHeaders(false), m_retryIfFailed(false)
+    : ProxyInputObject(request, parent), m_readHeaders(false)
 {
 }
 
 void ProxyWebInputObject::readRequest()
 {
-    uint myId = DatabaseSettings().clientId();
-
-    DatabaseSelectQuery query("client_caches");
-    query.singleWhere("cache_id", m_request->hashCode());
-    while (query.next())
-        if (query.value("client_id").toUInt() != myId && isClientOnline(query.value("client_id").toUInt()))
-            m_clientsToTry.append(query.value("client_id").toUInt());
-
     createReply();
 
     ProxyDownloads::instance()->trafficCounter()->increaseCurrentTraffic();
@@ -45,13 +38,6 @@ void ProxyWebInputObject::readReply()
 void ProxyWebInputObject::error(QNetworkReply::NetworkError)
 {
     QNetworkReply *reply = qobject_cast<QNetworkReply*>(sender());
-
-    if (m_retryIfFailed) {
-        reply->deleteLater();
-        m_retryIfFailed = false;
-        createReply();
-        return;
-    }
 
     if (!m_readHeaders) {
         readResponseHeaders(reply);
@@ -97,9 +83,9 @@ void ProxyWebInputObject::createReply()
     QNetworkReply *reply = NULL;
     QNetworkRequest request;
 
-    if (m_clientsToTry.count()) {
-        manager->setProxy(QNetworkProxy(QNetworkProxy::HttpProxy, clientIp(m_clientsToTry.takeFirst()), 8081));
-        m_retryIfFailed = true;
+    if (!m_proxy.isEmpty()) {
+        QStringList ipAndPort = clientIpAndPort(m_proxy).split(":");
+        manager->setProxy(QNetworkProxy(QNetworkProxy::HttpProxy, ipAndPort.first(), ipAndPort.last().toInt()));
     }
 
     request.setUrl(QUrl(m_request->url()));
@@ -135,12 +121,12 @@ void ProxyWebInputObject::createReply()
     connect(reply, SIGNAL(error(QNetworkReply::NetworkError)), this, SLOT(error(QNetworkReply::NetworkError)));
 }
 
-bool ProxyWebInputObject::isClientOnline(uint clientId) const
+bool ProxyWebInputObject::isClientOnline(const QString &clientId) const
 {
-    return Session().availableClients().contains(QString::number(clientId));
+    return Session().availableClients().contains(clientId);
 }
 
-QString ProxyWebInputObject::clientIp(uint clientId) const
+QString ProxyWebInputObject::clientIpAndPort(const QString &clientId) const
 {
-    return Session().availableClients().value(QString::number(clientId)).toString();
+    return Session().availableClients().value(clientId).toString();
 }

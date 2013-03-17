@@ -53,19 +53,19 @@ bool DatabaseSettings::hasClientId() const
     return !clientName.isEmpty();
 }
 
-uint DatabaseSettings::clientId() const
+QString DatabaseSettings::clientId() const
 {
     if (!hasClientId())
         createClientId();
 
-    uint id = value("client_id").toUInt();
+    QString id = value("client_id");
     return id;
 }
 
 void DatabaseSettings::createClientId() const
 {
     setValue("client_id",
-                      QString::number(qHash(QString("c_%1-%2")
+                      QString("C%1").arg(qHash(QString("c_%1-%2")
                                             .arg(QDateTime::currentDateTime().toString(Qt::ISODate))
                                             .arg(m_numClientIdsGenerated++))));
 }

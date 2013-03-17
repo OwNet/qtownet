@@ -8,6 +8,7 @@
 #include "proxyconnection.h"
 #include "ijobaction.h"
 #include "modulejob.h"
+#include "messagehelper.h"
 
 #include <QDir>
 #include <QPluginLoader>
@@ -50,6 +51,11 @@ void ModuleInitializer::loadPlugins()
             IModule *module = qobject_cast<IModule *>(plugin);
             if (module)
                 initModule(module);
+        } else {
+             QString kokot = loader.errorString();
+            MessageHelper::debug( loader.errorString() );
+
+
         }
     }
 }

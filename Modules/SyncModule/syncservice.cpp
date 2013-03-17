@@ -33,8 +33,8 @@ IResponse *SyncService::getUpdates(IRequest *request)
     if (!ok)
         return request->response(IResponse::BAD_REQUEST);
 
-    int clientId = requestBody.value("client_id", -1).toUInt();
-    if (clientId == -1)
+    QString clientId = requestBody.value("client_id").toString();
+    if (clientId.isEmpty())
         return request->response(IResponse::BAD_REQUEST);
 
     bool syncAllGroups = requestBody.value("sync_all_groups", false).toBool();
@@ -42,7 +42,10 @@ IResponse *SyncService::getUpdates(IRequest *request)
 
     SyncServer server(m_proxyConnection);
 
-    return request->response(server.updates(clientRecordNumbers, syncAllGroups, clientId));
+    QVariantList updates = server.updates(clientRecordNumbers, syncAllGroups, clientId);
+    if (updates.count() > 100)
+        return request->response(updates.mid(0, 100));
+    return request->response(updates);
 }
 
 /**
@@ -53,6 +56,7 @@ IResponse *SyncService::getUpdates(IRequest *request)
 IResponse *SyncService::syncNow(IRequest *request)
 {
     SyncClient client(m_proxyConnection);
+
     QVariantMap json;
 
     json.insert("number_of_available_clients", m_proxyConnection->session(&client)->availableClients().count());

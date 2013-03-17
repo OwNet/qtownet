@@ -11,7 +11,6 @@
 
 SyncedDatabaseUpdateQuery::SyncedDatabaseUpdateQuery(const QString &table, IDatabaseUpdateQuery::EntryType type, QObject *parent)
     : DatabaseUpdateQuery(table, type, parent),
-      m_syncWith(-1),
       m_groupId(-1)
 {
 }
@@ -20,20 +19,20 @@ bool SyncedDatabaseUpdateQuery::executeInsert()
 {
     DatabaseSettings settings;
     int clientRecNum = settings.nextClientSyncRecordNumber();
-    QString syncId = QString("%1/%2")
+    QString uid = QString("%1_%2")
             .arg(settings.clientId())
             .arg(clientRecNum);
 
-    if (executeInsert(syncId)) {
-        saveSyncJournalItem(syncId, clientRecNum);
+    if (executeInsert(uid)) {
+        saveSyncJournalItem(uid, clientRecNum);
         return true;
     }
     return false;
 }
 
-bool SyncedDatabaseUpdateQuery::executeInsert(const QString &syncId)
+bool SyncedDatabaseUpdateQuery::executeInsert(const QString &uid)
 {
-    m_columns.insert("sync_id", syncId);
+    m_columns.insert("uid", uid);
 
     QStringList columnKeys = m_columns.keys();
 
@@ -46,18 +45,18 @@ bool SyncedDatabaseUpdateQuery::executeInsert(const QString &syncId)
 bool SyncedDatabaseUpdateQuery::executeUpdate()
 {
     bool success = true;
-    QStringList ids = getSyncIdsToModify();
+    QStringList ids = getUidsToModify();
 
-    foreach (QString syncId, ids) {
-        if (!executeUpdate(syncId))
+    foreach (QString uid, ids) {
+        if (!executeUpdate(uid))
             success = false;
         else
-            saveSyncJournalItem(syncId);
+            saveSyncJournalItem(uid);
     }
     return success;
 }
 
-bool SyncedDatabaseUpdateQuery::executeUpdate(const QString &syncId) const
+bool SyncedDatabaseUpdateQuery::executeUpdate(const QString &uid) const
 {
     QStringList columnKeys = m_columns.keys();
 
@@ -68,7 +67,7 @@ bool SyncedDatabaseUpdateQuery::executeUpdate(const QString &syncId) const
             queryString.append(",");
         queryString.append(QString(" %1 = :v_%1").arg(columnKeys.at(i)));
     }
-    queryString.append(QString(" WHERE sync_id = '%1'").arg(syncId));
+    queryString.append(QString(" WHERE uid = '%1'").arg(uid));
 
     return executeQuery(queryString);
 }
@@ -76,76 +75,59 @@ bool SyncedDatabaseUpdateQuery::executeUpdate(const QString &syncId) const
 bool SyncedDatabaseUpdateQuery::executeDelete()
 {
     bool success = true;
-    QStringList ids = getSyncIdsToModify();
+    QStringList ids = getUidsToModify();
 
-    foreach (QString syncId, ids) {
-        if (!executeDelete(syncId))
+    foreach (QString uid, ids) {
+        if (!executeDelete(uid))
             success = false;
         else
-            saveSyncJournalItem(syncId);
+            saveSyncJournalItem(uid);
     }
     return success;
 }
 
-bool SyncedDatabaseUpdateQuery::executeDelete(const QString &syncId) const
+bool SyncedDatabaseUpdateQuery::executeDelete(const QString &uid) const
 {
-    return executeQuery(QString("DELETE FROM %1 WHERE sync_id = '%2'")
+    return executeQuery(QString("DELETE FROM %1 WHERE uid = '%2'")
                         .arg(table())
-                        .arg(syncId));
+                        .arg(uid));
 }
 
-void SyncedDatabaseUpdateQuery::saveSyncJournalItem(const QString &syncId, int clientRecNum) const
+void SyncedDatabaseUpdateQuery::saveSyncJournalItem(const QString &uid, int clientRecNum)
 {
+    m_lastUid = uid;
+    if (clientRecNum < 0)
+        clientRecNum = uid.split('_').last().toInt();
+
     DatabaseSettings settings;
-    QStringList columns;
-    columns << "client_id"
-            << "client_rec_num"
-            << "date_created"
-            << "operation_type"
-            << "sync_id"
-            << "table_name";
-    if (m_syncWith != -1)
-        columns.append("sync_with");
+    DatabaseUpdateQuery updateQuery("sync_journal");
+    updateQuery.setColumnValue("client_id", settings.clientId());
+    updateQuery.setColumnValue("uid", uid);
+    updateQuery.setColumnValue("client_rec_num", clientRecNum);
+    updateQuery.setColumnValue("date_created", timestamp());
+    updateQuery.setColumnValue("table_name", table());
+    updateQuery.setColumnValue("operation_type", (int)type());
+    if (!m_syncWith.isEmpty())
+        updateQuery.setColumnValue("sync_with", m_syncWith);
     if (m_groupId != -1)
-        columns.append("group_id");
+        updateQuery.setColumnValue("group_id", m_groupId);
 
-    QSqlQuery query;
-    query.prepare(QString("INSERT INTO sync_journal (%1) VALUES (:%2)")
-                  .arg(columns.join(", "))
-                  .arg(columns.join(", :")));
+    updateQuery.executeQuery();
 
-    query.bindValue(":client_id", settings.clientId());
-    query.bindValue(":sync_id", syncId);
-    query.bindValue(":client_rec_num", clientRecNum);
-    query.bindValue(":date_created", timestamp());
-    query.bindValue(":table_name", table());
-    query.bindValue(":operation_type", (int)type());
-    if (m_syncWith != -1)
-        query.bindValue(":sync_with", m_syncWith);
-    if (m_groupId != -1)
-        query.bindValue(":group_id", m_groupId);
-
-    if (!query.exec()) {
-        MessageHelper::debug(query.lastQuery());
-        MessageHelper::debug(query.lastError().text());
-    }
-
-    if (clientRecNum == -1)
-        clientRecNum = settings.nextClientSyncRecordNumber();
     DatabaseUpdate::setLastRecordNumber(m_groupId, clientRecNum);
 }
 
-QStringList SyncedDatabaseUpdateQuery::getSyncIdsToModify() const
+QStringList SyncedDatabaseUpdateQuery::getUidsToModify() const
 {
     if (!m_selectQuery)
         return QStringList();
 
     m_selectQuery->clearSelect();
     m_selectQuery->resetQuery();
-    m_selectQuery->select("sync_id");
+    m_selectQuery->select("uid");
     QStringList ids;
     while (m_selectQuery->next())
-        ids.append(m_selectQuery->value("sync_id").toString());
+        ids.append(m_selectQuery->value("uid").toString());
 
     return ids;
 }

@@ -1,0 +1,30 @@
+.row
+	.span5
+		.row
+			.span5.center
+				a(href="my.ownet")
+					img( src="/img/ownet.png" )
+
+		.row
+			.span5
+				form(name="login-form").form-horizontal
+
+					.control-group
+						label.control-label Login:
+						.controls
+							input(type="text" name="login")
+							span.help-block
+
+					.control-group
+						label.control-label Password:
+						.controls
+							input(type="password" name="password")
+							span.help-block
+
+					.control-group
+						.controls
+							//- label.checkbox
+								input( type="checkbox" )
+								| Remember me
+
+							button#login.btn(type="button" name="submit") Log In

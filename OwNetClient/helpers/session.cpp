@@ -34,6 +34,11 @@ bool Session::isLoggedIn() const
     return m_sessionData->contains("logged");
 }
 
+uint Session::userId() const
+{
+    return m_sessionData->value("logged").toUInt();
+}
+
 QVariantMap Session::availableClients() const
 {
     if (m_sessionData->contains("available_clients"))
@@ -41,14 +46,24 @@ QVariantMap Session::availableClients() const
     return QVariantMap();
 }
 
-uint Session::serverId() const
+QString Session::serverId() const
 {
     if (m_sessionData->contains("server_id") && !m_sessionData->value("server_id").isNull())
-        return m_sessionData->value("server_id").toUInt();
+        return m_sessionData->value("server_id").toString();
     return DatabaseSettings().clientId();
 }
 
 bool Session::isServer() const
 {
     return serverId() == DatabaseSettings().clientId();
+}
+
+bool Session::isOnline() const
+{
+    return m_sessionData->value("is_online", true).toBool();
+}
+
+bool Session::isRefreshSession() const
+{
+    return m_sessionData->value("refresh_session", false).toBool();
 }

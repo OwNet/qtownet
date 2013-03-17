@@ -6,12 +6,14 @@
 
 #include "idatabaseselectquery.h"
 
+class ISyncedDatabaseUpdateQuery;
+
 class IDatabaseUpdateQuery
 {
 public:
     enum EntryType {
         InsertOrUpdate = 1,
-        Delete = 4
+        Delete = 2
     };
     enum UpdateDates {
         None = 0,
@@ -22,13 +24,16 @@ public:
     virtual void setColumnValue(const QString &name, const QVariant &value) = 0;
     virtual void setUpdateDates(bool setDates) = 0;
     virtual void setUpdateDates(IDatabaseUpdateQuery::UpdateDates updateDates) = 0;
+    virtual void setType(EntryType type) = 0;
 
     virtual void singleWhere(const QString &column, const QVariant &value, IDatabaseSelectQuery::WhereOperator op = IDatabaseSelectQuery::Equal, bool bind = true) = 0;
     virtual IDatabaseSelectQueryWhereGroup *whereGroup(IDatabaseSelectQuery::JoinOperator op) = 0;
 
+    virtual ISyncedDatabaseUpdateQuery *syncedQuery() { return NULL; }
+
     virtual QString table() const = 0;
     virtual EntryType type() const = 0;
-    virtual void setType(EntryType type) = 0;
+    virtual QVariantMap columns() const = 0;
 
     virtual bool executeQuery() = 0;
 };

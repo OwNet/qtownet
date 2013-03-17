@@ -25,7 +25,10 @@ SOURCES +=  main.cpp \
     classes/proxydownloadtests.cpp \
     classes/databaseupdatequerytests.cpp \
     classes/workspaceinitializertests.cpp \
-    helpers/workspacehelpertests.cpp
+    helpers/workspacehelpertests.cpp \
+    classes/databaseselectquerytests.cpp \
+    stub/stubdatabaseupdatelistener.cpp \
+    classes/proxycachelocationstests.cpp
 
 
 HEADERS +=  autotest.h \
@@ -36,7 +39,10 @@ HEADERS +=  autotest.h \
     classes/proxydownloadtests.h \
     classes/databaseupdatequerytests.h \
     classes/workspaceinitializertests.h \
-    helpers/workspacehelpertests.h
+    helpers/workspacehelpertests.h \
+    classes/databaseselectquerytests.h \
+    stub/stubdatabaseupdatelistener.h \
+    classes/proxycachelocationstests.h
 
 OwNetClientPath = ../OwNetClient
 ModulesPath = ../Modules

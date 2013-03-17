@@ -32,8 +32,11 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->btnSync, SIGNAL(clicked()), this, SLOT(sync()));
     connect(ui->btnCrash, SIGNAL(clicked()), this, SLOT(crash()));
     connect(ui->btnEditWorkspaceName, SIGNAL(clicked()), this, SLOT(editWorkspaceName()));
+    connect(ui->btnNewWorkspace, SIGNAL(clicked()), this, SLOT(newWorkspace()));
 
+#if defined(Q_WS_WIN) || defined(Q_WS_MAC)
     createTrayIcon();
+#endif
 
     QShortcut *dumpSockets = new QShortcut(QKeySequence(tr("Ctrl+L", "Dump Open Socket")), this);
     dumpSockets->setContext(Qt::ApplicationShortcut);
@@ -144,6 +147,16 @@ void MainWindow::editWorkspaceName()
         if (m_workspaceItems.contains(id))
             m_workspaceItems.value(id)->setName(text);
     }
+}
+
+void MainWindow::newWorkspace()
+{
+    bool ok;
+    QString text = QInputDialog::getText(this, tr("Enter the name of the new workspace"),
+                                         tr("Name of the new workspace:"), QLineEdit::Normal,
+                                         "", &ok);
+    if (ok && !text.isEmpty())
+        WorkspaceHelper::createAndLoadNewWorkspace(text);
 }
 
 void MainWindow::createTrayIcon()

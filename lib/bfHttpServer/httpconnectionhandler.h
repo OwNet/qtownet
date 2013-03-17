@@ -63,6 +63,7 @@ private:
 
     /** Storage for the current incoming HTTP request */
     HttpRequest* currentRequest;
+    HttpResponse* currentResponse;
 
     /** Dispatches received requests to services */
     HttpRequestHandler* requestHandler;

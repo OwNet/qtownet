@@ -3,6 +3,7 @@ require.config({
 	baseUrl: 'js',
 
 	paths: {
+			init        :  'share/lib/init',
 			async       :  'share/lib/async',
 			jquery      :  'share/lib/jquery',
 			underscore  :  'share/lib/lodash',
@@ -10,7 +11,6 @@ require.config({
 			backbone    :  'share/lib/backbone',
 			jade        :  'share/lib/jade.runtime.min',
 
-			'utils' : 'share/utils/utils',
 			'jquery.escape' : 'share/utils/jquery.escape',
 	},
 
@@ -32,7 +32,11 @@ require.config({
 });
 
 
-require(['App', 'router', 'utils'], function(App, Router) {
+require(['App', 'router'], function(App, Router) {
+	App.once('ready', function() {
+		App.router = new Router()
+		App.router.start()
+	})
+
 	App.initialize()
-	new Router({ App:App })
 });

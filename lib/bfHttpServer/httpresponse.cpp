@@ -5,7 +5,9 @@
 
 #include "httpresponse.h"
 
-HttpResponse::HttpResponse(QTcpSocket* socket) {
+HttpResponse::HttpResponse(QTcpSocket* socket, QObject *parent) :
+    QObject(parent)
+{
     this->socket=socket;
     statusCode=200;
     statusText="OK";
@@ -107,6 +109,7 @@ void HttpResponse::write(QByteArray data, bool lastPart) {
             socket->disconnectFromHost();
         }
         sentLastPart=true;
+        emit finished();
     }
 }
 

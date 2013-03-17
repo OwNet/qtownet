@@ -2,6 +2,7 @@
 #define PROXYWEBINPUTOBJECT_H
 
 #include <QNetworkReply>
+#include <QStringList>
 
 #include "proxyinputobject.h"
 
@@ -13,6 +14,7 @@ public:
     ProxyWebInputObject(ProxyRequest *request, QObject *parent = 0);
 
     InputType inputType() const { return Web; }
+    void setProxy(const QString &proxy) { m_proxy = proxy; }
 
 protected:
     void readRequest();
@@ -25,12 +27,12 @@ private slots:
 
 private:
     void createReply();
-    bool isClientOnline(uint clientId) const;
-    QString clientIp(uint clientId) const;
+    bool isClientOnline(const QString &clientId) const;
+    QString clientIpAndPort(const QString &clientId) const;
 
     bool m_readHeaders;
-    bool m_retryIfFailed;
-    QList<uint> m_clientsToTry;
+    QStringList m_clientsToTry;
+    QString m_proxy;
 };
 
 #endif // PROXYWEBINPUTOBJECT_H
