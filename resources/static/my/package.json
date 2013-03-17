@@ -1,0 +1,23 @@
+{
+  "name": "My.OwNet",
+  "version": "0.0.1",
+  "author": "timak12 <timak12@googlegroups.com>",
+  "description": "OwNet My portal module",
+  "dependencies" : {
+
+  },
+  "devDependencies": {
+    "jade": "0.28.x",
+    "requirejs": "2.1.x",
+    "less": "1.4.x",
+    "grunt": "0.4.x",
+    "grunt-contrib-watch": "0.3.x",
+    "grunt-contrib-jade": "0.5.x"
+  },
+  "bundledDependencies": [
+
+  ],
+  "engines": {
+    "node": ">=0.8"
+  }
+}
