@@ -1,6 +1,8 @@
 *.sublime-project
 *.sublime-workspace
-js/share
 node_modules
+js/share
+css/style.css
+js/tpl
 
 !Makefile
