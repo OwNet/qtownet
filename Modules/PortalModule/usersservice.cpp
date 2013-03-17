@@ -118,10 +118,21 @@ IResponse *UsersService::create(IRequest *req)
     query->setColumnValue("password", password);
     query->setColumnValue("salt", salt);
 
-    if ( query->executeQuery() )
-        return req->response(IResponse::CREATED);
-    else
-        return req->response(IResponse::BAD_REQUEST);
+    if ( !query->executeQuery() )
+       return req->response(IResponse::INTERNAL_SERVER_ERROR);
+
+    /* auto assign into general group */
+    IDatabaseUpdateQuery *query2 = m_proxyConnection->databaseUpdateQuery("group_users", &parent);
+
+    query2->setUpdateDates(true);
+    query2->setColumnValue("group_id", "0");
+    query2->setColumnValue("status", "1");
+    query2->setColumnValue("user_id", id);
+
+    if ( !query2->executeQuery() )
+       return req->response(IResponse::INTERNAL_SERVER_ERROR);
+
+    return req->response(IResponse::CREATED);
 }
 
 IResponse *UsersService::edit(IRequest *req, uint id)
@@ -190,8 +201,18 @@ IResponse *UsersService::del(IRequest *req, uint id)
     query->setType(IDatabaseUpdateQuery::Delete);
     query->singleWhere("id", id);
 
-    if( query->executeQuery() )
-        return req->response(IResponse::NO_CONTENT);
-    else
-        return req->response(IResponse::INTERNAL_SERVER_ERROR);
+    IDatabaseUpdateQuery *del_q = m_proxyConnection->databaseUpdateQuery("group_admins", &parent);
+    del_q->setType(IDatabaseUpdateQuery::Delete);
+    del_q->setUpdateDates(true);
+    del_q->singleWhere("user_id", id);
+    del_q->executeQuery();
+
+    IDatabaseUpdateQuery *del_q2 = m_proxyConnection->databaseUpdateQuery("group_users", &parent);
+    del_q2->setType(IDatabaseUpdateQuery::Delete);
+    del_q2->setUpdateDates(true);
+    del_q2->singleWhere("user_id", id);
+    del_q2->executeQuery();
+
+   return req->response(IResponse::NO_CONTENT);
+
 }
