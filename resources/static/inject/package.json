@@ -7,12 +7,13 @@
 
   },
   "devDependencies": {
-    "jade": "0.28.x",
     "requirejs": "2.1.x",
-    "less": "1.4.x",
     "grunt": "0.4.x",
     "grunt-contrib-watch": "0.3.x",
-    "grunt-contrib-jade": "0.5.x"
+    "grunt-contrib-jade": "0.5.x",
+    "grunt-contrib-less": "0.5.x",
+    "grunt-contrib-clean" : "0.4.x",
+    "grunt-symlink": "0.3.x"
   },
   "bundledDependencies": [
 

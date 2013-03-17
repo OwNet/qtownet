@@ -11,21 +11,21 @@ ul.tabstar-ratings {
 		background-image: url("../img/star.png");
 	}
 
-	&[data-rating="1"] &>li:nth-child(1) > a,
-	&[data-rating="2"] &>li:nth-child(-n+2) > a,
-	&[data-rating="3"] &>li:nth-child(-n+3) > a,
-	&[data-rating="4"] &>li:nth-child(-n+4) > a,
-	&[data-rating="5"] &>li:nth-child(-n+5) > a {
+	&[data-rating="1"] > li:nth-child(1) > a,
+	&[data-rating="2"] > li:nth-child(-n+2) > a,
+	&[data-rating="3"] > li:nth-child(-n+3) > a,
+	&[data-rating="4"] > li:nth-child(-n+4) > a,
+	&[data-rating="5"] > li:nth-child(-n+5) > a {
 		background-position: 0px -25px;
 	}
 }
 
 ul.tabstar-ratings:hover {
-	&[data-hover-rating="1"] &>li:nth-child(1) > a,
-	&[data-hover-rating="2"] &>li:nth-child(-n+2) > a,
-	&[data-hover-rating="3"] &>li:nth-child(-n+3) > a,
-	&[data-hover-rating="4"] &>li:nth-child(-n+4) > a,
-	&[data-hover-rating="5"] &>li:nth-child(-n+5) > a {
+	&[data-hover-rating="1"] > li:nth-child(1) > a,
+	&[data-hover-rating="2"] > li:nth-child(-n+2) > a,
+	&[data-hover-rating="3"] > li:nth-child(-n+3) > a,
+	&[data-hover-rating="4"] > li:nth-child(-n+4) > a,
+	&[data-hover-rating="5"] > li:nth-child(-n+5) > a {
 		background-position: 0px -50px;
 	}
 }
