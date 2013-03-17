@@ -8,14 +8,13 @@
 		.row
 			if (group[0].admin == "1")
 				.span5
-					a( href="#/editGroup" data-id="#{group[0].id}" name="edit") Edit group
-					a( href="#/groups" data-id="#{group[0].id}" name="delete") Delete group
+					a( href="#/editGroup",data-id="#{group[0].id}",name="edit") Edit group
+					a( href="#/groups",data-id="#{group[0].id}",name="delete") Delete group
 			if (group[0].admin == "0" && group[0].member == "1")
 				.span5
-					a( href="#/groups" data-id="#{group[0].id}" name="leave") Leave group
+					a( href="#/groups",data-id="#{group[0].id}",name="leave") Leave group
 
 			.span6
-				a( href="#/listmembers" data-id="#{group[0].id}" name="listMembers") Show members
+				a( href="#/listmembers",data-id="#{group[0].id}",name="listMembers") Show members
 
 			.span#group_detail
-			
