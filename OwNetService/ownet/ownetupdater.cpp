@@ -5,9 +5,14 @@
 
 #include "version.h"
 
+#define QUAZIP_STATIC
+#include <quazip.h>
+#include <quazipfile.h>
+
 #include <QDebug>
 #include <QDir>
 #include <QFile>
+#include <QRegularExpression>
 
 OwNetUpdater::OwNetUpdater(OwNetClient *client, OwNetCloudServer *cloudServer, QObject *parent) :
     m_client(client), m_cloudServer(cloudServer), QObject(parent)
@@ -55,4 +60,39 @@ void OwNetUpdater::packageDataReceived(QString fileName, QByteArray data)
     updateFile.close();
 
     qDebug() << "Package data written to " << updateFile.fileName();
+
+    // create Extracted/ dir
+    QString extractedPath = "OwNet/Extracted";
+    QDir extracted = QDir::temp();
+    extracted.mkpath(extractedPath);
+    extracted.cd(extractedPath);
+
+    // extract files
+    QuaZip zip(updateFile.fileName());
+    zip.open(QuaZip::mdUnzip);
+
+    QuaZipFile file(&zip);
+    for(bool more=zip.goToFirstFile(); more; more=zip.goToNextFile())
+    {
+        file.open(QIODevice::ReadOnly);
+        QByteArray data = file.readAll();
+
+        // create file directory
+        extracted.mkpath(file.getActualFileName().replace(QRegularExpression("/[^/]+$"), ""));
+
+        // write to file
+        QFile outputFile(extracted.absoluteFilePath(file.getActualFileName()));
+        outputFile.open(QFile::WriteOnly | QFile::Truncate);
+        outputFile.write(data);
+        outputFile.close();
+
+        file.close();
+
+    }
+    zip.close();
+
+    qDebug() << "Extracted files to " << extracted.absolutePath();
+
+    // run update executable
+    // TODO
 }
