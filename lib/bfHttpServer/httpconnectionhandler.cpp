@@ -83,7 +83,6 @@ void HttpConnectionHandler::disconnected() {
     socket->disconnectFromHost();
 
     // Prepare for next request
-    delete currentRequest;
     currentRequest=0;
 
     socket->close();
@@ -99,7 +98,7 @@ void HttpConnectionHandler::read() {
 
     // Create new HttpRequest object if necessary
     if (!currentRequest) {
-        currentRequest=new HttpRequest(settings);
+        currentRequest = new HttpRequest(settings, this);
     }
 
     // Collect data for the request object

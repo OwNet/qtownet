@@ -45,12 +45,11 @@ void ProxyOutputWriter::createDownload(ProxyRequest *request)
  */
 void ProxyOutputWriter::close()
 {
+    virtualClose();
     if (m_proxyDownload) {
         m_proxyDownloads->deregisterDownloadReader(m_proxyDownload, m_downloadReaderId);
         m_proxyDownload = NULL;
     }
-
-    virtualClose();
     m_proxyHandlerSession->deregisterDependentObject(m_proxyHandlerDependentObjectId);
 }
 

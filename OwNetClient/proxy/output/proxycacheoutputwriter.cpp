@@ -40,8 +40,10 @@ ProxyCacheOutputWriter::ProxyCacheOutputWriter(ProxyDownload *download, int down
  */
 void ProxyCacheOutputWriter::virtualClose()
 {
-    if (m_cacheFile)
+    if (m_cacheFile) {
+        m_cacheFile->flush();
         m_cacheFile->close();
+    }
 
     if (!m_failed)
         save();
@@ -151,6 +153,7 @@ void ProxyCacheOutputWriter::finishedWritingToCacheFile()
 {
     QString fileName = m_cacheFile->fileName();
 
+    m_cacheFile->flush();
     m_cacheFile->close();
     delete m_cacheFile;
     m_cacheFile = NULL;
