@@ -470,9 +470,9 @@
 	    }
 	    else if ($.isNotOwnet()) {
 	        HistoryContact.reportVisit();
+	        Ownet.initialize();
 
 	        $.onDocumentReady(function () {
-	            Ownet.initialize();
 	            PrefetchContact.startRequestTimeout();
 	        });
 	    }
