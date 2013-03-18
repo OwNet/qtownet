@@ -16,7 +16,7 @@
 #include <QCryptographicHash>
 #include "qmath.h"
 
-#define PER_PAGE 1
+#define PER_PAGE 10
 
 
 GroupsService::GroupsService(IProxyConnection *proxyConnection, QObject *parent) :
@@ -345,7 +345,6 @@ IResponse *GroupsService::show(IRequest *req, uint id)
     QVariantMap group;
 
     if(query.first()){
-
         group.insert("id", query.value(query.record().indexOf("id")));
         group.insert("name", query.value(query.record().indexOf("name")));
         group.insert("description", query.value(query.record().indexOf("description")));
@@ -1238,6 +1237,8 @@ IResponse *GroupsService::getGroupUsers( IRequest *req)
         while(query.next()){
 
            QVariantMap user;
+           user.insert("id",query.value(query.record().indexOf("id")));
+           user.insert("first_name",query.value(query.record().indexOf("first_name")));
            user.insert("first_name",query.value(query.record().indexOf("first_name")));
            user.insert("last_name",query.value(query.record().indexOf("last_name")));
            user.insert("isAdmin","0");
@@ -1258,6 +1259,7 @@ IResponse *GroupsService::getGroupUsers( IRequest *req)
         while(query.next()){
 
            QVariantMap user;
+           user.insert("id",query.value(query.record().indexOf("id")));
            user.insert("first_name",query.value(query.record().indexOf("first_name")));
            user.insert("last_name",query.value(query.record().indexOf("last_name")));
            if(this->isAdmin(query.value(query.record().indexOf("id")).toUInt(),group_id.toUInt()))

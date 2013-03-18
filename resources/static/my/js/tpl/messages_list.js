@@ -12,8 +12,8 @@ __jade.unshift({ lineno: 1, filename: __jade[0].filename });
 ;(function(){
   if ('number' == typeof messages.length) {
 
-    for (var $index = 0, $$l = messages.length; $index < $$l; $index++) {
-      var message = messages[$index];
+    for (var index = 0, $$l = messages.length; index < $$l; index++) {
+      var message = messages[index];
 
 __jade.unshift({ lineno: 1, filename: __jade[0].filename });
 __jade.unshift({ lineno: 2, filename: __jade[0].filename });
@@ -88,6 +88,69 @@ __jade.shift();
 __jade.shift();
 }
 __jade.shift();
+__jade.unshift({ lineno: 12, filename: __jade[0].filename });
+if ( (message.type == "message") )
+{
+__jade.unshift({ lineno: 13, filename: __jade[0].filename });
+__jade.unshift({ lineno: 13, filename: __jade[0].filename });
+buf.push('\n  <form');
+buf.push(attrs({ 'name':("comment-message-form"), "class": ("" + (index) + "") + ' ' + ('form-horizontal') }, {"name":true}));
+buf.push('>');
+__jade.unshift({ lineno: undefined, filename: __jade[0].filename });
+__jade.unshift({ lineno: 14, filename: __jade[0].filename });
+buf.push('\n    <div class="control-group">');
+__jade.unshift({ lineno: undefined, filename: __jade[0].filename });
+__jade.unshift({ lineno: 15, filename: __jade[0].filename });
+buf.push('\n      <div class="controls">');
+__jade.unshift({ lineno: undefined, filename: __jade[0].filename });
+__jade.unshift({ lineno: 17, filename: __jade[0].filename });
+buf.push('\n        <input type="text" name="message"/>');
+__jade.shift();
+__jade.unshift({ lineno: 18, filename: __jade[0].filename });
+buf.push('\n        <input');
+buf.push(attrs({ 'type':("hidden"), 'name':("group_id"), 'value':("" + (group_id) + "") }, {"type":true,"name":true,"value":true}));
+buf.push('/>');
+__jade.shift();
+__jade.unshift({ lineno: 19, filename: __jade[0].filename });
+buf.push('\n        <input');
+buf.push(attrs({ 'type':("hidden"), 'name':("parent_id"), 'value':("" + (message.uid) + "") }, {"type":true,"name":true,"value":true}));
+buf.push('/>');
+__jade.shift();
+__jade.shift();
+buf.push('\n      </div>');
+__jade.shift();
+__jade.shift();
+buf.push('\n    </div>');
+__jade.shift();
+__jade.unshift({ lineno: 19, filename: __jade[0].filename });
+buf.push('\n    <div class="control-group">');
+__jade.unshift({ lineno: undefined, filename: __jade[0].filename });
+__jade.unshift({ lineno: 20, filename: __jade[0].filename });
+buf.push('\n      <div class="controls">');
+__jade.unshift({ lineno: undefined, filename: __jade[0].filename });
+__jade.unshift({ lineno: 21, filename: __jade[0].filename });
+buf.push('\n        <button');
+buf.push(attrs({ 'type':("button"), 'data-id':("" + (index) + ""), 'name':("submit-message"), "class": ('btn') }, {"type":true,"data-id":true,"name":true}));
+buf.push('>');
+__jade.unshift({ lineno: undefined, filename: __jade[0].filename });
+__jade.unshift({ lineno: 21, filename: __jade[0].filename });
+buf.push('Comment');
+__jade.shift();
+__jade.shift();
+buf.push('</button>');
+__jade.shift();
+__jade.shift();
+buf.push('\n      </div>');
+__jade.shift();
+__jade.shift();
+buf.push('\n    </div>');
+__jade.shift();
+__jade.shift();
+buf.push('\n  </form>');
+__jade.shift();
+__jade.shift();
+}
+__jade.shift();
 __jade.shift();
 buf.push('\n</div>');
 __jade.shift();
@@ -95,8 +158,8 @@ __jade.shift();
     }
 
   } else {
-    for (var $index in messages) {
-      var message = messages[$index];
+    for (var index in messages) {
+      var message = messages[index];
 
 __jade.unshift({ lineno: 1, filename: __jade[0].filename });
 __jade.unshift({ lineno: 2, filename: __jade[0].filename });
@@ -167,6 +230,69 @@ buf.push('</a>');
 __jade.shift();
 __jade.shift();
 buf.push('</div>');
+__jade.shift();
+__jade.shift();
+}
+__jade.shift();
+__jade.unshift({ lineno: 12, filename: __jade[0].filename });
+if ( (message.type == "message") )
+{
+__jade.unshift({ lineno: 13, filename: __jade[0].filename });
+__jade.unshift({ lineno: 13, filename: __jade[0].filename });
+buf.push('\n  <form');
+buf.push(attrs({ 'name':("comment-message-form"), "class": ("" + (index) + "") + ' ' + ('form-horizontal') }, {"name":true}));
+buf.push('>');
+__jade.unshift({ lineno: undefined, filename: __jade[0].filename });
+__jade.unshift({ lineno: 14, filename: __jade[0].filename });
+buf.push('\n    <div class="control-group">');
+__jade.unshift({ lineno: undefined, filename: __jade[0].filename });
+__jade.unshift({ lineno: 15, filename: __jade[0].filename });
+buf.push('\n      <div class="controls">');
+__jade.unshift({ lineno: undefined, filename: __jade[0].filename });
+__jade.unshift({ lineno: 17, filename: __jade[0].filename });
+buf.push('\n        <input type="text" name="message"/>');
+__jade.shift();
+__jade.unshift({ lineno: 18, filename: __jade[0].filename });
+buf.push('\n        <input');
+buf.push(attrs({ 'type':("hidden"), 'name':("group_id"), 'value':("" + (group_id) + "") }, {"type":true,"name":true,"value":true}));
+buf.push('/>');
+__jade.shift();
+__jade.unshift({ lineno: 19, filename: __jade[0].filename });
+buf.push('\n        <input');
+buf.push(attrs({ 'type':("hidden"), 'name':("parent_id"), 'value':("" + (message.uid) + "") }, {"type":true,"name":true,"value":true}));
+buf.push('/>');
+__jade.shift();
+__jade.shift();
+buf.push('\n      </div>');
+__jade.shift();
+__jade.shift();
+buf.push('\n    </div>');
+__jade.shift();
+__jade.unshift({ lineno: 19, filename: __jade[0].filename });
+buf.push('\n    <div class="control-group">');
+__jade.unshift({ lineno: undefined, filename: __jade[0].filename });
+__jade.unshift({ lineno: 20, filename: __jade[0].filename });
+buf.push('\n      <div class="controls">');
+__jade.unshift({ lineno: undefined, filename: __jade[0].filename });
+__jade.unshift({ lineno: 21, filename: __jade[0].filename });
+buf.push('\n        <button');
+buf.push(attrs({ 'type':("button"), 'data-id':("" + (index) + ""), 'name':("submit-message"), "class": ('btn') }, {"type":true,"data-id":true,"name":true}));
+buf.push('>');
+__jade.unshift({ lineno: undefined, filename: __jade[0].filename });
+__jade.unshift({ lineno: 21, filename: __jade[0].filename });
+buf.push('Comment');
+__jade.shift();
+__jade.shift();
+buf.push('</button>');
+__jade.shift();
+__jade.shift();
+buf.push('\n      </div>');
+__jade.shift();
+__jade.shift();
+buf.push('\n    </div>');
+__jade.shift();
+__jade.shift();
+buf.push('\n  </form>');
 __jade.shift();
 __jade.shift();
 }

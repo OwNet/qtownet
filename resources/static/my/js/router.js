@@ -57,7 +57,7 @@ define( function (require) {
 		},
 
 		home: function() {
-			this.views.messages.showHome(1, 1)
+			this.views.messages.showHome(1, 0)
 		},
 
 		login: function() {
