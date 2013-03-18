@@ -43,7 +43,7 @@ ProxyDownload *ProxyDownloads::proxyDownload(ProxyRequest *request, ProxyHandler
     } else {
         /// Create new InputObject and ProxyDownload instances
         inputObject = newInputObject(request, handlerSession);
-        download = new ProxyDownload(request, handlerSession, handlerSession);
+        download = new ProxyDownload(request, handlerSession);
         download->setInputObject(inputObject);
 
         /// Connect signals in the InputObject to slots in the ProxyDownload
@@ -92,7 +92,7 @@ void ProxyDownloads::deregisterDownloadReader(ProxyDownload *proxyDownload, int 
     m_openDownloadsMutex.unlock();
 
     if (close)
-        proxyDownload->close();
+        proxyDownload->deleteLater();
 }
 
 QNetworkProxy ProxyDownloads::applicationProxy() const
