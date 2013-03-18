@@ -350,7 +350,7 @@ define( function (require) {
 						data.has_password = "0"
 					}
 				} else {
-					data.has_approvement = "0"
+					data.has_approvement = "1"
 				}
 
 				var group = new GroupsModel(data)

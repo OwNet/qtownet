@@ -973,7 +973,7 @@ IResponse *GroupsService::joinGroup(IRequest *req)
          }
      }
      QVariantMap result;
-     result.insert("satus","member");
+     result.insert("status","member");
      return req->response(QVariant(result), IResponse::OK);
 }
 
