@@ -19,6 +19,7 @@ public:
 
     QString toString();
     void bindValue(QSqlQuery *query) const;
+    QVariantMap usedColumns() const;
 
 private:
     IDatabaseSelectQuery::JoinOperator m_operator;

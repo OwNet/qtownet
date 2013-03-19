@@ -3,6 +3,7 @@
 #include "stubdatabase.h"
 #include "databaseupdatequery.h"
 #include "databaseselectquery.h"
+#include "idatabaseselectquerywheregroup.h"
 
 #include <QTest>
 #include <QSqlQuery>
@@ -63,4 +64,40 @@ void DatabaseSelectQueryTests::testOrderBy()
     Q_ASSERT(select.next());
     QCOMPARE(select.value("value").toString(), QString("Zuckerberg"));
     QCOMPARE(select.value("key").toString(), QString("Joseph"));
+}
+
+void DatabaseSelectQueryTests::testColumnsUsedInWhere()
+{
+    {
+        DatabaseUpdateQuery query("tst_settings");
+        query.setColumnValue("key", "John");
+        query.setColumnValue("value", "Siracusa");
+        query.setUpdateDates(true);
+        query.executeQuery();
+    }
+    {
+        DatabaseUpdateQuery query("tst_settings");
+        query.setType(IDatabaseUpdateQuery::Delete);
+        query.singleWhere("key", "John");
+        query.executeQuery();
+        QVariantMap columns = query.columnsForListeners().first().toMap();
+        QCOMPARE(columns.value("key").toString(), QString("John"));
+        QCOMPARE(columns.value("value").toString(), QString("Siracusa"));
+    }
+    {
+        DatabaseUpdateQuery query("tst_settings");
+        query.setColumnValue("key", "John");
+        query.setColumnValue("value", "Siracusa");
+        query.setUpdateDates(true);
+        query.executeQuery();
+    }
+    {
+        DatabaseUpdateQuery query("tst_settings");
+        query.singleWhere("key", "John");
+        query.setColumnValue("value", "Brown");
+        query.executeQuery();
+        QVariantMap columns = query.columnsForListeners().first().toMap();
+        QCOMPARE(columns.value("key").toString(), QString("John"));
+        QCOMPARE(columns.value("value").toString(), QString("Brown"));
+    }
 }

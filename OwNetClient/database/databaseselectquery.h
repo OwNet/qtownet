@@ -51,6 +51,7 @@ public:
 
     IDatabaseSelectQueryWhere *currentWhereQuery() { return m_where; }
 
+    QSqlQuery *query() { return m_query; }
     void resetQuery();
 
 private:
