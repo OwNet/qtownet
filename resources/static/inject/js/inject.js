@@ -390,7 +390,6 @@
 				img.setAttribute('src', this.imgBaseURI + link.icon)
 				img.setAttribute('alt', link.alt)
 				img.setAttribute('title', link.title)
-				img.setAttribute('border', 0);
 
 				if (link.onclick)
 					a.onclick = self[link.onclick].bind(this)
