@@ -41,12 +41,6 @@ public:
     */
     HttpConnectionHandler(QSettings* settings, HttpRequestHandler* requestHandler);
 
-    /** Returns true, if this handler is in use. */
-    bool isBusy();
-
-    /** Mark this handler as busy */
-    void setBusy();
-
     void setSocketDescriptor(qintptr socketDescriptor) { m_socketDescriptor = socketDescriptor; }
     void startHandling();
 
