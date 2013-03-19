@@ -4,4 +4,4 @@ SUBDIRS += \
     OwNetClient \
     Modules \
     Tests \
-    OwNetService
+ #   OwNetService
