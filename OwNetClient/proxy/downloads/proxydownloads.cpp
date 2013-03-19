@@ -161,7 +161,7 @@ ProxyInputObject *ProxyDownloads::newInputObject(ProxyRequest *request, ProxyHan
         QVariantMap availableClients = Session().availableClients();
         Session session;
 
-        if (!session.isRefreshSession()) {
+        if (!session.isRefreshSession() && !request->isRefreshRequest()) {
             bool isOnline = Session().isOnline();
 
             if (m_cacheLocations.contains(request->hashCode())) {
