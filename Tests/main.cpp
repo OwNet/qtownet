@@ -7,6 +7,7 @@
 #include "workspacehelpertests.h"
 #include "databaseselectquerytests.h"
 #include "proxycachelocationstests.h"
+#include "cacheexceptionsmanagertests.h"
 
 static Test<SyncServerTests> testSyncServerTests("SyncServerTests");
 static Test<ProxyDownloadTests> testProxyDownloadTests("ProxyDownloadTests");
@@ -15,5 +16,6 @@ static Test<WorkspaceInitializerTests> testWorkspaceInitializerTests("WorkspaceI
 static Test<WorkspaceHelperTests> testWorkspaceHelperTests("WorkspaceHelperTests");
 static Test<DatabaseSelectQueryTests> testDatabaseSelectQueryTests("DatabaseSelectQueryTests");
 static Test<ProxyCacheLocationsTests> testProxyCacheLocationsTests("ProxyCacheLocationsTests");
+static Test<CacheExceptionsManagerTests> testCacheExceptionsManagerTests("CacheExceptionsManagerTests");
 
 TEST_MAIN

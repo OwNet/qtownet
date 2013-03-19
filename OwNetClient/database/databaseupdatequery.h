@@ -32,7 +32,7 @@ public:
 
     QString table() const { return m_table; }
     EntryType type() const { return m_type; }
-    QVariantMap columns() const { return m_columns; }
+    QVariantList columnsForListeners() const { return m_columnsForListeners; }
 
     static void registerListener(IDatabaseUpdateListener *listener);
     static void deregisterListener(IDatabaseUpdateListener *listener);
@@ -49,9 +49,12 @@ protected:
     DatabaseSelectQuery *m_selectQuery;
 
 private:
+    void saveColumnsForListeners();
+
     QString m_table;
     DatabaseUpdateQuery::EntryType m_type;
     QVariantMap m_temporaryBindings;
+    QVariantList m_columnsForListeners;
     static QMap<QString, QList<IDatabaseUpdateListener*>* > *m_listeners;
 };
 

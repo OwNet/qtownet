@@ -14,6 +14,7 @@ private slots:
     void cleanupTestCase();
 
     void testOrderBy();
+    void testColumnsUsedInWhere();
 };
 
 #endif // DATABASESELECTQUERYTESTS_H
