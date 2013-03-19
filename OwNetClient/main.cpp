@@ -1,4 +1,4 @@
-#include <QtWidgets/QApplication>
+#include "ownetapplication.h"
 #include "mainwindow.h"
 #include "initializer.h"
 #include "proxyrequestbus.h"
@@ -8,7 +8,7 @@
 
 int main(int argc, char *argv[])
 {
-    QApplication a(argc, argv);	
+    OwNetApplication a(argc, argv);
 
     MainWindow *w = NULL;
 

@@ -10,29 +10,26 @@
 
 HttpConnectionHandler::HttpConnectionHandler(QSettings* settings, HttpRequestHandler* requestHandler)
     : QThread(),
-      currentResponse(NULL)
+      currentResponse(NULL),
+      socket(NULL),
+      m_socketDescriptor(0)
 {
     Q_ASSERT(settings!=0);
     Q_ASSERT(requestHandler!=0);
     this->settings=settings;
     this->requestHandler=requestHandler;
     currentRequest=0;
-    busy = false;
     // execute signals in my own thread
     moveToThread(this);
-    socket.moveToThread(this);
     readTimer.moveToThread(this);
-    connect(&socket, SIGNAL(readyRead()), SLOT(read()));
     connect(&readTimer, SIGNAL(timeout()), SLOT(readTimeout()));
     readTimer.setSingleShot(true);
     qDebug("HttpConnectionHandler (%p): constructed", this);
+    connect(this, SIGNAL(disposeHandler()), this, SLOT(quit()));
+    connect(this, SIGNAL(finished()), this, SLOT(deleteLater()));
+    connect(this, SIGNAL(startHandlingSig()), this, SLOT(handleConnection()));
     this->start();
 }
-
-
-HttpConnectionHandler::~HttpConnectionHandler() {
-}
-
 
 void HttpConnectionHandler::run() {
     try {
@@ -46,34 +43,16 @@ void HttpConnectionHandler::run() {
 }
 
 
-void HttpConnectionHandler::handleConnection(int socketDescriptor) {
-    busy = true;
-    Q_ASSERT(socket.isOpen()==false); // if not, then the handler is already busy
-
-    //UGLY workaround - we need to clear writebuffer before reusing this socket
-    //https://bugreports.qt-project.org/browse/QTBUG-28914
-    socket.connectToHost("",0);
-    socket.abort();
-
-    if (!socket.setSocketDescriptor(socketDescriptor)) {
-        qCritical("HttpConnectionHandler (%p): cannot initialize socket: %s", this,qPrintable(socket.errorString()));
+void HttpConnectionHandler::handleConnection() {
+    socket = new QTcpSocket(this);
+    connect(socket, SIGNAL(readyRead()), SLOT(read()));
+    if (!socket->setSocketDescriptor(m_socketDescriptor)) {
+        qCritical("HttpConnectionHandler (%p): cannot initialize socket: %s", this,qPrintable(socket->errorString()));
         return;
     }
     // Start timer for read timeout
     int readTimeout=settings->value("readTimeout",10000).toInt();
     readTimer.start(readTimeout);
-    // delete previous request
-    delete currentRequest;
-    currentRequest=0;
-}
-
-
-bool HttpConnectionHandler::isBusy() {
-    return busy;
-}
-
-void HttpConnectionHandler::setBusy() {
-    this->busy = true;
 }
 
 
@@ -83,9 +62,11 @@ void HttpConnectionHandler::readTimeout() {
     //Commented out because QWebView cannot handle this.
     //socket.write("HTTP/1.1 408 request timeout\r\nConnection: close\r\n\r\n408 request timeout\r\n");
 
-    socket.disconnectFromHost();
+    socket->disconnectFromHost();
     delete currentRequest;
     currentRequest=0;
+
+    emit disposeHandler();
 }
 
 
@@ -98,16 +79,16 @@ void HttpConnectionHandler::disconnected() {
         currentResponse = NULL;
     }
 
-    socket.flush();
-    socket.disconnectFromHost();
+    socket->flush();
+    socket->disconnectFromHost();
 
     // Prepare for next request
-    delete currentRequest;
     currentRequest=0;
 
-    socket.close();
+    socket->close();
     readTimer.stop();
-    busy = false;
+
+    emit disposeHandler();
 }
 
 void HttpConnectionHandler::read() {
@@ -117,12 +98,12 @@ void HttpConnectionHandler::read() {
 
     // Create new HttpRequest object if necessary
     if (!currentRequest) {
-        currentRequest=new HttpRequest(settings);
+        currentRequest = new HttpRequest(settings, this);
     }
 
     // Collect data for the request object
-    while (socket.bytesAvailable() && currentRequest->getStatus()!=HttpRequest::complete && currentRequest->getStatus()!=HttpRequest::abort) {
-        currentRequest->readFromSocket(socket);
+    while (socket->bytesAvailable() && currentRequest->getStatus()!=HttpRequest::complete && currentRequest->getStatus()!=HttpRequest::abort) {
+        currentRequest->readFromSocket(*socket);
         if (currentRequest->getStatus()==HttpRequest::waitForBody) {
             // Restart timer for read timeout, otherwise it would
             // expire during large file uploads.
@@ -133,8 +114,8 @@ void HttpConnectionHandler::read() {
 
     // If the request is aborted, return error message and close the connection
     if (currentRequest->getStatus()==HttpRequest::abort) {
-        socket.write("HTTP/1.1 413 entity too large\r\nConnection: close\r\n\r\n413 Entity too large\r\n");
-        socket.disconnectFromHost();
+        socket->write("HTTP/1.1 413 entity too large\r\nConnection: close\r\n\r\n413 Entity too large\r\n");
+        socket->disconnectFromHost();
         delete currentRequest;
         currentRequest=0;
         disconnected();
@@ -144,7 +125,7 @@ void HttpConnectionHandler::read() {
     // If the request is complete, let the request mapper dispatch it
     if (currentRequest->getStatus()==HttpRequest::complete) {
         readTimer.stop();
-        currentResponse = new HttpResponse(&socket, this);
+        currentResponse = new HttpResponse(socket, this);
         connect(currentResponse, SIGNAL(finished()), this, SLOT(disconnected()));
         try {
             requestHandler->service(currentRequest, currentResponse);
@@ -153,4 +134,10 @@ void HttpConnectionHandler::read() {
             qCritical("HttpConnectionHandler (%p): An uncaught exception occured in the request handler",this);
         }
     }
+}
+
+
+void HttpConnectionHandler::startHandling()
+{
+    emit startHandlingSig();
 }

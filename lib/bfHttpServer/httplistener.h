@@ -69,7 +69,7 @@ signals:
       Emitted when the connection handler shall process a new incoming onnection.
       @param socketDescriptor references the accepted connection.
     */
-    void handleConnection(int socketDescriptor);
+    void handleConnection();
 
 };
 

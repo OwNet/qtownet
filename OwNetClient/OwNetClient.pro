@@ -11,7 +11,8 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 TARGET = OwNetClient
 TEMPLATE = app
 
-SOURCES += main.cpp
+SOURCES += main.cpp \
+    ownetapplication.cpp
 
 INCLUDEPATH += $$_PRO_FILE_PWD_
 
@@ -34,3 +35,6 @@ include($${LibPath}/bfHttpServer/bfHttpServer.pri)
 
 macx:QMAKE_CXXFLAGS += -stdlib=libc++
 QMAKE_CXXFLAGS += -std=c++0x
+
+HEADERS += \
+    ownetapplication.h

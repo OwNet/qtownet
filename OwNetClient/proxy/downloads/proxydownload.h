@@ -37,8 +37,6 @@ public:
 
     bool shareDownload();
 
-    void close();
-
     ProxyDownloadPart *downloadPart(int readerId);
     void replaceDownloadParts(ProxyDownloadPart *downloadPart, int at);
 
@@ -68,7 +66,6 @@ private:
     QMap<int, int> m_readers;
     int m_nextReaderId;
     uint m_hashCode;
-    int m_proxyHandlerDependentObjectId;
 };
 
 #endif // PROXYDOWNLOAD_H
