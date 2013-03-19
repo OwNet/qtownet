@@ -8,7 +8,9 @@
 #include <QDir>
 #include "httpcookie.h"
 
-HttpRequest::HttpRequest(QSettings* settings) {
+HttpRequest::HttpRequest(QSettings* settings, QObject *parent)
+    : QObject(parent)
+{
     status=waitForRequest;
     currentSize=0;
     expectedBodySize=0;

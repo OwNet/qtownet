@@ -41,14 +41,12 @@ public:
     */
     HttpConnectionHandler(QSettings* settings, HttpRequestHandler* requestHandler);
 
-    /** Destructor */
-    virtual ~HttpConnectionHandler();
+    void setSocketDescriptor(qintptr socketDescriptor) { m_socketDescriptor = socketDescriptor; }
+    void startHandling();
 
-    /** Returns true, if this handler is in use. */
-    bool isBusy();
-
-    /** Mark this handler as busy */
-    void setBusy();
+signals:
+    void disposeHandler();
+    void startHandlingSig();
 
 private:
 
@@ -56,7 +54,7 @@ private:
     QSettings* settings;
 
     /** TCP socket of the current connection */
-    QTcpSocket socket;
+    QTcpSocket *socket;
 
     /** Time for read timeout detection */
     QTimer readTimer;
@@ -68,21 +66,18 @@ private:
     /** Dispatches received requests to services */
     HttpRequestHandler* requestHandler;
 
-    /** This shows the busy-state from a very early time */
-    bool busy;
+    qintptr m_socketDescriptor;
 
     /** Executes the htreads own event loop */
     void run();
 
-public slots:
 
+private slots:
     /**
       Received from from the listener, when the handler shall start processing a new connection.
       @param socketDescriptor references the accepted connection.
     */
-    void handleConnection(int socketDescriptor);
-
-private slots:
+    void handleConnection();
 
     /** Received from the socket when a read-timeout occured */
     void readTimeout();

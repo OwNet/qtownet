@@ -26,7 +26,6 @@ ProxyDownload::ProxyDownload(ProxyRequest *request, ProxyHandlerSession *handler
     m_inputObject(NULL)
 {
     m_hashCode = request->hashCode();
-    m_proxyHandlerDependentObjectId = m_proxyHandlerSession->registerDependentObject();
 }
 
 /**
@@ -75,14 +74,6 @@ bool ProxyDownload::shareDownload()
     if (inputObject())
         return inputObject()->inputType() == ProxyInputObject::Web;
     return false;
-}
-
-/**
- * @brief Triggered after all readers finished reading the download. Deregisters from ProxyHandler.
- */
-void ProxyDownload::close()
-{
-    m_proxyHandlerSession->deregisterDependentObject(m_proxyHandlerDependentObjectId);
 }
 
 /**

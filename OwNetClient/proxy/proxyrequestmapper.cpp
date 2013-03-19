@@ -16,7 +16,8 @@ ProxyRequestMapper::ProxyRequestMapper(QObject* parent)
 */
 void ProxyRequestMapper::service(HttpRequest *request, HttpResponse *response)
 {
-    ProxyHandler *handler = new ProxyHandler(response);
+    ProxyHandler *handler = new ProxyHandler;
     connect(handler, SIGNAL(disposeThread()), response, SIGNAL(finished()));
+    connect(handler, SIGNAL(disposeThread()), handler, SLOT(deleteLater()));
     handler->setRequestAndResponseAndStart(request, response);
 }

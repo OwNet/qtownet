@@ -40,9 +40,6 @@ public:
     */
     HttpConnectionHandlerPool(QSettings* settings, HttpRequestHandler* requestHandler);
 
-    /** Destructor */
-    virtual ~HttpConnectionHandlerPool();
-
     /** Get a free connection handler, or 0 if not available. */
     HttpConnectionHandler* getConnectionHandler();
 
@@ -53,20 +50,6 @@ private:
 
     /** Will be assigned to each Connectionhandler during their creation */
     HttpRequestHandler* requestHandler;
-
-    /** Pool of connection handlers */
-    QList<HttpConnectionHandler*> pool;
-
-    /** Timer to clean-up unused connection handler */
-    QTimer cleanupTimer;
-
-    /** Used to synchronize threads */
-    QMutex mutex;
-
-private slots:
-
-    /** Received from the clean-up timer.  */
-    void cleanup();
 
 };
 
