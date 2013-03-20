@@ -5,7 +5,6 @@
 
 #include "version.h"
 
-#define QUAZIP_STATIC
 #include <quazip.h>
 #include <quazipfile.h>
 
