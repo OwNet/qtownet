@@ -3,10 +3,10 @@
 
 #include <QObject>
 
-#include "irestservice.h"
+#include "iuidrestservice.h"
 #include "activitymanager.h"
 
-class ActivitiesService : public QObject, public IRestService
+class ActivitiesService : public QObject, public IUidRestService
 {
     Q_OBJECT
 public:

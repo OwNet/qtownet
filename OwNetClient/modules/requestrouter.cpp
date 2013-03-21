@@ -3,6 +3,7 @@
 #include "irequest.h"
 #include "iservice.h"
 #include "irestservice.h"
+#include "iuidrestservice.h"
 
 QMap<QString, RequestRouter*> *RequestRouter::m_services = new QMap<QString, RequestRouter*>();
 
@@ -12,6 +13,11 @@ void RequestRouter::addService(IService* service)
 }
 
 void RequestRouter::addService(IRestService *service)
+{
+    m_services->insert(service->name(), new RequestRouter(service) );
+}
+
+void RequestRouter::addService(IUidRestService *service)
 {
     m_services->insert(service->name(), new RequestRouter(service) );
 }
@@ -48,6 +54,7 @@ RequestRouter::RequestRouter(IService *service, QObject *parent)
     : QObject(parent),
       m_service(service),
       m_restService(NULL),
+      m_uidRestService(NULL),
       m_hasDefaultRoute(false)
 {
     service->init(this);
@@ -57,6 +64,7 @@ RequestRouter::RequestRouter(IRestService *service, QObject *parent)
     : QObject(parent),
       m_service(service),
       m_restService(service),
+      m_uidRestService(NULL),
       m_hasDefaultRoute(false)
 {
     addRoute("/")
@@ -64,9 +72,28 @@ RequestRouter::RequestRouter(IRestService *service, QObject *parent)
             ->on(IRequest::POST, ROUTE(m_restService->create));
 
     addRoute("/:id")
-            ->on(IRequest::GET, ROUTE(m_restService->show, STR(id) ))
-            ->on(IRequest::PUT, ROUTE(m_restService->edit, STR(id) ))
-            ->on(IRequest::DELETE, ROUTE(m_restService->del, STR(id) ));
+            ->on(IRequest::GET, ROUTE(m_restService->show, UINT(id) ))
+            ->on(IRequest::PUT, ROUTE(m_restService->edit, UINT(id) ))
+            ->on(IRequest::DELETE, ROUTE(m_restService->del, UINT(id) ));
+
+    service->init(this);
+}
+
+RequestRouter::RequestRouter(IUidRestService *service, QObject *parent)
+    : QObject(parent),
+      m_service(service),
+      m_restService(NULL),
+      m_uidRestService(service),
+      m_hasDefaultRoute(false)
+{
+    addRoute("/")
+            ->on(IRequest::GET, ROUTE(m_uidRestService->index))
+            ->on(IRequest::POST, ROUTE(m_uidRestService->create));
+
+    addRoute("/:id")
+            ->on(IRequest::GET, ROUTE(m_uidRestService->show, STR(id) ))
+            ->on(IRequest::PUT, ROUTE(m_uidRestService->edit, STR(id) ))
+            ->on(IRequest::DELETE, ROUTE(m_uidRestService->del, STR(id) ));
 
     service->init(this);
 }
