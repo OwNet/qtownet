@@ -833,24 +833,33 @@ IResponse *GroupsService::del(IRequest *req, uint id)
             if(!query->executeQuery())
                 return req->response(IResponse::INTERNAL_SERVER_ERROR);
 
-            query = m_proxyConnection->databaseUpdateQuery("group_users", &parent);
-            query->setType(IDatabaseUpdateQuery::Delete);
-            query->setUpdateDates(true);
-            query->singleWhere("group_id", id);
-            if(!query->executeQuery())
+            IDatabaseUpdateQuery *query2 = m_proxyConnection->databaseUpdateQuery("group_users", &parent);
+            query2->setType(IDatabaseUpdateQuery::Delete);
+            query2->setUpdateDates(true);
+            query2->singleWhere("group_id", id);
+            if(!query2->executeQuery())
                 return req->response(IResponse::INTERNAL_SERVER_ERROR);
 
-            query = m_proxyConnection->databaseUpdateQuery("group_admins", &parent);
-            query->setType(IDatabaseUpdateQuery::Delete);
-            query->setUpdateDates(true);
-            query->singleWhere("group_id", id);
-            if(!query->executeQuery())
+            IDatabaseUpdateQuery *query3 = m_proxyConnection->databaseUpdateQuery("group_admins", &parent);
+            query3->setType(IDatabaseUpdateQuery::Delete);
+            query3->setUpdateDates(true);
+            query3->singleWhere("group_id", id);
+            if(!query3->executeQuery())
+                return req->response(IResponse::INTERNAL_SERVER_ERROR);
+
+            IDatabaseUpdateQuery *query4 = m_proxyConnection->databaseUpdateQuery("messages", &parent);
+            query4->setType(IDatabaseUpdateQuery::Delete);
+            query4->setUpdateDates(true);
+            query4->singleWhere("group_id", id);
+            if(!query4->executeQuery())
                 return req->response(IResponse::INTERNAL_SERVER_ERROR);
 
      }
      else{
             return req->response(IResponse::FORBIDDEN);
      }
+
+    return req->response(IResponse::OK);
 
 }
 
@@ -1005,7 +1014,7 @@ IResponse * GroupsService::approveUser( IRequest *req)
     }
 
     QString user_id = reqJson["user_id"].toString();
-    if(group_id == ""){
+    if(user_id == ""){
         error.insert("user_id","required");
         missingValue = true;
     }
@@ -1033,6 +1042,9 @@ IResponse * GroupsService::approveUser( IRequest *req)
 
         q->setUpdateDates(true); // sam nastavi v tabulke datumy date_created a date_updated
         q->setColumnValue("status", "1");
+        IDatabaseSelectQueryWhereGroup *where = q->whereGroup(IDatabaseSelectQuery::And);
+        where->where("user_id", user_id);
+        where->where("group_id",group_id);
 
         if(!q->executeQuery()){
            return req->response(IResponse::INTERNAL_SERVER_ERROR);
@@ -1101,6 +1113,9 @@ IResponse * GroupsService::declineUser( IRequest *req)
 
         q->setUpdateDates(true); // sam nastavi v tabulke datumy date_created a date_updated
         q->setType(IDatabaseUpdateQuery::Delete);
+        IDatabaseSelectQueryWhereGroup *where = q->whereGroup(IDatabaseSelectQuery::And);
+        where->where("user_id", user_id);
+        where->where("group_id",group_id);
 
         if(!q->executeQuery()){
            return req->response(IResponse::INTERNAL_SERVER_ERROR);
@@ -1108,7 +1123,7 @@ IResponse * GroupsService::declineUser( IRequest *req)
     }
     else{
 
-        req->response(IResponse::UNAUTHORIEZED);
+        return req->response(IResponse::UNAUTHORIEZED);
     }
 
     return req->response(IResponse::OK);
