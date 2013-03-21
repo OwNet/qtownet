@@ -9,6 +9,7 @@ define( function (require) {
 	  , RegistrationView = require( 'views/RegistrationView' )
 	  , GroupsView = require( 'views/GroupsView' )
 	  , ProfileView = require( 'views/ProfileView' )
+	  , MessagesView = require( 'views/MessagesView' )
 	  , RecommendationsRatingView = require( 'views/RecommendationsRatingView')
 
 
@@ -22,6 +23,7 @@ define( function (require) {
 				login : new LoginView({ el:$("#content") }),
 				registration: new RegistrationView({ el:$("#content") }),
 				groups: new GroupsView({ el:$("#content") }),
+				messages: new MessagesView({el: $("#content")}),
 				profile: new ProfileView({ el:$("#content") }),
 				recommendations: new RecommendationsRatingView({ el:$("#content")}),
 				ratings: new RecommendationsRatingView({el:$("#content")}),
@@ -51,11 +53,11 @@ define( function (require) {
 
 		activate: function(href) {
 			$("#appmenu .active").removeClass("active")
-			$.query('#user-navbar a[href="?"]', href).parent().addClass('active')
+			$.query('.navbar a[href="?"]', href).parent().addClass('active')
 		},
 
 		home: function() {
-
+			this.views.messages.showHome(1, 1)
 		},
 
 		login: function() {
@@ -69,7 +71,7 @@ define( function (require) {
 		},
 
 		groups: function() {
-			this.views.groups.show("all")
+			this.views.groups.show("all", 1)
 			this.activate("#/groups")
 		},
 

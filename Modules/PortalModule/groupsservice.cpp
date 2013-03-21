@@ -16,7 +16,7 @@
 #include <QCryptographicHash>
 #include "qmath.h"
 
-#define PER_PAGE 10
+#define PER_PAGE 1
 
 
 GroupsService::GroupsService(IProxyConnection *proxyConnection, QObject *parent) :
@@ -273,6 +273,8 @@ IResponse *GroupsService::create( IRequest *req)
         query->setColumnValue("parent",parent);
         query->setColumnValue("salt", salt);
 
+       // m_proxyConnection->debugMessage(id + " name: " + name + " desc:" + description + " type:"+ group_type + " pass:" + password + " has_pass:" + has_password + " has_app:" + has_approvement + " parent: " + parent + " salt:" + salt);
+
         if (!query->executeQuery()){
              return req->response(IResponse::INTERNAL_SERVER_ERROR);
         }
@@ -505,6 +507,7 @@ IResponse *GroupsService::getUsersGroups( IRequest *req)
     QSqlQuery query;
 
     if(m_proxyConnection->session()->value("logged") !=""){
+
         int page;
         if(!(page= req->parameterValue("page").toInt())){
             QVariantMap error;
@@ -524,12 +527,20 @@ IResponse *GroupsService::getUsersGroups( IRequest *req)
             return req->response(IResponse::INTERNAL_SERVER_ERROR);
 
         while(query.next()){
+           QString user_id = m_proxyConnection->session()->value("logged").toString();
 
            QVariantMap group;
            group.insert("id",query.value(query.record().indexOf("id")));
            group.insert("name",query.value(query.record().indexOf("name")));
            group.insert("description",query.value(query.record().indexOf("description")));
            group.insert("date_created", query.value(query.record().indexOf("date_created")));
+
+           if(isAdmin(user_id.toUInt(), query.record().indexOf("id")))
+               group.insert("admin","1");
+           else
+               group.insert("admin","0");
+
+          group.insert("member","1");
 
            groups.append(group);
         }
@@ -547,8 +558,9 @@ IResponse *GroupsService::myAdminPagesCount(IRequest *req)
 
     QSqlQuery query;
     query.prepare("SELECT COUNT(*) AS n FROM groups "
-                  "INNER JOIN group_users ON groups.id = group_users.group_id "
-                  "WHERE group_users.status = 1 AND group_users.user_id = :user_id ");
+                  "INNER JOIN group_admins ON groups.id = group_admins.group_id "
+                   "WHERE group_admins.user_id = :user_id ");
+
     query.bindValue(":user_id", m_proxyConnection->session()->value("logged").toString());
 
     if(!query.exec())
@@ -590,10 +602,13 @@ IResponse *GroupsService::getMyAdminGroups( IRequest *req)
         while(query.next()){
 
            QVariantMap group;
-           group.insert("id",query.value(query.record().indexOf("groups.id")));
-           group.insert("name",query.value(query.record().indexOf("groups.name")));
-           group.insert("description",query.value(query.record().indexOf("groups.description")));
+           group.insert("id",query.value(query.record().indexOf("id")));
+           group.insert("name",query.value(query.record().indexOf("name")));
+           group.insert("description",query.value(query.record().indexOf("description")));
            group.insert("date_created", query.value(query.record().indexOf("date_created")));
+           group.insert("admin","1");
+           group.insert("member","1");
+
            groups.append(group);
         }
 
@@ -657,6 +672,8 @@ IResponse *GroupsService::getAwaitingGroups( IRequest *req)
            group.insert("name",query.value(query.record().indexOf("name")));
            group.insert("description",query.value(query.record().indexOf("description")));
            group.insert("date_created", query.value(query.record().indexOf("date_created")));
+           group.insert("admin","0");
+           group.insert("member","0");
 
            groups.append(group);
         }
@@ -724,6 +741,8 @@ IResponse *GroupsService::getNotMyGroups( IRequest *req)
            group.insert("description",query.value(query.record().indexOf("description")));
            group.insert("date_created", query.value(query.record().indexOf("date_created")));
            group.insert("status","not_member");
+           group.insert("admin","0");
+           group.insert("member","0");
 
            groups.append(group);
         }
@@ -814,24 +833,33 @@ IResponse *GroupsService::del(IRequest *req, uint id)
             if(!query->executeQuery())
                 return req->response(IResponse::INTERNAL_SERVER_ERROR);
 
-            query = m_proxyConnection->databaseUpdateQuery("group_users", &parent);
-            query->setType(IDatabaseUpdateQuery::Delete);
-            query->setUpdateDates(true);
-            query->singleWhere("group_id", id);
-            if(!query->executeQuery())
+            IDatabaseUpdateQuery *query2 = m_proxyConnection->databaseUpdateQuery("group_users", &parent);
+            query2->setType(IDatabaseUpdateQuery::Delete);
+            query2->setUpdateDates(true);
+            query2->singleWhere("group_id", id);
+            if(!query2->executeQuery())
                 return req->response(IResponse::INTERNAL_SERVER_ERROR);
 
-            query = m_proxyConnection->databaseUpdateQuery("group_admins", &parent);
-            query->setType(IDatabaseUpdateQuery::Delete);
-            query->setUpdateDates(true);
-            query->singleWhere("group_id", id);
-            if(!query->executeQuery())
+            IDatabaseUpdateQuery *query3 = m_proxyConnection->databaseUpdateQuery("group_admins", &parent);
+            query3->setType(IDatabaseUpdateQuery::Delete);
+            query3->setUpdateDates(true);
+            query3->singleWhere("group_id", id);
+            if(!query3->executeQuery())
+                return req->response(IResponse::INTERNAL_SERVER_ERROR);
+
+            IDatabaseUpdateQuery *query4 = m_proxyConnection->databaseUpdateQuery("messages", &parent);
+            query4->setType(IDatabaseUpdateQuery::Delete);
+            query4->setUpdateDates(true);
+            query4->singleWhere("group_id", id);
+            if(!query4->executeQuery())
                 return req->response(IResponse::INTERNAL_SERVER_ERROR);
 
      }
      else{
             return req->response(IResponse::FORBIDDEN);
      }
+
+    return req->response(IResponse::OK);
 
 }
 
@@ -986,7 +1014,7 @@ IResponse * GroupsService::approveUser( IRequest *req)
     }
 
     QString user_id = reqJson["user_id"].toString();
-    if(group_id == ""){
+    if(user_id == ""){
         error.insert("user_id","required");
         missingValue = true;
     }
@@ -1014,6 +1042,9 @@ IResponse * GroupsService::approveUser( IRequest *req)
 
         q->setUpdateDates(true); // sam nastavi v tabulke datumy date_created a date_updated
         q->setColumnValue("status", "1");
+        IDatabaseSelectQueryWhereGroup *where = q->whereGroup(IDatabaseSelectQuery::And);
+        where->where("user_id", user_id);
+        where->where("group_id",group_id);
 
         if(!q->executeQuery()){
            return req->response(IResponse::INTERNAL_SERVER_ERROR);
@@ -1082,6 +1113,9 @@ IResponse * GroupsService::declineUser( IRequest *req)
 
         q->setUpdateDates(true); // sam nastavi v tabulke datumy date_created a date_updated
         q->setType(IDatabaseUpdateQuery::Delete);
+        IDatabaseSelectQueryWhereGroup *where = q->whereGroup(IDatabaseSelectQuery::And);
+        where->where("user_id", user_id);
+        where->where("group_id",group_id);
 
         if(!q->executeQuery()){
            return req->response(IResponse::INTERNAL_SERVER_ERROR);
@@ -1089,7 +1123,7 @@ IResponse * GroupsService::declineUser( IRequest *req)
     }
     else{
 
-        req->response(IResponse::UNAUTHORIEZED);
+        return req->response(IResponse::UNAUTHORIEZED);
     }
 
     return req->response(IResponse::OK);
@@ -1184,23 +1218,15 @@ IResponse *GroupsService::getApprovements(IRequest *req)
 
 IResponse *GroupsService::getGroupUsers( IRequest *req)
 {
-
-    bool ok;
     QVariantMap error;
 
     if(!m_proxyConnection->session()->isLoggedIn())
         req->response(IResponse::UNAUTHORIEZED);
     QString curUserId = m_proxyConnection->session()->value("logged").toString();
 
-    QVariantMap reqJson = req->postBodyFromJson(&ok).toMap();
-    if (!ok){
-        error.insert("parse_json","error");
-        return req->response(QVariant(error),IResponse::BAD_REQUEST);
-    }
-
     bool missingValue = false;
 
-    QString group_id = reqJson["group_id"].toString();
+    QString group_id = req->parameterValue("group_id");
     if(group_id == ""){
         error.insert("group_id","required");
         missingValue = true;
@@ -1217,8 +1243,8 @@ IResponse *GroupsService::getGroupUsers( IRequest *req)
 
         //awaiting users
 
-        query.prepare("SELECT * FROM users"
-                      "INNER JOIN group_users ON users.id = group_users.user_id"
+        query.prepare("SELECT * FROM users "
+                      "INNER JOIN group_users ON users.id = group_users.user_id "
                       "WHERE group_users.status = 0 AND group_users.group_id = :group_id");
         query.bindValue(":group_id", group_id);
         if(!query.exec())
@@ -1227,8 +1253,8 @@ IResponse *GroupsService::getGroupUsers( IRequest *req)
         while(query.next()){
 
            QVariantMap user;
-           user.insert("first_name",query.value(query.record().indexOf("users.first_name")));
-           user.insert("last_name",query.value(query.record().indexOf("users.last_name")));
+           user.insert("first_name",query.value(query.record().indexOf("first_name")));
+           user.insert("last_name",query.value(query.record().indexOf("last_name")));
            user.insert("isAdmin","0");
            user.insert("status","awaiting");
 
@@ -1237,8 +1263,8 @@ IResponse *GroupsService::getGroupUsers( IRequest *req)
 
         // approved members
 
-        query.prepare("SELECT * FROM users"
-                      "INNER JOIN group_users ON users.id = group_users.user_id"
+        query.prepare("SELECT * FROM users "
+                      "INNER JOIN group_users ON users.id = group_users.user_id "
                       "WHERE group_users.status = 1 AND group_users.group_id = :group_id");
         query.bindValue(":group_id", group_id);
         if(!query.exec())
@@ -1247,14 +1273,14 @@ IResponse *GroupsService::getGroupUsers( IRequest *req)
         while(query.next()){
 
            QVariantMap user;
-           user.insert("first_name",query.value(query.record().indexOf("users.first_name")));
-           user.insert("last_name",query.value(query.record().indexOf("users.last_name")));
-           if(this->isAdmin(query.value(query.record().indexOf("users.id")).toUInt(),group_id.toUInt()))
+           user.insert("first_name",query.value(query.record().indexOf("first_name")));
+           user.insert("last_name",query.value(query.record().indexOf("last_name")));
+           if(this->isAdmin(query.value(query.record().indexOf("id")).toUInt(),group_id.toUInt()))
                user.insert("isAdmin","1");
            else
                user.insert("isAdmin","0");
            user.insert("status","member");
-           user.insert("member_since",query.value(query.record().indexOf("group_users.date_updated")));
+           user.insert("member_since",query.value(query.record().indexOf("date_updated")));
 
            users.append(user);
         }
