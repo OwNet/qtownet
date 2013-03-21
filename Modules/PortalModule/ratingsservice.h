@@ -19,9 +19,9 @@ public:
 
     IResponse *create(IRequest *req);
     //IResponse *index(IRequest *req);
-    IResponse *show(IRequest *req, const QString &textId);
-    IResponse *edit(IRequest *req, const QString &textId);
-    IResponse *del(IRequest *req, const QString &textId);
+    IResponse *show(IRequest *req, const QString &uid);
+    IResponse *edit(IRequest *req, const QString &uid);
+    IResponse *del(IRequest *req, const QString &uid);
 
     IResponse *showPageStats(IRequest *req);    
     IResponse *showAllPageRatings(IRequest *req);
