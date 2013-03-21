@@ -3,12 +3,12 @@
 
 #include <QObject>
 
-#include "iuidrestservice.h"
+#include "irestservice.h"
 
 class IProxyConnection;
 class IResponse;
 
-class UsersService : public QObject, public IUidRestService
+class UsersService : public QObject, public IRestService
 {
     Q_OBJECT
 public:
@@ -17,10 +17,10 @@ public:
     QString name() const { return "users"; }
 
     IResponse *index(IRequest *req);
-    IResponse *show(IRequest *req, const QString &textId);
+    IResponse *show(IRequest *req, uint id);
     IResponse *create(IRequest *req);
-    IResponse *edit(IRequest *req, const QString &textId);
-    IResponse *del(IRequest *req, const QString &textId);
+    IResponse *edit(IRequest *req, uint id);
+    IResponse *del(IRequest *req, uint id);
 
 private:
     IProxyConnection *m_proxyConnection;

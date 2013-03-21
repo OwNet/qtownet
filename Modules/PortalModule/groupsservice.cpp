@@ -327,9 +327,8 @@ IResponse *GroupsService::create( IRequest *req)
 }
 
 // show element
-IResponse *GroupsService::show(IRequest *req, const QString &textId)
+IResponse *GroupsService::show(IRequest *req, uint id)
 {
-    uint id = textId.toUInt();
     QSqlQuery query;
 
     QString user_id = m_proxyConnection->session()->value("logged").toString();
@@ -756,9 +755,8 @@ IResponse *GroupsService::getNotMyGroups( IRequest *req)
 
 
 
-IResponse *GroupsService::edit(IRequest *req, const QString &textId)
+IResponse *GroupsService::edit(IRequest *req, uint id)
 {
-    uint id = textId.toUInt();
     QVariantMap reqJson = req->postBodyFromJson().toMap();
     QString curUser_id = m_proxyConnection->session()->value("logged").toString();
     QString salt = "";
@@ -819,9 +817,8 @@ IResponse *GroupsService::edit(IRequest *req, const QString &textId)
 }
 
 
-IResponse *GroupsService::del(IRequest *req, const QString &textId)
+IResponse *GroupsService::del(IRequest *req, uint id)
 {
-    uint id = textId.toUInt();
     QString curUser_id = m_proxyConnection->session()->value("logged").toString();
     QObject parent;
 

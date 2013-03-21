@@ -3,7 +3,7 @@
 
 #include <QObject>
 
-#include "iuidrestservice.h"
+#include "irestservice.h"
 
 
 class IProxyConnection;
@@ -11,7 +11,7 @@ class IProxyConnection;
 /**
  * @brief The GroupsService class
  */
-class GroupsService : public QObject, public IUidRestService
+class GroupsService : public QObject, public IRestService
 {
     Q_OBJECT
 public:
@@ -34,7 +34,7 @@ public:
      * @param id
      * @return
      */
-    IResponse *show(IRequest *req, const QString &textId);
+    IResponse *show(IRequest *req, uint id);
 
     /**
      * @brief index returns list of groups
@@ -49,9 +49,9 @@ public:
      * @param id
      * @return
      */
-    IResponse *edit(IRequest *req, const QString &textId);
+    IResponse *edit(IRequest *req, uint id);
 
-    IResponse *del(IRequest *req, const QString &textId);
+    IResponse *del(IRequest *req, uint id);
 
     /**
      * @brief allCount

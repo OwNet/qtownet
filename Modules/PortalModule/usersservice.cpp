@@ -42,9 +42,8 @@ IResponse *UsersService::index(IRequest * req)
         return req->response(IResponse::BAD_REQUEST);
 }
 
-IResponse *UsersService::show(IRequest *req, const QString &textId)
+IResponse *UsersService::show(IRequest *req, uint id)
 {
-    uint id = textId.toUInt();
     QSqlQuery query;
 
     query.prepare("SELECT * FROM users WHERE id = :id");
@@ -136,9 +135,8 @@ IResponse *UsersService::create(IRequest *req)
     return req->response(IResponse::CREATED);
 }
 
-IResponse *UsersService::edit(IRequest *req, const QString &textId)
+IResponse *UsersService::edit(IRequest *req, uint id)
 {
-    uint id = textId.toUInt();
     ISession* sess = m_proxyConnection->session();
     if ( !sess->isLoggedIn()  ||  (sess->value("logged").toUInt() != id) )
         return req->response(IResponse::UNAUTHORIEZED);
@@ -192,9 +190,8 @@ IResponse *UsersService::edit(IRequest *req, const QString &textId)
         return req->response(IResponse::INTERNAL_SERVER_ERROR);
 }
 
-IResponse *UsersService::del(IRequest *req, const QString &textId)
+IResponse *UsersService::del(IRequest *req, uint id)
 {
-    uint id = textId.toUInt();
     ISession* sess = m_proxyConnection->session();
     if ( !sess->isLoggedIn()  ||  (sess->value("logged").toUInt() != id) )
         return req->response(IResponse::UNAUTHORIEZED);
