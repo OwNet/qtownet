@@ -33,7 +33,7 @@ public:
 
     virtual QString table() const = 0;
     virtual EntryType type() const = 0;
-    virtual QVariantMap columns() const = 0;
+    virtual QVariantList columnsForListeners() const = 0;
 
     virtual bool executeQuery() = 0;
 };

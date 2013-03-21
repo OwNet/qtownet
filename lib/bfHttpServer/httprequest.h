@@ -31,7 +31,9 @@
   The body is always a little larger than the file itself.
 */
 
-class HttpRequest {
+class HttpRequest : public QObject
+{
+    Q_OBJECT
     Q_DISABLE_COPY(HttpRequest)
     friend class HttpSessionStore;
 public:
@@ -43,7 +45,7 @@ public:
       Constructor.
       @param settings Configuration settings
     */
-    HttpRequest(QSettings* settings);
+    HttpRequest(QSettings* settings, QObject *parent = NULL);
 
     /**
       Destructor.

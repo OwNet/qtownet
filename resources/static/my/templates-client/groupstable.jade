@@ -8,14 +8,14 @@ each group in groups
 				label created #{new Date(group.date_created).toLocaleDateString()}
 			if (group.member == "1")
 				.span4
-					a( href="#/showgroup" data-id="#{group.id}" name="show") Show group
+					a( href="#/showgroup",data-id="#{group.id}",name="show") Show group
 			else
 				.span4
-					a( href="#/groups" data-id="#{group.id}" name="join") Join group
+					a( href="#/groups",data-id="#{group.id}",name="join") Join group
 			if (group.admin == "1")
 				.span5
-					a( href="#/editGroup" data-id="#{group.id}" name="edit") Edit group
-					a( href="#/groups" data-id="#{group.id}" name="delete") Delete group
+					a( href="#/editGroup",data-id="#{group.id}",name="edit") Edit group
+					a( href="#/groups",data-id="#{group.id}",name="delete") Delete group
 			if (group.admin == "0" && group.member == "1")
 				.span5
-					a( href="#/groups" data-id="#{group.id}" name="leave") Leave group
+					a( href="#/groups",data-id="#{group.id}",name="leave") Leave group
