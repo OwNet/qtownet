@@ -757,7 +757,6 @@ IResponse *GroupsService::getNotMyGroups( IRequest *req)
 
 IResponse *GroupsService::edit(IRequest *req, uint id)
 {
-
     QVariantMap reqJson = req->postBodyFromJson().toMap();
     QString curUser_id = m_proxyConnection->session()->value("logged").toString();
     QString salt = "";
@@ -820,7 +819,6 @@ IResponse *GroupsService::edit(IRequest *req, uint id)
 
 IResponse *GroupsService::del(IRequest *req, uint id)
 {
-
     QString curUser_id = m_proxyConnection->session()->value("logged").toString();
     QObject parent;
 

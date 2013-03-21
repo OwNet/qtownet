@@ -86,7 +86,7 @@ IResponse *RecommendationsService::create(IRequest *req)
     return req->response(IResponse::BAD_REQUEST);
 }*/
 
-IResponse *RecommendationsService::show(IRequest *req, uint uid)
+IResponse *RecommendationsService::show(IRequest *req, const QString &uid)
 {
 
     QString curUser_id = m_proxyConnection->session()->value("logged").toString();
@@ -109,7 +109,7 @@ IResponse *RecommendationsService::show(IRequest *req, uint uid)
 
 }
 
-IResponse *RecommendationsService::edit(IRequest *req, uint uid)
+IResponse *RecommendationsService::edit(IRequest *req, const QString &uid)
 {
 
     QString curUser_id = m_proxyConnection->session()->value("logged").toString();
@@ -131,7 +131,7 @@ IResponse *RecommendationsService::edit(IRequest *req, uint uid)
 
 }
 
-IResponse *RecommendationsService::del(IRequest *req, uint uid)
+IResponse *RecommendationsService::del(IRequest *req, const QString &uid)
 {
     QString curUser_id = m_proxyConnection->session()->value("logged").toString();
 

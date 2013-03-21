@@ -14,6 +14,7 @@ public:
     /// Module initialization
     void registerService(IService* service);
     void registerRestService(IRestService* service);
+    void registerUidRestService(IUidRestService *service);
     void registerJob(IJobAction* job);
     void registerDatabaseUpdateListener(IDatabaseUpdateListener *listener);
 

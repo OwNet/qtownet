@@ -62,11 +62,11 @@ IResponse::Status RatingManager::createRating(uint userId, QString  uri, int val
      return IResponse::CREATED;
  }
 
-IResponse::Status RatingManager::showRating(uint id, QVariantMap &rating, QVariantMap &error)
+IResponse::Status RatingManager::showRating(QString uid, QVariantMap &rating, QVariantMap &error)
 {
     QSqlQuery query;
-    query.prepare("SELECT _id, user_id, absolute_uri, val, uid FROM ratings WHERE _id=:id");
-    query.bindValue(":id",id);
+    query.prepare("SELECT _id, user_id, absolute_uri, val, uid FROM ratings WHERE uid=:uid");
+    query.bindValue(":uid",uid);
 
     if(!query.exec())
         return IResponse::INTERNAL_SERVER_ERROR;
@@ -85,10 +85,10 @@ IResponse::Status RatingManager::showRating(uint id, QVariantMap &rating, QVaria
     return IResponse::OK;
 }
 
-IResponse::Status RatingManager::editRating(uint id, uint userId, int value, QVariantMap &error)
+IResponse::Status RatingManager::editRating(QString uid, uint userId, int value, QVariantMap &error)
 {
     QVariantMap rating;
-    IResponse::Status status = showRating(id, rating, error);
+    IResponse::Status status = showRating(uid, rating, error);
 
     if (status != IResponse::OK)
         return status;
@@ -104,7 +104,7 @@ IResponse::Status RatingManager::editRating(uint id, uint userId, int value, QVa
     query->setColumnValue("val", value);
 
     IDatabaseSelectQueryWhereGroup *where = query->whereGroup(IDatabaseSelectQuery::And);
-    where->where("_id", id);
+    where->where("uid", uid);
     where->where("user_id", userId);
 
     if ( query->executeQuery() )
@@ -113,10 +113,10 @@ IResponse::Status RatingManager::editRating(uint id, uint userId, int value, QVa
         return IResponse::INTERNAL_SERVER_ERROR;
 }
 
-IResponse::Status RatingManager::deleteRating(uint id, uint userId, QVariantMap &error)
+IResponse::Status RatingManager::deleteRating(QString uid, uint userId, QVariantMap &error)
 {
     QVariantMap rating;
-    IResponse::Status status = showRating(id, rating, error);
+    IResponse::Status status = showRating(uid, rating, error);
 
     if (status != IResponse::OK)
         return status;
@@ -130,14 +130,14 @@ IResponse::Status RatingManager::deleteRating(uint id, uint userId, QVariantMap 
     query->setType(IDatabaseUpdateQuery::Delete);
 
     IDatabaseSelectQueryWhereGroup *where = query->whereGroup(IDatabaseSelectQuery::And);
-    where->where("_id", id);
+    where->where("uid", uid);
     where->where("user_id", userId);
 
     if (!query->executeQuery())
         return IResponse::INTERNAL_SERVER_ERROR;
     else {
         //**** delete activity ********//
-        m_activityManager->deleteActivity( rating["uid"].toUInt());
+        m_activityManager->deleteActivity( rating["uid"].toString());
         return IResponse::OK;
     }
 }

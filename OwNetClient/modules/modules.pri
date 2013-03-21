@@ -21,8 +21,9 @@ HEADERS  += $${OwNetClientPath}/modules/interfaces/imodule.h \
     $${OwNetClientPath}/modules/interfaces/iroute.h \
     $${OwNetClientPath}/modules/interfaces/iresponse.h \
     $${OwNetClientPath}/modules/response.h \
-    modules/interfaces/isynceddatabaseupdatequery.h \
-    modules/interfaces/idatabaseupdatelistener.h
+    $${OwNetClientPath}/modules/interfaces/isynceddatabaseupdatequery.h \
+    $${OwNetClientPath}/modules/interfaces/idatabaseupdatelistener.h \
+    $${OwNetClientPath}/modules/interfaces/iuidrestservice.h
 
 INCLUDEPATH += $${OwNetClientPath}/modules \
     $${OwNetClientPath}/modules/interfaces

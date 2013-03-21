@@ -295,7 +295,7 @@ IResponse *MessagesService::index(IRequest *req)
 
 }
 
-IResponse *MessagesService::del(IRequest *req, uint uid)
+IResponse *MessagesService::del(IRequest *req, const QString &uid)
 {
     QVariantMap error;
 
