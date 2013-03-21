@@ -105,7 +105,7 @@ define( function (require) {
 		},
 
 		ratings: function() {
-			this.views.recommendations.showRatings()
+			this.views.recommendations.showRatings("all", 1)
 			this.activate("#/ratings")
 		},
 
