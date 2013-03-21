@@ -3,7 +3,7 @@
 
 #include <QObject>
 
-#include "irestservice.h"
+#include "iuidrestservice.h"
 
 
 class IProxyConnection;
@@ -11,7 +11,7 @@ class IProxyConnection;
 /**
  * @brief The GroupsService class
  */
-class GroupsService : public QObject, public IRestService
+class GroupsService : public QObject, public IUidRestService
 {
     Q_OBJECT
 public:

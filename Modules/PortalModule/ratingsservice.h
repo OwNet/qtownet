@@ -3,11 +3,11 @@
 
 #include <QObject>
 
-#include "irestservice.h"
+#include "iuidrestservice.h"
 #include "ratingmanager.h"
 
 
-class RatingsService : public QObject, public IRestService
+class RatingsService : public QObject, public IUidRestService
 {
     Q_OBJECT
 public:

@@ -86,6 +86,11 @@ void ProxyConnection::registerRestService(IRestService* service)
     RequestRouter::addService(service);
 }
 
+void ProxyConnection::registerUidRestService(IUidRestService *service)
+{
+    RequestRouter::addService(service);
+}
+
 void ProxyConnection::registerJob(IJobAction* job)
 {
     new ModuleJob(job, this);

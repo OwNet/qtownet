@@ -3,12 +3,12 @@
 
 #include <QObject>
 
-#include "irestservice.h"
+#include "iuidrestservice.h"
 #include "recommendationmanager.h"
 
 class IProxyConnection;
 
-class RecommendationsService : public QObject, public IRestService
+class RecommendationsService : public QObject, public IUidRestService
 {
     Q_OBJECT
 public:
