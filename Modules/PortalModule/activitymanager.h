@@ -16,8 +16,8 @@ public:
     
     bool createActivity(Activity &ac);
     QVariantList getActivities(bool *ok, QVariantMap &error, IRequest *req);
-    bool deleteActivity(uint objectId);
-    bool editActivity(uint objectId, QString content);
+    bool deleteActivity(const QString &objectId);
+    bool editActivity(const QString &objectId, QString content);
     int pagesCount(IRequest *req);
 
 

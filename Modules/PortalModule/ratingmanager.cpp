@@ -137,7 +137,7 @@ IResponse::Status RatingManager::deleteRating(uint id, uint userId, QVariantMap 
         return IResponse::INTERNAL_SERVER_ERROR;
     else {
         //**** delete activity ********//
-        m_activityManager->deleteActivity( rating["uid"].toUInt());
+        m_activityManager->deleteActivity( rating["uid"].toString());
         return IResponse::OK;
     }
 }

@@ -34,7 +34,7 @@ public:
      * @param id
      * @return
      */
-    IResponse *show(IRequest *req, uint id);
+    IResponse *show(IRequest *req, const QString &textId);
 
     /**
      * @brief index returns list of groups
@@ -49,9 +49,9 @@ public:
      * @param id
      * @return
      */
-    IResponse *edit( IRequest *req, uint id);
+    IResponse *edit(IRequest *req, const QString &textId);
 
-    IResponse *del( IRequest *req, uint id);
+    IResponse *del(IRequest *req, const QString &textId);
 
     /**
      * @brief allCount

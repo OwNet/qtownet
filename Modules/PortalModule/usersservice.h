@@ -17,10 +17,10 @@ public:
     QString name() const { return "users"; }
 
     IResponse *index(IRequest *req);
-    IResponse *show(IRequest *req, uint id);
+    IResponse *show(IRequest *req, const QString &textId);
     IResponse *create(IRequest *req);
-    IResponse *edit(IRequest *req, uint id);
-    IResponse *del(IRequest *req, uint id);
+    IResponse *edit(IRequest *req, const QString &textId);
+    IResponse *del(IRequest *req, const QString &textId);
 
 private:
     IProxyConnection *m_proxyConnection;

@@ -84,8 +84,9 @@ IResponse *RatingsService::create(IRequest *req)
 
 }*/
 
-IResponse *RatingsService::show(IRequest *req, uint id)
+IResponse *RatingsService::show(IRequest *req, const QString &textId)
 {
+    uint id = textId.toUInt();
     if ( !m_proxyConnection->session()->isLoggedIn() )
            return req->response(IResponse::UNAUTHORIEZED);
 
@@ -100,8 +101,9 @@ IResponse *RatingsService::show(IRequest *req, uint id)
         return req->response(QVariant(rating),responseStatus);
 }
 
-IResponse *RatingsService::edit(IRequest *req, uint id)
+IResponse *RatingsService::edit(IRequest *req, const QString &textId)
 {
+    uint id = textId.toUInt();
     if ( !m_proxyConnection->session()->isLoggedIn() )
            return req->response(IResponse::UNAUTHORIEZED);
 
@@ -130,8 +132,9 @@ IResponse *RatingsService::edit(IRequest *req, uint id)
 }
 
 
-IResponse *RatingsService::del(IRequest *req, uint id)
+IResponse *RatingsService::del(IRequest *req, const QString &textId)
 {
+    uint id = textId.toUInt();
     if ( !m_proxyConnection->session()->isLoggedIn() )
            return req->response(IResponse::UNAUTHORIEZED);
 
