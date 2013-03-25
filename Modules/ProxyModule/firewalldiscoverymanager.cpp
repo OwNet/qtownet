@@ -47,8 +47,9 @@ void FirewallDiscoveryManager::checkFirewallStatus()
         if (id == myId)
             continue;
 
-        IRequest *request = m_proxyConnection->createRequest(IRequest::POST, "clients", QString("%1/firewall/ping_me")
-                                                             .arg(id), &parent);
+        IRequest *request = m_proxyConnection->createRequest(IRequest::POST, "clients", QString("%1/firewall/ping_me?my_id=%2")
+                                                             .arg(id)
+                                                             .arg(myId), &parent);
         if (m_proxyConnection->callModule(request)->status() == IResponse::OK) {
             QTimer::singleShot(5 * 1000, this, SLOT(checkPingResponse()));
             return;

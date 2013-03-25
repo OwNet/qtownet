@@ -10,6 +10,7 @@
 #include <QStringList>
 #include <QRegularExpression>
 #include <QDebug>
+#include <QUrlQuery>
 
 ProxyRequest::ProxyRequest(HttpRequest *request, QObject *parent)
     : QObject(parent),
@@ -20,7 +21,8 @@ ProxyRequest::ProxyRequest(HttpRequest *request, QObject *parent)
     /// If accessed directly, they would sometimes throw EXC_BAD_ACCESS error.
     m_url = request->getAbsoluteUrl();
     m_requestBody = request->getBody();
-    m_requestParameters = request->getParameterMap();
+    m_peerAddress = request->peerAddress();
+    m_peerPort = request->peerPort();
 
     analyzeUrl();
     analyzeRequestHeaders(request);
@@ -128,12 +130,22 @@ QString ProxyRequest::requestContentType(const QString &defaultContentType, cons
 
 QString ProxyRequest::parameterValue(const QString &key) const
 {
-    return QString(m_requestParameters.value(key.toUtf8()));
+    return QUrlQuery(QUrl(url()).query()).queryItemValue(key);
 }
 
 bool ProxyRequest::hasParameter(const QString &key) const
 {
-    return m_requestParameters.values(key.toUtf8()).count() > 0;
+    return QUrlQuery(QUrl(url()).query()).hasQueryItem(key);
+}
+
+QMap<QString, QString> ProxyRequest::paramaters() const
+{
+    QList<QPair<QString, QString> > params = QUrlQuery(QUrl(url()).query()).queryItems();
+    QMap<QString, QString> paramsMap;
+    foreach (auto pair, params) {
+        paramsMap.insert(pair.first, pair.second);
+    }
+    return paramsMap;
 }
 
 uint ProxyRequest::hashCode() const
