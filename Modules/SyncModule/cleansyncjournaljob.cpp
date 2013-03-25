@@ -28,7 +28,7 @@ void CleanSyncJournalJob::execute()
                        IDatabaseSelectQuery::NotIn,
                        false);
     if (!query->executeQuery())
-        m_proxyConnection->debugMessage(tr("Failed to remove old cache items from sync journal."));
+        m_proxyConnection->message(tr("Failed to remove old cache items from sync journal."));
 
     m_cleanMutex.unlock();
 }
