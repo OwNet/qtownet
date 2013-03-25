@@ -16,6 +16,7 @@ FirewallDiscoveryManager::FirewallDiscoveryManager(IProxyConnection *proxyConnec
     QObject(parent),
     m_proxyConnection(proxyConnection)
 {
+    connect(this, SIGNAL(finishedPing()), this, SLOT(deleteLater()));
 }
 
 void FirewallDiscoveryManager::ping(const QString &clientId)
@@ -26,15 +27,16 @@ void FirewallDiscoveryManager::ping(const QString &clientId)
     this->moveToThread(thread);
     connect(thread, SIGNAL(started()), this, SLOT(startPing()));
     connect(this, SIGNAL(finishedPing()), thread, SLOT(quit()));
-    connect(this, SIGNAL(finishedPing()), this, SLOT(deleteLater()));
     connect(thread, SIGNAL(finished()), thread, SLOT(deleteLater()));
     thread->start();
 }
 
 void FirewallDiscoveryManager::checkFirewallStatus()
 {
-    if (m_statusChecked)
+    if (m_statusChecked) {
+        emit finishedPing();
         return;
+    }
 
     QObject parent;
     ISession *session = m_proxyConnection->session(&parent);
@@ -57,6 +59,7 @@ void FirewallDiscoveryManager::checkFirewallStatus()
     }
 
     m_statusChecked = false;
+    emit finishedPing();
 }
 
 void FirewallDiscoveryManager::setPingedBack(bool pingedBack)
@@ -77,6 +80,7 @@ void FirewallDiscoveryManager::checkPingResponse()
     if (!m_wasPingedBack) {
         QObject parent;
         int port = m_proxyConnection->settings(&parent)->value("application/listen_port", 8081).toInt();
-        m_proxyConnection->message(tr("Firewall was detected that prevents OwNet from fully functioning. Please deactivate the firewall on port %1").arg(port), tr("Firewall Detected"), IProxyConnection::CriticalPopup);
+        m_proxyConnection->message(tr("Firewall was detected that prevents OwNet from functioning properly. Please deactivate the firewall on port %1.").arg(port), tr("Firewall Detected"), IProxyConnection::CriticalPopup);
     }
+    emit finishedPing();
 }

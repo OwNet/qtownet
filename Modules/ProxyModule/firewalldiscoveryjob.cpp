@@ -18,8 +18,8 @@ void FirewallDiscoveryJob::execute()
     if (!m_pingMutex.tryLock())
         return;
 
-    FirewallDiscoveryManager manager(m_proxyConnection);
-    manager.checkFirewallStatus();
+    FirewallDiscoveryManager *manager = new FirewallDiscoveryManager(m_proxyConnection);
+    manager->checkFirewallStatus();
 
     m_pingMutex.unlock();
 }

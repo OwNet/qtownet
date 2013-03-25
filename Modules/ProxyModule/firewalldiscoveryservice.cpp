@@ -21,11 +21,11 @@ IResponse *FirewallDiscoveryService::pingMe(IRequest *request)
 {
     FirewallDiscoveryManager *manager = new FirewallDiscoveryManager(m_proxyConnection);
     manager->ping(request->parameterValue("my_id"));
-    return request->response();
+    return request->response(IResponse::OK);
 }
 
 IResponse *FirewallDiscoveryService::ping(IRequest *request)
 {
     FirewallDiscoveryManager::setPingedBack(true);
-    return request->response();
+    return request->response(IResponse::OK);
 }
