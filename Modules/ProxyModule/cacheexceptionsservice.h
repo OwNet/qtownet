@@ -17,9 +17,9 @@ public:
     void init(IRouter* router);
 
 private:
-    IResponse *add(IRequest *request);
-    IResponse *remove(IRequest *request);
-    IResponse *check(IRequest *request);
+    IResponse *addException(IRequest *request);
+    IResponse *removeException(IRequest *request);
+    IResponse *checkException(IRequest *request);
 
     IProxyConnection *m_proxyConnection;
 };

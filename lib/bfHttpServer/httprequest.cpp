@@ -240,9 +240,9 @@ void HttpRequest::readFromSocket(QTcpSocket& socket) {
     }
     if (status==complete) {
         // Extract and decode request parameters from url and body
-        decodeRequestParams();
+        // decodeRequestParams();
         // Extract cookies from headers
-        extractCookies();
+        // extractCookies();
     }
 }
 

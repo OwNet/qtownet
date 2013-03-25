@@ -13,28 +13,28 @@ CacheExceptionsService::CacheExceptionsService(IProxyConnection *proxyConnection
 void CacheExceptionsService::init(IRouter *router)
 {
     router->addRoute("/add")
-            ->on(IRequest::POST, ROUTE(add));
+            ->on(IRequest::POST, ROUTE(addException));
     router->addRoute("/remove")
-            ->on(IRequest::POST, ROUTE(remove));
+            ->on(IRequest::POST, ROUTE(removeException));
     router->addRoute("/check")
-            ->on(IRequest::POST, ROUTE(check));
+            ->on(IRequest::POST, ROUTE(checkException));
 }
 
-IResponse *CacheExceptionsService::add(IRequest *request)
+IResponse *CacheExceptionsService::addException(IRequest *request)
 {
     CacheExceptionsManager manager(m_proxyConnection);
     manager.addException(request->postBodyFromJson().toMap().value("url").toString());
     return request->response();
 }
 
-IResponse *CacheExceptionsService::remove(IRequest *request)
+IResponse *CacheExceptionsService::removeException(IRequest *request)
 {
     CacheExceptionsManager manager(m_proxyConnection);
     manager.removeException(request->postBodyFromJson().toMap().value("url").toString());
     return request->response();
 }
 
-IResponse *CacheExceptionsService::check(IRequest *request)
+IResponse *CacheExceptionsService::checkException(IRequest *request)
 {
     CacheExceptionsManager manager(m_proxyConnection);
     QVariantMap response;
