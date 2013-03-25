@@ -26,7 +26,7 @@ void FirewallDiscoveryManager::ping(const QString &clientId)
     this->moveToThread(thread);
     connect(thread, SIGNAL(started()), this, SLOT(startPing()));
     connect(this, SIGNAL(finishedPing()), thread, SLOT(quit()));
-    connect(this, SIGNAL(finished()), this, SLOT(deleteLater()));
+    connect(this, SIGNAL(finishedPing()), this, SLOT(deleteLater()));
     connect(thread, SIGNAL(finished()), thread, SLOT(deleteLater()));
     thread->start();
 }
