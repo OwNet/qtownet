@@ -3,11 +3,11 @@
 
 #include <QObject>
 
-#include "irestservice.h"
+#include "iuidrestservice.h"
 
 class IProxyConnection;
 
-class MessagesService : public QObject, public IRestService
+class MessagesService : public QObject, public IUidRestService
 {
     Q_OBJECT
 public:
@@ -20,7 +20,7 @@ public:
      IResponse *create( IRequest *req);
     // QVariant *show(IBus *bus, IRequest *req);
     IResponse  *index(IRequest *req);
-    IResponse  *del(IRequest *req, uint id);
+    IResponse  *del(IRequest *req, const QString &uid);
 
     IResponse *allPagesCount(IRequest *req);
 private:

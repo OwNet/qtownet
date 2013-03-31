@@ -9,6 +9,7 @@
 
 class IRestService;
 class IService;
+class IUidRestService;
 class IRequest;
 class IResponse;
 
@@ -18,6 +19,7 @@ class RequestRouter : public QObject, public IRouter
 public:
     RequestRouter(IService* service, QObject *parent = 0);
     RequestRouter(IRestService* service, QObject *parent = 0);
+    RequestRouter(IUidRestService* service, QObject *parent = 0);
 
     IRoute* addRoute(QString url);
     void setDefaultRoute(DefaultCallback);
@@ -34,6 +36,7 @@ public:
 private:
     IService* m_service;
     IRestService* m_restService;
+    IUidRestService* m_uidRestService;
     QVector<Route*> m_routes;    
 
     bool m_hasDefaultRoute;
@@ -41,6 +44,7 @@ private:
 
     static void addService(IService *service);
     static void addService(IRestService *service);
+    static void addService(IUidRestService *service);
     static QMap<QString, RequestRouter*> *m_services;
 
     friend class ProxyConnection;

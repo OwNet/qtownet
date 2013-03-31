@@ -3,11 +3,11 @@
 
 #include <QObject>
 
-#include "irestservice.h"
+#include "iuidrestservice.h"
 #include "ratingmanager.h"
 
 
-class RatingsService : public QObject, public IRestService
+class RatingsService : public QObject, public IUidRestService
 {
     Q_OBJECT
 public:
@@ -19,9 +19,9 @@ public:
 
     IResponse *create(IRequest *req);
     //IResponse *index(IRequest *req);
-    IResponse *show( IRequest *req, uint id);
-    IResponse *edit( IRequest *req, uint id);
-    IResponse *del(IRequest *req, uint uid);
+    IResponse *show(IRequest *req, const QString &uid);
+    IResponse *edit(IRequest *req, const QString &uid);
+    IResponse *del(IRequest *req, const QString &uid);
 
     IResponse *showPageStats(IRequest *req);    
     IResponse *showAllPageRatings(IRequest *req);

@@ -19,6 +19,7 @@ public:
 
     virtual QString toString() = 0;
     virtual void bindValue(QSqlQuery *query) const = 0;
+    virtual QVariantMap usedColumns() const = 0;
 };
 
 #endif // IDATABASESELECTQUERYWHERE_H

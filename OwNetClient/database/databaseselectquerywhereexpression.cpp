@@ -38,6 +38,13 @@ void DatabaseSelectQueryWhereExpression::bindValue(QSqlQuery *query) const
         query->bindValue(QString(":%1").arg(m_id), m_value);
 }
 
+QVariantMap DatabaseSelectQueryWhereExpression::usedColumns() const
+{
+    QVariantMap columns;
+    columns.insert(m_column, m_value);
+    return columns;
+}
+
 QString DatabaseSelectQueryWhereExpression::operatorToString() const
 {
     switch (m_operator) {

@@ -129,6 +129,7 @@ bool DatabaseUpdateQuery::executeQuery()
 {
     bool success = false;
     if (type() == Delete) {
+        saveColumnsForListeners();
         success = executeDelete();
     } else if (type() == InsertOrUpdate) {
         bool update = false;
@@ -137,10 +138,14 @@ bool DatabaseUpdateQuery::executeQuery()
             update = m_selectQuery->first();
         }
 
-        if (update)
+        if (update) {
+            saveColumnsForListeners();
             success = executeUpdate();
-        else
+        } else {
+            if (m_listeners->contains(table()))
+                m_columnsForListeners.append(m_columns);
             success = executeInsert();
+        }
     }
 
     /// Notify the listeners
@@ -206,4 +211,29 @@ void DatabaseUpdateQuery::deregisterListener(IDatabaseUpdateListener *listener)
 QString DatabaseUpdateQuery::timestamp() const
 {
     return QDateTime::currentDateTime().toString(Qt::ISODate);
+}
+
+void DatabaseUpdateQuery::saveColumnsForListeners()
+{
+    if (!m_listeners->contains(table()))
+        return;
+
+    m_selectQuery->clearSelect();
+    m_selectQuery->resetQuery();
+
+    if (m_selectQuery->next()) {
+        QSqlQuery *query = m_selectQuery->query();
+        QSqlRecord record = query->record();
+
+        do {
+            QVariantMap values;
+            for (int i = 0; i < record.count(); ++i) {
+                if (m_columns.contains(record.fieldName(i)))
+                    values.insert(record.fieldName(i), m_columns.value(record.fieldName(i)));
+                else
+                    values.insert(record.fieldName(i), query->value(i));
+            }
+            m_columnsForListeners.append(values);
+        } while (query->next());
+    }
 }
