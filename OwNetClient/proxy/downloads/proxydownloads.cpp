@@ -14,6 +14,7 @@
 #include "proxycachelocations.h"
 #include "session.h"
 #include "databaseupdatequery.h"
+#include "cacheexceptions.h"
 
 ProxyDownloads *ProxyDownloads::m_instance = 0;
 
@@ -62,8 +63,8 @@ ProxyDownload *ProxyDownloads::proxyDownload(ProxyRequest *request, ProxyHandler
     connectDownloadAndOutputWriter(download, outputWriter);
 
     if (inputObject) {
-        /// Create a cache output writer if the input source is Web
-        if (inputObject->inputType() == ProxyInputObject::Web)
+        /// Create a cache output writer if the input source is Web and there is no exception for the url
+        if (inputObject->inputType() == ProxyInputObject::Web && !m_cacheExceptions->containsExceptionFor(request->url()))
             connectDownloadAndOutputWriter(download,
                                            new ProxyCacheOutputWriter(download, download->registerReader(), handlerSession));
 
@@ -119,15 +120,19 @@ void ProxyDownloads::setApplicationProxy(const QString &ip, int port)
  */
 void ProxyDownloads::tableUpdated(IDatabaseUpdateQuery *query)
 {
-    QVariantMap columns = query->columns();
-    uint id = columns.value("cache_id").toUInt();
-    QString clientId = columns.value("client_id").toString();
+    QVariantList columns = query->columnsForListeners();
+    for (int i = 0; i < columns.count(); ++i) {
+        QVariantMap columnsMap = columns.at(i).toMap();
 
-    if (query->type() == IDatabaseUpdateQuery::InsertOrUpdate) {
-        addCacheLocation(id, clientId, columns.value("date_created").toString());
-    } else if (query->type() == IDatabaseUpdateQuery::Delete) {
-        if (m_cacheLocations.contains(id)) {
-            m_cacheLocations.value(id)->removeLocation(clientId);
+        if (query->type() == IDatabaseUpdateQuery::InsertOrUpdate) {
+            addCacheLocation(columnsMap.value("cache_id").toUInt(),
+                             columnsMap.value("client_id").toString(),
+                             columnsMap.value("date_created").toString());
+        } else if (query->type() == IDatabaseUpdateQuery::Delete) {
+            if (m_cacheLocations.contains(columnsMap.value("cache_id").toUInt())) {
+                m_cacheLocations.value(columnsMap.value("cache_id").toUInt())
+                        ->removeLocation(columnsMap.value("client_id").toString());
+            }
         }
     }
 }
@@ -137,6 +142,7 @@ ProxyDownloads::ProxyDownloads()
 {
     m_gdsfClock = new GDSFClock;
     m_trafficCounter = new ProxyTrafficCounter;
+    m_cacheExceptions = new CacheExceptions;
 
     initCacheLocations();
 
@@ -161,7 +167,7 @@ ProxyInputObject *ProxyDownloads::newInputObject(ProxyRequest *request, ProxyHan
         QVariantMap availableClients = Session().availableClients();
         Session session;
 
-        if (!session.isRefreshSession() && !request->isRefreshRequest()) {
+        if (!session.isRefreshSession() && !request->isRefreshRequest() && !m_cacheExceptions->containsExceptionFor(request->url())) {
             bool isOnline = Session().isOnline();
 
             if (m_cacheLocations.contains(request->hashCode())) {

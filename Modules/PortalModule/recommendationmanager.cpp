@@ -116,7 +116,7 @@ IResponse::Status RecommendationManager::createRecomm(IRequest *req, QString cur
     }
 }
 
-IResponse::Status RecommendationManager::showRecomm(IRequest *req, uint uid ,QString curUser_id, QVariantMap &recommendation, QVariantMap &error)
+IResponse::Status RecommendationManager::showRecomm(IRequest *req, const QString &uid ,QString curUser_id, QVariantMap &recommendation, QVariantMap &error)
 {
 
     bool missingValue = false;
@@ -178,7 +178,7 @@ IResponse::Status RecommendationManager::showRecomm(IRequest *req, uint uid ,QSt
 
 
 
-IResponse::Status RecommendationManager::editRecomm(IRequest *req, uint uid, QString curUser_id, QVariantMap &error)
+IResponse::Status RecommendationManager::editRecomm(IRequest *req, const QString &uid, QString curUser_id, QVariantMap &error)
 {
     bool ok = true;
 
@@ -251,7 +251,7 @@ IResponse::Status RecommendationManager::editRecomm(IRequest *req, uint uid, QSt
     }
 }
 
-IResponse::Status RecommendationManager::deleteRecomm(IRequest *req, uint uid,  QString curUser_id, QVariantMap &error)
+IResponse::Status RecommendationManager::deleteRecomm(IRequest *req, const QString &uid,  QString curUser_id, QVariantMap &error)
 {
      bool missingValue = false;
 

@@ -3,12 +3,12 @@
 
 #include <QObject>
 
-#include "irestservice.h"
+#include "iuidrestservice.h"
 #include "iresponse.h"
 
 class IProxyConnection;
 
-class SessionService : public QObject, public IRestService
+class SessionService : public QObject, public IUidRestService
 {
     Q_OBJECT
 public:

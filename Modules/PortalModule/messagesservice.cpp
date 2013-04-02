@@ -13,7 +13,7 @@
 
 #include "irouter.h"
 
-#define PER_PAGE 10
+#define PER_PAGE 3
 
 MessagesService::MessagesService(IProxyConnection *proxyConnection, QObject *parent) :
     QObject(parent),
@@ -148,7 +148,7 @@ IResponse *MessagesService::allPagesCount(IRequest *req)
     if(member == "1"){
 
         QSqlQuery query;
-        query.prepare("SELECT COUNT(*) AS n FROM messages WHERE group_id = :group_id");
+        query.prepare("SELECT COUNT(*) AS n FROM messages WHERE group_id = :group_id AND parent_id = 0");
         query.bindValue(":group_id",group_id);
         if(query.exec()){
             query.first();
@@ -196,8 +196,8 @@ IResponse *MessagesService::index(IRequest *req)
 
         QSqlQuery query;
 
-        query.prepare("SELECT * FROM messages WHERE group_id = :group_id AND parent_id = 0 "
-                      "ORDER BY date_created LIMIT :limit OFFSET :offset");
+        query.prepare("SELECT * FROM messages JOIN users ON users.id = messages.user_id WHERE group_id = :group_id AND parent_id = 0 "
+                      "ORDER BY date_created DESC LIMIT :limit OFFSET :offset");
         query.bindValue(":limit",PER_PAGE);
         query.bindValue(":offset", (page-1)* PER_PAGE);
         query.bindValue(":group_id",group_id);
@@ -208,9 +208,20 @@ IResponse *MessagesService::index(IRequest *req)
         QVariantList messages;
 
         while (query.next()) {
+            QSqlQuery query_user;
+
+            query_user.prepare("SELECT * FROM users WHERE id = :id");
+            query_user.bindValue(":id",curUser_id);
+            query_user.exec();
+
+
+
             QVariantMap message;
             message.insert("id", query.value(query.record().indexOf("_id")));
             message.insert("message", query.value(query.record().indexOf("message")));
+            message.insert("first_name", query.value(query.record().indexOf("first_name")));
+            message.insert("last_name", query.value(query.record().indexOf("last_name")));
+            message.insert("date_created", query.value(query.record().indexOf("date_created")));
             message.insert("user_id", query.value(query.record().indexOf("user_id")));
             message.insert("parent_id", query.value(query.record().indexOf("parent_id")));
             message.insert("uid", query.value(query.record().indexOf("uid")));
@@ -220,9 +231,9 @@ IResponse *MessagesService::index(IRequest *req)
         }
 
 
-        query.prepare("SELECT * FROM messages WHERE group_id = :group_id AND "
+        query.prepare("SELECT * FROM messages JOIN users ON users.id = messages.user_id WHERE group_id = :group_id AND "
                       "parent_id !=0 AND parent_id IN (SELECT uid FROM messages WHERE group_id = :group_id AND parent_id = 0 "
-                      "ORDER BY date_created LIMIT :limit OFFSET :offset ) ORDER BY date_created");
+                      "ORDER BY date_created DESC LIMIT :limit OFFSET :offset ) ORDER BY date_created DESC");
         query.bindValue(":limit",PER_PAGE);
         query.bindValue(":offset", (page-1)* PER_PAGE);
         query.bindValue(":group_id",group_id);
@@ -236,6 +247,8 @@ IResponse *MessagesService::index(IRequest *req)
             QVariantMap comment;
             comment.insert("id", query.value(query.record().indexOf("_id")));
             comment.insert("message", query.value(query.record().indexOf("message")));
+            comment.insert("first_name", query.value(query.record().indexOf("first_name")));
+            comment.insert("last_name", query.value(query.record().indexOf("last_name")));
             comment.insert("user_id", query.value(query.record().indexOf("user_id")));
             comment.insert("parent_id", query.value(query.record().indexOf("parent_id")));
             comment.insert("uid", query.value(query.record().indexOf("uid")));
@@ -251,19 +264,24 @@ IResponse *MessagesService::index(IRequest *req)
         for(int i = 0; i< n; i++)
         {
             QVariantMap v = messages.at(i).toMap();
-            response.append(v);
+            QVariantList childComments;
+
             atSpot = false;
             j = 0;
+
             while(j < comments.count() &&  (!atSpot || comments.at(j).toMap().value("parent_id") == v.value("uid"))){
                 if(comments.at(j).toMap().value("parent_id") == v.value("uid")){
-                    response.append(comments.at(j).toMap());
+                    childComments.append(comments.at(j).toMap());
                     atSpot = true;
                     comments.removeAt(j);
                     j--;
+
                 }
                 j++;
             }
-
+            if(!childComments.empty())
+                v.insert("comments",childComments);
+            response.append(v);
 
         }
 
@@ -277,7 +295,7 @@ IResponse *MessagesService::index(IRequest *req)
 
 }
 
-IResponse *MessagesService::del(IRequest *req, uint id)
+IResponse *MessagesService::del(IRequest *req, const QString &uid)
 {
     QVariantMap error;
 
@@ -304,10 +322,10 @@ IResponse *MessagesService::del(IRequest *req, uint id)
     else{
 
         QSqlQuery q;
-        q.prepare("SELECT * FROM messages WHERE id=:id AND user_id=:user_id AND group_id =:group_id");
+        q.prepare("SELECT * FROM messages WHERE _id=:id AND user_id=:user_id AND group_id =:group_id");
         q.bindValue(":user_id",curUser_id);
         q.bindValue(":group_id",group_id);
-        q.bindValue(":id",id);
+        q.bindValue(":uid",uid);
         q.exec();
 
         owner = q.first();
@@ -320,17 +338,18 @@ IResponse *MessagesService::del(IRequest *req, uint id)
 
         query->setUpdateDates(true);
         query->setType(IDatabaseUpdateQuery::Delete);
-        query->singleWhere("_id", id);
+        query->singleWhere("uid", uid);
 
         if(!query->executeQuery()){
             return req->response( IResponse::INTERNAL_SERVER_ERROR);
         }
 
-        query->setUpdateDates(true);
-        query->setType(IDatabaseUpdateQuery::Delete);
-        query->singleWhere("parent_id", id);
+        IDatabaseUpdateQuery *query2 = m_proxyConnection->databaseUpdateQuery("messages", &parentObject);
+        query2->setUpdateDates(true);
+        query2->setType(IDatabaseUpdateQuery::Delete);
+        query2->singleWhere("parent_id", uid);
 
-        if(!query->executeQuery()){
+        if(!query2->executeQuery()){
             return req->response( IResponse::INTERNAL_SERVER_ERROR);
         }
 
@@ -342,4 +361,3 @@ IResponse *MessagesService::del(IRequest *req, uint id)
     }
 
 }
-

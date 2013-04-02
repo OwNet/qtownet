@@ -14,12 +14,12 @@ module Ownet
 				def initialize_database
 					if options[:premigrate_database]
 						FileUtils.cp Ownet::Includes::Database::default_database, 
-							data_directory + "/ownet.sqlite"
+							data_directory + "/aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa.sqlite"
 					end
 				end
 
 				def start_database
-					@database = SQLite3::Database.open data_directory + "/ownet.sqlite"
+					@database = SQLite3::Database.open data_directory + "/aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa.sqlite"
 				end
 
 				def self.included(base)

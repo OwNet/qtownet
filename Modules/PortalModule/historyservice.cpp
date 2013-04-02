@@ -190,7 +190,9 @@ IResponse *HistoryService::visit(IRequest *req)
 
 
         if (success) {
-            return req->response(QString("owNetPAGEID = %1;").arg(QString::number(idto)).toLatin1());
+            IResponse *resp= req->response(QString("owNetPAGEID = %1;").arg(QString::number(idto)).toLatin1());
+            resp->setContentType("application/javascript");
+            return resp;
         }
     }
     return req->response(IResponse::NOT_FOUND);

@@ -84,15 +84,16 @@ IResponse *RatingsService::create(IRequest *req)
 
 }*/
 
-IResponse *RatingsService::show(IRequest *req, uint id)
+IResponse *RatingsService::show(IRequest *req, const QString &uid)
 {
+
     if ( !m_proxyConnection->session()->isLoggedIn() )
            return req->response(IResponse::UNAUTHORIEZED);
 
     QVariantMap error;
     QVariantMap rating;
 
-    IResponse::Status responseStatus = this->m_ratingManager->showRating(id, rating, error);
+    IResponse::Status responseStatus = this->m_ratingManager->showRating(uid, rating, error);
 
     if (responseStatus != IResponse::OK)
         return req->response(QVariant(error), responseStatus);
@@ -100,7 +101,7 @@ IResponse *RatingsService::show(IRequest *req, uint id)
         return req->response(QVariant(rating),responseStatus);
 }
 
-IResponse *RatingsService::edit(IRequest *req, uint id)
+IResponse *RatingsService::edit(IRequest *req, const QString &uid)
 {
     if ( !m_proxyConnection->session()->isLoggedIn() )
            return req->response(IResponse::UNAUTHORIEZED);
@@ -121,7 +122,7 @@ IResponse *RatingsService::edit(IRequest *req, uint id)
     if (!error.isEmpty())
         return req->response(QVariant(error), IResponse::BAD_REQUEST);
 
-    IResponse::Status responseStatus = this->m_ratingManager->editRating(id, userId, value, error );
+    IResponse::Status responseStatus = this->m_ratingManager->editRating(uid, userId, value, error );
 
     if (responseStatus != IResponse::OK)
         return req->response(QVariant(error), responseStatus);
@@ -130,8 +131,9 @@ IResponse *RatingsService::edit(IRequest *req, uint id)
 }
 
 
-IResponse *RatingsService::del(IRequest *req, uint id)
+IResponse *RatingsService::del(IRequest *req, const QString &uid)
 {
+
     if ( !m_proxyConnection->session()->isLoggedIn() )
            return req->response(IResponse::UNAUTHORIEZED);
 
@@ -139,7 +141,7 @@ IResponse *RatingsService::del(IRequest *req, uint id)
 
     QVariantMap error;
 
-    IResponse::Status responseStatus = this->m_ratingManager->deleteRating(id, userId, error);
+    IResponse::Status responseStatus = this->m_ratingManager->deleteRating(uid, userId, error);
 
     if (responseStatus != IResponse::NO_CONTENT)
         return req->response(QVariant(error), responseStatus);

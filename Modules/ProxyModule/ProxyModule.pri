@@ -6,9 +6,13 @@ INCLUDEPATH    += $${OwNetClientPath}/modules/interfaces \
 SOURCES        += $${ModulePath}/refreshservice.cpp \
     $${ModulePath}/webpinger.cpp \
     $${ModulePath}/webpingerjob.cpp \
-    refreshsession.cpp
+    $${ModulePath}/refreshsession.cpp \
+    $${ModulePath}/cacheexceptionsmanager.cpp \
+    $${ModulePath}/cacheexceptionsservice.cpp
 
 HEADERS        += $${ModulePath}/refreshservice.h \
     $${ModulePath}/webpinger.h \
     $${ModulePath}/webpingerjob.h \
-    refreshsession.h
+    $${ModulePath}/refreshsession.h \
+    $${ModulePath}/cacheexceptionsmanager.h \
+    $${ModulePath}/cacheexceptionsservice.h

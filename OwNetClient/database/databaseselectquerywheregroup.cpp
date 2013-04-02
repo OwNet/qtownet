@@ -67,3 +67,12 @@ void DatabaseSelectQueryWhereGroup::bindValue(QSqlQuery *query) const
         where->bindValue(query);
     }
 }
+
+QVariantMap DatabaseSelectQueryWhereGroup::usedColumns() const
+{
+    QVariantMap columns;
+    foreach (IDatabaseSelectQueryWhere *where, m_expressions) {
+        columns.unite(where->usedColumns());
+    }
+    return columns;
+}

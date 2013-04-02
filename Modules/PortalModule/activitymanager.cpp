@@ -250,7 +250,7 @@ QVariantList ActivityManager::getMyActivities(bool *ok, QVariantMap &error, IReq
 
 }
 
-bool ActivityManager::deleteActivity(uint objectId)
+bool ActivityManager::deleteActivity(const QString &objectId)
 {
     QObject parentObject;
     IDatabaseUpdateQuery *query = m_proxyConnection->databaseUpdateQuery("activities", &parentObject);
@@ -265,7 +265,7 @@ bool ActivityManager::deleteActivity(uint objectId)
     return true;
 }
 
-bool ActivityManager::editActivity(uint objectId, QString content)
+bool ActivityManager::editActivity(const QString &objectId, QString content)
 {
     QObject parent;
     IDatabaseUpdateQuery *query = m_proxyConnection->databaseUpdateQuery("activities", &parent);

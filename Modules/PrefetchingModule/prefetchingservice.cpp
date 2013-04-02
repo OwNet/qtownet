@@ -204,7 +204,9 @@ IResponse *PrefetchingService::create(IRequest *req)
             }
         }
     }
-    return req->response(IResponse::OK);
+    IResponse *resp = req->response(IResponse::OK);
+    resp->setContentType("application/javascript");
+    return resp;
 }
 
 
@@ -242,7 +244,9 @@ IResponse *PrefetchingService::done(IRequest *req)
         completedPrefetchingQuery(req->parameterValue("page"));
     }
 
-    return  req->response(IResponse::OK);
+    IResponse *resp = req->response(IResponse::OK);
+    resp->setContentType("application/javascript");
+    return  resp;
 }
 
 

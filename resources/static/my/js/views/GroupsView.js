@@ -11,9 +11,12 @@ define( function (require) {
 	  , groupFormTemplate = require ("tpl/groupform")
 	  , groupDetailTemplate = require ("tpl/showgroupdetail")
 	  , listMembersGroupTemplate = require ("tpl/listmembersgroup")
+	  , pagerTemplate = require ("tpl/groups_pager")
 	  , UserModel = require ("share/models/UserModel")
 	  , GroupsModel = require ("share/models/GroupsModel")
 
+	  , MessagesView = require( 'views/MessagesView' )
+ 
 	  , userNavbarTemplate = require ("tpl/user-navbar")
 
 	  , Form = require("share/utils/form")
@@ -30,6 +33,7 @@ define( function (require) {
 				'click a[name="filter"]' : "showWithFilter",
 				'click a[name="leave"]' : "deleteUser",
 				'click a[name="listMembers"]' : "listMembers",
+				'click a[name="pager"]' : "showPage",
 			},
 
 			initialize: function() {
@@ -57,14 +61,14 @@ define( function (require) {
 				})
 
 				var action = new Action()
-
+				var self = this
 
 				action.save({group_id: id },{
 					wait: true,
 					success: function() {
 						App.router.navigate('groups', {trigger: true})
 						App.showMessage("Joined", "alert-success")
-						this.show("all")
+						self.show("all",1)
 					},
 					error: function() {
 						App.showMessage("Joining failed")
@@ -82,14 +86,14 @@ define( function (require) {
 				})
 
 				var action = new Action()
-
+				var self = this
 
 				action.save({group_id: id, user_id: App.user ? App.user.id : "0"},{
 					wait: true,
 					success: function() {
 						App.router.navigate('groups', {trigger: true})
 						App.showMessage("Leaved", "alert-success")
-						this.show("all")
+						self.show("all",1)
 					},
 					error: function() {
 						App.showMessage("Leaving failed")
@@ -100,7 +104,14 @@ define( function (require) {
 			showWithFilter: function(e){
 				e.preventDefault();
 				var filter = $(e.currentTarget).data("filter");
-				this.show(filter)
+				this.show(filter,1)
+			},
+
+			showPage: function(e){
+				e.preventDefault();
+				var id = $(e.currentTarget).data("id");
+				var filter = $(e.currentTarget).data("filter");
+				this.show(filter,id)
 			},
 
 			deleteGroup: function(e){
@@ -111,13 +122,14 @@ define( function (require) {
 
         		var group = new GroupsModel(data)
         		group.id = id
+        		var self = this
 
         		group.destroy({
         			wait: true,
         			success: function() {
         				App.router.navigate("#/groups", {trigger: true})
         				App.showMessage("Group deleted")
-						this.show("all")
+						self.show("all", 1)
 					},
 					error: function() {
 						App.showMessage("Cannot delete")
@@ -126,21 +138,84 @@ define( function (require) {
 
 			},
 
-			show: function(filter) {
-				var GroupsCollection = Backbone.Collection.extend({
-		  			url: '/api/groups',
-		  			model: GroupsModel
-				})
+			show: function(filter, page) {
+
+				var GroupsCollection ;
+				var Action;
+				if (filter == "all") {
+					GroupsCollection= Backbone.Collection.extend({
+			  			url: '/api/groups',
+			  			model: GroupsModel
+					})
 				
+					Action = Backbone.Model.extend({
+				  		urlRoot: '/api/groups/allPagesCount',
+						defaults: {	}
+					})
+				} else if (filter == "admin") {
+					GroupsCollection= Backbone.Collection.extend({
+			  			url: '/api/groups/admin',
+			  			model: GroupsModel
+					})
+				
+					Action = Backbone.Model.extend({
+				  		urlRoot: '/api/groups/adminPagesCount',
+						defaults: {	}
+					})
+				} else if (filter == "my") {
+					GroupsCollection= Backbone.Collection.extend({
+			  			url: '/api/groups/my',
+			  			model: GroupsModel
+					})
+				
+					Action = Backbone.Model.extend({
+				  		urlRoot: '/api/groups/myPagesCount',
+						defaults: {	}
+					})
+				} else if (filter == "wait") {
+					GroupsCollection= Backbone.Collection.extend({
+			  			url: '/api/groups/awaiting',
+			  			model: GroupsModel
+					})
+				
+					Action = Backbone.Model.extend({
+				  		urlRoot: '/api/groups/awaitingPagesCount',
+						defaults: {	}
+					})
+				} else if (filter == "notMy") {
+					GroupsCollection= Backbone.Collection.extend({
+			  			url: '/api/groups/notMy',
+			  			model: GroupsModel
+					})
+				
+					Action = Backbone.Model.extend({
+				  		urlRoot: '/api/groups/notMyPagesCount',
+						defaults: {	}
+					})
+				}
+
+
 				var groups = new GroupsCollection()
 
-				groups.fetch({
+				groups.fetch({data: {page: page}, 
 					success: function() {
 						$('div#groups_list').html( groupsTableTemplate({groups :groups.toJSON(), filter: filter}))
-
 					},
 					error: function() {
 						App.showMessage("No groups founded")
+					},
+				})
+				
+
+				var action = new Action()
+
+
+				action.fetch({
+					success: function() {
+						$('div#pager').html( pagerTemplate({action :action.toJSON(), filter: filter}))
+					},
+					error: function() {
+						
 					},
 				})
 
@@ -171,12 +246,14 @@ define( function (require) {
 					if(data.has_password != "1") {
 						data.has_password = "0"
 					}
+				} else {
+					data.has_approvement = "0"
 				}
 
 				var group = new GroupsModel(data)
 
 
-				group.save({password: "", has_password: "0", group_type: "1", user_id: App.user ? App.user.id : "0"},{
+				group.save({group_type: 0, has_password: 0},{
 					wait: true,
 					success: function() {
 						App.router.navigate('groups', {trigger: true})
@@ -200,6 +277,9 @@ define( function (require) {
         				App.router.navigate("#/showgroup", {trigger: true})
 						self.$el.html( showGroupTemplate({group :group.toJSON()}) )
 						$('div#group_detail').html( groupDetailTemplate({group :group.toJSON()}))
+
+						var messageView = new MessagesView({el:$("#group_messages")})
+						messageView.showHome(1, group.id)
 					}
         		})
 			},
@@ -221,7 +301,7 @@ define( function (require) {
         		group.fetch({
         			success: function() {
 
-						action.save({group_id: id },{
+						action.fetch({data: {group_id: group.id}, 
 							wait: true,
 							success: function() {
 								App.router.navigate('listMembers', {trigger: true})
@@ -257,7 +337,7 @@ define( function (require) {
 			},
 
 			updateNavbar: function() {
-				$('ul#user-navbar').html( userNavbarTemplate({ user:  App.user ? App.user.toJSON() : false }))
+				$('#navbar').html( userNavbarTemplate({ user:  App.user ? App.user.toJSON() : false }))
 			},
 
 			
