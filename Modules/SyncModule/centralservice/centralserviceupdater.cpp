@@ -39,7 +39,7 @@ bool CentralServiceUpdater::updateJournal()
 
     IResponse *response = m_proxyConnection->callModule(request);
     if (response->status() != IResponse::OK) {
-        m_proxyConnection->debugMessage("Central Service Update: Failed to retrieve journal updates from the service");
+        m_proxyConnection->message("Central Service Update: Failed to retrieve journal updates from the service");
         return false;
     }
 

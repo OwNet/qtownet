@@ -15,7 +15,7 @@ class PingJob : public QObject, public IJobAction
 public:
     explicit PingJob(PingServer *server, IProxyConnection *proxyConnection, QObject *parent = 0);
 
-    int interval() { return 5 * 1000; }
+    int interval() { return 10 * 1000; }
     void execute();
 
 private:

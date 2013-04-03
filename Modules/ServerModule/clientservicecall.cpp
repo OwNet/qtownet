@@ -60,9 +60,9 @@ IResponse *ClientServiceCall::callCentralService(const QString &relativeUrl, IRe
 IResponse *ClientServiceCall::callService(const QString &url, IRequest *request, QNetworkAccessManager *manager)
 {
     QUrlQuery urlQuery(url);
-    /*foreach (QString key, parameters.keys()) {
-        urlQuery.addQueryItem(key, parameters.value(key).toString());
-    }*/
+    QMap<QString, QString> parameters = request->paramaters();
+    foreach (QString key, parameters.keys())
+        urlQuery.addQueryItem(key, parameters.value(key));
 
     QNetworkReply *reply = NULL;
     QNetworkRequest networkRequest(QUrl(urlQuery.toString(QUrl::FullyEncoded)));
