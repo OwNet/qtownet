@@ -22,6 +22,7 @@ void ProxyInitializer::init()
     settings->setValue("listen_port", port);
     settings->setValue("readTimeout", 30*1000);
     settings->setValue("maxRequestSize", 32000);
+    settings->setValue("minThreads", 10);
 
     new HttpListener(settings, new ProxyRequestMapper());
 }

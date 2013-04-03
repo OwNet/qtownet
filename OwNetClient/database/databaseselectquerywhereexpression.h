@@ -18,6 +18,7 @@ public:
     
     QString toString();
     void bindValue(QSqlQuery *query) const;
+    QVariantMap usedColumns() const;
 
 private:
     QString operatorToString() const;

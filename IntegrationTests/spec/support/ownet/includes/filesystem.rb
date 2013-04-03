@@ -89,6 +89,13 @@ module Ownet
 						file.write "resources_folder_path=#{resources_directory}\n"
 						file.write "multicast_group_address=#{options[:multicast_inspector].multicast_address}\n"
 						file.write "multicast_port=#{options[:multicast_inspector].multicast_port}\n"
+
+						file.write "[current_workspace]"
+						file.write "id={aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa}"
+						file.write "name=OwNet Network"
+
+						file.write "[workspaces]"
+						file.write "%7Baaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa%7D=OwNet Network"
 					}
 				end
 

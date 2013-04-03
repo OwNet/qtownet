@@ -8,6 +8,7 @@ define( function (require) {
 	  , profileTemplate = require ("tpl/profile")
 	  , recommendationsTableTamplate = require ("tpl/recommendationstable")
 	  , pagerTemplate = require ("tpl/recommendationspager")
+	  , ratingsTemplate = require ("tpl/ratings")
 	  , ratingsTableTamplate = require ("tpl/ratingstable")
 	  , UserModel = require ("share/models/UserModel")
 	  , ActivityModel = require ("share/models/ActivityModel")
@@ -22,6 +23,7 @@ define( function (require) {
 			events: {
 				'click a[name="pager"]' : "showPage",
 				'click a[name="myRecommendations"]' : "showMyRecommendations",
+				'click a[name="myRatings"]' : "showMyRatings",
 			},
 
 
@@ -58,7 +60,7 @@ define( function (require) {
 				})
 
 				Action = Backbone.Model.extend({
-				  		urlRoot: '/api/activities/allMyPagesCount?type=0',
+				  		urlRoot: '/api/activities/myPagesCount?type=0',
 						defaults: {	}
 					})
 				}
@@ -102,28 +104,64 @@ define( function (require) {
 				this.showRecommendations(filter,id)
 			},
 
-			showRatings: function() {
-				var ActivitiesCollection = Backbone.Collection.extend({
+			showRatings: function(filter, page) {
+				var RatingsCollection;
+				var Action;
+				
+				if (filter == "all") {
+					ActivitiesCollection = Backbone.Collection.extend({
 					url: '/api/activities',
 					model: ActivityModel
 				})
 
+				Action = Backbone.Model.extend({
+				  		urlRoot: '/api/activities/allPagesCount?type=1',
+						defaults: {	}
+					})
+				} else if (filter == "my") {
+					ActivitiesCollection = Backbone.Collection.extend({
+					url: '/api/activities/my',
+					model: ActivityModel
+				})
+
+				Action = Backbone.Model.extend({
+				  		urlRoot: '/api/activities/myPagesCount?type=1',
+						defaults: {	}
+					})
+				}
+
 				var activities = new ActivitiesCollection()
 
-				activities.fetch({
+				activities.fetch({data: {page: page, type: '1'},
 					success: function() {
-						$('div#recommendations').html( ratingsTableTamplate({activities: activities.toJSON()}))
+						$('div#ratings').html( ratingsTableTamplate({activities: activities.toJSON(), filter: filter}))
 					},
 					error: function(){
-						App.showMessage("Error reading activities")
+						App.showMessage("Error reading Ratings")
 					},
 				})
 
-				
-				this.$el.html( recommendationsTemplate({ }) )
+				var action = new Action()
+
+
+				action.fetch({
+					success: function() {
+						$('div#pager').html( pagerTemplate({action :action.toJSON(), filter: filter}))
+					},
+					error: function() {
+						
+					},
+				})
+
+				this.$el.html( ratingsTemplate({ }) )
 				return this
 
 			},
+
+			showMyRatings: function(){
+				this.showRatings("my", 1);
+			},
+			
 
 
 			

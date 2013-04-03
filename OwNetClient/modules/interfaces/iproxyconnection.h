@@ -14,6 +14,7 @@ class IService;
 class IRestService;
 class IJobAction;
 class IDatabaseUpdateListener;
+class IUidRestService;
 
 class IProxyConnection
 {
@@ -21,6 +22,7 @@ public:
     /// Module initialization
     virtual void registerService(IService*) = 0;
     virtual void registerRestService(IRestService*) = 0;
+    virtual void registerUidRestService(IUidRestService*) = 0;
     virtual void registerJob(IJobAction*) = 0;
     virtual void registerDatabaseUpdateListener(IDatabaseUpdateListener *listener) = 0;
 

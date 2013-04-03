@@ -49,9 +49,9 @@ public:
      * @param id
      * @return
      */
-    IResponse *edit( IRequest *req, uint id);
+    IResponse *edit(IRequest *req, uint id);
 
-    IResponse *del( IRequest *req, uint id);
+    IResponse *del(IRequest *req, uint id);
 
     /**
      * @brief allCount

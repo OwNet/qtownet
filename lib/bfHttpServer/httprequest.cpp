@@ -8,7 +8,9 @@
 #include <QDir>
 #include "httpcookie.h"
 
-HttpRequest::HttpRequest(QSettings* settings) {
+HttpRequest::HttpRequest(QSettings* settings, QObject *parent)
+    : QObject(parent)
+{
     status=waitForRequest;
     currentSize=0;
     expectedBodySize=0;
@@ -238,9 +240,9 @@ void HttpRequest::readFromSocket(QTcpSocket& socket) {
     }
     if (status==complete) {
         // Extract and decode request parameters from url and body
-        decodeRequestParams();
+        // decodeRequestParams();
         // Extract cookies from headers
-        extractCookies();
+        // extractCookies();
     }
 }
 

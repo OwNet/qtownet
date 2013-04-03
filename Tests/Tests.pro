@@ -28,7 +28,8 @@ SOURCES +=  main.cpp \
     helpers/workspacehelpertests.cpp \
     classes/databaseselectquerytests.cpp \
     stub/stubdatabaseupdatelistener.cpp \
-    classes/proxycachelocationstests.cpp
+    classes/proxycachelocationstests.cpp \
+    modules/cacheexceptionsmanagertests.cpp
 
 
 HEADERS +=  autotest.h \
@@ -42,7 +43,8 @@ HEADERS +=  autotest.h \
     helpers/workspacehelpertests.h \
     classes/databaseselectquerytests.h \
     stub/stubdatabaseupdatelistener.h \
-    classes/proxycachelocationstests.h
+    classes/proxycachelocationstests.h \
+    modules/cacheexceptionsmanagertests.h
 
 OwNetClientPath = ../OwNetClient
 ModulesPath = ../Modules
@@ -59,6 +61,7 @@ include($${LibPath}/bfHttpServer/bfHttpServer.pri)
 
 include($${ModulesPath}/MulticastModule/MulticastModule.pri)
 include($${ModulesPath}/SyncModule/SyncModule.pri)
+include($${ModulesPath}/ProxyModule/ProxyModule.pri)
 
 INCLUDEPATH += $$_PRO_FILE_PWD_ \
     stub \

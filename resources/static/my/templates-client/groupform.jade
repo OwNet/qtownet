@@ -3,7 +3,7 @@ form(name="create-group-form").form-horizontal
 					.control-group
 						label.control-label Name:
 						.controls
-							input(type="text" name="name" value="#{group[0].name}")
+							input(type="text",name="name",value="#{group[0].name}")
 							span.help-block
 
 					.control-group
@@ -27,11 +27,11 @@ form(name="create-group-form").form-horizontal
 					.control-group
 						label.control-label Has approvement:
 						.controls
-							input(type="checkbox" name="has_approvement"  value="#{group[0].has_approvement}")
+							input(type="checkbox",name="has_approvement",value="#{group[0].has_approvement}")
 							span.help-block
 							if (group[0].id)
-								input(type="hidden" name="id" value="#{group[0].id}")
+								input(type="hidden",name="id",value="#{group[0].id}")
 
 					.control-group
 						.controls
-							button.btn(type="button" name="submit") Create
+							button.btn(type="button",name="submit") Create

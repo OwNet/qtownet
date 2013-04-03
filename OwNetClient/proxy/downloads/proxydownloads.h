@@ -15,6 +15,7 @@ class GDSFClock;
 class ProxyTrafficCounter;
 class ProxyOutputWriter;
 class ProxyCacheLocations;
+class CacheExceptions;
 
 /**
  * @brief Contains a list of all active downloads. Creates a new download or reuses an active one on request.
@@ -63,6 +64,7 @@ private:
 
     GDSFClock *m_gdsfClock;
     ProxyTrafficCounter *m_trafficCounter;
+    CacheExceptions *m_cacheExceptions;
 
     int m_proxyPort;
     QString m_proxyIp;

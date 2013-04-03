@@ -47,6 +47,7 @@ public:
     bool isLocalRequest() const;
     bool isStaticResourceRequest() const;
     bool isApiRequest() const { return m_isApiRequest; }
+    bool isRefreshRequest() const;
 
     IResponse* response();
     IResponse* response(const QVariant body, IResponse::Status status = IResponse::OK);
