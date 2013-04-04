@@ -193,6 +193,14 @@ bool ProxyRequest::isStaticResourceRequest() const
     return isLocalRequest() && !isApiRequest();
 }
 
+bool ProxyRequest::isRefreshRequest() const
+{
+    QString cacheControl = m_requestHeaders.value("Cache-Control").toString();
+    QString pragma = m_requestHeaders.value("Pragma").toString();
+
+    return cacheControl=="max-age=0" || cacheControl=="no-cache" || pragma=="No-cache";
+}
+
 IResponse *ProxyRequest::response()
 {
     return new Response();
