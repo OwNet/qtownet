@@ -6,6 +6,7 @@
 #include "httprequest.h"
 #include <QList>
 #include <QDir>
+#include <QHostAddress>
 #include "httpcookie.h"
 
 HttpRequest::HttpRequest(QSettings* settings, QObject *parent)
@@ -244,6 +245,8 @@ void HttpRequest::readFromSocket(QTcpSocket& socket) {
         // Extract cookies from headers
         // extractCookies();
     }
+    m_peerAddress = socket.peerAddress().toString();
+    m_peerPort = socket.peerPort();
 }
 
 

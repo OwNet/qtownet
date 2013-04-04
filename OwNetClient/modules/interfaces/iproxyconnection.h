@@ -19,6 +19,14 @@ class IUidRestService;
 class IProxyConnection
 {
 public:
+    enum MessageType {
+        Debug,
+        Error,
+        InformationPopup,
+        WarningPopup,
+        CriticalPopup
+    };
+
     /// Module initialization
     virtual void registerService(IService*) = 0;
     virtual void registerRestService(IRestService*) = 0;
@@ -47,7 +55,7 @@ public:
     /// Helpers
     virtual QVariant fromJson(const QByteArray &content, bool *ok = NULL) const = 0;
     virtual QByteArray toJson(const QVariant &content) const = 0;
-    virtual void debugMessage(const QVariant &message) const = 0;
+    virtual void message(const QVariant &message, const QString &title = QString(), MessageType messageType = Debug) const = 0;
     virtual QString generateUniqueId() const = 0;
     virtual int lastConnectionTraffic() const = 0;
     virtual uint cacheId(const QString &url) const = 0;

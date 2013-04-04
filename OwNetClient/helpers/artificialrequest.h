@@ -23,9 +23,10 @@ public:
     QString subDomain() const { return m_submodule; }
 
     bool hasParameter(const QString& key) const { return m_parameters.contains(key); }
-
     QString parameterValue(const QString &key) const { return m_parameters.value(key); }
     void setParamater(const QString &key, const QString &value) { m_parameters.insert(key, value); }
+    QMap<QString, QString> paramaters() const { return m_parameters; }
+
     void setPostBody(const QVariant &body) { m_postBody = body; }
 
     IResponse* response();

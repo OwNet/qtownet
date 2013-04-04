@@ -19,6 +19,8 @@
 #include "proxydownloads.h"
 #include "proxytrafficcounter.h"
 
+#include <QMessageBox>
+
 ProxyConnection::ProxyConnection(QObject *parent) :
     QObject(parent)
 {
@@ -107,12 +109,36 @@ IResponse *ProxyConnection::callModule(IRequest *req)
     return RequestRouter::processRequest(req);
 }
 
-void ProxyConnection::debugMessage(const QVariant &message) const
+/**
+ * @brief Output a message by the given message type
+ * @param message Body of the message
+ * @param title Title of the message
+ * @param messageType Type of the message
+ */
+void ProxyConnection::message(const QVariant &message, const QString &title, MessageType messageType) const
 {
-    MessageHelper::debug(message);
+    switch (messageType) {
+    case Debug:
+        MessageHelper::debug(message);
+        break;
+
+    case Error:
+        MessageHelper::error(title, message);
+        break;
+
+    case InformationPopup:
+        QMessageBox::information(NULL, title, message.toString());
+        break;
+
+    case WarningPopup:
+        QMessageBox::warning(NULL, title, message.toString());
+        break;
+
+    case CriticalPopup:
+        QMessageBox::critical(NULL, title, message.toString());
+        break;
+    }
 }
-
-
 
 int ProxyConnection::lastConnectionTraffic() const
 {

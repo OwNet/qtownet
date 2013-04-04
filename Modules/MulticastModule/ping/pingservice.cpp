@@ -26,7 +26,7 @@ IResponse *PingService::availableClients(IRequest *request)
     requestBody.insert("address", request->peerAddress());
     m_pingServer->updateClient(requestBody);
 
-    return request->response(m_pingServer->availableClients());
+    return request->response(m_pingServer->availableClients(requestBody.value("called_ip").toString()));
 }
 
 IResponse *PingService::hi(IRequest *request)
