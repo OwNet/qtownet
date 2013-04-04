@@ -32,7 +32,7 @@ bool CentralServiceReporter::reportSyncJournal()
     bool ok;
     QVariantMap serverState = getServerSyncState(&ok);
     if (!ok) {
-        m_proxyConnection->debugMessage("Central Service Report: Failed to access the service");
+        m_proxyConnection->message("Central Service Report: Failed to access the service");
         return false;
     }
 
@@ -59,7 +59,7 @@ bool CentralServiceReporter::reportSyncJournal()
         }
     }
     if (!success)
-        m_proxyConnection->debugMessage("Central Service Report: Failed to report updates to the service");
+        m_proxyConnection->message("Central Service Report: Failed to report updates to the service");
     return success;
 }
 
@@ -96,7 +96,7 @@ bool CentralServiceReporter::reportBrowsingHistory()
         settings->setValue("last_central_service_report", currentDate);
         return true;
     }
-    m_proxyConnection->debugMessage("Central Service Report: Failed to report browsing hitory to the service");
+    m_proxyConnection->message("Central Service Report: Failed to report browsing hitory to the service");
     return false;
 }
 

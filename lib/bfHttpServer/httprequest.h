@@ -139,6 +139,9 @@ public:
     /** Get the map of cookies */
     QMap<QByteArray,QByteArray>& getCookieMap();
 
+    QString peerAddress() const { return m_peerAddress; }
+    quint16 peerPort() const { return m_peerPort; }
+
 private:
 
     /** Request headers */
@@ -210,6 +213,9 @@ private:
 
     /** Sub-procedure of readFromSocket(), extract cookies from headers */
     void extractCookies();
+
+    QString m_peerAddress;
+    quint16 m_peerPort;
 
 };
 

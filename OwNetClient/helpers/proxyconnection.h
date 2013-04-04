@@ -33,7 +33,7 @@ public:
     /// Helpers
     QVariant fromJson(const QByteArray &content, bool *ok = NULL) const;
     QByteArray toJson(const QVariant &content) const;
-    void debugMessage(const QVariant &message) const;
+    void message(const QVariant &message, const QString &title = QString(), MessageType messageType = Debug) const;
     int lastConnectionTraffic() const;
     QString generateUniqueId() const;
     uint cacheId(const QString &url) const;
