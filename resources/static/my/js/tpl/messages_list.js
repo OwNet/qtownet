@@ -14,8 +14,8 @@ __jade.unshift({ lineno: 1, filename: __jade[0].filename });
 ;(function(){
   if ('number' == typeof messages.length) {
 
-    for (var $index = 0, $$l = messages.length; $index < $$l; $index++) {
-      var message = messages[$index];
+    for (var index = 0, $$l = messages.length; index < $$l; index++) {
+      var message = messages[index];
 
 __jade.unshift({ lineno: 1, filename: __jade[0].filename });
 __jade.unshift({ lineno: 2, filename: __jade[0].filename });
@@ -65,30 +65,6 @@ buf.push('</label>');
 __jade.shift();
 __jade.shift();
 buf.push('\n  </div>');
-__jade.shift();
-__jade.unshift({ lineno: 9, filename: __jade[0].filename });
-if ( (message.user_id == user.id || is_admin))
-{
-__jade.unshift({ lineno: 10, filename: __jade[0].filename });
-__jade.unshift({ lineno: 10, filename: __jade[0].filename });
-buf.push('\n  <div class="span4">');
-__jade.unshift({ lineno: undefined, filename: __jade[0].filename });
-__jade.unshift({ lineno: 11, filename: __jade[0].filename });
-buf.push('<a');
-buf.push(attrs({ 'href':("#"), 'data-group_id':("" + (group_id) + ""), 'data-id':("" + (message.id) + ""), 'name':("delete-message") }, {"href":true,"data-group_id":true,"data-id":true,"name":true}));
-buf.push('>');
-__jade.unshift({ lineno: undefined, filename: __jade[0].filename });
-__jade.unshift({ lineno: 11, filename: __jade[0].filename });
-buf.push('Delete');
-__jade.shift();
-__jade.shift();
-buf.push('</a>');
-__jade.shift();
-__jade.shift();
-buf.push('</div>');
-__jade.shift();
-__jade.shift();
-}
 __jade.shift();
 __jade.shift();
 buf.push('\n</div>');
@@ -98,8 +74,8 @@ __jade.shift();
 
   } else {
     var $$l = 0;
-    for (var $index in messages) {
-      $$l++;      var message = messages[$index];
+    for (var index in messages) {
+      $$l++;      var message = messages[index];
 
 __jade.unshift({ lineno: 1, filename: __jade[0].filename });
 __jade.unshift({ lineno: 2, filename: __jade[0].filename });
@@ -149,30 +125,6 @@ buf.push('</label>');
 __jade.shift();
 __jade.shift();
 buf.push('\n  </div>');
-__jade.shift();
-__jade.unshift({ lineno: 9, filename: __jade[0].filename });
-if ( (message.user_id == user.id || is_admin))
-{
-__jade.unshift({ lineno: 10, filename: __jade[0].filename });
-__jade.unshift({ lineno: 10, filename: __jade[0].filename });
-buf.push('\n  <div class="span4">');
-__jade.unshift({ lineno: undefined, filename: __jade[0].filename });
-__jade.unshift({ lineno: 11, filename: __jade[0].filename });
-buf.push('<a');
-buf.push(attrs({ 'href':("#"), 'data-group_id':("" + (group_id) + ""), 'data-id':("" + (message.id) + ""), 'name':("delete-message") }, {"href":true,"data-group_id":true,"data-id":true,"name":true}));
-buf.push('>');
-__jade.unshift({ lineno: undefined, filename: __jade[0].filename });
-__jade.unshift({ lineno: 11, filename: __jade[0].filename });
-buf.push('Delete');
-__jade.shift();
-__jade.shift();
-buf.push('</a>');
-__jade.shift();
-__jade.shift();
-buf.push('</div>');
-__jade.shift();
-__jade.shift();
-}
 __jade.shift();
 __jade.shift();
 buf.push('\n</div>');
