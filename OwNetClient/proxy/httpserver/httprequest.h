@@ -143,59 +143,6 @@ public:
     quint16 peerPort() const { return m_peerPort; }
 
 private:
-
-    /** Request headers */
-    QMultiMap<QByteArray,QByteArray> headers;
-
-    /** Parameters of the request */
-    QMultiMap<QByteArray,QByteArray> parameters;
-
-    /** Uploaded files of the request, key is the field name. */
-    QMap<QByteArray,QTemporaryFile*> uploadedFiles;
-
-    /** Received cookies */
-    QMap<QByteArray,QByteArray> cookies;
-
-    /** Storage for raw body data */
-    QByteArray bodyData;
-
-    /** Request method */
-    QByteArray method;
-
-    /** Request path (in raw encoded format) */
-    QByteArray path;
-    QString url;
-
-    /** Request protocol version */
-    QByteArray version;
-
-    /**
-      Status of this request.
-      @see RequestStatus
-    */
-    RequestStatus status;
-
-    /** Maximum size of requests in bytes. */
-    int maxSize;
-
-    /** Maximum allowed size of multipart forms in bytes. */
-    int maxMultiPartSize;
-
-    /** Current size */
-    int currentSize;
-
-    /** Expected size of body */
-    int expectedBodySize;
-
-    /** Name of the current header, or empty if no header is being processed */
-    QByteArray currentHeader;
-
-    /** Boundary of multipart/form-data body. Empty if there is no such header */
-    QByteArray boundary;
-
-    /** Temp file, that is used to store the multipart/form-data body */
-    QTemporaryFile tempFile;
-
     /** Parset he multipart body, that has been stored in the temp file. */
     void parseMultiPartFile();
 
@@ -211,12 +158,60 @@ private:
     /** Sub-procedure of readFromSocket(), extract and decode request parameters. */
     void decodeRequestParams();
 
-    /** Sub-procedure of readFromSocket(), extract cookies from headers */
-    void extractCookies();
+    /** Request headers */
+    QMultiMap<QByteArray,QByteArray> m_headers;
+
+    /** Parameters of the request */
+    QMultiMap<QByteArray,QByteArray> m_parameters;
+
+    /** Uploaded files of the request, key is the field name. */
+    QMap<QByteArray,QTemporaryFile*> m_uploadedFiles;
+
+    /** Received cookies */
+    QMap<QByteArray,QByteArray> m_cookies;
+
+    /** Storage for raw body data */
+    QByteArray m_bodyData;
+
+    /** Request method */
+    QByteArray m_method;
+
+    /** Request path (in raw encoded format) */
+    QByteArray m_path;
+    QString m_url;
+
+    /** Request protocol version */
+    QByteArray m_version;
+
+    /**
+      Status of this request.
+      @see RequestStatus
+    */
+    RequestStatus m_status;
+
+    /** Maximum size of requests in bytes. */
+    int m_maxSize;
+
+    /** Maximum allowed size of multipart forms in bytes. */
+    int m_maxMultiPartSize;
+
+    /** Current size */
+    int m_currentSize;
+
+    /** Expected size of body */
+    int m_expectedBodySize;
+
+    /** Name of the current header, or empty if no header is being processed */
+    QByteArray m_currentHeader;
+
+    /** Boundary of multipart/form-data body. Empty if there is no such header */
+    QByteArray m_boundary;
+
+    /** Temp file, that is used to store the multipart/form-data body */
+    QTemporaryFile m_tempFile;
 
     QString m_peerAddress;
     quint16 m_peerPort;
-
 };
 
 #endif // HTTPREQUEST_H

@@ -13,6 +13,7 @@ CleanSyncJournalJob::CleanSyncJournalJob(IProxyConnection *proxyConnection, QObj
 
 void CleanSyncJournalJob::execute()
 {
+    return;
     if (!m_cleanMutex.tryLock())
         return;
 

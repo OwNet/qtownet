@@ -59,6 +59,7 @@ IResponse *ClientServiceCall::callCentralService(const QString &relativeUrl, IRe
 
 IResponse *ClientServiceCall::callService(const QString &url, IRequest *request, QNetworkAccessManager *manager)
 {
+    return request->response(IResponse::NOT_FOUND);
     QUrlQuery urlQuery(url);
     QMap<QString, QString> parameters = request->paramaters();
     foreach (QString key, parameters.keys())

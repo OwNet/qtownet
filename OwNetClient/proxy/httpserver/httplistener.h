@@ -10,8 +10,6 @@
 #include <QSettings>
 #include <QBasicTimer>
 #include "httpconnectionhandler.h"
-#include "httpconnectionhandlerpool.h"
-#include "httprequesthandler.h"
 
 /**
   Listens for incoming TCP connections and passes control to
@@ -34,7 +32,8 @@
   @see HttpRequest for description of config settings maxRequestSize and maxMultiPartSize
 */
 
-class HttpListener : public QTcpServer {
+class HttpListener : public QTcpServer
+{
     Q_OBJECT
     Q_DISABLE_COPY(HttpListener)
 public:
@@ -45,7 +44,7 @@ public:
       @param requestHandler Processes each received HTTP request, usually by dispatching to controller classes.
       @param parent Parent object
     */
-    HttpListener(QSettings* settings, HttpRequestHandler* requestHandler, QObject* parent = 0);
+    HttpListener(QSettings* m_settings, QObject* parent = 0);
 
     /** Destructor */
     virtual ~HttpListener();
@@ -58,10 +57,8 @@ protected:
 private:
 
     /** Configuration settings for the HTTP server */
-    QSettings* settings;
+    QSettings* m_settings;
 
-    /** Pool of connection handlers */
-    HttpConnectionHandlerPool pool;
 
 signals:
 

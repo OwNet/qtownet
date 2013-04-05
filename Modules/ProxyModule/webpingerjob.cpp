@@ -11,5 +11,6 @@ WebPingerJob::WebPingerJob(IProxyConnection *proxyConnection, QObject *parent) :
 
 void WebPingerJob::execute()
 {
+    return;
     m_pinger->ping();
 }

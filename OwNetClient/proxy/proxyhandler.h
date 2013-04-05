@@ -20,17 +20,12 @@ class ProxyHandler : public QObject
 public:
     ProxyHandler(QObject *parent = NULL);
 
-    void setRequestAndResponseAndStart(HttpRequest *request, HttpResponse *response);
-
-signals:
-    void start(); ///< Signal to start the download in the ProxyHandler thread
-    void disposeThread(); ///< Signal to dispose the ProxyHandler thread
+    void service(HttpRequest *request, HttpResponse *response);
 
 public slots:
     void proxyHandlerSessionFinished();
 
 private slots:
-    void handleRequest();
     void requestTimeout();
     void restartTimeout();
     void finishHandling();

@@ -4,7 +4,6 @@
 #include "settings.h"
 
 #include "httplistener.h"
-#include "proxyrequestmapper.h"
 
 #include <QNetworkInterface>
 #include <QNetworkProxy>
@@ -24,5 +23,5 @@ void ProxyInitializer::init()
     settings->setValue("maxRequestSize", 32000);
     settings->setValue("minThreads", 10);
 
-    new HttpListener(settings, new ProxyRequestMapper());
+    new HttpListener(settings);
 }

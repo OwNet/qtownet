@@ -9,7 +9,6 @@
 #include <QMap>
 #include <QString>
 #include <QTcpSocket>
-#include "httpcookie.h"
 
 /**
   This object represents a HTTP response, in particular the response headers.
@@ -43,7 +42,7 @@ public:
       Constructor.
       @param socket used to write the response
     */
-    HttpResponse(QTcpSocket* socket, QObject *parent);
+    HttpResponse(QTcpSocket* m_socket, QObject *parent);
 
     /**
       Set a HTTP response header
@@ -62,13 +61,10 @@ public:
     /** Get the map of HTTP response headers */
     QMap<QByteArray,QByteArray>& getHeaders();
 
-    /** Get the map of cookies */
-    QMap<QByteArray,HttpCookie>& getCookies();
-
     /**
       Set status code and description. The default is 200,OK.
     */
-    void setStatus(int statusCode, QByteArray description=QByteArray());
+    void setStatus(int m_statusCode, QByteArray description=QByteArray());
 
     /**
       Write body data to the socket.
@@ -92,38 +88,10 @@ public:
     */
     bool hasSentLastPart() const;
 
-    /**
-      Set a cookie. Cookies are sent together with the headers when the first
-      call to write() occurs.
-    */
-    void setCookie(const HttpCookie& cookie);
-
 signals:
     void finished();
 
 private:
-
-    /** Request headers */
-    QMap<QByteArray,QByteArray> headers;
-
-    /** Socket for writing output */
-    QTcpSocket* socket;
-
-    /** HTTP status code*/
-    int statusCode;
-
-    /** HTTP status code description */
-    QByteArray statusText;
-
-    /** Indicator whether headers have been sent */
-    bool sentHeaders;
-
-    /** Indicator whether the body has been sent completely */
-    bool sentLastPart;
-
-    /** Cookies */
-    QMap<QByteArray,HttpCookie> cookies;
-
     /** Write raw data to the socket. This method blocks until all bytes have been passed to the TCP buffer */
     bool writeToSocket(QByteArray data);
 
@@ -134,6 +102,23 @@ private:
     */
     void writeHeaders();
 
+    /** Request headers */
+    QMap<QByteArray,QByteArray> m_headers;
+
+    /** Socket for writing output */
+    QTcpSocket* m_socket;
+
+    /** HTTP status code*/
+    int m_statusCode;
+
+    /** HTTP status code description */
+    QByteArray m_statusText;
+
+    /** Indicator whether headers have been sent */
+    bool m_sentHeaders;
+
+    /** Indicator whether the body has been sent completely */
+    bool m_sentLastPart;
 };
 
 #endif // HTTPRESPONSE_H

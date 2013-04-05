@@ -10,8 +10,10 @@
 #include <QSettings>
 #include <QTimer>
 #include <QThread>
-#include "httprequest.h"
-#include "httprequesthandler.h"
+
+class HttpRequest;
+class HttpResponse;
+class ProxyHandler;
 
 /**
   The connection handler accepts incoming connections and dispatches incoming requests to to a
@@ -29,7 +31,8 @@
   @see HttpRequest for description of config settings maxRequestSize and maxMultiPartSize
 */
 
-class HttpConnectionHandler : public QThread {
+class HttpConnectionHandler : public QThread
+{
     Q_OBJECT
     Q_DISABLE_COPY(HttpConnectionHandler)
 public:
@@ -39,7 +42,7 @@ public:
       @param settings Configuration settings of the HTTP webserver
       @param requestHandler handler that will process each incomin HTTP request
     */
-    HttpConnectionHandler(QSettings* settings, HttpRequestHandler* requestHandler);
+    HttpConnectionHandler(QSettings* m_settings);
 
     void setSocketDescriptor(qintptr socketDescriptor) { m_socketDescriptor = socketDescriptor; }
     void startHandling();
@@ -51,22 +54,21 @@ signals:
 private:
 
     /** Configuration settings */
-    QSettings* settings;
+    QSettings *m_settings;
 
     /** TCP socket of the current connection */
-    QTcpSocket *socket;
+    QTcpSocket *m_socket;
 
     /** Time for read timeout detection */
-    QTimer readTimer;
+    QTimer m_readTimer;
 
     /** Storage for the current incoming HTTP request */
-    HttpRequest* currentRequest;
-    HttpResponse* currentResponse;
-
-    /** Dispatches received requests to services */
-    HttpRequestHandler* requestHandler;
+    HttpRequest *m_currentRequest;
+    HttpResponse *m_currentResponse;
 
     qintptr m_socketDescriptor;
+
+    ProxyHandler *m_proxyHandler;
 
     /** Executes the htreads own event loop */
     void run();
