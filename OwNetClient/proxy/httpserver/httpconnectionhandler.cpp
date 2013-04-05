@@ -13,6 +13,7 @@
 
 HttpConnectionHandler::HttpConnectionHandler(QSettings *settings)
     : QThread(),
+      m_currentRequest(NULL),
       m_currentResponse(NULL),
       m_socket(NULL),
       m_socketDescriptor(0),
@@ -20,7 +21,6 @@ HttpConnectionHandler::HttpConnectionHandler(QSettings *settings)
 {
     Q_ASSERT(settings!=0);
     this->m_settings=settings;
-    m_currentRequest=0;
     // execute signals in my own thread
     moveToThread(this);
     m_readTimer.moveToThread(this);
@@ -64,11 +64,7 @@ void HttpConnectionHandler::readTimeout() {
     //Commented out because QWebView cannot handle this.
     //socket.write("HTTP/1.1 408 request timeout\r\nConnection: close\r\n\r\n408 request timeout\r\n");
 
-    m_socket->disconnectFromHost();
-    delete m_currentRequest;
-    m_currentRequest=0;
-
-    emit disposeHandler();
+    disconnected();
 }
 
 
@@ -84,8 +80,7 @@ void HttpConnectionHandler::disconnected() {
     m_socket->flush();
     m_socket->disconnectFromHost();
 
-    // Prepare for next request
-    m_currentRequest=0;
+    m_currentRequest = NULL;
 
     m_socket->close();
     m_readTimer.stop();
