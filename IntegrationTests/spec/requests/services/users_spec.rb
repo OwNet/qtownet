@@ -9,12 +9,12 @@ describe "Users service" do
 	it "sends success on create user" do
 
 		response = proxy.post('http://my.ownet/api/users', {
-			id: 1,
+			id: '1',
 			login: 'login',
 			password: 'password',
 			first_name: 'First',
 			last_name: 'Last',
-			email: 'mail@mail.ownet',
+			email: 'mail@mail.ownet'
 		}.to_json)
 
 		response.status.should be 201
