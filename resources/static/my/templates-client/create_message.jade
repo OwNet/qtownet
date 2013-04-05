@@ -5,8 +5,9 @@ form(name="create-message-form").form-horizontal
 		.controls
 			textarea(name="message")
 			span.help-block
-			input(type="hidden",name="group_id",value="#{group_id}")
+			input(type="hidden", name="group_id", value="#{group_id}")
+			input(type="hidden", name="parent_id", value="0")
 
 	.control-group
 		.controls
-			button.btn(type="button",name="submit") Send
+			button.btn(type="button", name="submit-message") Send

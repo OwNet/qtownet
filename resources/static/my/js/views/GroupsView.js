@@ -31,9 +31,13 @@ define( function (require) {
 				'click a[name="edit"]': "editGroup", 
 				'click a[name="join"]': "joinGroup", 
 				'click a[name="filter"]' : "showWithFilter",
-				'click a[name="leave"]' : "deleteUser",
+				'click a[name="leave"]' : "leaveGroup",
 				'click a[name="listMembers"]' : "listMembers",
-				'click a[name="pager"]' : "showPage",
+				'click a[name="groups-page"]' : "showPage",
+				'click a[name="add-admin"]' : "addAdmin",
+				'click a[name="delete-member"]' : "deleteUser",
+				'click a[name="approve-member"]' : "approveUser",
+				'click a[name="reject-member"]' : "rejectUser",
 			},
 
 			initialize: function() {
@@ -76,7 +80,107 @@ define( function (require) {
 				})
 			},
 
+			addAdmin: function(e){
+				e.preventDefault();
+				var id = $(e.currentTarget).data("id");
+				var group_id = $(e.currentTarget).data("group");
+				
+				var Action = Backbone.Model.extend({
+			  		urlRoot: '/api/groups/addAdmin',
+					defaults: {	}
+				})
+
+				var action = new Action()
+				var self = this
+
+				action.save({group_id: group_id, user_id: id},{
+					wait: true,
+					success: function() {
+						App.showMessage("Added", "alert-success")
+						self.showMembers(group_id)
+					},
+					error: function() {
+						App.showMessage("Failed")
+					},
+				})
+			},
+
 			deleteUser: function(e){
+				e.preventDefault();
+				var id = $(e.currentTarget).data("id");
+				var group_id = $(e.currentTarget).data("group");
+				
+				var Action = Backbone.Model.extend({
+			  		urlRoot: '/api/groups/deleteUser',
+					defaults: {	}
+				})
+
+				var action = new Action()
+				var self = this
+
+				action.save({group_id: group_id, user_id: id},{
+					wait: true,
+					success: function() {
+						App.showMessage("Deleted", "alert-success")
+						self.showMembers(group_id)
+					},
+					error: function() {
+						App.showMessage("Failed")
+					},
+				})
+			},
+
+			approveUser: function(e){
+				e.preventDefault();
+				var id = $(e.currentTarget).data("id");
+				var group_id = $(e.currentTarget).data("group");
+				
+				var Action = Backbone.Model.extend({
+			  		urlRoot: '/api/groups/approveUser',
+					defaults: {	}
+				})
+
+				var action = new Action()
+				var self = this
+
+				action.save({group_id: group_id, user_id: id},{
+					wait: true,
+					success: function() {
+						App.showMessage("Approved", "alert-success")
+						self.showMembers(group_id)
+					},
+					error: function() {
+						App.showMessage("Failed")
+					},
+				})
+			},
+
+			rejectUser: function(e){
+				e.preventDefault();
+				var id = $(e.currentTarget).data("id");
+				var group_id = $(e.currentTarget).data("group");
+				
+				var Action = Backbone.Model.extend({
+			  		urlRoot: '/api/groups/declineUser',
+					defaults: {	}
+				})
+
+				var action = new Action()
+				var self = this
+
+				action.save({group_id: group_id, user_id: id},{
+					wait: true,
+					success: function() {
+						App.showMessage("Rejected", "alert-success")
+						self.showMembers(group_id)
+					},
+					error: function() {
+						App.showMessage("Failed")
+					},
+				})
+			},
+
+			leaveGroup: function(e){
 				e.preventDefault();
 				var id = $(e.currentTarget).data("id");
 
@@ -93,7 +197,6 @@ define( function (require) {
 					success: function() {
 						App.router.navigate('groups', {trigger: true})
 						App.showMessage("Leaved", "alert-success")
-						self.show("all",1)
 					},
 					error: function() {
 						App.showMessage("Leaving failed")
@@ -247,7 +350,7 @@ define( function (require) {
 						data.has_password = "0"
 					}
 				} else {
-					data.has_approvement = "0"
+					data.has_approvement = "1"
 				}
 
 				var group = new GroupsModel(data)
@@ -278,17 +381,14 @@ define( function (require) {
 						self.$el.html( showGroupTemplate({group :group.toJSON()}) )
 						$('div#group_detail').html( groupDetailTemplate({group :group.toJSON()}))
 
-						var messageView = new MessagesView({el:$("#group_messages")})
-						messageView.showHome(1, group.id)
+						/*var messageView = new MessagesView({el:$("#group_messages")})
+						messageView.showHome(1, group.id)*/
 					}
         		})
 			},
-
-			listMembers: function(e){
-				e.preventDefault();
-        		var id = $(e.currentTarget).data("id");
-
-        		var Action = Backbone.Model.extend({
+			
+			showMembers: function(group_id) {
+				var Action = Backbone.Model.extend({
 			  		urlRoot: '/api/groups/getGroupUsers',
 					defaults: {	}
 				})
@@ -296,7 +396,7 @@ define( function (require) {
 				var action = new Action()
         		
         		var group = new GroupsModel()
-        		group.id = id
+        		group.id = group_id
         		var self = this
         		group.fetch({
         			success: function() {
@@ -308,7 +408,7 @@ define( function (require) {
 								$('div#group_detail').html( listMembersGroupTemplate({group :group.toJSON(), action : action.toJSON(),  user:  App.user ? App.user.toJSON() : false}))
 							},
 							error: function() {
-								App.showMessage("Joining failed")
+								App.showMessage("Error")
 							},
 						})
 
@@ -317,6 +417,12 @@ define( function (require) {
 						$('div#group_detail').html( groupDetailTemplate({group :group.toJSON()}))*/
 					}
         		})
+			},
+
+			listMembers: function(e){
+				e.preventDefault();
+        		var id = $(e.currentTarget).data("id");
+        		this.showMembers(id)        		
 			},
 
 			editGroup: function(e){

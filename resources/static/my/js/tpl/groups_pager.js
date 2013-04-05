@@ -15,7 +15,7 @@ __jade.unshift({ lineno: 1, filename: __jade[0].filename });
 __jade.unshift({ lineno: 2, filename: __jade[0].filename });
 __jade.unshift({ lineno: 2, filename: __jade[0].filename });
 buf.push('<a');
-buf.push(attrs({ 'href':("#/groups"), 'data-filter':("" + (filter) + ""), 'data-id':("" + (page) + ""), 'name':("pager") }, {"href":true,"data-filter":true,"data-id":true,"name":true}));
+buf.push(attrs({ 'href':("#/groups"), 'data-filter':("" + (filter) + ""), 'data-id':("" + (page) + ""), 'name':("groups-page") }, {"href":true,"data-filter":true,"data-id":true,"name":true}));
 buf.push('>');
 __jade.unshift({ lineno: undefined, filename: __jade[0].filename });
 __jade.unshift({ lineno: 2, filename: __jade[0].filename });
