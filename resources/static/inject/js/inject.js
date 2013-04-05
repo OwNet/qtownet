@@ -1,3 +1,5 @@
+owNetAVAILABLEURIS = [];
+
 (function() {
 
 	"use_strict"
@@ -14,6 +16,19 @@
 			element.style[key] = styles[key]
 	}
 
+    $.addCss = function (cssCode) { // TODO REFACTOR
+        var styleElement = document.createElement("style");
+        styleElement.type = "text/css";
+
+        if (styleElement.styleSheet) {
+            styleElement.styleSheet.cssText = cssCode;
+        }
+        else {
+            styleElement.appendChild(document.createTextNode(cssCode));
+        }
+        document.getElementsByTagName("head")[0].appendChild(styleElement);
+    }
+
 	$.onDocumentReady = function(callback, document) {
 		document || (document = window.document)
 		document.addEventListener("DOMContentLoaded", function once() {
@@ -22,6 +37,13 @@
 		}, false);
 	}
 
+	$.isArray = function () {
+	    if (arguments && typeof arguments[0] === "object") {
+	        var criterion = arguments[0].constructor.toString().match(/array/i);
+	        return (criterion != null);
+	    }
+	    return false;
+	},
 
 	$.getEncodedPageUri = function () {
 	    return encodeURIComponent(document.location.href.replace(/#.*$/, ""));
@@ -71,6 +93,10 @@
     }
     $.isFromOwnet = function () {
         return document.referrer.match(/[a-zA-Z]+.ownet\/api\/[a-zA-Z]+/) !== null;
+    }
+
+    $.urlEquals = function (a, b) {
+        return (a.replace(/\//g, "") === b.replace(/\//g, ""));
     }
 
     var PrefetchContact = { 
@@ -154,6 +180,74 @@
         }
     }
 
+
+    var HighlightSwitch = {
+        apiUri: "http://api.ownet/api/prefetch/",
+        highlightStyle : {
+            
+        },
+        isSwitchedOn: 0,
+        switchObj: null,
+        availableUris: null,
+        highlightedLinks: [],
+        init: function() { 
+            $.addCss("a.OwNetHIGHLIGHT { border: 2px solid #F49B04; }");
+        },
+        receiveLinks: function (linksobj) {
+            if ($.isArray(linksobj)) {
+                this.availableUris = linksobj;
+                for (var i = 0; i < this.availableUris.length; ++i) {
+                    this.availableUris[i] = decodeURIComponent(this.availableUris[i]);
+                }
+            }
+
+        },
+        doSwitch: function () {
+            if (this.isSwitchedOn == 0) {  /* switch on */
+                owNetAVAILABLEURIS = null;  // check the client everytime
+                this.availableUris = null;
+                if (this.availableUris === null || this.availableUris.length === 0) { // || $.pageUriChanged() === true) {
+                    // $.updatePageUri();
+                    this.availableUris = null;
+                    this.highlightedLinks = [];
+                    $.loadScript(this.apiUri + "list/?page=" + $.getEncodedPageUri() + "&gid=" + Math.floor((Math.random() * 1000) + 1), function () {
+                        HighlightSwitch.receiveLinks(owNetAVAILABLEURIS); HighlightSwitch.switchOn();
+                    });
+                }
+                else {
+                    this.switchOn();
+                }
+            }
+            else {  /* switch off*/
+                this.switchOff();
+            }
+        },
+        switchOn: function () {
+            for (var i = 0; i < document.links.length; ++i) {
+                for (var j = 0; j < this.availableUris.length; ++j) {
+                    if ($.urlEquals(this.availableUris[j], document.links[i].href)) {
+                        document.links[i].className += " OwNetHIGHLIGHT";
+
+                        this.highlightedLinks[this.highlightedLinks.length] = document.links[i];
+                        break;
+                    }
+                }
+            }
+            
+            this.isSwitchedOn = 1;
+        },
+        switchOff: function () {
+            var reg = new RegExp("(\\s|^)" + "OwNetHIGHLIGHT" + "(\\s|$)");
+
+            for (var i = 0; i < this.highlightedLinks.length; ++i) {
+                this.highlightedLinks[i].className = this.highlightedLinks[i].className.replace(reg, "");
+            }
+
+            this.highlightedLinks = [];
+            this.isSwitchedOn = 0;
+        }
+    };
+
 	var Events = {
 		__callbacks__ : {},
 		on: function(event, callback, context) {
@@ -210,6 +304,7 @@
 				icon: 'owetab_off.png',
 				alt: 'Highlight',
 				title: 'Highlight links on this webpage which are available offline.',
+                onclick: 'toggleOfflineLinks',
 			},
 
 			page_rating: {
@@ -342,6 +437,10 @@
 			this._toggleTab('cache_settings')
 		},
 
+		toggleOfflineLinks: function() {
+		    HighlightSwitch.doSwitch();
+		},
+
 		sendURI: function() {
 			this.sendMessage('URI', location.hostname + (location.pathname !== '/' ? location.pathname:'') )
 		},
@@ -469,6 +568,7 @@
 	        });
 	    }
 	    else if ($.isNotOwnet()) {
+	        HighlightSwitch.init();
 	        HistoryContact.reportVisit();
 	        Ownet.initialize();
 

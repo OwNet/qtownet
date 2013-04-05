@@ -22,6 +22,7 @@
 #include <qmath.h>
 #include <QSettings>
 #include <QMap>
+#include <QStringBuilder>
 
 PrefetchingService::PrefetchingService(IProxyConnection *proxyConnection, QObject* parent) :
     QObject(parent),
@@ -39,6 +40,7 @@ void PrefetchingService::init(IRouter *router)
             ->on(IRequest::GET, ROUTE(done));
     router->addRoute("/load/")
             ->on(IRequest::GET, ROUTE(load));
+    router->addRoute("/list/")->on(IRequest::GET, ROUTE(list));
 }
 
 
@@ -181,7 +183,7 @@ IResponse *PrefetchingService::create(IRequest *req)
         uint pageId = padeIdString.toUInt(&ok);
 
         if (ok) {
-            QStringList list = getTopLinks(page);
+            QStringList list = getPageLinks(page);
 
             int count = list.length();
 
@@ -208,6 +210,8 @@ IResponse *PrefetchingService::create(IRequest *req)
     resp->setContentType("application/javascript");
     return resp;
 }
+
+
 
 
 IResponse *PrefetchingService::close(IRequest *req)
@@ -250,7 +254,60 @@ IResponse *PrefetchingService::done(IRequest *req)
 }
 
 
-QStringList PrefetchingService::getTopLinks(QString url)
+IResponse *PrefetchingService::list(IRequest *req) {
+    QString cached = "";
+
+    if (req->hasParameter("page") && !req->parameterValue("page").isEmpty()) {
+        QStringList links = getPageLinks(req->parameterValue("page"));
+        if (links.size() > 0) {
+            QStringList filtered = getCachedLinks(links);
+
+            if (filtered.size() > 0) {
+                int i;
+                cached = "\"" + filtered.at(0) + "\"";
+
+                for (i = 1; i < filtered.size(); ++i) {
+                    cached = cached + ",\"" + filtered.at(i) + "\"";
+                }
+            }
+        }
+
+    }
+    IResponse *resp = req->response(QString("owNetAVAILABLEURIS = [%1];").arg(cached).toLatin1());
+    resp->setContentType("application/javascript");
+    return resp;
+}
+
+QStringList PrefetchingService::getCachedLinks(QStringList links) {
+    uint hash = 0;
+    QObject parent;
+    QMap<uint, QString> map;
+    QString link;
+
+    IDatabaseSelectQuery *query = m_proxyConnection->databaseSelect("client_caches",  &parent);
+    IDatabaseSelectQueryWhereGroup *group = query->whereGroup(IDatabaseSelectQuery::Or);
+    int i;
+    for (i = 0; i < links.size(); ++i) {
+        link = links.at(i);
+        hash = m_proxyConnection->cacheId(link);
+        if (!map.contains(hash)) {
+            group->where("cache_id", hash);
+            map.insert(hash, link);
+        }
+    }
+
+    query->select("cache_id");
+
+    QStringList result;
+
+    while (query->next()) {
+        result.push_back(map.value(query->value("cache_id").toUInt()));
+    }
+
+    return result;
+}
+
+QStringList PrefetchingService::getPageLinks(QString url)
 {
     QObject parent;
     QList<QSgmlTag *> elems;
