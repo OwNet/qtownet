@@ -1,6 +1,8 @@
-define(["jade"],function(jade){return function anonymous(locals, attrs, escape, rethrow, merge) {
+define(['jade'], function(jade) { if(jade && jade['runtime'] !== undefined) { jade = jade.runtime; }
+
+return function anonymous(locals, attrs, escape, rethrow, merge) {
 attrs = attrs || jade.attrs; escape = escape || jade.escape; rethrow = rethrow || jade.rethrow; merge = merge || jade.merge;
-var __jade = [{ lineno: 1, filename: "templates-client\\listmembersgroup.jade" }];
+var __jade = [{ lineno: 1, filename: "templates-client/listmembersgroup.jade" }];
 try {
 var buf = [];
 with (locals || {}) {
@@ -148,8 +150,9 @@ __jade.shift();
     }
 
   } else {
+    var $$l = 0;
     for (var $index in action) {
-      var user = action[$index];
+      $$l++;      var user = action[$index];
 
 __jade.unshift({ lineno: 1, filename: __jade[0].filename });
 __jade.unshift({ lineno: 2, filename: __jade[0].filename });
@@ -281,7 +284,8 @@ __jade.shift();
 buf.push('\n</div>');
 __jade.shift();
 __jade.shift();
-   }
+    }
+
   }
 }).call(this);
 
@@ -292,4 +296,6 @@ return buf.join("");
 } catch (err) {
   rethrow(err, __jade[0].filename, __jade[0].lineno);
 }
-}});
+}
+
+});

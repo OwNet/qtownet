@@ -6,17 +6,4 @@ each message, index in messages
 			label #{message.message}
 		.span3
 			label created #{new Date(message.date_created).toLocaleDateString()}
-		if (message.user_id == user.id || is_admin)
-			.span4
-				a( href="#" data-group_id="#{group_id}" data-id="#{message.id}" name="delete-message") Delete
-		if (message.type == "message") 
-			form(name="comment-message-form" class="#{index}").form-horizontal
-				.control-group
-							.controls
-								input(type="text" name="message")
-								input(type="hidden" name="group_id" value="#{group_id}")
-								input(type="hidden" name="parent_id" value="#{message.uid}")
-				.control-group
-							.controls
-								button.btn(type="button" data-id="#{index}" name="submit-message") Comment
-				
+		

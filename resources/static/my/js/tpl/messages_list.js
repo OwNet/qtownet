@@ -1,6 +1,8 @@
-define(["jade"],function(jade){return function anonymous(locals, attrs, escape, rethrow, merge) {
+define(['jade'], function(jade) { if(jade && jade['runtime'] !== undefined) { jade = jade.runtime; }
+
+return function anonymous(locals, attrs, escape, rethrow, merge) {
 attrs = attrs || jade.attrs; escape = escape || jade.escape; rethrow = rethrow || jade.rethrow; merge = merge || jade.merge;
-var __jade = [{ lineno: 1, filename: "templates-client\\messages_list.jade" }];
+var __jade = [{ lineno: 1, filename: "templates-client/messages_list.jade" }];
 try {
 var buf = [];
 with (locals || {}) {
@@ -64,93 +66,6 @@ __jade.shift();
 __jade.shift();
 buf.push('\n  </div>');
 __jade.shift();
-__jade.unshift({ lineno: 9, filename: __jade[0].filename });
-if ( (message.user_id == user.id || is_admin))
-{
-__jade.unshift({ lineno: 10, filename: __jade[0].filename });
-__jade.unshift({ lineno: 10, filename: __jade[0].filename });
-buf.push('\n  <div class="span4">');
-__jade.unshift({ lineno: undefined, filename: __jade[0].filename });
-__jade.unshift({ lineno: 11, filename: __jade[0].filename });
-buf.push('<a');
-buf.push(attrs({ 'href':("#"), 'data-group_id':("" + (group_id) + ""), 'data-id':("" + (message.id) + ""), 'name':("delete-message") }, {"href":true,"data-group_id":true,"data-id":true,"name":true}));
-buf.push('>');
-__jade.unshift({ lineno: undefined, filename: __jade[0].filename });
-__jade.unshift({ lineno: 11, filename: __jade[0].filename });
-buf.push('Delete');
-__jade.shift();
-__jade.shift();
-buf.push('</a>');
-__jade.shift();
-__jade.shift();
-buf.push('</div>');
-__jade.shift();
-__jade.shift();
-}
-__jade.shift();
-__jade.unshift({ lineno: 12, filename: __jade[0].filename });
-if ( (message.type == "message") )
-{
-__jade.unshift({ lineno: 13, filename: __jade[0].filename });
-__jade.unshift({ lineno: 13, filename: __jade[0].filename });
-buf.push('\n  <form');
-buf.push(attrs({ 'name':("comment-message-form"), "class": ("" + (index) + "") + ' ' + ('form-horizontal') }, {"name":true}));
-buf.push('>');
-__jade.unshift({ lineno: undefined, filename: __jade[0].filename });
-__jade.unshift({ lineno: 14, filename: __jade[0].filename });
-buf.push('\n    <div class="control-group">');
-__jade.unshift({ lineno: undefined, filename: __jade[0].filename });
-__jade.unshift({ lineno: 15, filename: __jade[0].filename });
-buf.push('\n      <div class="controls">');
-__jade.unshift({ lineno: undefined, filename: __jade[0].filename });
-__jade.unshift({ lineno: 17, filename: __jade[0].filename });
-buf.push('\n        <input type="text" name="message"/>');
-__jade.shift();
-__jade.unshift({ lineno: 18, filename: __jade[0].filename });
-buf.push('\n        <input');
-buf.push(attrs({ 'type':("hidden"), 'name':("group_id"), 'value':("" + (group_id) + "") }, {"type":true,"name":true,"value":true}));
-buf.push('/>');
-__jade.shift();
-__jade.unshift({ lineno: 19, filename: __jade[0].filename });
-buf.push('\n        <input');
-buf.push(attrs({ 'type':("hidden"), 'name':("parent_id"), 'value':("" + (message.uid) + "") }, {"type":true,"name":true,"value":true}));
-buf.push('/>');
-__jade.shift();
-__jade.shift();
-buf.push('\n      </div>');
-__jade.shift();
-__jade.shift();
-buf.push('\n    </div>');
-__jade.shift();
-__jade.unshift({ lineno: 19, filename: __jade[0].filename });
-buf.push('\n    <div class="control-group">');
-__jade.unshift({ lineno: undefined, filename: __jade[0].filename });
-__jade.unshift({ lineno: 20, filename: __jade[0].filename });
-buf.push('\n      <div class="controls">');
-__jade.unshift({ lineno: undefined, filename: __jade[0].filename });
-__jade.unshift({ lineno: 21, filename: __jade[0].filename });
-buf.push('\n        <button');
-buf.push(attrs({ 'type':("button"), 'data-id':("" + (index) + ""), 'name':("submit-message"), "class": ('btn') }, {"type":true,"data-id":true,"name":true}));
-buf.push('>');
-__jade.unshift({ lineno: undefined, filename: __jade[0].filename });
-__jade.unshift({ lineno: 21, filename: __jade[0].filename });
-buf.push('Comment');
-__jade.shift();
-__jade.shift();
-buf.push('</button>');
-__jade.shift();
-__jade.shift();
-buf.push('\n      </div>');
-__jade.shift();
-__jade.shift();
-buf.push('\n    </div>');
-__jade.shift();
-__jade.shift();
-buf.push('\n  </form>');
-__jade.shift();
-__jade.shift();
-}
-__jade.shift();
 __jade.shift();
 buf.push('\n</div>');
 __jade.shift();
@@ -158,8 +73,9 @@ __jade.shift();
     }
 
   } else {
+    var $$l = 0;
     for (var index in messages) {
-      var message = messages[index];
+      $$l++;      var message = messages[index];
 
 __jade.unshift({ lineno: 1, filename: __jade[0].filename });
 __jade.unshift({ lineno: 2, filename: __jade[0].filename });
@@ -210,98 +126,12 @@ __jade.shift();
 __jade.shift();
 buf.push('\n  </div>');
 __jade.shift();
-__jade.unshift({ lineno: 9, filename: __jade[0].filename });
-if ( (message.user_id == user.id || is_admin))
-{
-__jade.unshift({ lineno: 10, filename: __jade[0].filename });
-__jade.unshift({ lineno: 10, filename: __jade[0].filename });
-buf.push('\n  <div class="span4">');
-__jade.unshift({ lineno: undefined, filename: __jade[0].filename });
-__jade.unshift({ lineno: 11, filename: __jade[0].filename });
-buf.push('<a');
-buf.push(attrs({ 'href':("#"), 'data-group_id':("" + (group_id) + ""), 'data-id':("" + (message.id) + ""), 'name':("delete-message") }, {"href":true,"data-group_id":true,"data-id":true,"name":true}));
-buf.push('>');
-__jade.unshift({ lineno: undefined, filename: __jade[0].filename });
-__jade.unshift({ lineno: 11, filename: __jade[0].filename });
-buf.push('Delete');
-__jade.shift();
-__jade.shift();
-buf.push('</a>');
-__jade.shift();
-__jade.shift();
-buf.push('</div>');
-__jade.shift();
-__jade.shift();
-}
-__jade.shift();
-__jade.unshift({ lineno: 12, filename: __jade[0].filename });
-if ( (message.type == "message") )
-{
-__jade.unshift({ lineno: 13, filename: __jade[0].filename });
-__jade.unshift({ lineno: 13, filename: __jade[0].filename });
-buf.push('\n  <form');
-buf.push(attrs({ 'name':("comment-message-form"), "class": ("" + (index) + "") + ' ' + ('form-horizontal') }, {"name":true}));
-buf.push('>');
-__jade.unshift({ lineno: undefined, filename: __jade[0].filename });
-__jade.unshift({ lineno: 14, filename: __jade[0].filename });
-buf.push('\n    <div class="control-group">');
-__jade.unshift({ lineno: undefined, filename: __jade[0].filename });
-__jade.unshift({ lineno: 15, filename: __jade[0].filename });
-buf.push('\n      <div class="controls">');
-__jade.unshift({ lineno: undefined, filename: __jade[0].filename });
-__jade.unshift({ lineno: 17, filename: __jade[0].filename });
-buf.push('\n        <input type="text" name="message"/>');
-__jade.shift();
-__jade.unshift({ lineno: 18, filename: __jade[0].filename });
-buf.push('\n        <input');
-buf.push(attrs({ 'type':("hidden"), 'name':("group_id"), 'value':("" + (group_id) + "") }, {"type":true,"name":true,"value":true}));
-buf.push('/>');
-__jade.shift();
-__jade.unshift({ lineno: 19, filename: __jade[0].filename });
-buf.push('\n        <input');
-buf.push(attrs({ 'type':("hidden"), 'name':("parent_id"), 'value':("" + (message.uid) + "") }, {"type":true,"name":true,"value":true}));
-buf.push('/>');
-__jade.shift();
-__jade.shift();
-buf.push('\n      </div>');
-__jade.shift();
-__jade.shift();
-buf.push('\n    </div>');
-__jade.shift();
-__jade.unshift({ lineno: 19, filename: __jade[0].filename });
-buf.push('\n    <div class="control-group">');
-__jade.unshift({ lineno: undefined, filename: __jade[0].filename });
-__jade.unshift({ lineno: 20, filename: __jade[0].filename });
-buf.push('\n      <div class="controls">');
-__jade.unshift({ lineno: undefined, filename: __jade[0].filename });
-__jade.unshift({ lineno: 21, filename: __jade[0].filename });
-buf.push('\n        <button');
-buf.push(attrs({ 'type':("button"), 'data-id':("" + (index) + ""), 'name':("submit-message"), "class": ('btn') }, {"type":true,"data-id":true,"name":true}));
-buf.push('>');
-__jade.unshift({ lineno: undefined, filename: __jade[0].filename });
-__jade.unshift({ lineno: 21, filename: __jade[0].filename });
-buf.push('Comment');
-__jade.shift();
-__jade.shift();
-buf.push('</button>');
-__jade.shift();
-__jade.shift();
-buf.push('\n      </div>');
-__jade.shift();
-__jade.shift();
-buf.push('\n    </div>');
-__jade.shift();
-__jade.shift();
-buf.push('\n  </form>');
-__jade.shift();
-__jade.shift();
-}
-__jade.shift();
 __jade.shift();
 buf.push('\n</div>');
 __jade.shift();
 __jade.shift();
-   }
+    }
+
   }
 }).call(this);
 
@@ -312,4 +142,6 @@ return buf.join("");
 } catch (err) {
   rethrow(err, __jade[0].filename, __jade[0].lineno);
 }
-}});
+}
+
+});
