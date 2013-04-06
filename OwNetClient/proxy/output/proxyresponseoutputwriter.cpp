@@ -68,6 +68,9 @@ void ProxyResponseOutputWriter::read(QIODevice *ioDevice)
 
     if (!m_hasWrittenResponseHeaders) {
         m_hasWrittenResponseHeaders = true;
+        if (!m_proxyDownload->inputObject()->httpStatusCode().toInt())
+            return;
+
         m_response->setStatus(m_proxyDownload->inputObject()->httpStatusCode().toInt(),
                               m_proxyDownload->inputObject()->httpStatusDescription().toUtf8());
 

@@ -14,7 +14,8 @@
 #include <QBuffer>
 
 ProxyWebInputObject::ProxyWebInputObject(ProxyRequest *request, QObject *parent)
-    : ProxyInputObject(request, parent), m_readHeaders(false)
+    : ProxyInputObject(request, parent),
+      m_readHeaders(false)
 {
 }
 
@@ -67,8 +68,9 @@ void ProxyWebInputObject::readResponseHeaders(QNetworkReply *reply)
 {
     m_readHeaders = true;
 
-    m_httpStatusCode = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toString();
-    m_httpStatusDescription = reply->attribute(QNetworkRequest::HttpReasonPhraseAttribute).toString();
+    setHttpStatusCode(reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt());
+    setHttpStatusDescription(reply->attribute(QNetworkRequest::HttpReasonPhraseAttribute).toString());
+
     if (m_httpStatusDescription.isNull())
         m_httpStatusDescription = "";
 
