@@ -13,7 +13,7 @@
 
 #include "irouter.h"
 
-#define PER_PAGE 3
+#define PER_PAGE 10
 
 MessagesService::MessagesService(IProxyConnection *proxyConnection, QObject *parent) :
     QObject(parent),
@@ -211,7 +211,7 @@ IResponse *MessagesService::index(IRequest *req)
             QSqlQuery query_user;
 
             query_user.prepare("SELECT * FROM users WHERE id = :id");
-            query_user.bindValue(":id",curUser_id);
+            query_user.bindValue(":id",query.value(query.record().indexOf("user_id")));
             query_user.exec();
 
 
@@ -244,12 +244,25 @@ IResponse *MessagesService::index(IRequest *req)
         QVariantList comments;
 
         while (query.next()) {
+            QSqlQuery query_user;
+
+            query_user.prepare("SELECT * FROM users WHERE id = :id");
+            query_user.bindValue(":id",query.value(query.record().indexOf("user_id")));
+            query_user.exec();
+
             QVariantMap comment;
             comment.insert("id", query.value(query.record().indexOf("_id")));
             comment.insert("message", query.value(query.record().indexOf("message")));
             comment.insert("first_name", query.value(query.record().indexOf("first_name")));
             comment.insert("last_name", query.value(query.record().indexOf("last_name")));
             comment.insert("user_id", query.value(query.record().indexOf("user_id")));
+            if ( query_user.first() ) {
+                QSqlRecord row = query_user.record();
+
+                comment.insert("first_name", row.value("first_name"));
+                comment.insert("last_name", row.value("last_name"));
+            }
+            comment.insert("date_created", query.value(query.record().indexOf("date_created")));
             comment.insert("parent_id", query.value(query.record().indexOf("parent_id")));
             comment.insert("uid", query.value(query.record().indexOf("uid")));
             comment.insert("type", "comment");

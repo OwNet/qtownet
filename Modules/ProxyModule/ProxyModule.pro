@@ -1,4 +1,3 @@
-QT             -= gui
 QT             += sql network
 
 TARGET          = $$qtLibraryTarget(ownet_proxymodule)

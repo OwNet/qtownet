@@ -2,10 +2,13 @@
 
 #include "multicastprotocol.h"
 #include "multicastprotocolnode.h"
+#include "iproxyconnection.h"
+#include "idatabasesettings.h"
 
-PingServer::PingServer(MulticastProtocol *multicastProtocol, QObject *parent) :
+PingServer::PingServer(MulticastProtocol *multicastProtocol, IProxyConnection *proxyConnection, QObject *parent) :
     QObject(parent),
-    m_multicastProtocol(multicastProtocol)
+    m_multicastProtocol(multicastProtocol),
+    m_proxyConnection(proxyConnection)
 {
 }
 
@@ -20,12 +23,20 @@ void PingServer::updateClient(const QVariantMap &client)
     m_multicastProtocol->processMessage(client);
 }
 
-QVariantList PingServer::availableClients() const
+QVariantList PingServer::availableClients(const QString &myIp) const
 {
     QVariantList clients;
+    QObject parent;
+    QString myId = m_proxyConnection->databaseSettings(&parent)->clientId();
 
-    foreach (MulticastProtocolNode *node, m_multicastProtocol->nodes())
-        clients.append(node->message());
+    foreach (MulticastProtocolNode *node, m_multicastProtocol->nodes()) {
+        QVariantMap message = node->message();
+        if (message.value("id").toString() == myId)
+            message["address"] = myIp;
+        else
+            message["address"] = node->address();
+        clients.append(message);
+    }
 
     return clients;
 }

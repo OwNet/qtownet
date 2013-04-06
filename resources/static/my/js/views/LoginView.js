@@ -33,7 +33,7 @@ define( function (require) {
 					App.router.navigate('#/live')
 					return
 				}
-
+				App.router.navigate('#/login')
 				this.render()
 			},
 

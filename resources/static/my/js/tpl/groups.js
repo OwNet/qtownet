@@ -1,6 +1,8 @@
-define(["jade"],function(jade){return function anonymous(locals, attrs, escape, rethrow, merge) {
+define(['jade'], function(jade) { if(jade && jade['runtime'] !== undefined) { jade = jade.runtime; }
+
+return function anonymous(locals, attrs, escape, rethrow, merge) {
 attrs = attrs || jade.attrs; escape = escape || jade.escape; rethrow = rethrow || jade.rethrow; merge = merge || jade.merge;
-var __jade = [{ lineno: 1, filename: "templates-client\\groups.jade" }];
+var __jade = [{ lineno: 1, filename: "templates-client/groups.jade" }];
 try {
 var buf = [];
 with (locals || {}) {
@@ -130,6 +132,36 @@ __jade.shift();
 __jade.unshift({ lineno: 22, filename: __jade[0].filename });
 buf.push('\n      <div id="pager" class="span">');
 __jade.unshift({ lineno: undefined, filename: __jade[0].filename });
+__jade.unshift({ lineno: 23, filename: __jade[0].filename });
+buf.push('<a href="#/creategroups" data-filter="notMy" name="filter">');
+__jade.unshift({ lineno: undefined, filename: __jade[0].filename });
+__jade.unshift({ lineno: 23, filename: __jade[0].filename });
+buf.push('Other');
+__jade.shift();
+__jade.shift();
+buf.push('</a>');
+__jade.shift();
+__jade.shift();
+buf.push('</div>');
+__jade.shift();
+__jade.unshift({ lineno: 24, filename: __jade[0].filename });
+buf.push('\n      <div class="span6">');
+__jade.unshift({ lineno: undefined, filename: __jade[0].filename });
+__jade.unshift({ lineno: 25, filename: __jade[0].filename });
+buf.push('<a href="#/creategroups" name="create">');
+__jade.unshift({ lineno: undefined, filename: __jade[0].filename });
+__jade.unshift({ lineno: 25, filename: __jade[0].filename });
+buf.push('Create new');
+__jade.shift();
+__jade.shift();
+buf.push('</a>');
+__jade.shift();
+__jade.shift();
+buf.push('</div>');
+__jade.shift();
+__jade.unshift({ lineno: 26, filename: __jade[0].filename });
+buf.push('\n      <div id="groups_list" class="span">');
+__jade.unshift({ lineno: undefined, filename: __jade[0].filename });
 __jade.shift();
 buf.push('</div>');
 __jade.shift();
@@ -148,4 +180,6 @@ return buf.join("");
 } catch (err) {
   rethrow(err, __jade[0].filename, __jade[0].lineno);
 }
-}});
+}
+
+});

@@ -1,6 +1,8 @@
-define(["jade"],function(jade){return function anonymous(locals, attrs, escape, rethrow, merge) {
+define(['jade'], function(jade) { if(jade && jade['runtime'] !== undefined) { jade = jade.runtime; }
+
+return function anonymous(locals, attrs, escape, rethrow, merge) {
 attrs = attrs || jade.attrs; escape = escape || jade.escape; rethrow = rethrow || jade.rethrow; merge = merge || jade.merge;
-var __jade = [{ lineno: 1, filename: "templates-client\\create_message.jade" }];
+var __jade = [{ lineno: 1, filename: "templates-client/create_message.jade" }];
 try {
 var buf = [];
 with (locals || {}) {
@@ -37,10 +39,13 @@ __jade.unshift({ lineno: undefined, filename: __jade[0].filename });
 __jade.shift();
 buf.push('</span>');
 __jade.shift();
-__jade.unshift({ lineno: 10, filename: __jade[0].filename });
+__jade.unshift({ lineno: 9, filename: __jade[0].filename });
 buf.push('\n      <input');
 buf.push(attrs({ 'type':("hidden"), 'name':("group_id"), 'value':("" + (group_id) + "") }, {"type":true,"name":true,"value":true}));
 buf.push('/>');
+__jade.shift();
+__jade.unshift({ lineno: 11, filename: __jade[0].filename });
+buf.push('\n      <input type="hidden" name="parent_id" value="0"/>');
 __jade.shift();
 __jade.shift();
 buf.push('\n    </div>');
@@ -48,16 +53,16 @@ __jade.shift();
 __jade.shift();
 buf.push('\n  </div>');
 __jade.shift();
-__jade.unshift({ lineno: 10, filename: __jade[0].filename });
+__jade.unshift({ lineno: 11, filename: __jade[0].filename });
 buf.push('\n  <div class="control-group">');
 __jade.unshift({ lineno: undefined, filename: __jade[0].filename });
-__jade.unshift({ lineno: 11, filename: __jade[0].filename });
+__jade.unshift({ lineno: 12, filename: __jade[0].filename });
 buf.push('\n    <div class="controls">');
 __jade.unshift({ lineno: undefined, filename: __jade[0].filename });
-__jade.unshift({ lineno: 12, filename: __jade[0].filename });
-buf.push('\n      <button type="button" name="submit" class="btn">');
+__jade.unshift({ lineno: 13, filename: __jade[0].filename });
+buf.push('\n      <button type="button" name="submit-message" class="btn">');
 __jade.unshift({ lineno: undefined, filename: __jade[0].filename });
-__jade.unshift({ lineno: 12, filename: __jade[0].filename });
+__jade.unshift({ lineno: 13, filename: __jade[0].filename });
 buf.push('Send');
 __jade.shift();
 __jade.shift();
@@ -78,4 +83,6 @@ return buf.join("");
 } catch (err) {
   rethrow(err, __jade[0].filename, __jade[0].lineno);
 }
-}});
+}
+
+});

@@ -30,6 +30,7 @@ public:
 
     virtual QString parameterValue(const QString &key) const = 0;
     virtual void setParamater(const QString &, const QString &) {}
+    virtual QMap<QString, QString> paramaters() const { return QMap<QString, QString>(); }
 
     virtual void setPostBody(const QVariant &) {}
 

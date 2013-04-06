@@ -26,7 +26,7 @@ public:
     IResponse *close(IRequest *);
     IResponse *load(IRequest *);
     IResponse *done(IRequest *);
-
+    IResponse *list(IRequest *);
 
 private:
     static const int DEFAULT_PRIORITY = 10;
@@ -35,8 +35,8 @@ private:
     bool completedPrefetchingQuery(QString url);
     bool disablePredictionQuery(uint hash);
 
-    QStringList getTopLinks(QString url);
-
+    QStringList getPageLinks(QString url);
+    QStringList getCachedLinks(QStringList links);
    //int registerPage(QString &url);
 };
 

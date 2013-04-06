@@ -32,7 +32,9 @@ void PingJob::execute()
     }
 
     IRequest *request = m_proxyConnection->createRequest(IRequest::POST, serviceName, "ping/available_clients", this);
-    request->setPostBody(m_pingServer->multicastProtocol()->currentNode()->message());
+    QVariantMap message = m_pingServer->multicastProtocol()->currentNode()->message();
+    message.insert("called_ip", m_proxyConnection->settings(&parent)->value("custom_server_ip").toString());
+    request->setPostBody(message);
     IResponse *response = m_proxyConnection->callModule(request);
     if (response->status() == IResponse::OK)
         m_pingServer->updateAvailableClients(response->body().toList());

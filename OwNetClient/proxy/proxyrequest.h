@@ -38,6 +38,7 @@ public:
 
     QString parameterValue(const QString &key) const;
     bool hasParameter(const QString& key) const;
+    QMap<QString, QString> paramaters() const;
 
     uint hashCode() const;
 
@@ -47,10 +48,14 @@ public:
     bool isLocalRequest() const;
     bool isStaticResourceRequest() const;
     bool isApiRequest() const { return m_isApiRequest; }
+    bool isRefreshRequest() const;
 
     IResponse* response();
     IResponse* response(const QVariant body, IResponse::Status status = IResponse::OK);
     IResponse* response(IResponse::Status status);
+
+    QString peerAddress() const { return m_peerAddress; }
+    quint16 peerPort() const { return m_peerPort; }
 
 protected:
     void setUrl(const QUrl &url);
@@ -71,8 +76,9 @@ private:
     QString m_service;
     QByteArray m_requestBody;
     QVariantMap m_requestHeaders;
-    QMultiMap<QByteArray,QByteArray> m_requestParameters;
     IRequest::RequestType m_requestType;
+    QString m_peerAddress;
+    quint16 m_peerPort;
 
     friend class ProxyInitializer;
 };

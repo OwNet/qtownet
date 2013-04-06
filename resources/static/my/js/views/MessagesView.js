@@ -18,7 +18,8 @@ define( function (require) {
 	var MessagesView = Backbone.View.extend({
 
 			events: {
-				'click form[name="create-message-form"] button[name="submit"]': 'save',
+				'click form[name="create-message-form"] button[name="submit-message"]': 'save',
+				'click form[name="comment-message-form"] button[name="submit-message"]': 'comment',
 				'click a[name="pager-message"]' : "showPage",
 				'click a[name="delete-message"]' : "delete",
 			},
@@ -89,10 +90,31 @@ define( function (require) {
 				var message = new MessageModel(data)
 				var self = this
 
-				message.save({parent_id: 0},{
+				message.save({},{
 					wait: true,
 					success: function() {
-						App.router.navigate('messages', {trigger: true})
+						App.showMessage("Created", "alert-success")
+						self.show(1, data.group_id)
+					},
+					error: function() {
+						App.showMessage("Creation failed")
+					},
+				})
+			},
+
+			comment: function(e) {
+				e.preventDefault();
+				var id = $(e.currentTarget).data("id");
+
+				var form = Form( $('form[name="comment-message-form"].'+ id +'', this.$el) )
+				var data = form.toJSON()
+				
+				var message = new MessageModel(data)
+				var self = this
+
+				message.save({},{
+					wait: true,
+					success: function() {
 						App.showMessage("Created", "alert-success")
 						self.show(1, data.group_id)
 					},
@@ -113,9 +135,8 @@ define( function (require) {
         		message.group_id = group_id
         		var self = this
 
-        		message.destroy({data: {group_id: group_id}, 
+        		message.destroy({
         			success: function() {
-        				App.router.navigate("#", {trigger: true})
         				App.showMessage("Message deleted")
 						self.show(1, group_id)
 					},

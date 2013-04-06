@@ -37,8 +37,7 @@ void PreferencesDialog::savePreferences()
     if (dir.exists() || dir.mkpath(dir.absolutePath()))
         settings.setValue("application/resources_folder_path", dir.absolutePath());
 
-    if (!ui->leCustomServerIP->text().isEmpty())
-        settings.setValue("custom_server_ip", ui->leCustomServerIP->text());
+    settings.setValue("custom_server_ip", ui->leCustomServerIP->text());
     settings.setValue("custom_server_port", ui->leCustomServerPort->text().toInt());
 }
 

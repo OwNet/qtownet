@@ -1,3 +1,17 @@
 each user in action
-	.span1
-		label #{user.first_name}
+	.row
+		.span1
+			label #{user.first_name}
+		.span2
+			label #{user.last_name}
+		if (user.status == "member")
+			.span3
+				label member since #{new Date(user.member_since).toLocaleDateString()}
+		if (group[0].admin == "1" && user.isAdmin != "1" && user.status == "member")
+			.span4
+				a( data-id="#{user.id}" ,data-group="#{group[0].id}", name="add-admin") Add admin
+				a( data-id="#{user.id}" ,data-group="#{group[0].id}", name="delete-member") Delete user
+		if (group[0].admin == "1" && user.isAdmin != "1" && user.status == "awaiting")
+			.span4
+				a( data-id="#{user.id}", data-group="#{group[0].id}", name="approve-member") Approve
+				a( data-id="#{user.id}", data-group="#{group[0].id}", name="reject-member") Reject

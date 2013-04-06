@@ -1,4 +1,4 @@
-each message in messages
+each message, index in messages
 	.row
 		.span1
 			label #{message.first_name} #{message.last_name}
@@ -6,6 +6,3 @@ each message in messages
 			label #{message.message}
 		.span3
 			label created #{new Date(message.date_created).toLocaleDateString()}
-		if (message.user_id == user.id || is_admin)
-			.span4
-				a( href="#" data-group_id="#{group_id}" data-id="#{message.id}" name="delete-message") Delete
