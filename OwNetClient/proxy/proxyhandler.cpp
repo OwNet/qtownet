@@ -37,6 +37,7 @@ void ProxyHandler::service(HttpRequest *request, HttpResponse *response) {
  */
 void ProxyHandler::requestTimeout()
 {
+    MessageHelper::debug("ProxyHandler timeout.");
     m_timeoutTimer->stop();
 
     if (m_proxyHandlerSession)

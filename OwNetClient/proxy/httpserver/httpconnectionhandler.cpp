@@ -27,9 +27,9 @@ HttpConnectionHandler::HttpConnectionHandler(QSettings *settings)
     connect(&m_readTimer, SIGNAL(timeout()), SLOT(readTimeout()));
     m_readTimer.setSingleShot(true);
     qDebug("HttpConnectionHandler (%p): constructed", this);
-    connect(this, SIGNAL(disposeHandler()), this, SLOT(quit()));
+    connect(this, SIGNAL(disposeHandler()), this, SLOT(quit()), Qt::QueuedConnection);
     connect(this, SIGNAL(finished()), this, SLOT(deleteLater()));
-    connect(this, SIGNAL(startHandlingSig()), this, SLOT(handleConnection()));
+    connect(this, SIGNAL(startHandlingSig()), this, SLOT(handleConnection()), Qt::QueuedConnection);
     this->start();
 }
 
@@ -128,7 +128,7 @@ void HttpConnectionHandler::read() {
     if (m_currentRequest->getStatus()==HttpRequest::complete) {
         m_readTimer.stop();
         m_currentResponse = new HttpResponse(m_socket, this);
-        connect(m_currentResponse, SIGNAL(finished()), this, SLOT(disconnected()));
+        connect(m_currentResponse, SIGNAL(finished()), this, SLOT(disconnected()), Qt::QueuedConnection);
         try {
             m_proxyHandler = new ProxyHandler(this);
             m_proxyHandler->service(m_currentRequest, m_currentResponse);

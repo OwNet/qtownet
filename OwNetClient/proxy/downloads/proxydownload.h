@@ -24,6 +24,7 @@ class ProxyDownload : public QObject
 
 public:
     ProxyDownload(ProxyRequest *request, ProxyHandlerSession *handlerSession, QObject *parent = 0);
+    ~ProxyDownload();
 
     enum {
         FirstDownloadPartIndex = 0,
