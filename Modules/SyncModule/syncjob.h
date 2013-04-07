@@ -1,22 +1,21 @@
 #ifndef SYNCJOB_H
 #define SYNCJOB_H
 
-#include <QObject>
 #include <QMutex>
 
 #include "ijobaction.h"
 
 class IProxyConnection;
 
-class SyncJob : public QObject, public IJobAction
+class SyncJob : public IJobAction
 {
     Q_OBJECT
 public:
-    explicit SyncJob(IProxyConnection *proxyConnection, QObject *parent = 0);
+    explicit SyncJob();
 
     int interval() { return 15 * 1000; }
-
     void execute();
+    void setProxyConnection(IProxyConnection *proxyConnection) { m_proxyConnection = proxyConnection; }
 
 private:
     QMutex m_syncMutex;

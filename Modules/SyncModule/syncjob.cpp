@@ -2,9 +2,8 @@
 
 #include "syncclient.h"
 
-SyncJob::SyncJob(IProxyConnection *proxyConnection, QObject *parent) :
-    QObject(parent),
-    m_proxyConnection(proxyConnection)
+SyncJob::SyncJob() :
+    m_proxyConnection(NULL)
 {
 }
 

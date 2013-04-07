@@ -11,6 +11,7 @@ public:
     ModuleJob(IJobAction *jobAction, QObject *parent = 0);
 
     void execute();
+    void start();
 
 private:
     IJobAction *m_jobAction;

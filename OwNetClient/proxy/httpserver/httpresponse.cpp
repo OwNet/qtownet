@@ -54,6 +54,9 @@ void HttpResponse::writeHeaders() {
 }
 
 bool HttpResponse::writeToSocket(QByteArray data) {
+    if (m_socket->state() == QTcpSocket::UnconnectedState)
+        return true;
+
     int remaining=data.size();
     char* ptr=data.data();
     while (m_socket->isOpen() && remaining>0) {

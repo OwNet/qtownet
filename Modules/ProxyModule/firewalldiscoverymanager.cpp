@@ -39,9 +39,8 @@ void FirewallDiscoveryManager::checkFirewallStatus()
     }
 
     QObject parent;
-    ISession *session = m_proxyConnection->session(&parent);
     QString myId = m_proxyConnection->databaseSettings(&parent)->clientId();
-    QVariantMap availableClients = session->availableClients();
+    QVariantMap availableClients = m_proxyConnection->session(&parent)->availableClients();
 
     m_statusChecked = true;
 

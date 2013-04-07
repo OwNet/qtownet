@@ -3,22 +3,20 @@
 
 #include "ijobaction.h"
 
-#include <QObject>
-
-class QHostAddress;
 class MulticastProtocol;
 class IProxyConnection;
+class QHostAddress;
 
-class MulticastJob : public QObject, public IJobAction
+class MulticastJob : public IJobAction
 {
     Q_OBJECT
 
 public:
-    MulticastJob(QHostAddress *groupAddress, int port, MulticastProtocol *protocol, IProxyConnection *proxyConnection,
-                 QObject *parent = 0);
+    MulticastJob(QHostAddress *groupAddress, int port);
 
     int interval() { return 5 * 1000; }
     void execute();
+    void setProxyConnection(IProxyConnection *proxyConnection);
 
 private:
     QHostAddress *m_groupAddress;

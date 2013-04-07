@@ -15,6 +15,7 @@
 #include "messagehelper.h"
 #include "uniqueidhelper.h"
 #include "cachehelper.h"
+#include "jobinitializer.h"
 
 #include "proxydownloads.h"
 #include "proxytrafficcounter.h"
@@ -95,7 +96,7 @@ void ProxyConnection::registerUidRestService(IUidRestService *service)
 
 void ProxyConnection::registerJob(IJobAction* job)
 {
-    new ModuleJob(job, this);
+    job->moveToThread(JobInitializer::startJob(new ModuleJob(job)));
 }
 
 /**

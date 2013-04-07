@@ -5,15 +5,13 @@
 #include "isynceddatabaseupdatequery.h"
 #include "idatabaseselectquerywheregroup.h"
 
-CleanSyncJournalJob::CleanSyncJournalJob(IProxyConnection *proxyConnection, QObject *parent) :
-    QObject(parent),
-    m_proxyConnection(proxyConnection)
+CleanSyncJournalJob::CleanSyncJournalJob() :
+    m_proxyConnection(NULL)
 {
 }
 
 void CleanSyncJournalJob::execute()
 {
-    return;
     if (!m_cleanMutex.tryLock())
         return;
 

@@ -11,8 +11,14 @@ class Job : public QObject
 public:
     explicit Job(int interval, QObject *parent = 0);
 
+public slots:
+    virtual void start();
+
 protected slots:
     virtual void execute() = 0;
+
+signals:
+    void finish();
 
 private:
     int m_interval;

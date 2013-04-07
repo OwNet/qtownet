@@ -17,9 +17,8 @@
 #include <QThread>
 
 #include "browserworker.h"
-PrefetchingJob::PrefetchingJob(IProxyConnection *proxyConnection, QObject* parent) :
-    QObject(parent),
-    m_proxyConnection(proxyConnection)
+PrefetchingJob::PrefetchingJob() :
+    m_proxyConnection(NULL)
 {
     m_workerThread = NULL;
     m_running = false;
