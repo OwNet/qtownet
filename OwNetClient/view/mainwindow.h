@@ -30,6 +30,10 @@ private slots:
     void crash();
     void editWorkspaceName();
     void newWorkspace();
+    void updateContent();
+
+signals:
+    void sigUpdate();
     
 private:
     void createTrayIcon();
