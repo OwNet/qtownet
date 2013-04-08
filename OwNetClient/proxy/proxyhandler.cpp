@@ -4,6 +4,7 @@
 #include "proxyresponseoutputwriter.h"
 #include "proxyhandlersession.h"
 #include "httpresponse.h"
+#include "httprequest.h"
 
 #include <QDateTime>
 #include <QTimer>
@@ -37,7 +38,7 @@ void ProxyHandler::service(HttpRequest *request, HttpResponse *response) {
  */
 void ProxyHandler::requestTimeout()
 {
-    MessageHelper::debug("ProxyHandler timeout.");
+    MessageHelper::debug(QString("ProxyHandler timeout - %1").arg(m_request->getAbsoluteUrl()));
     m_timeoutTimer->stop();
 
     if (m_proxyHandlerSession)
@@ -79,6 +80,6 @@ void ProxyHandler::proxyHandlerSessionFinished()
         m_proxyHandlerSession->deleteLater();
         m_proxyHandlerSession = NULL;
 
-        emit m_response->finished();
+        m_response->write(QByteArray(), true);
     }
 }

@@ -71,8 +71,9 @@ void HttpConnectionHandler::readTimeout() {
 void HttpConnectionHandler::disconnected() {
 
     // Finalize sending the response if not already done
-    if (m_currentResponse && !m_currentResponse->hasSentLastPart()) {
-        m_currentResponse->write(QByteArray(),true);
+    if (m_currentResponse) {
+        if (!m_currentResponse->hasSentLastPart())
+            m_currentResponse->write(QByteArray(), true);
         m_currentResponse->deleteLater();
         m_currentResponse = NULL;
     }

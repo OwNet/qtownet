@@ -73,8 +73,10 @@ bool HttpResponse::writeToSocket(QByteArray data) {
 }
 
 void HttpResponse::write(QByteArray data, bool lastPart) {
-    Q_ASSERT(m_sentLastPart==false);
-    if (m_sentHeaders == false && (!lastPart || !data.isEmpty())) {
+    if (m_sentLastPart)
+        return;
+
+    if (m_sentHeaders == false) {
         QByteArray connectionMode=m_headers.value("Connection");
         if (!m_headers.contains("Content-Length") && !m_headers.contains("Transfer-Encoding") && connectionMode!="close" && connectionMode!="Close") {
             if (!lastPart) {

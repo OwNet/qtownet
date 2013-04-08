@@ -51,8 +51,6 @@ QList<QString> ProxyResponseOutputWriter::dumpOpenRequests()
  */
 void ProxyResponseOutputWriter::virtualClose()
 {
-    if (!m_response->hasSentLastPart())
-        m_response->write(QByteArray(), true);
 }
 
 /**
