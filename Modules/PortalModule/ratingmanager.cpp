@@ -50,7 +50,7 @@ IResponse::Status RatingManager::createRating(QString userId, QString  uri, int 
 
      //username is solved inside createActivity method
      ac.activity_type = Activity::RATING;
-     ac.content = uri + ";" + (QString)value;
+     ac.content = uri + QString(";") + QString::number(value);
      ac.group_id = "";
      ac.object_id = uid;
      ac.user_id = userId;

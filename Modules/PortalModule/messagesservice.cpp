@@ -316,8 +316,8 @@ IResponse *MessagesService::del(IRequest *req, const QString &uid)
     if(curUser_id == "")
         return req->response(IResponse::UNAUTHORIEZED);
 
-
     bool owner;
+    bool admin = false;
 
     QSqlQuery q;
     q.prepare("SELECT * FROM messages WHERE uid=:uid AND user_id=:user_id ");
@@ -327,8 +327,19 @@ IResponse *MessagesService::del(IRequest *req, const QString &uid)
 
     owner = q.first();
 
-
     if(owner){
+        QString group_id = q.value(q.record().indexOf("group_id")).toString();
+        QSqlQuery q2;
+        q2.prepare("SELECT * FROM group_admins WHERE group_id=:group_id AND user_id=:user_id ");
+        q2.bindValue(":user_id",curUser_id);
+        q2.bindValue(":group_id",group_id);
+        q2.exec();
+
+        admin = q2.first();
+    }
+    // TODO pridat mazanie adminom
+
+    if(owner || admin ){
 
         QObject parentObject;
         IDatabaseUpdateQuery *query = m_proxyConnection->databaseUpdateQuery("messages", &parentObject);

@@ -62,25 +62,33 @@ IResponse *UsersService::show(IRequest *req, uint id)
         user.insert("gender", row.value("gender"));
         user.insert("date_of_birth", row.value("date_of_birth"));
         // count of messages, ratings and recommendations
+        int i = 0;
         QSqlQuery queryMessages;
         queryMessages.prepare("SELECT * FROM messages WHERE user_id = :id");
         query.bindValue(":id",id);
         queryMessages.exec();
-        user.insert("count_of_messages",(QString)queryMessages.size());
+        while(queryMessages.next())
+            i++;
+        user.insert("count_of_messages",(QString)i);
 
         QSqlQuery queryRatings;
         queryRatings.prepare("SELECT * FROM ratings WHERE user_id = :id");
         query.bindValue(":id",id);
         queryRatings.exec();
-        user.insert("count_of_ratings",(QString)queryRatings.size());
+        i = 0;
+        while(queryRatings.next())
+            i++;
+
+        user.insert("count_of_ratings",(QString)i);
 
         QSqlQuery queryRecommendations;
         queryRecommendations.prepare("SELECT * FROM recommendations WHERE user_id = :id");
         query.bindValue(":id",id);
         queryRecommendations.exec();
-        user.insert("count_of_recommendations",(QString)queryRecommendations.size());
-
-
+        i = 0;
+        while(queryRecommendations.next())
+            i++;
+        user.insert("count_of_recommendations",(QString)i);
 
         return req->response( QVariant(user) );
     }

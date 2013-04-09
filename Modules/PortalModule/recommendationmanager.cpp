@@ -99,7 +99,7 @@ IResponse::Status RecommendationManager::createRecomm(IRequest *req, QString cur
 
         //username is solved inside createActivity method
         ac.activity_type = Activity::RECOMMENDATION;
-        ac.content = absolute_uri + ";" + title;
+        ac.content = absolute_uri + QString(";") + title;
         ac.group_id = group_id;
         ac.object_id = uid;
         ac.user_id = curUser_id;
