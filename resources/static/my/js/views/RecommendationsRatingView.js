@@ -8,6 +8,8 @@ define( function (require) {
 	  , profileTemplate = require ("tpl/profile")
 	  , recommendationsTableTamplate = require ("tpl/recommendationstable")
 	  , recommendationsPagerTemplate = require ("tpl/recommendationspager")
+	  , menuRatingsTemplate = require ("tpl/menuratings")
+	  , menuRecommendationsTemplate = require ("tpl/menurecommendations")
 	  , ratingsPagerTemplate = require ("tpl/ratingspager")
 	  , ratingsTemplate = require ("tpl/ratings")
 	  , ratingsTableTamplate = require ("tpl/ratingstable")
@@ -22,7 +24,7 @@ define( function (require) {
 	var RecommendationsView = Backbone.View.extend({
 
 			events: {
-				'click a[name="recommpager"]' : "showRecommPage",
+				'click a[name="recommpager"]' : "showRecommendationsPage",
 				'click a[name="ratingpager"]' : "showRatingPage",
 				'click a[name="myRecommendations"]' : "showMyRecommendations",
 				'click a[name="myRatings"]' : "showMyRatings",
@@ -74,6 +76,7 @@ define( function (require) {
 				activities.fetch({data: {page: page, type: '0'},
 					success: function() {
 						$('div#recommendations').html( recommendationsTableTamplate({activities: activities.toJSON(), filter: filter}))
+						$('div#menu').html( menuRecommendationsTemplate({activities: activities.toJSON(), filter: filter}))
 					},
 					error: function(){
 						App.showMessage("Error reading Recommendations")
@@ -105,18 +108,11 @@ define( function (require) {
 				this.showRecommendations("all", 1);
 			},
 
-			showRecommPage: function(e){
+			showRecommendationsPage: function(e){
 				e.preventDefault();
 				var id = $(e.currentTarget).data("id");
 				var filter = $(e.currentTarget).data("filter");
 				this.showRecommendations(filter,id)
-			},
-
-			showRatingPage: function(e){
-				e.preventDefault();
-				var id = $(e.currentTarget).data("id");
-				var filter = $(e.currentTarget).data("filter");
-				this.showRatings(filter,id)
 			},
 
 			showRatings: function(filter, page) {
@@ -150,6 +146,8 @@ define( function (require) {
 				activities.fetch({data: {page: page, type: '1'},
 					success: function() {
 						$('div#ratings').html( ratingsTableTamplate({activities: activities.toJSON(), filter: filter}))
+						$('div#menu').html( menuRatingsTemplate({activities: activities.toJSON(), filter: filter}))
+
 					},
 					error: function(){
 						App.showMessage("Error reading Ratings")
@@ -179,6 +177,13 @@ define( function (require) {
 
 			showAllRatings: function(){
 				this.showRatings("all", 1);
+			},
+
+			showRatingPage: function(e){
+				e.preventDefault();
+				var id = $(e.currentTarget).data("id");
+				var filter = $(e.currentTarget).data("filter");
+				this.showRatings(filter,id)
 			},
 			
 
