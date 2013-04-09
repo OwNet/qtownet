@@ -116,14 +116,17 @@ void ProxyCacheOutputWriter::save()
         query.executeQuery();
     }
     {
+        QString clientId = DatabaseSettings().clientId();
         SyncedDatabaseUpdateQuery query("client_caches");
         query.setUpdateDates(IDatabaseUpdateQuery::DateCreated);
-        query.setColumnValue("client_id", DatabaseSettings().clientId());
+        query.setColumnValue("client_id", clientId);
         query.setColumnValue("cache_id", m_hashCode);
         IDatabaseSelectQueryWhereGroup *where = query.whereGroup(IDatabaseSelectQuery::And);
-        where->where("client_id", DatabaseSettings().clientId());
+        where->where("client_id", clientId);
         where->where("cache_id", m_hashCode);
         query.setGroupId(ISyncedDatabaseUpdateQuery::GroupCaches);
+        query.setForceOperation(ProxyDownloads::instance()->containsCacheLocation(m_hashCode, clientId) ?
+                                    DatabaseUpdateQuery::ForceUpdate : DatabaseUpdateQuery::ForceInsert);
         query.executeQuery();
     }
 }
