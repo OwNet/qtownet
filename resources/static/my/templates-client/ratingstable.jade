@@ -1,16 +1,15 @@
 each activity in activities
-	.row
+	.row.offset1
 		if (activity.type == 1)
-			.span1
+			.span2
 				- var array = activity.content
 				- var content = array.split(";")
 				label #{content[0]}
-			.span5
+			.span2
 				label #{content[1]}
 			.span2
-			.offset
 				label #{new Date(activity.date_created).toLocaleDateString()}
-			.span4
+			.span2
 				label #{activity.user_name}
-			.span4
+			.span1
 				label Rating
