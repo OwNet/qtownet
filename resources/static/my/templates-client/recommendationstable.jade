@@ -1,7 +1,11 @@
 each activity in activities
 	.row
 			.span1
-				label #{activity.content}
+				- var array = activity.content
+				- var content = array.split(";")
+				label #{content[0]}
+			.span5
+				label #{content[1]}
 			.span2
 			.offset
 				label #{new Date(activity.date_created).toLocaleDateString()}

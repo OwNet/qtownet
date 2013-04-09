@@ -7,7 +7,8 @@ define( function (require) {
 	  , recommendationsTemplate = require ("tpl/recommendations")
 	  , profileTemplate = require ("tpl/profile")
 	  , recommendationsTableTamplate = require ("tpl/recommendationstable")
-	  , pagerTemplate = require ("tpl/recommendationspager")
+	  , recommendationsPagerTemplate = require ("tpl/recommendationspager")
+	  , ratingsPagerTemplate = require ("tpl/ratingspager")
 	  , ratingsTemplate = require ("tpl/ratings")
 	  , ratingsTableTamplate = require ("tpl/ratingstable")
 	  , UserModel = require ("share/models/UserModel")
@@ -21,9 +22,12 @@ define( function (require) {
 	var RecommendationsView = Backbone.View.extend({
 
 			events: {
-				'click a[name="pager"]' : "showPage",
+				'click a[name="recommpager"]' : "showRecommPage",
+				'click a[name="ratingpager"]' : "showRatingPage",
 				'click a[name="myRecommendations"]' : "showMyRecommendations",
 				'click a[name="myRatings"]' : "showMyRatings",
+				'click a[name="allRecommendations"]' : "showAllRecommendations",
+				'click a[name="allRatings"]' : "showAllRatings",
 			},
 
 
@@ -81,7 +85,7 @@ define( function (require) {
 
 				action.fetch({
 					success: function() {
-						$('div#pager').html( pagerTemplate({action :action.toJSON(), filter: filter}))
+						$('div#pager').html( recommendationsPagerTemplate({action :action.toJSON(), filter: filter}))
 					},
 					error: function() {
 						
@@ -97,11 +101,22 @@ define( function (require) {
 				this.showRecommendations("my", 1);
 			},
 
-			showPage: function(e){
+			showAllRecommendations: function(){
+				this.showRecommendations("all", 1);
+			},
+
+			showRecommPage: function(e){
 				e.preventDefault();
 				var id = $(e.currentTarget).data("id");
 				var filter = $(e.currentTarget).data("filter");
 				this.showRecommendations(filter,id)
+			},
+
+			showRatingPage: function(e){
+				e.preventDefault();
+				var id = $(e.currentTarget).data("id");
+				var filter = $(e.currentTarget).data("filter");
+				this.showRatings(filter,id)
 			},
 
 			showRatings: function(filter, page) {
@@ -146,7 +161,7 @@ define( function (require) {
 
 				action.fetch({
 					success: function() {
-						$('div#pager').html( pagerTemplate({action :action.toJSON(), filter: filter}))
+						$('div#pager').html( ratingsPagerTemplate({action :action.toJSON(), filter: filter}))
 					},
 					error: function() {
 						
@@ -160,6 +175,10 @@ define( function (require) {
 
 			showMyRatings: function(){
 				this.showRatings("my", 1);
+			},
+
+			showAllRatings: function(){
+				this.showRatings("all", 1);
 			},
 			
 

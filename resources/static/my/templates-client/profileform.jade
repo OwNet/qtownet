@@ -25,5 +25,35 @@ form(name="profile-form").form-horizontal
 							span.help-block
 
 					.control-group
+						label.control-label Day:
+						.controls
+							input(type="text",name="birth_day",value="#{user.birth_day}")
+							span.help-block
+
+						.control-group
+						label.control-label Month:
+						.controls
+							input(type="text",name="birth_month",value="#{user.birth_month}")
+							span.help-block
+
+					.control-group
+						label.control-label Year:
+						.controls
+							input(type="text",name="birth_year",value="#{user.birth_year}")
+							span.help-block
+
+					.control-group
+						label.control-label Gender:
+						.controls
+							input(type="text",name="gender",value="#{user.gender}")
+							span.help-block
+
+					.control-group
+						label.control-label Gender:
+						.controls
+							input(type="text",name="city",value="#{user.city}")
+							span.help-block
+
+					.control-group
 						.controls
 							button.btn(type="button",name="update") Update
