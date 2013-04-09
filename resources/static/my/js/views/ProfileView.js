@@ -27,7 +27,7 @@ define( function (require) {
 	var ProfileView = Backbone.View.extend({
 
 			events: {
-				'click form[name="profile-form"] button[name="update"]': "saveProfile", 
+				'click form[name="profiler-form"] button[name="update"]': "saveProfile", 
 				'click a[name="editprofile"]': "editProfile",
 				'click a[name="RecommendationPager"]' : "showPage",
 			},
