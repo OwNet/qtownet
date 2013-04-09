@@ -20,7 +20,15 @@ bool ActivityManager::createActivity(Activity &ac)
 
     QObject parent;
     ISession* sess = m_proxyConnection->session(&parent);
-    ac.user_name = sess->value("logged").toString();
+
+    QSqlQuery queryName;
+    queryName.prepare("SELECT * FROM users WHERE id = :id");
+    queryName.bindValue(":id",ac.user_id);
+
+    if(!queryName.exec())
+        return false;
+
+    ac.user_name =  queryName.value(queryName.record().indexOf("first_name")).toString() + " " +  queryName.value(queryName.record().indexOf("last_name")).toString();
 
     QObject parentObject;
     IDatabaseUpdateQuery *query = m_proxyConnection->databaseUpdateQuery("activities", &parentObject);

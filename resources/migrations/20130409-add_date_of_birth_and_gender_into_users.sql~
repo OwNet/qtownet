@@ -1,0 +1,6 @@
+ALTER TABLE users
+ADD gender TEXT;
+
+ALTER TABLE users
+ADD date_of_birth TEXT;
+

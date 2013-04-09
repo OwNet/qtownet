@@ -1,0 +1,4 @@
+ownet_proxy:
+    binary_path: "../../../QtOwNet-build-Qt_5_0_1_gcc_64_temporary-Debug"
+    static_path: "../resources/static"
+    migrations_path: "../resources/migrations"
