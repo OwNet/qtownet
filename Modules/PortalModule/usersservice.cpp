@@ -69,7 +69,7 @@ IResponse *UsersService::show(IRequest *req, uint id)
         queryMessages.exec();
         while(queryMessages.next())
             i++;
-        user.insert("count_of_messages",(QString)i);
+        user.insert("count_of_messages",QString::number(i));
 
         QSqlQuery queryRatings;
         queryRatings.prepare("SELECT * FROM ratings WHERE user_id = :id");
@@ -79,7 +79,7 @@ IResponse *UsersService::show(IRequest *req, uint id)
         while(queryRatings.next())
             i++;
 
-        user.insert("count_of_ratings",(QString)i);
+        user.insert("count_of_ratings",QString::number(i));
 
         QSqlQuery queryRecommendations;
         queryRecommendations.prepare("SELECT * FROM recommendations WHERE user_id = :id");
@@ -88,7 +88,7 @@ IResponse *UsersService::show(IRequest *req, uint id)
         i = 0;
         while(queryRecommendations.next())
             i++;
-        user.insert("count_of_recommendations",(QString)i);
+        user.insert("count_of_recommendations",QString::number(i));
 
         return req->response( QVariant(user) );
     }
