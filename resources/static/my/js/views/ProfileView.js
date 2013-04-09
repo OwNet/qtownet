@@ -7,6 +7,7 @@ define( function (require) {
 	  , profileTemplate = require ("tpl/profile")
 	  , profileTableTemplate = require ("tpl/profiletable")
 	  , profileFormTemplate = require ("tpl/profileform")
+	  , menuTemplate = require ("tpl/menu")
 	  , pagerRecommTemplate = require ("tpl/profilepager")
 	  , showactivitiesTemplate = require ("tpl/showactivities")
 	  , UserModel = require ("share/models/UserModel")
@@ -26,7 +27,7 @@ define( function (require) {
 	var ProfileView = Backbone.View.extend({
 
 			events: {
-				'click form[name="profile-form"] button[name="update"]': 'saveProfile', 
+				'click form[name="profile-form"] button[name="update"]': "saveProfile", 
 				'click a[name="editprofile"]': "editProfile",
 				'click a[name="RecommendationPager"]' : "showPage",
 			},
@@ -74,6 +75,49 @@ define( function (require) {
 
 				Action = Backbone.Model.extend({
 					urlRoot: '/api/activities/allPagesCount',
+					defaults: {	}
+				})
+
+				var activities = new ActivitiesCollection()
+
+				activities.fetch({data: {page: page},
+					success: function() {
+						$('div#activities').html( showactivitiesTemplate({activities: activities.toJSON()}))
+						$('div#menu').html( menuTemplate({user :App.user.toJSON()}))
+					},
+					error: function(){
+						App.showMessage("Error reading activities")
+					},
+				})
+
+				var action = new Action()
+
+
+				action.fetch({
+					success: function() {
+						$('div#user_profile').html( profileTableTemplate({user :App.user.toJSON()}))
+						$('div#pager').html( pagerRecommTemplate({action :action.toJSON()}))
+					},
+					error: function() {
+						
+					},
+				})
+
+				this.$el.html( profileTemplate({ }) )
+				return this
+
+			},
+
+			showMyActivities: function(page) {
+				var Action;
+				var ActivitiesCollection;
+				ActivitiesCollection = Backbone.Collection.extend({
+					url: '/api/activities/my',
+					model: ActivityModel
+				})
+
+				Action = Backbone.Model.extend({
+					urlRoot: '/api/activities/myPagesCount',
 					defaults: {	}
 				})
 

@@ -13,7 +13,7 @@
 
 #include "irouter.h"
 
-#define PER_PAGE 3
+#define PER_PAGE 10
 
 MessagesService::MessagesService(IProxyConnection *proxyConnection, QObject *parent) :
     QObject(parent),
@@ -211,7 +211,7 @@ IResponse *MessagesService::index(IRequest *req)
             QSqlQuery query_user;
 
             query_user.prepare("SELECT * FROM users WHERE id = :id");
-            query_user.bindValue(":id",curUser_id);
+            query_user.bindValue(":id",query.value(query.record().indexOf("user_id")));
             query_user.exec();
 
 
@@ -244,12 +244,25 @@ IResponse *MessagesService::index(IRequest *req)
         QVariantList comments;
 
         while (query.next()) {
+            QSqlQuery query_user;
+
+            query_user.prepare("SELECT * FROM users WHERE id = :id");
+            query_user.bindValue(":id",query.value(query.record().indexOf("user_id")));
+            query_user.exec();
+
             QVariantMap comment;
             comment.insert("id", query.value(query.record().indexOf("_id")));
             comment.insert("message", query.value(query.record().indexOf("message")));
             comment.insert("first_name", query.value(query.record().indexOf("first_name")));
             comment.insert("last_name", query.value(query.record().indexOf("last_name")));
             comment.insert("user_id", query.value(query.record().indexOf("user_id")));
+            if ( query_user.first() ) {
+                QSqlRecord row = query_user.record();
+
+                comment.insert("first_name", row.value("first_name"));
+                comment.insert("last_name", row.value("last_name"));
+            }
+            comment.insert("date_created", query.value(query.record().indexOf("date_created")));
             comment.insert("parent_id", query.value(query.record().indexOf("parent_id")));
             comment.insert("uid", query.value(query.record().indexOf("uid")));
             comment.insert("type", "comment");
@@ -303,33 +316,17 @@ IResponse *MessagesService::del(IRequest *req, const QString &uid)
     if(curUser_id == "")
         return req->response(IResponse::UNAUTHORIEZED);
 
-    QString group_id = req->parameterValue("group_id");
-    if(group_id == ""){
-        error.insert("group_id_parameter","required");
-        return req->response(QVariant(error),IResponse::BAD_REQUEST);
-    }
-
-    IRequest *request = m_proxyConnection->createRequest(IRequest::POST, "groups", "isAdmin");
-    request->setParamater("user_id", curUser_id);
-    request->setParamater("group_id", group_id);
-
-    QString admin = m_proxyConnection->callModule(request)->body().toMap().value("admin").toString();
 
     bool owner;
-    // overit ci je adminom skupiny d
-    if(admin == "1")
-        owner = true;
-    else{
 
-        QSqlQuery q;
-        q.prepare("SELECT * FROM messages WHERE _id=:id AND user_id=:user_id AND group_id =:group_id");
-        q.bindValue(":user_id",curUser_id);
-        q.bindValue(":group_id",group_id);
-        q.bindValue(":uid",uid);
-        q.exec();
+    QSqlQuery q;
+    q.prepare("SELECT * FROM messages WHERE uid=:uid AND user_id=:user_id ");
+    q.bindValue(":user_id",curUser_id);
+    q.bindValue(":uid",uid);
+    q.exec();
 
-        owner = q.first();
-    }
+    owner = q.first();
+
 
     if(owner){
 

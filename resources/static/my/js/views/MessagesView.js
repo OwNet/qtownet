@@ -18,7 +18,8 @@ define( function (require) {
 	var MessagesView = Backbone.View.extend({
 
 			events: {
-				'click form[name="create-message-form"] button[name="submit"]': 'save',
+				'click form[name="create-message-form"] button[name="submit-message"]': 'save',
+				'click form[name="comment-message-form"] button[name="submit-message"]': 'comment',
 				'click a[name="pager-message"]' : "showPage",
 				'click a[name="delete-message"]' : "delete",
 			},
@@ -61,7 +62,7 @@ define( function (require) {
 				var self = this
 				messages.fetch({data: {page: page, group_id: group_id}, 
 					success: function() {
-						$('div#messages_list').html( messagesListTemplate({messages: messages.toJSON(), user: App.user ? App.user.toJSON() : false, is_admin: false, group_id: group_id}))
+						$('div#messages_list').html( messagesListTemplate({messages: messages.toJSON(), user: App.user ? App.user.toJSON() : false, is_admin: false, group_id: group_id, page:page}))
 					},
 					error: function() {
 						App.showMessage("No groups founded")
@@ -89,12 +90,39 @@ define( function (require) {
 				var message = new MessageModel(data)
 				var self = this
 
-				message.save({parent_id: 0},{
+				message.save({},{
 					wait: true,
 					success: function() {
-						App.router.navigate('messages', {trigger: true})
 						App.showMessage("Created", "alert-success")
 						self.show(1, data.group_id)
+					},
+					error: function() {
+						App.showMessage("Creation failed")
+					},
+				})
+			},
+
+			comment: function(e) {
+				e.preventDefault();
+				var id = $(e.currentTarget).data("id");
+				
+				var m = this.$('#comment-'+id+' > .control-group > .controls > .comment-message').val()
+				var group_id = this.$('#comment-'+id+' > .control-group > .controls > .group_id').val()
+				var parent_id = this.$('#comment-'+id+' > .control-group > .controls > .parent_id').val()
+				var page = this.$('#comment-'+id+' > .control-group > .controls > .page').val()
+
+				//Form( $('.comment-1', this.$el) )
+				console.log(m)
+				
+				var data = {message: m, group_id :group_id, parent_id :parent_id}
+				var message = new MessageModel(data)
+				var self = this
+
+				message.save({},{
+					wait: true,
+					success: function() {
+						App.showMessage("Created", "alert-success")
+						self.show(page, data.group_id)
 					},
 					error: function() {
 						App.showMessage("Creation failed")
@@ -113,9 +141,8 @@ define( function (require) {
         		message.group_id = group_id
         		var self = this
 
-        		message.destroy({data: {group_id: group_id}, 
+        		message.destroy({
         			success: function() {
-        				App.router.navigate("#", {trigger: true})
         				App.showMessage("Message deleted")
 						self.show(1, group_id)
 					},

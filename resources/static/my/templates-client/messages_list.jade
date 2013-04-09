@@ -1,4 +1,4 @@
-each message in messages
+each message, index in messages
 	.row
 		.span1
 			label #{message.first_name} #{message.last_name}
@@ -6,6 +6,28 @@ each message in messages
 			label #{message.message}
 		.span3
 			label created #{new Date(message.date_created).toLocaleDateString()}
-		if (message.user_id == user.id || is_admin)
-			.span4
-				a( href="#",data-group_id="#{group_id}",data-id="#{message.id}",name="delete-message") Delete
+		if (user.id == message.user_id)
+				.span5
+					a( href="#",data-id="#{message.uid}",name="delete-message",data-group_id="#{group_id}") Delete
+		if (message.comments)
+			each comment in message.comments
+				.row2
+					.span1
+						label #{comment.first_name} #{comment.last_name}
+					.span2
+						label #{comment.message}
+					.span3
+						label created #{new Date(comment.date_created).toLocaleDateString()}
+					if (user.id == comment.user_id)
+						.span5
+							a( href="#",data-id="#{comment.uid}",name="delete-message",data-group_id="#{group_id}") Delete
+		form(name="comment-message-form", id="comment-#{index}").form-horizontal
+
+			.control-group
+				.controls
+					input(type="text", name="message").comment-message
+					span.help-block
+					input(type="hidden", name="group_id", value="#{group_id}").group_id
+					input(type="hidden", name="parent_id", value="#{message.uid}").parent_id
+					input(type="hidden", name="page", value="#{page}").page
+					button.btn(type="button", name="submit-message", data-id="#{index}") Comment
