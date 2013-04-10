@@ -4,8 +4,12 @@ each activity in activities
 			- var array = activity.content
 			- var content = array.split(";")
 			span #{content[0]}
-		.span2
-			span #{content[1]} Stars
+		if (activity.type == 1)
+			.span2
+				span #{content[1]} Stars
+		else
+			.span2
+				span #{content[1]} 
 		.span2
 			span #{new Date(activity.date_created).toLocaleDateString()}
 		.span2
