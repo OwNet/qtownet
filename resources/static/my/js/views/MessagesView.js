@@ -21,7 +21,7 @@ define( function (require) {
 				'click form[name="create-message-form"] button[name="submit-message"]': 'save',
 				'click form[name="comment-message-form"] button[name="submit-message"]': 'comment',
 				'click a[name="pager-message"]' : "showPage",
-				'click a[name="delete-message"]' : "delete",
+				'click img[name="delete-message"]' : "delete",
 				'click a[name="messages"]' : "showFront",
 			},
 
