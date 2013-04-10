@@ -1,11 +1,9 @@
 #ifndef PREFETCHJOB_H
 #define PREFETCHJOB_H
-
-
 #include <QMutex>
-#include <QMap>
-#include <QWebView>
+
 #include "ijobaction.h"
+
 class IProxyConnection;
 class BrowserWorker;
 
@@ -29,7 +27,6 @@ private:
     void tryClean();
     bool m_running;
 
-    QThread *m_workerThread;
     QMutex m_activeMutex;
 
     int runs;
