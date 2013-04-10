@@ -3,7 +3,7 @@ each activity in activities
 		.span2
 			- var array = activity.content
 			- var content = array.split(";")
-			span #{content[0]}
+			a( href="#{content[0]}",name="activities" ) #{content[0]}
 		if (activity.type == 1)
 			.span2
 				span #{content[1]} Stars
