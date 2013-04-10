@@ -21,3 +21,8 @@ void ModuleJob::start()
     m_jobAction->setProxyConnection(new ProxyConnection(this));
     Job::start();
 }
+
+bool ModuleJob::createSeparateThread() const
+{
+    return m_jobAction->createSeparateThread();
+}

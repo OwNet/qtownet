@@ -12,6 +12,7 @@ public:
 
     void execute();
     void start();
+    bool createSeparateThread() const;
 
 private:
     IJobAction *m_jobAction;

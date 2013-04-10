@@ -33,7 +33,6 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->btnCrash, SIGNAL(clicked()), this, SLOT(crash()));
     connect(ui->btnEditWorkspaceName, SIGNAL(clicked()), this, SLOT(editWorkspaceName()));
     connect(ui->btnNewWorkspace, SIGNAL(clicked()), this, SLOT(newWorkspace()));
-    connect(this, SIGNAL(sigUpdate()), this, SLOT(updateContent()), Qt::QueuedConnection);
 
 #if defined(Q_WS_WIN) || defined(Q_WS_MAC)
     createTrayIcon();
@@ -66,11 +65,6 @@ MainWindow::~MainWindow()
 }
 
 void MainWindow::update()
-{
-    emit sigUpdate();
-}
-
-void MainWindow::updateContent()
 {
     ui->lblWorkspaceName->setText(WorkspaceHelper::currentWorkspaceName());
 

@@ -10,6 +10,7 @@ class Job : public QObject
     Q_OBJECT
 public:
     explicit Job(int interval, QObject *parent = 0);
+    virtual bool createSeparateThread() const { return true; }
 
 public slots:
     virtual void start();

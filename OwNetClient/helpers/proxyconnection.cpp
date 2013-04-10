@@ -96,7 +96,9 @@ void ProxyConnection::registerUidRestService(IUidRestService *service)
 
 void ProxyConnection::registerJob(IJobAction* job)
 {
-    job->moveToThread(JobInitializer::startJob(new ModuleJob(job)));
+    QThread *thread = JobInitializer::startJob(new ModuleJob(job));
+    if (thread)
+        job->moveToThread(thread);
 }
 
 /**

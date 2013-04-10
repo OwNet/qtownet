@@ -11,6 +11,7 @@ public:
     virtual int interval() = 0;
     virtual void execute() = 0;
     virtual void setProxyConnection(IProxyConnection *proxyConnection) = 0;
+    virtual bool createSeparateThread() const { return true; }
 };
 
 #endif // IJOBACTION_H
