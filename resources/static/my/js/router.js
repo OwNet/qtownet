@@ -48,6 +48,7 @@ define( function (require) {
 			listmembers: "listmembers",
 			recommendations: "recommendations",
 			ratings: "ratings",
+			logout: "logout", 
 
 		},
 
@@ -110,6 +111,11 @@ define( function (require) {
 			this.views.recommendations.showRatings("all", 1)
 			this.activate("#/ratings")
 		},
+
+		logout: function() {
+			this.views.navbar.onLogoutClick()
+			this.activate("#/logout")
+		}
 
 	});
 
