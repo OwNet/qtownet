@@ -93,8 +93,15 @@ IResponse::Status RatingManager::editRating(QString uid, uint userId, int value,
     if (status != IResponse::OK)
         return status;
 
-    if (rating["user_id"].toInt() != userId)
-        return IResponse::UNAUTHORIEZED;
+    QSqlQuery queryURL;
+    queryURL.prepare("SELECT * FROM ratings WHERE uid = :uid");
+    queryURL.bindValue(":uid",uid);
+
+    if(!queryURL.exec())
+        return IResponse::INTERNAL_SERVER_ERROR;
+
+    queryURL.first();
+    QString absolute_uri =  queryURL.value(queryURL.record().indexOf("absolute_uri")).toString();
 
     QObject parent;
     IDatabaseUpdateQuery *query = m_proxyConnection->databaseUpdateQuery("ratings", &parent);
@@ -107,8 +114,12 @@ IResponse::Status RatingManager::editRating(QString uid, uint userId, int value,
     where->where("uid", uid);
     where->where("user_id", userId);
 
-    if ( query->executeQuery() )
+    if ( query->executeQuery() ){
+
+        //edit activity
+        m_activityManager->editActivity( uid, absolute_uri + ";" + QString::number(value));
         return IResponse::OK;
+    }
     else
         return IResponse::INTERNAL_SERVER_ERROR;
 }
