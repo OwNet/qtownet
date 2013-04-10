@@ -220,7 +220,8 @@ define( function (require) {
         			success: function() {
         				App.router.navigate("#/editprofile", {trigger: true})
         	
-        				$('div#edit_profile').html( profileFormTemplate({user :user.toJSON()}))
+        				$('div#activities').html( profileFormTemplate({user :user.toJSON()}))
+        				$('div#pager').hide();
 
         				
 					}
