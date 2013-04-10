@@ -27,8 +27,6 @@ ProxyRequest::ProxyRequest(HttpRequest *request, QObject *parent)
     analyzeUrl();
     analyzeRequestHeaders(request);
     analyzeRequestType(request);
-
-    qDebug() << url();
 }
 
 ProxyRequest::ProxyRequest(IRequest::RequestType requestType, QString url, QVariantMap requestHeaders, QObject *parent)

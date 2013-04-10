@@ -26,7 +26,7 @@ HttpConnectionHandler::HttpConnectionHandler(QSettings *settings)
     m_readTimer.moveToThread(this);
     connect(&m_readTimer, SIGNAL(timeout()), SLOT(readTimeout()));
     m_readTimer.setSingleShot(true);
-    qDebug("HttpConnectionHandler (%p): constructed", this);
+    // qDebug("HttpConnectionHandler (%p): constructed", this);
     connect(this, SIGNAL(disposeHandler()), this, SLOT(quit()), Qt::QueuedConnection);
     connect(this, SIGNAL(finished()), this, SLOT(deleteLater()));
     connect(this, SIGNAL(startHandlingSig()), this, SLOT(handleConnection()), Qt::QueuedConnection);
