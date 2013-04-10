@@ -65,7 +65,7 @@ IResponse *UsersService::show(IRequest *req, uint id)
         int i = 0;
         QSqlQuery queryMessages;
         queryMessages.prepare("SELECT * FROM messages WHERE user_id = :id");
-        query.bindValue(":id",id);
+        queryMessages.bindValue(":id",id);
         queryMessages.exec();
         while(queryMessages.next())
             i++;
@@ -73,7 +73,7 @@ IResponse *UsersService::show(IRequest *req, uint id)
 
         QSqlQuery queryRatings;
         queryRatings.prepare("SELECT * FROM ratings WHERE user_id = :id");
-        query.bindValue(":id",id);
+        queryRatings.bindValue(":id",id);
         queryRatings.exec();
         i = 0;
         while(queryRatings.next())
@@ -83,7 +83,7 @@ IResponse *UsersService::show(IRequest *req, uint id)
 
         QSqlQuery queryRecommendations;
         queryRecommendations.prepare("SELECT * FROM recommendations WHERE user_id = :id");
-        query.bindValue(":id",id);
+        queryRecommendations.bindValue(":id",id);
         queryRecommendations.exec();
         i = 0;
         while(queryRecommendations.next())

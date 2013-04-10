@@ -28,6 +28,7 @@ bool ActivityManager::createActivity(Activity &ac)
     if(!queryName.exec())
         return false;
 
+    queryName.first();
     ac.user_name =  queryName.value(queryName.record().indexOf("first_name")).toString() + QString(" ") +  queryName.value(queryName.record().indexOf("last_name")).toString();
 
     QObject parentObject;
