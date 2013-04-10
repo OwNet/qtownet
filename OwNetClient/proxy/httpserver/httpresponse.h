@@ -102,8 +102,11 @@ private:
     */
     void writeHeaders();
 
+    bool isChunked() { return m_isChunked; }
+
     /** Request headers */
     QMap<QByteArray,QByteArray> m_headers;
+    bool m_isChunked;
 
     /** Socket for writing output */
     QTcpSocket* m_socket;

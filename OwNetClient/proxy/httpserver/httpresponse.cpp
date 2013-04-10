@@ -6,7 +6,8 @@
 #include "httpresponse.h"
 
 HttpResponse::HttpResponse(QTcpSocket* socket, QObject *parent) :
-    QObject(parent)
+    QObject(parent),
+    m_isChunked(false)
 {
     this->m_socket=socket;
     m_statusCode=200;
@@ -18,11 +19,13 @@ HttpResponse::HttpResponse(QTcpSocket* socket, QObject *parent) :
 void HttpResponse::setHeader(QByteArray name, QByteArray value) {
     Q_ASSERT(m_sentHeaders==false);
     m_headers.insert(name,value);
+
+    if (QString(name).compare("Transfer-Encoding", Qt::CaseInsensitive) == 0)
+        m_isChunked = QString(value).compare("Chunked", Qt::CaseInsensitive) == 0;
 }
 
 void HttpResponse::setHeader(QByteArray name, int value) {
-    Q_ASSERT(m_sentHeaders==false);
-    m_headers.insert(name,QByteArray::number(value));
+    setHeader(name,QByteArray::number(value));
 }
 
 QMap<QByteArray,QByteArray>& HttpResponse::getHeaders() {
@@ -76,20 +79,10 @@ void HttpResponse::write(QByteArray data, bool lastPart) {
     if (m_sentLastPart)
         return;
 
-    if (m_sentHeaders == false) {
-        QByteArray connectionMode=m_headers.value("Connection");
-        if (!m_headers.contains("Content-Length") && !m_headers.contains("Transfer-Encoding") && connectionMode!="close" && connectionMode!="Close") {
-            if (!lastPart) {
-                m_headers.insert("Transfer-Encoding","chunked");
-            }
-            else {
-                m_headers.insert("Content-Length",QByteArray::number(data.size()));
-            }
-        }
+    if (!m_sentHeaders)
         writeHeaders();
-    }
-    bool chunked=m_headers.value("Transfer-Encoding")=="chunked" || m_headers.value("Transfer-Encoding")=="Chunked";
-    if (chunked) {
+
+    if (isChunked()) {
         if (data.size()>0) {
             QByteArray buffer=QByteArray::number(data.size(),16);
             buffer.append("\r\n");
@@ -102,7 +95,7 @@ void HttpResponse::write(QByteArray data, bool lastPart) {
         writeToSocket(data);
     }
     if (lastPart) {
-        if (chunked) {
+        if (isChunked()) {
             writeToSocket("0\r\n\r\n");
         }
         else if (!m_headers.contains("Content-Length")) {
