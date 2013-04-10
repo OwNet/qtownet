@@ -1,12 +1,23 @@
 .row
-	.span1
-		label #{user.first_name}
-	.span2
-		label #{user.last_name}
-	.span3
-		label #{user.email}
-	.span4
-		label #{user.phone}
-	.span3
-		a( href="#/editprofile",data-id="#{user.id}",name="editprofile") Edit Profile
+	.span12.center
+		span #{user.first_name} #{user.last_name}
+.row
+	.span12.center
+		span #{user.last_name}
+.row
+	.span12.center
+		span #{user.email}
+.row
+	.span12.center
+		span #{user.phone}
+.row
+	.span12.center
+		span #{user.birth_day}.#{user.birth_month}.#{user.birth_year}
+.row
+	.span12.center
+		span #{user.gender}
+.row
+	.span12.center
+		span #{user.city}
+
 	.span#edit_profile

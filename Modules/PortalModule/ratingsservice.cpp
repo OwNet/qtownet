@@ -34,7 +34,7 @@ IResponse *RatingsService::create(IRequest *req)
     bool ok = false;
     QVariantMap error;
 
-    uint userId = m_proxyConnection->session()->userId();
+    QString userId = m_proxyConnection->session()->value("logged").toString();
 
     QVariantMap reqJson = req->postBodyFromJson(&ok).toMap();
     if (!ok)

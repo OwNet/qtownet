@@ -1,12 +1,14 @@
 each activity in activities
 	.row
-		if (activity.type == 1)
-			.span1
-				label #{activity.content}
-			.span2
-			.offset
-				label #{new Date(activity.date_created).toLocaleDateString()}
-			.span4
-				label #{activity.user_name}
-			.span4
-				label Rating
+		.span2
+			- var array = activity.content
+			- var content = array.split(";")
+			a( href="#{content[0]}" ) #{content[0]}
+		.span2
+			span #{content[1]} Stars
+		.span2
+			span #{new Date(activity.date_created).toLocaleDateString()}
+		.span2
+			span #{activity.first_name} #{activity.last_name}
+		.span1
+			span Rating

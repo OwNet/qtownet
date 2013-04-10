@@ -41,7 +41,7 @@ buf.push('</span>');
 __jade.shift();
 __jade.unshift({ lineno: 9, filename: __jade[0].filename });
 buf.push('\n      <input');
-buf.push(attrs({ 'type':("hidden"), 'name':("group_id"), 'value':("" + (group_id) + "") }, {"type":true,"name":true,"value":true}));
+buf.push(attrs({ 'type':("hidden"), 'id':("shit"), 'name':("group_id"), 'value':("" + (group_id) + "") }, {"type":true,"id":true,"name":true,"value":true}));
 buf.push('/>');
 __jade.shift();
 __jade.unshift({ lineno: 11, filename: __jade[0].filename });
