@@ -1,15 +1,19 @@
 each activity in activities
 	.row
 		.span2
-			label #{activity.content}
+			- var array = activity.content
+			- var content = array.split(";")
+			span #{content[0]}
 		.span2
-			label #{new Date(activity.date_created).toLocaleDateString()}
+			span #{content[1]} Stars
 		.span2
-			label #{activity.user_name}
+			span #{new Date(activity.date_created).toLocaleDateString()}
+		.span2
+			span #{activity.user_name}
 		if (activity.type == 0)
-			.span3
-				label Aha
+			.span1
+				span Recommendations
 		else
-			.span3
-				label Nieee
+			.span1
+				span Rating
 

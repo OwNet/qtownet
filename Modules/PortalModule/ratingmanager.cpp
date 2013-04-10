@@ -16,7 +16,7 @@ RatingManager::RatingManager(IProxyConnection *proxyConnection, QObject *parent)
     m_activityManager = new ActivityManager(proxyConnection);
 }
 
-IResponse::Status RatingManager::createRating(uint userId, QString  uri, int value, QVariantMap &error)
+IResponse::Status RatingManager::createRating(QString userId, QString  uri, int value, QVariantMap &error)
  {
 
      // if rating already exist throw error
@@ -50,10 +50,10 @@ IResponse::Status RatingManager::createRating(uint userId, QString  uri, int val
 
      //username is solved inside createActivity method
      ac.activity_type = Activity::RATING;
-     ac.content = uri + ";" + value;
+     ac.content = uri + QString(";") + QString::number(value);
      ac.group_id = "";
      ac.object_id = uid;
-     ac.user_id = (int)userId;
+     ac.user_id = userId;
 
 
      m_activityManager->createActivity(ac);

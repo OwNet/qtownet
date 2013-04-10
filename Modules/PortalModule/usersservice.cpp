@@ -59,6 +59,36 @@ IResponse *UsersService::show(IRequest *req, uint id)
         user.insert("last_name", row.value("last_name"));
         user.insert("login", row.value("login"));
         user.insert("email", row.value("email"));
+        user.insert("gender", row.value("gender"));
+        user.insert("date_of_birth", row.value("date_of_birth"));
+        // count of messages, ratings and recommendations
+        int i = 0;
+        QSqlQuery queryMessages;
+        queryMessages.prepare("SELECT * FROM messages WHERE user_id = :id");
+        query.bindValue(":id",id);
+        queryMessages.exec();
+        while(queryMessages.next())
+            i++;
+        user.insert("count_of_messages",QString::number(i));
+
+        QSqlQuery queryRatings;
+        queryRatings.prepare("SELECT * FROM ratings WHERE user_id = :id");
+        query.bindValue(":id",id);
+        queryRatings.exec();
+        i = 0;
+        while(queryRatings.next())
+            i++;
+
+        user.insert("count_of_ratings",QString::number(i));
+
+        QSqlQuery queryRecommendations;
+        queryRecommendations.prepare("SELECT * FROM recommendations WHERE user_id = :id");
+        query.bindValue(":id",id);
+        queryRecommendations.exec();
+        i = 0;
+        while(queryRecommendations.next())
+            i++;
+        user.insert("count_of_recommendations",QString::number(i));
 
         return req->response( QVariant(user) );
     }
@@ -96,6 +126,9 @@ IResponse *UsersService::create(IRequest *req)
     QString last_name = reqJson["last_name"].toString();
     QString first_name = reqJson["first_name"].toString();
     QString email = reqJson["email"].toString();
+    //0 female 1 male
+    QString date_of_birth = reqJson["date_of_birth"].toString();
+    QString gender = reqJson["gender"].toString();
 
     QString password = reqJson["password"].toString();
 
@@ -117,6 +150,8 @@ IResponse *UsersService::create(IRequest *req)
     query->setColumnValue("role_id", 1);
     query->setColumnValue("password", password);
     query->setColumnValue("salt", salt);
+    query->setColumnValue("gender", gender);
+    query->setColumnValue("date_of_birth", date_of_birth);
 
     if ( !query->executeQuery() )
        return req->response(IResponse::INTERNAL_SERVER_ERROR);
@@ -143,6 +178,7 @@ IResponse *UsersService::edit(IRequest *req, uint id)
 
 
     QObject parent;
+    QString salt = "";
 
     IDatabaseUpdateQuery *query = m_proxyConnection->databaseUpdateQuery("users", &parent);
 
@@ -173,16 +209,10 @@ IResponse *UsersService::edit(IRequest *req, uint id)
 
     QString password = reqJson["password"].toString();
     if(password != ""){
-        query->setColumnValue("password", password);
-        QSqlQuery q;
-        q.prepare("SELECT salt FROM groups WHERE id = :id");
-        q.bindValue(":id",id);
-        q.exec();
-
-        QString salt =  q.value(q.record().indexOf("salt")).toString();
+        //ad salt
         PortalHelper::addSalt(&password,&salt);
         query->setColumnValue("password", password);
-
+        query->setColumnValue("salt", salt);
     }
     if ( query->executeQuery() )
         return req->response(IResponse::OK);
