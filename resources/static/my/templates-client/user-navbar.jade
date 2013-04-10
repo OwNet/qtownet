@@ -1,23 +1,26 @@
 if (user)
 	#appmenu.navbar
 		.navbar-inner
-			a.brand( href="#" )
-				img(src="img/ownet-navbar.png")
-			ul.nav
-				li.divider-vertical
-				li: a( href="#/ratings" ) Ratings
-				li.divider-vertical
-				li: a( href="#/recommendations" ) Recommendations
-				li.divider-vertical
-				li: a( href="#/groups" ) Groups
-				li.divider-vertical	
-			ul.nav.pull-right
-				li: a( href="#/profile") #{user.first_name} #{user.last_name}
-				li.divider-vertical
-				li: a( href="#/logout") Logout
+			.inner
+				a.brand( href="#" )
+					img(src="img/ownet-navbar.png")
+				ul.nav
+					li.divider-vertical
+					li: a( href="#/ratings" ) Ratings
+					li.divider-vertical
+					li: a( href="#/recommendations" ) Recommendations
+					li.divider-vertical
+					li: a( href="#/groups" ) Groups
+					li.divider-vertical	
+				ul.nav.pull-right
+					li: a( href="#/profile") #{user.first_name} #{user.last_name}
+					li.divider-vertical
+					li: a( href="#/logout") Logout
 else
 	#appmenu.navbar
-		ul.nav.pull-right
-			li: a( href="#/login") Login
-			li.divider-vertical
-			li: a( href="#/registration") Register
+		.navbar-inner
+			.inner
+				ul.nav.pull-right
+					li: a( href="#/login") Login
+					li.divider-vertical
+					li: a( href="#/registration") Register

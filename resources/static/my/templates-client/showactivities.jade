@@ -3,9 +3,13 @@ each activity in activities
 		.span2
 			- var array = activity.content
 			- var content = array.split(";")
-			span #{content[0]}
-		.span2
-			span #{content[1]}
+			a( href="#{content[0]}",name="activities" ) #{content[0]}
+		if (activity.type == 1)
+			.span2
+				span #{content[1]} Stars
+		else
+			.span2
+				span #{content[1]} 
 		.span2
 			span #{new Date(activity.date_created).toLocaleDateString()}
 		.span2

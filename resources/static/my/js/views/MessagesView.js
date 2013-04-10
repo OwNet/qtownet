@@ -21,7 +21,8 @@ define( function (require) {
 				'click form[name="create-message-form"] button[name="submit-message"]': 'save',
 				'click form[name="comment-message-form"] button[name="submit-message"]': 'comment',
 				'click a[name="pager-message"]' : "showPage",
-				'click a[name="delete-message"]' : "delete",
+				'click img[name="delete-message"]' : "delete",
+				'click a[name="messages"]' : "showFront",
 			},
 
 			initialize: function() {
@@ -33,6 +34,10 @@ define( function (require) {
 				this.$el.html( messagesTemplate({}) )
 				return this
 			}, 
+
+			showFront: function() {
+				this.show(1, 0)
+			},
 
 			showPage: function(e){
 				e.preventDefault();

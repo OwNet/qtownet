@@ -12,7 +12,9 @@
 		span #{user.phone}
 .row
 	.span12.center
-		span #{user.birth_day}.#{user.birth_month}.#{user.birth_year}
+		//- - var bdayfull = user.birth_day
+		//- - var bday = bdayfull.split("-")
+		//- span #{bday[2]}.#{bday[1]}.#{bday[0]}
 .row
 	.span12.center
 		span #{user.gender}
