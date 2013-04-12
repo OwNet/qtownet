@@ -6,8 +6,7 @@
 class QTimer;
 class ProxyHandlerSession;
 class IProxyMockable;
-class HttpRequest;
-class HttpResponse;
+class SocketHandler;
 
 class ProxyHandler : public QObject
 {
@@ -20,7 +19,7 @@ class ProxyHandler : public QObject
 public:
     ProxyHandler(QObject *parent = NULL);
 
-    void service(HttpRequest *request, HttpResponse *response);
+    void service(SocketHandler *socketHandler);
 
 public slots:
     void proxyHandlerSessionFinished();
@@ -31,8 +30,7 @@ private slots:
     void finishHandling();
 
 private:
-    HttpRequest *m_request;
-    HttpResponse *m_response;
+    SocketHandler *m_socketHandler;
 
     ProxyHandlerSession *m_proxyHandlerSession;
     QTimer *m_timeoutTimer;

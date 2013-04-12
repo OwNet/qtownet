@@ -3,8 +3,8 @@
 #include "messagehelper.h"
 #include "proxyresponseoutputwriter.h"
 #include "proxyhandlersession.h"
-#include "httpresponse.h"
-#include "httprequest.h"
+#include "sockethandler.h"
+#include "requestreader.h"
 
 #include <QDateTime>
 #include <QTimer>
@@ -12,13 +12,13 @@
 ProxyHandler::ProxyHandler(QObject *parent)
     : QObject(parent),
       m_proxyHandlerSession(NULL),
-      m_timeoutTimer(NULL)
+      m_timeoutTimer(NULL),
+      m_socketHandler(NULL)
 {
 }
 
-void ProxyHandler::service(HttpRequest *request, HttpResponse *response) {
-    m_request = request;
-    m_response = response;
+void ProxyHandler::service(SocketHandler *socketHandler) {
+    m_socketHandler = socketHandler;
 
     m_proxyHandlerSession = new ProxyHandlerSession(this);
     connect(m_proxyHandlerSession, SIGNAL(allFinished()), this, SLOT(proxyHandlerSessionFinished()));
@@ -26,7 +26,7 @@ void ProxyHandler::service(HttpRequest *request, HttpResponse *response) {
     m_timeoutTimer = new QTimer(m_proxyHandlerSession);
     connect(m_timeoutTimer, SIGNAL(timeout()), this, SLOT(requestTimeout()));
 
-    ProxyResponseOutputWriter *responseOutputWriter = new ProxyResponseOutputWriter(m_request, m_response, m_proxyHandlerSession);
+    ProxyResponseOutputWriter *responseOutputWriter = new ProxyResponseOutputWriter(socketHandler, m_proxyHandlerSession);
     connect(responseOutputWriter, SIGNAL(iAmActive()), this, SLOT(restartTimeout()));
 
     responseOutputWriter->startDownload();
@@ -38,7 +38,7 @@ void ProxyHandler::service(HttpRequest *request, HttpResponse *response) {
  */
 void ProxyHandler::requestTimeout()
 {
-    MessageHelper::debug(QString("ProxyHandler timeout - %1").arg(m_request->getAbsoluteUrl()));
+    MessageHelper::debug(QString("ProxyHandler timeout - %1").arg(m_socketHandler->requestReader()->url()));
     m_timeoutTimer->stop();
 
     if (m_proxyHandlerSession)
@@ -80,6 +80,6 @@ void ProxyHandler::proxyHandlerSessionFinished()
         m_proxyHandlerSession->deleteLater();
         m_proxyHandlerSession = NULL;
 
-        m_response->write(QByteArray(), true);
+        m_socketHandler->proxyHandlerFinished();
     }
 }

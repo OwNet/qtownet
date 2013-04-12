@@ -132,7 +132,7 @@ void HttpConnectionHandler::read() {
         connect(m_currentResponse, SIGNAL(finished()), this, SLOT(disconnected()), Qt::QueuedConnection);
         try {
             m_proxyHandler = new ProxyHandler(this);
-            m_proxyHandler->service(m_currentRequest, m_currentResponse);
+            //m_proxyHandler->service(m_currentRequest, m_currentResponse);
         }
         catch (...) {
             qCritical("HttpConnectionHandler (%p): An uncaught exception occured in the request handler",this);

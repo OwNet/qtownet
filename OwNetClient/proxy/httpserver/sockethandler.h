@@ -19,6 +19,14 @@ public:
     void readingAborted();
     void finishedReadingRequest();
 
+    void write(const QByteArray &data);
+    void writeStatusCodeAndDescription(int statusCode, const QByteArray &description);
+    void writeHeaders(const QVariantMap &headers);
+
+    void proxyHandlerFinished();
+
+    RequestReader *requestReader() const { return m_requestReader; }
+
 public slots:
     void start();
 

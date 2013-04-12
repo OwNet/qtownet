@@ -60,10 +60,6 @@ void ProxyCacheOutputWriter::read(QIODevice *ioDevice)
     if (m_firstRead) {
         m_firstRead = false;
         m_url = m_request->url();
-        m_requestHeaders = VariantMap(m_request->requestHeaders()).toJsonString();
-        m_responseHeaders = m_proxyDownload->inputObject()->responseHeaders().toJsonString();
-        m_statusCode = m_proxyDownload->inputObject()->httpStatusCode().toInt();
-        m_statusDescription = m_proxyDownload->inputObject()->httpStatusDescription();
     }
 
     if (m_partSizeWritten > MaxFileSize)
@@ -106,11 +102,7 @@ void ProxyCacheOutputWriter::save()
         query.singleWhere("id", m_hashCode);
         query.setColumnValue("id", m_hashCode);
         query.setColumnValue("absolute_uri", m_url);
-        query.setColumnValue("request_headers", m_requestHeaders);
-        query.setColumnValue("response_headers", m_responseHeaders);
         query.setColumnValue("num_parts", m_numFileParts);
-        query.setColumnValue("status_code", m_statusCode);
-        query.setColumnValue("status_description", m_statusDescription);
         query.setColumnValue("size", m_sizeWritten);
         query.setColumnValue("access_value", ProxyDownloads::instance()->gdsfClock()->getGDSFPriority(accessCount, m_sizeWritten));
         query.executeQuery();

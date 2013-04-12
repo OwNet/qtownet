@@ -27,8 +27,13 @@ public:
     RequestStatus readFromSocket(QTcpSocket *socket);
 
     QString url() const { return m_url; }
+    QString peerAddress() const { return m_peerAddress; }
+    int peerPort() const { return m_peerPort; }
     RequestStatus status() const { return m_status; }
+    QMultiMap<QByteArray,QByteArray> headerMap() { return m_headers; }
+    QByteArray method() const { return m_method; }
 
+    QByteArray requestBody() const { return m_bodyData; }
     QByteArray wholeRequestBody() const { return m_wholeRequestBody; }
     QByteArray getHeader(const QByteArray& name) const;
 

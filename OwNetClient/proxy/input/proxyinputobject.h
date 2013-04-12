@@ -37,6 +37,7 @@ public:
     ProxyRequest *request() const { return m_request; }
 
     virtual InputType inputType() const = 0;
+    virtual bool headersInBody() const { return false; }
 
 signals:
     void readyRead(QIODevice *ioDevice);

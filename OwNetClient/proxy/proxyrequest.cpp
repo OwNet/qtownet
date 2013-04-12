@@ -3,7 +3,7 @@
 
 #include "messagehelper.h"
 #include "jsondocument.h"
-#include "httprequest.h"
+#include "requestreader.h"
 #include "cachehelper.h"
 
 #include <QNetworkRequest>
@@ -12,21 +12,20 @@
 #include <QDebug>
 #include <QUrlQuery>
 
-ProxyRequest::ProxyRequest(HttpRequest *request, QObject *parent)
+ProxyRequest::ProxyRequest(RequestReader *requestReader, QObject *parent)
     : QObject(parent),
       m_isApiRequest(false),
-      m_requestType(UNKNOWN)
+      m_requestType(UNKNOWN),
+      m_requestReader(requestReader)
 {
-    /// Copy values from HttpRequest
-    /// If accessed directly, they would sometimes throw EXC_BAD_ACCESS error.
-    m_url = request->getAbsoluteUrl();
-    m_requestBody = request->getBody();
-    m_peerAddress = request->peerAddress();
-    m_peerPort = request->peerPort();
+    m_url = requestReader->url();
+    m_requestBody = requestReader->requestBody();
+    m_peerAddress = requestReader->peerAddress();
+    m_peerPort = requestReader->peerPort();
 
     analyzeUrl();
-    analyzeRequestHeaders(request);
-    analyzeRequestType(request);
+    analyzeRequestHeaders(requestReader);
+    analyzeRequestType(requestReader);
 }
 
 ProxyRequest::ProxyRequest(IRequest::RequestType requestType, QString url, QVariantMap requestHeaders, QObject *parent)
@@ -34,7 +33,8 @@ ProxyRequest::ProxyRequest(IRequest::RequestType requestType, QString url, QVari
       m_isApiRequest(false),
       m_requestType(requestType),
       m_url(url),
-      m_requestHeaders(requestHeaders)
+      m_requestHeaders(requestHeaders),
+      m_requestReader(NULL)
 {
     analyzeUrl();
 }
@@ -254,23 +254,20 @@ void ProxyRequest::analyzeUrl()
     }
 }
 
-void ProxyRequest::analyzeRequestHeaders(HttpRequest *request)
+void ProxyRequest::analyzeRequestHeaders(RequestReader *request)
 {
-    QMapIterator<QByteArray,QByteArray> i(request->getHeaderMap());
+    QMapIterator<QByteArray,QByteArray> i(request->headerMap());
     while (i.hasNext()) {
         i.next();
         QString key(i.key());
         QString value(i.value());
-        if (!key.toLower().contains("accept-encoding") || !value.contains("gzip"))
-            m_requestHeaders.insert(key, value);
-        else
-            m_requestHeaders.insert("Accept-encoding", "*");
+        m_requestHeaders.insert(key, value);
     }
 }
 
-void ProxyRequest::analyzeRequestType(HttpRequest *request)
+void ProxyRequest::analyzeRequestType(RequestReader *request)
 {
-    QString requestMethod = QString(request->getMethod()).toLower();
+    QString requestMethod = QString(request->method()).toLower();
     if (requestMethod == "get")
         m_requestType = GET;
     else if (requestMethod == "post")

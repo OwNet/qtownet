@@ -1,6 +1,7 @@
 #include "sockethandler.h"
 
 #include "requestreader.h"
+#include "proxyhandler.h"
 
 #include <QMutexLocker>
 
@@ -81,6 +82,10 @@ void SocketHandler::readingAborted()
 
 void SocketHandler::finishedReadingRequest()
 {
+    ProxyHandler *handler = new ProxyHandler;
+    handler->service(this);
+    return;
+
     if (m_socketOut) {
         m_socketOut->close();
     }
@@ -95,6 +100,42 @@ void SocketHandler::finishedReadingRequest()
     connect(m_socketOut, SIGNAL(error(QAbstractSocket::SocketError)), this, SLOT(outputError(QAbstractSocket::SocketError)));
 
     m_socketOut->connectToHost(getServerName(server), getPort(server));
+}
+
+void SocketHandler::write(const QByteArray &data)
+{
+    if (m_socketIn)
+        m_socketIn->write(data);
+}
+
+void SocketHandler::writeStatusCodeAndDescription(int statusCode, const QByteArray &description)
+{
+    QByteArray buffer;
+    buffer.append("HTTP/1.1 ");
+    buffer.append(QByteArray::number(statusCode));
+    buffer.append(' ');
+    buffer.append(description);
+    buffer.append("\r\n");
+    write(buffer);
+}
+
+void SocketHandler::writeHeaders(const QVariantMap &headers)
+{
+    QByteArray buffer;
+    foreach(QString name, headers.keys()) {
+        buffer.append(name);
+        buffer.append(": ");
+        buffer.append(headers.value(name).toByteArray());
+        buffer.append("\r\n");
+    }
+    buffer.append("\r\n");
+    write(buffer);
+}
+
+void SocketHandler::proxyHandlerFinished()
+{
+    m_socketIn->flush();
+    //outputDisconnected();
 }
 
 void SocketHandler::outputConnectedToServer()

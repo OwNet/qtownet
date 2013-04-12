@@ -8,7 +8,7 @@
 #include <QByteArray>
 #include <QStringList>
 
-class HttpRequest;
+class RequestReader;
 
 /**
  * @brief Represents all the information about the request received by proxy.
@@ -22,7 +22,7 @@ public:
         Port = 8081
     };
 
-    ProxyRequest(HttpRequest *request, QObject *parent = 0);
+    ProxyRequest(RequestReader *requestReader, QObject *parent = 0);
     ProxyRequest(IRequest::RequestType requestType, QString url, QVariantMap requestHeaders, QObject *parent = 0);
 
     QVariant postBodyFromJson(bool *ok = NULL) const;
@@ -57,14 +57,16 @@ public:
     QString peerAddress() const { return m_peerAddress; }
     quint16 peerPort() const { return m_peerPort; }
 
+    RequestReader *requestReader() { return m_requestReader; }
+
 protected:
     void setUrl(const QUrl &url);
 
 private:
     QString urlExtension() const;
     void analyzeUrl();
-    void analyzeRequestHeaders(HttpRequest *request);
-    void analyzeRequestType(HttpRequest *request);
+    void analyzeRequestHeaders(RequestReader *request);
+    void analyzeRequestType(RequestReader *request);
     static QMap<QString, QString> initContentTypes();
 
     bool m_isApiRequest;
@@ -79,6 +81,7 @@ private:
     IRequest::RequestType m_requestType;
     QString m_peerAddress;
     quint16 m_peerPort;
+    RequestReader *m_requestReader;
 
     friend class ProxyInitializer;
 };
