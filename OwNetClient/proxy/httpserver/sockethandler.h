@@ -3,8 +3,10 @@
 
 #include <QObject>
 #include <QTcpSocket>
+#include <QMutex>
 
 class QTcpSocket;
+class RequestReader;
 
 class SocketHandler : public QObject
 {
@@ -13,6 +15,9 @@ public:
     explicit SocketHandler(QTcpSocket *socketIn, QObject *parent = 0);
 
     bool startConnection();
+
+    void readingAborted();
+    void finishedReadingRequest();
 
 public slots:
     void start();
@@ -44,9 +49,9 @@ private:
     QTcpSocket *m_socketOut;
 
     bool m_closed;
-    bool m_isOutputConnected;
 
-    QByteArray m_requestBytes;
+    RequestReader *m_requestReader;
+    QMutex m_mutex;
 };
 
 #endif // SOCKETHANDLER_H

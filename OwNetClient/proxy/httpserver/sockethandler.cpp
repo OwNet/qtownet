@@ -1,14 +1,15 @@
 #include "sockethandler.h"
 
-#include <QMutex>
+#include "requestreader.h"
+
 #include <QMutexLocker>
 
 SocketHandler::SocketHandler(QTcpSocket * socketIn, QObject *parent) :
     QObject(parent),
     m_socketIn(socketIn),
     m_socketOut(NULL),
-    m_isOutputConnected(false),
-    m_closed(false)
+    m_closed(false),
+    m_requestReader(NULL)
 {
     qDebug() << "New socket";
 }
@@ -37,10 +38,6 @@ void SocketHandler::start()
 void SocketHandler::inputDisconnected()
 {
     qDebug() << "Input disconnected";
-    if (m_socketOut && m_socketOut->isValid()) {
-        m_socketOut->disconnect();
-        m_socketOut->disconnectFromHost();
-    }
     closeInput();
 }
 
@@ -48,38 +45,25 @@ void SocketHandler::inputReadyRead()
 {
     qDebug() << "Input ready read";
 
-    static QMutex lock;
-    QMutexLocker locker(&lock);
-
-    QByteArray bytes = m_socketIn->readAll();
-    m_requestBytes.append(bytes);
-    int i = bytes.indexOf(" ");
-    if (i < 5)
-        m_isOutputConnected = false;
-
-    if (!m_isOutputConnected) {
-        m_isOutputConnected = true;
-        if (i < 0)
-            return;
-
-        qDebug() << bytes.mid(0, i);
-        int n = bytes.indexOf(" ", i + 1) - (i + 1);
-        QString url = QString(bytes.mid(i + 1, n));
-        QString server = extractServer(url);
-        qDebug() << server;
-
+    if (!m_requestReader) {
+        m_requestReader = new RequestReader(this, this);
+    } else if (m_requestReader->status() == RequestReader::Complete) {
         if (m_socketOut) {
             m_socketOut->close();
+            m_socketOut = NULL;
         }
+        m_requestReader = new RequestReader(this, this);
+    }
 
-        m_socketOut = new QTcpSocket(this);
+    auto status = m_requestReader->readFromSocket(m_socketIn);
 
-        connect(m_socketOut, SIGNAL(connected()), this, SLOT(outputConnectedToServer()));
-        connect(m_socketOut, SIGNAL(readyRead()), this, SLOT(outputReadyRead()));
-        connect(m_socketOut, SIGNAL(disconnected()), this, SLOT(outputDisconnected()));
-        connect(m_socketOut, SIGNAL(error(QAbstractSocket::SocketError)), this, SLOT(outputError(QAbstractSocket::SocketError)));
-
-        m_socketOut->connectToHost(getServerName(server), getPort(server));
+    switch (status) {
+    case RequestReader::Complete:
+        finishedReadingRequest();
+        break;
+    case RequestReader::Abort:
+        readingAborted();
+        break;
     }
 }
 
@@ -89,10 +73,34 @@ void SocketHandler::inputError(QAbstractSocket::SocketError error)
     closeInput();
 }
 
+void SocketHandler::readingAborted()
+{
+    qDebug() << "Reading aborted";
+    closeInput();
+}
+
+void SocketHandler::finishedReadingRequest()
+{
+    if (m_socketOut) {
+        m_socketOut->close();
+    }
+
+    QString server = extractServer(m_requestReader->url());
+
+    m_socketOut = new QTcpSocket(this);
+
+    connect(m_socketOut, SIGNAL(connected()), this, SLOT(outputConnectedToServer()));
+    connect(m_socketOut, SIGNAL(readyRead()), this, SLOT(outputReadyRead()));
+    connect(m_socketOut, SIGNAL(disconnected()), this, SLOT(outputDisconnected()));
+    connect(m_socketOut, SIGNAL(error(QAbstractSocket::SocketError)), this, SLOT(outputError(QAbstractSocket::SocketError)));
+
+    m_socketOut->connectToHost(getServerName(server), getPort(server));
+}
+
 void SocketHandler::outputConnectedToServer()
 {
     qDebug() << "Output connected";
-    m_socketOut->write(m_requestBytes);
+    m_socketOut->write(m_requestReader->wholeRequestBody());
 }
 
 void SocketHandler::outputReadyRead()
@@ -106,13 +114,13 @@ void SocketHandler::outputReadyRead()
 void SocketHandler::outputDisconnected()
 {
     qDebug() << "Output disconnected";
-    closeInput();
+    closeOutput();
 }
 
 void SocketHandler::outputError(QAbstractSocket::SocketError error)
 {
     qDebug() << "Output error: " << error;
-    closeInput();
+    closeOutput();
 }
 
 QString SocketHandler::extractServer(const QString &fullUrl) const
@@ -150,6 +158,7 @@ void SocketHandler::closeInput()
 {
     if (m_closed)
         return;
+
     m_closed = true;
 
     if (m_socketIn->isOpen()) {
@@ -157,19 +166,20 @@ void SocketHandler::closeInput()
     }
     m_socketIn->disconnect();
     m_socketIn->disconnectFromHost();
-
-    if (m_socketOut && m_socketOut->isOpen()) {
-        m_socketOut->close();
-    }
+    m_socketIn->close();
 
     closeOutput();
-    m_isOutputConnected = false;
 
     emit finished();
 }
 
 void SocketHandler::closeOutput()
 {
-    if (m_socketOut)
+    if (m_socketOut) {
+        if (m_socketOut->isOpen()) {
+            m_socketOut->disconnect(this);
+            m_socketOut->close();
+        }
         m_socketOut = NULL;
+    }
 }
