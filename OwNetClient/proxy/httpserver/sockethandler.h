@@ -45,6 +45,8 @@ private:
 
     bool m_closed;
     bool m_isOutputConnected;
+
+    QByteArray m_requestBytes;
 };
 
 #endif // SOCKETHANDLER_H

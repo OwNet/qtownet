@@ -26,7 +26,7 @@ void HttpServer::newConnection()
         SocketHandler *handler = new SocketHandler(socket);
         handler->moveToThread(thread);
         connect(thread, SIGNAL(started()), handler, SLOT(start()), Qt::QueuedConnection);
-        connect(handler, SIGNAL(finished()), thread, SLOT(terminate()), Qt::QueuedConnection);
+        connect(handler, SIGNAL(finished()), thread, SLOT(quit()));
         connect(handler, SIGNAL(finished()), handler, SLOT(deleteLater()));
         connect(thread, SIGNAL(finished()), thread, SLOT(deleteLater()));
         thread->start();

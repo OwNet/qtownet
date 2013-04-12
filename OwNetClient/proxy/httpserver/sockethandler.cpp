@@ -52,6 +52,7 @@ void SocketHandler::inputReadyRead()
     QMutexLocker locker(&lock);
 
     QByteArray bytes = m_socketIn->readAll();
+    m_requestBytes.append(bytes);
     int i = bytes.indexOf(" ");
     if (i < 5)
         m_isOutputConnected = false;
@@ -79,23 +80,19 @@ void SocketHandler::inputReadyRead()
         connect(m_socketOut, SIGNAL(error(QAbstractSocket::SocketError)), this, SLOT(outputError(QAbstractSocket::SocketError)));
 
         m_socketOut->connectToHost(getServerName(server), getPort(server));
-        m_socketOut->waitForConnected();
     }
-
-    if (m_socketOut && m_socketOut->isOpen())
-        m_socketOut->write(bytes);
-    else
-        closeInput();
 }
 
 void SocketHandler::inputError(QAbstractSocket::SocketError error)
 {
+    qDebug() << "Input error: " << error;
     closeInput();
 }
 
 void SocketHandler::outputConnectedToServer()
 {
     qDebug() << "Output connected";
+    m_socketOut->write(m_requestBytes);
 }
 
 void SocketHandler::outputReadyRead()
@@ -109,15 +106,13 @@ void SocketHandler::outputReadyRead()
 void SocketHandler::outputDisconnected()
 {
     qDebug() << "Output disconnected";
-    m_socketIn->flush();
-    closeOutput();
+    closeInput();
 }
 
 void SocketHandler::outputError(QAbstractSocket::SocketError error)
 {
     qDebug() << "Output error: " << error;
-    m_socketIn->abort();
-    closeOutput();
+    closeInput();
 }
 
 QString SocketHandler::extractServer(const QString &fullUrl) const
