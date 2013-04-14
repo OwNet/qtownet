@@ -32,6 +32,7 @@ PrefetchingService::PrefetchingService(IProxyConnection *proxyConnection, QObjec
 
 void PrefetchingService::init(IRouter *router)
 {
+    router->addRoute("/show/")->on(IRequest::GET, ROUTE(index));
     router->addRoute("/create/")
             ->on(IRequest::GET, ROUTE(create) );
     router->addRoute("/close/")
@@ -42,7 +43,6 @@ void PrefetchingService::init(IRouter *router)
             ->on(IRequest::GET, ROUTE(load));
     router->addRoute("/list/")->on(IRequest::GET, ROUTE(list));
 }
-
 
 void PrefetchingService::registerPredictionsQuery(uint from, QStringList &urls)
 {
@@ -172,6 +172,40 @@ bool PrefetchingService::disablePredictionQuery(uint hash)
     query->singleWhere("page_id_from", hash);
     query->setType(IDatabaseUpdateQuery::Delete);
     return query->executeQuery();
+}
+
+IResponse *PrefetchingService::index(IRequest *req) {
+    QObject parent;
+    int page = 1;
+    bool ok = false;
+    if (req->hasParameter("page")) {
+        page = req->parameterValue("page").toInt(&ok);
+        if (ok == false) {
+            page = 1;
+        }
+    }
+
+    IDatabaseSelectQuery *query = m_proxyConnection->databaseSelect("prefetch_orders", &parent);
+    query->select("absolute_uri");
+    query->select("completed");
+    query->select("date_updated");
+    query->offset((page - 1) * PER_PAGE);
+    query->limit(PER_PAGE);
+    query->orderBy("priority", IDatabaseSelectQuery::Descending);
+
+    QVariantList orders;
+
+
+    while (query->next()) {
+        QVariantMap order;
+        order.insert("absolute_uri", query->value("absolute_uri"));
+        order.insert("completed", query->value("completed"));
+        order.insert("date", query->value("date_updated"));
+
+        orders.append(order);
+    }
+
+    return req->response(QVariant(orders), IResponse::OK);
 }
 
 IResponse *PrefetchingService::create(IRequest *req)
