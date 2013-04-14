@@ -2,14 +2,16 @@
 
 #include "webpinger.h"
 
-WebPingerJob::WebPingerJob(IProxyConnection *proxyConnection, QObject *parent) :
-    QObject(parent),
-    m_proxyConnection(proxyConnection)
+WebPingerJob::WebPingerJob() :
+    m_proxyConnection(NULL),
+    m_pinger(NULL)
 {
-    m_pinger = new WebPinger(proxyConnection, this);
 }
 
 void WebPingerJob::execute()
 {
+    if (!m_pinger)
+        m_pinger = new WebPinger(m_proxyConnection, this);
+
     m_pinger->ping();
 }

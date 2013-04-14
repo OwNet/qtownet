@@ -8,10 +8,9 @@
 
 #include <QSettings>
 
-PingJob::PingJob(PingServer *server, IProxyConnection *proxyConnection, QObject *parent) :
-    QObject(parent),
-    m_proxyConnection(proxyConnection),
-    m_pingServer(server)
+PingJob::PingJob() :
+    m_proxyConnection(NULL),
+    m_pingServer(NULL)
 {
 }
 
@@ -32,7 +31,7 @@ void PingJob::execute()
     }
 
     IRequest *request = m_proxyConnection->createRequest(IRequest::POST, serviceName, "ping/available_clients", this);
-    QVariantMap message = m_pingServer->multicastProtocol()->currentNode()->message();
+    QVariantMap message = MulticastProtocol(m_proxyConnection).currentNode()->message();
     message.insert("called_ip", m_proxyConnection->settings(&parent)->value("custom_server_ip").toString());
     request->setPostBody(message);
     IResponse *response = m_proxyConnection->callModule(request);
@@ -40,4 +39,10 @@ void PingJob::execute()
         m_pingServer->updateAvailableClients(response->body().toList());
 
     m_pingMutex.unlock();
+}
+
+void PingJob::setProxyConnection(IProxyConnection *proxyConnection)
+{
+    m_proxyConnection = proxyConnection;
+    m_pingServer = new PingServer(m_proxyConnection, this);
 }

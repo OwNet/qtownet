@@ -12,6 +12,8 @@ public:
 
     InputType inputType() const { return Cache; }
 
+    bool headersInBody() const { return true; }
+
 protected:
     void readRequest();
 

@@ -28,12 +28,10 @@ void MulticastModule::init(IProxyConnection *proxyConnection)
     m_multicastServer = new MulticastServer(proxyConnection, m_multicastProtocol, this);
     m_multicastServer->start(groupAddress, port);
 
-    PingServer *pingServer = new PingServer(m_multicastProtocol, m_proxyConnection, this);
-
-    proxyConnection->registerJob(new MulticastJob(groupAddress, port, m_multicastProtocol, m_proxyConnection, this));
-    proxyConnection->registerJob(new UpdateJob(m_multicastProtocol, this));
-    proxyConnection->registerJob(new PingJob(pingServer, m_proxyConnection, this));
+    proxyConnection->registerJob(new MulticastJob(groupAddress, port));
+    proxyConnection->registerJob(new UpdateJob);
+    proxyConnection->registerJob(new PingJob);
 
     m_proxyConnection->registerService(new MulticastService(m_proxyConnection, m_multicastProtocol, this));
-    m_proxyConnection->registerService(new PingService(pingServer, this));
+    m_proxyConnection->registerService(new PingService(m_proxyConnection, this));
 }

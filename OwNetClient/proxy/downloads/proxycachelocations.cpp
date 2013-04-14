@@ -63,6 +63,11 @@ void ProxyCacheLocations::removeLocation(const QString &clientId)
     }
 }
 
+bool ProxyCacheLocations::containsLocation(const QString &clientId) const
+{
+    return m_locations.contains(clientId);
+}
+
 QList<ProxyCacheLocation *> ProxyCacheLocations::sortedLocations() const
 {
     QList<ProxyCacheLocation *> results;

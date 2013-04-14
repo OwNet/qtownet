@@ -11,6 +11,8 @@ public:
     ModuleJob(IJobAction *jobAction, QObject *parent = 0);
 
     void execute();
+    void start();
+    bool createSeparateThread() const;
 
 private:
     IJobAction *m_jobAction;

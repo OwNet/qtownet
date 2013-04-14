@@ -7,13 +7,18 @@
 #include <QDebug>
 #include <QSettings>
 #include <QDateTime>
+#include <QMutex>
 #include <QMutexLocker>
 #include <QProcessEnvironment>
 
 const int MulticastProtocol::expirationTimeInSeconds = 15;
+MulticastProtocolNode *MulticastProtocol::m_currentNode = NULL;
+QList<MulticastProtocolNode *> *MulticastProtocol::m_nodes = new QList<MulticastProtocolNode *>;
+QMutex *MulticastProtocol::m_nodesMutex = new QMutex;
 
 MulticastProtocol::MulticastProtocol(IProxyConnection *connection, QObject *parent)
-    : m_proxyConnection(connection), QObject(parent)
+    : QObject(parent),
+      m_proxyConnection(connection)
 {
     QObject parentObject;
     QSettings *settings = m_proxyConnection->settings(&parentObject);
@@ -24,7 +29,7 @@ MulticastProtocol::MulticastProtocol(IProxyConnection *connection, QObject *pare
     // add self as first instance
     m_currentNode = new MulticastProtocolNode(myId, m_proxyConnection);
     m_currentNode->update(1, INITIALIZING, port, "127.0.0.1", 0);
-    m_nodes.append(m_currentNode);
+    m_nodes->append(m_currentNode);
 }
 
 MulticastProtocolNode *MulticastProtocol::currentNode() const
@@ -34,22 +39,22 @@ MulticastProtocolNode *MulticastProtocol::currentNode() const
 
 MulticastProtocolNode *MulticastProtocol::serverNode() const
 {
-    if (m_nodes.count() <= 1)
+    if (m_nodes->count() <= 1)
         return NULL; // no other proxies
     else
     {
-        if (m_nodes.first() == m_currentNode)
+        if (m_nodes->first() == m_currentNode)
             return NULL; // this is server
-        else if (m_nodes.first()->initialized() == 0)
+        else if (m_nodes->first()->initialized() == 0)
             return NULL; // future server initializing
         else
-            return m_nodes.first(); // best is the server
+            return m_nodes->first(); // best is the server
     }
 }
 
 void MulticastProtocol::initialized()
 {
-    QMutexLocker locker(&m_nodesMutex);
+    QMutexLocker locker(m_nodesMutex);
 
     m_currentNode->setInitialized();
 }
@@ -59,7 +64,7 @@ void MulticastProtocol::processMessage(const QVariantMap &message)
     if (message.value("address").toString().isEmpty())
         return;
 
-    QMutexLocker locker(&m_nodesMutex);
+    QMutexLocker locker(m_nodesMutex);
 
     QObject parent;
     QSettings *settings = m_proxyConnection->settings(&parent);
@@ -84,11 +89,11 @@ void MulticastProtocol::processMessage(const QVariantMap &message)
             status = SERVER;
 
         // find proxy by id
-        for (int i = 0; i < m_nodes.size(); ++i)
+        for (int i = 0; i < m_nodes->size(); ++i)
         {
-            if (m_nodes.at(i)->id() == id)
+            if (m_nodes->at(i)->id() == id)
             {
-                node = m_nodes.at(i);
+                node = m_nodes->at(i);
                 break;
             }
         }
@@ -97,7 +102,7 @@ void MulticastProtocol::processMessage(const QVariantMap &message)
         if (! node)
         {
             node = new MulticastProtocolNode(id, m_proxyConnection);
-            m_nodes.append(node);
+            m_nodes->append(node);
         }
 
         // update info
@@ -114,7 +119,7 @@ void MulticastProtocol::processMessage(const QVariantMap &message)
     }
 }
 
-QList<MulticastProtocolNode *> &MulticastProtocol::nodes()
+QList<MulticastProtocolNode *> *MulticastProtocol::nodes()
 {
     return m_nodes;
 }
@@ -124,10 +129,10 @@ void MulticastProtocol::update()
 {
     QObject parent;
     ISession *session = m_proxyConnection->session(&parent);
-    QMutexLocker locker(&m_nodesMutex);
+    QMutexLocker locker(m_nodesMutex);
 
     // clean expired nodes
-    QMutableListIterator<MulticastProtocolNode *> i(m_nodes);
+    QMutableListIterator<MulticastProtocolNode *> i(*m_nodes);
 
     while (i.hasNext())
     {
@@ -138,7 +143,7 @@ void MulticastProtocol::update()
     }
 
     // sort proxies by score
-    qSort(m_nodes.begin(), m_nodes.end(), MulticastProtocolNode::lessThan);
+    qSort(m_nodes->begin(), m_nodes->end(), MulticastProtocolNode::lessThan);
 
     // set current node status
     m_currentNode->setStatus(currentNodesStatus());
@@ -151,9 +156,9 @@ void MulticastProtocol::update()
 
     // save nodes to session
     QVariantMap availableClients;
-    for (int i = 0; i < m_nodes.size(); i++) {
-        availableClients.insert(m_nodes.at(i)->id(),
-                                QString("%1:%2").arg(m_nodes.at(i)->address()).arg(m_nodes.at(i)->port()));
+    for (int i = 0; i < m_nodes->size(); i++) {
+        availableClients.insert(m_nodes->at(i)->id(),
+                                QString("%1:%2").arg(m_nodes->at(i)->address()).arg(m_nodes->at(i)->port()));
     }
     session->setValue("available_clients", availableClients);
 }
@@ -164,11 +169,11 @@ MulticastProtocol::Status MulticastProtocol::currentNodesStatus() const
         return INITIALIZING; // not initialized yet
 
     // find first after INITIALIZING
-    for (int i = 0; i < m_nodes.size(); ++i)
+    for (int i = 0; i < m_nodes->size(); ++i)
     {
-        if (m_nodes.at(i)->initialized() != 0)
+        if (m_nodes->at(i)->initialized() != 0)
         {
-            if (m_nodes.at(i)->id() == m_currentNode->id())
+            if (m_nodes->at(i)->id() == m_currentNode->id())
                 return SERVER; // top score or still server
             else
                 return CLIENT;

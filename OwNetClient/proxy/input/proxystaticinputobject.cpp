@@ -20,7 +20,6 @@ void ProxyStaticInputObject::readRequest()
 {
     ApplicationDataStorage appDataStorage;
     QDir dir = appDataStorage.appResourcesDirectory();
-    QString dirPath = dir.absolutePath();
     QString filePath = m_request->staticResourcePath();
     QString path = dir.absoluteFilePath(filePath);
     QFileInfo fi(path);

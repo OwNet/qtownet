@@ -7,5 +7,9 @@ Job::Job(int interval, QObject *parent) :
 {
     m_timer = new QTimer(this);
     connect(m_timer, SIGNAL(timeout()), this, SLOT(execute()));
+}
+
+void Job::start()
+{
     m_timer->start(m_interval);
 }

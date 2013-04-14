@@ -4,17 +4,14 @@
 #include "iproxyconnection.h"
 
 #include <QUdpSocket>
+#include <QThread>
 
-MulticastJob::MulticastJob(QHostAddress *groupAddress, int port,  MulticastProtocol *protocol,
-                           IProxyConnection *proxyConnection, QObject *parent)
+MulticastJob::MulticastJob(QHostAddress *groupAddress, int port)
     : m_groupAddress(groupAddress),
-      m_protocol(protocol),
+      m_protocol(NULL),
       m_port(port),
-      m_proxyConnection(proxyConnection),
-      QObject(parent)
+      m_proxyConnection(NULL)
 {
-    // this should be done after first synchronisation
-    m_protocol->initialized();
 }
 
 void MulticastJob::execute()
@@ -24,4 +21,14 @@ void MulticastJob::execute()
     QUdpSocket *udpSocket = new QUdpSocket(this);
     QByteArray datagram = m_proxyConnection->toJson(m_protocol->message());
     udpSocket->writeDatagram(datagram.data(), datagram.size(), *m_groupAddress, m_port);
+}
+
+void MulticastJob::setProxyConnection(IProxyConnection *proxyConnection)
+{
+    moveToThread(QThread::currentThread());
+
+    m_proxyConnection = proxyConnection;
+    m_protocol = new MulticastProtocol(m_proxyConnection, this);
+    // this should be done after first synchronisation
+    m_protocol->initialized();
 }

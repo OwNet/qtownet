@@ -15,11 +15,10 @@
 #include "messagehelper.h"
 #include "uniqueidhelper.h"
 #include "cachehelper.h"
+#include "jobinitializer.h"
 
 #include "proxydownloads.h"
 #include "proxytrafficcounter.h"
-
-#include <QMessageBox>
 
 ProxyConnection::ProxyConnection(QObject *parent) :
     QObject(parent)
@@ -95,7 +94,9 @@ void ProxyConnection::registerUidRestService(IUidRestService *service)
 
 void ProxyConnection::registerJob(IJobAction* job)
 {
-    new ModuleJob(job, this);
+    QThread *thread = JobInitializer::startJob(new ModuleJob(job));
+    if (thread)
+        job->moveToThread(thread);
 }
 
 /**
@@ -127,15 +128,15 @@ void ProxyConnection::message(const QVariant &message, const QString &title, Mes
         break;
 
     case InformationPopup:
-        QMessageBox::information(NULL, title, message.toString());
+        MessageHelper::information(title, message.toString());
         break;
 
     case WarningPopup:
-        QMessageBox::warning(NULL, title, message.toString());
+        MessageHelper::warning(title, message.toString());
         break;
 
     case CriticalPopup:
-        QMessageBox::critical(NULL, title, message.toString());
+        MessageHelper::error(title, message.toString());
         break;
     }
 }

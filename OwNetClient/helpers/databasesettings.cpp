@@ -11,6 +11,8 @@
 
 QMap<QString, QString> *DatabaseSettings::m_cachedSettings = new QMap<QString, QString>();
 int DatabaseSettings::m_numClientIdsGenerated = 0;
+int DatabaseSettings::m_clientSyncRecordNumber = -1;
+int DatabaseSettings::m_lastSavedClientSyncRecordNumber = -1;
 
 DatabaseSettings::DatabaseSettings(QObject *parent) :
     QObject(parent)
@@ -72,16 +74,36 @@ void DatabaseSettings::createClientId() const
 
 int DatabaseSettings::nextClientSyncRecordNumber()
 {
-    static QMutex syncRecordNumberMutex;
-    QMutexLocker locker(&syncRecordNumberMutex);
+    return clientSyncRecordNumber(true);
+}
 
-    int clientRecordNumber = value("client_sync_record_number", "0").toInt();
-    setValue("client_sync_record_number", QString::number(clientRecordNumber + 1));
-
-    return clientRecordNumber;
+void DatabaseSettings::saveLastClientSyncRecordNumber()
+{
+    int num = clientSyncRecordNumber(false);
+    if (m_lastSavedClientSyncRecordNumber != num) {
+        setValue("client_sync_record_number", QString::number(num));
+        m_lastSavedClientSyncRecordNumber = num;
+    }
 }
 
 void DatabaseSettings::clearCache() const
 {
     DatabaseSettings::m_cachedSettings->clear();
+}
+
+int DatabaseSettings::clientSyncRecordNumber(bool increase)
+{
+    static QMutex syncRecordNumberMutex;
+    QMutexLocker locker(&syncRecordNumberMutex);
+
+    if (m_clientSyncRecordNumber < 0) {
+        m_clientSyncRecordNumber = value("client_sync_record_number", "0").toInt();
+        m_lastSavedClientSyncRecordNumber = m_clientSyncRecordNumber;
+    }
+
+    int num = m_clientSyncRecordNumber;
+    if (increase)
+        m_clientSyncRecordNumber++;
+
+    return num;
 }

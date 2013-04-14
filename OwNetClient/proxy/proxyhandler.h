@@ -6,38 +6,31 @@
 class QTimer;
 class ProxyHandlerSession;
 class IProxyMockable;
-class HttpRequest;
-class HttpResponse;
+class SocketHandler;
 
 class ProxyHandler : public QObject
 {
     Q_OBJECT
 
     enum {
-        Timeout = 30000 // 0.5 min
+        Timeout = 15000 // 0.25 min
     };
 
 public:
     ProxyHandler(QObject *parent = NULL);
 
-    void setRequestAndResponseAndStart(HttpRequest *request, HttpResponse *response);
-
-signals:
-    void start(); ///< Signal to start the download in the ProxyHandler thread
-    void disposeThread(); ///< Signal to dispose the ProxyHandler thread
+    void service(SocketHandler *socketHandler);
 
 public slots:
     void proxyHandlerSessionFinished();
 
 private slots:
-    void handleRequest();
     void requestTimeout();
     void restartTimeout();
     void finishHandling();
 
 private:
-    HttpRequest *m_request;
-    HttpResponse *m_response;
+    SocketHandler *m_socketHandler;
 
     ProxyHandlerSession *m_proxyHandlerSession;
     QTimer *m_timeoutTimer;

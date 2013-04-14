@@ -3,8 +3,7 @@
 
 class QTcpSocket;
 class QSemaphore;
-class HttpRequest;
-class HttpResponse;
+class SocketHandler;
 
 #include "proxyoutputwriter.h"
 
@@ -18,7 +17,7 @@ class ProxyResponseOutputWriter : public ProxyOutputWriter
     Q_OBJECT
 
 public:
-    ProxyResponseOutputWriter(HttpRequest *request, HttpResponse *response, ProxyHandlerSession *proxyHandler);
+    ProxyResponseOutputWriter(SocketHandler *socketHandler, ProxyHandlerSession *proxyHandler);
 
     enum {
         BufferSize = 8192
@@ -34,8 +33,7 @@ protected:
     void error() {}
 
 private:
-    HttpRequest *m_request;
-    HttpResponse *m_response;
+    SocketHandler *m_socketHandler;
     uint m_requestHashCode;
     bool m_hasWrittenResponseHeaders;
     bool m_foundBody;

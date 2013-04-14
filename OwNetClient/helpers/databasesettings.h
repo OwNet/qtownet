@@ -22,10 +22,16 @@ public:
     void createClientId() const;
 
     int nextClientSyncRecordNumber();
+    void saveLastClientSyncRecordNumber();
 
     void clearCache() const;
 
 private:
+    int clientSyncRecordNumber(bool increase);
+
+    static int m_clientSyncRecordNumber;
+    static int m_lastSavedClientSyncRecordNumber;
+
     static QMap<QString, QString> *m_cachedSettings;
     static int m_numClientIdsGenerated;
 };

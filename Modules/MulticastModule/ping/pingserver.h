@@ -11,13 +11,11 @@ class PingServer : public QObject
 {
     Q_OBJECT
 public:
-    explicit PingServer(MulticastProtocol *multicastProtocol, IProxyConnection *proxyConnection, QObject *parent = 0);
+    explicit PingServer(IProxyConnection *proxyConnection, QObject *parent = 0);
 
     void updateAvailableClients(const QVariantList &clients);
     void updateClient(const QVariantMap &client);
     QVariantList availableClients(const QString &myIp) const;
-
-    MulticastProtocol *multicastProtocol() { return m_multicastProtocol; }
 
 private:
     MulticastProtocol *m_multicastProtocol;

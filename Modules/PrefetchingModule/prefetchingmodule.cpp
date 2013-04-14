@@ -8,5 +8,5 @@ void PrefetchingModule::init(IProxyConnection *proxyConnection)
 {
 
     proxyConnection->registerService( new PrefetchingService(proxyConnection,this) );
-    proxyConnection->registerJob(new PrefetchingJob(proxyConnection, this));
+    proxyConnection->registerJob(new PrefetchingJob);
 }

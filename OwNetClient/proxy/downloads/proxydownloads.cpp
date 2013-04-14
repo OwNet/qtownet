@@ -137,6 +137,14 @@ void ProxyDownloads::tableUpdated(IDatabaseUpdateQuery *query)
     }
 }
 
+bool ProxyDownloads::containsCacheLocation(uint cacheId, const QString &clientId) const
+{
+    if (!m_cacheLocations.contains(cacheId))
+        return false;
+
+    return m_cacheLocations.value(cacheId)->containsLocation(clientId);
+}
+
 ProxyDownloads::ProxyDownloads()
     : m_proxyPort(-1)
 {
