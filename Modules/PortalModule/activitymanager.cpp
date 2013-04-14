@@ -20,7 +20,16 @@ bool ActivityManager::createActivity(Activity &ac)
 
     QObject parent;
     ISession* sess = m_proxyConnection->session(&parent);
-    ac.user_name = sess->value("logged").toString();
+
+    QSqlQuery queryName;
+    queryName.prepare("SELECT * FROM users WHERE id = :id");
+    queryName.bindValue(":id",ac.user_id);
+
+    if(!queryName.exec())
+        return false;
+
+    queryName.first();
+    ac.user_name =  queryName.value(queryName.record().indexOf("first_name")).toString() + QString(" ") +  queryName.value(queryName.record().indexOf("last_name")).toString();
 
     QObject parentObject;
     IDatabaseUpdateQuery *query = m_proxyConnection->databaseUpdateQuery("activities", &parentObject);
@@ -100,11 +109,11 @@ QVariantList ActivityManager::getActivities(bool *ok, QVariantMap &error, IReque
 
         while (query.next()) {
             QVariantMap activity;
-            activity.insert("id", query.value(query.record().indexOf("id")));
-            activity.insert("user_name", query.value(query.record().indexOf("user_name")));
-            activity.insert("content", query.value(query.record().indexOf("content")));
-            activity.insert("type", query.value(query.record().indexOf("type")));
-            activity.insert("date_created", query.value(query.record().indexOf("date_created")));
+            activity.insert("id", query.value(query.record().indexOf("id")).toString());
+            activity.insert("user_name", query.value(query.record().indexOf("user_name")).toString());
+            activity.insert("content", query.value(query.record().indexOf("content")).toString());
+            activity.insert("type", query.value(query.record().indexOf("type")).toString());
+            activity.insert("date_created", query.value(query.record().indexOf("date_created")).toString());
 
             activities.append(activity);
         }
@@ -126,11 +135,11 @@ QVariantList ActivityManager::getActivities(bool *ok, QVariantMap &error, IReque
 
         while (query.next()) {
             QVariantMap activity;
-            activity.insert("id", query.value(query.record().indexOf("id")));
-            activity.insert("user_name", query.value(query.record().indexOf("user_name")));
-            activity.insert("content", query.value(query.record().indexOf("content")));
-            activity.insert("type", query.value(query.record().indexOf("type")));
-            activity.insert("date_created", query.value(query.record().indexOf("date_created")));
+            activity.insert("id", query.value(query.record().indexOf("id")).toString());
+            activity.insert("user_name", query.value(query.record().indexOf("user_name")).toString());
+            activity.insert("content", query.value(query.record().indexOf("content")).toString());
+            activity.insert("type", query.value(query.record().indexOf("type")).toString());
+            activity.insert("date_created", query.value(query.record().indexOf("date_created")).toString());
 
             activities.append(activity);
         }

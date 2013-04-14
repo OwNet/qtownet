@@ -21,7 +21,8 @@ define( function (require) {
 				'click form[name="create-message-form"] button[name="submit-message"]': 'save',
 				'click form[name="comment-message-form"] button[name="submit-message"]': 'comment',
 				'click a[name="pager-message"]' : "showPage",
-				'click a[name="delete-message"]' : "delete",
+				'click img[name="delete-message"]' : "delete",
+				'click a[name="messages"]' : "showFront",
 			},
 
 			initialize: function() {
@@ -33,6 +34,10 @@ define( function (require) {
 				this.$el.html( messagesTemplate({}) )
 				return this
 			}, 
+
+			showFront: function() {
+				this.show(1, 0)
+			},
 
 			showPage: function(e){
 				e.preventDefault();
@@ -62,7 +67,7 @@ define( function (require) {
 				var self = this
 				messages.fetch({data: {page: page, group_id: group_id}, 
 					success: function() {
-						$('div#messages_list').html( messagesListTemplate({messages: messages.toJSON(), user: App.user ? App.user.toJSON() : false, is_admin: false, group_id: group_id}))
+						$('div#messages_list').html( messagesListTemplate({messages: messages.toJSON(), user: App.user ? App.user.toJSON() : false, is_admin: false, group_id: group_id, page:page}))
 					},
 					error: function() {
 						App.showMessage("No groups founded")
@@ -105,10 +110,16 @@ define( function (require) {
 			comment: function(e) {
 				e.preventDefault();
 				var id = $(e.currentTarget).data("id");
-
-				var form = Form( $('form[name="comment-message-form"].'+ id +'', this.$el) )
-				var data = form.toJSON()
 				
+				var m = this.$('#comment-'+id+' > .control-group > .controls > .comment-message').val()
+				var group_id = this.$('#comment-'+id+' > .control-group > .controls > .group_id').val()
+				var parent_id = this.$('#comment-'+id+' > .control-group > .controls > .parent_id').val()
+				var page = this.$('#comment-'+id+' > .control-group > .controls > .page').val()
+
+				//Form( $('.comment-1', this.$el) )
+				console.log(m)
+				
+				var data = {message: m, group_id :group_id, parent_id :parent_id}
 				var message = new MessageModel(data)
 				var self = this
 
@@ -116,7 +127,7 @@ define( function (require) {
 					wait: true,
 					success: function() {
 						App.showMessage("Created", "alert-success")
-						self.show(1, data.group_id)
+						self.show(page, data.group_id)
 					},
 					error: function() {
 						App.showMessage("Creation failed")

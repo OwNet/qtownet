@@ -1,15 +1,23 @@
 each activity in activities
 	.row
 		.span2
-			label #{activity.content}
-		.span2
-			label #{new Date(activity.date_created).toLocaleDateString()}
-		.span2
-			label #{activity.user_name}
-		if (activity.type == 0)
-			.span3
-				label Aha
+			- var array = activity.content
+			- var content = array.split(";")
+			a( href="#{content[0]}",name="activities" ) #{content[0]}
+		if (activity.type == 1)
+			.span2
+				span #{content[1]} Stars
 		else
-			.span3
-				label Nieee
+			.span2
+				span #{content[1]} 
+		.span2
+			span #{new Date(activity.date_created).toLocaleDateString()}
+		.span2
+			span #{activity.user_name}
+		if (activity.type == 0)
+			.span1
+				span Recommendations
+		else
+			.span1
+				span Rating
 

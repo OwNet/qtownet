@@ -9,7 +9,7 @@ define( function (require) {
 	var NavbarView = Backbone.View.extend({
 
 			events: {
-				'click .navbar a[href="#/logout"]': 'onLogoutClick',
+				'click a[href="#/logout"]': 'onLogoutClick',
 			},
 
 			initialize: function() {
@@ -32,7 +32,7 @@ define( function (require) {
 				App.logout({
 					success: function() {
 						App.router.navigate("#/login", {trigger: true})
-						App.showMessage("Now you are logged out")
+						App.showMessage("You are logged out. See you soon!")
 					}
 				})
 				return false
