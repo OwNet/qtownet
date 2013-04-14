@@ -12,8 +12,7 @@ protected:
     void readRequest();
 
     InputType inputType() const { return LocalFile; }
-
-private:
+    bool addContentLengthHeader() const { return true; }
 };
 
 #endif // PROXYSTATICINPUTOBJECT_H

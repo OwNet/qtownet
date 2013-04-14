@@ -72,6 +72,8 @@ void ProxyResponseOutputWriter::read(QIODevice *ioDevice)
 
         /// Remove the Content-Length header for html because it will change after injecting the scripts
         VariantMap responseHeaders = m_proxyDownload->inputObject()->responseHeaders();
+        if (inputObject->addContentLengthHeader())
+            responseHeaders.insert("Content-length", ioDevice->size());
 
         m_socketHandler->writeHeaders(responseHeaders);
     }
