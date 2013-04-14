@@ -16,6 +16,7 @@ HttpServer::HttpServer(QObject *parent) :
 
 void HttpServer::newConnection()
 {
+    int connections = 0;
     while (m_server->hasPendingConnections())
     {
         QTcpSocket *socket = m_server->nextPendingConnection();
@@ -30,5 +31,6 @@ void HttpServer::newConnection()
         connect(handler, SIGNAL(finished()), handler, SLOT(deleteLater()));
         connect(thread, SIGNAL(finished()), thread, SLOT(deleteLater()));
         thread->start();
+        connections++;
     }
 }

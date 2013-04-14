@@ -80,6 +80,6 @@ void ProxyHandler::proxyHandlerSessionFinished()
         m_proxyHandlerSession->deleteLater();
         m_proxyHandlerSession = NULL;
 
-        m_socketHandler->proxyHandlerFinished();
+        m_socketHandler->proxyHandlerFinished(this);
     }
 }

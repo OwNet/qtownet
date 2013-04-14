@@ -37,12 +37,13 @@ public:
     uint hashCode() { return m_hashCode; }
 
     bool shareDownload();
+    bool headersInBody() const { return m_headersInBody; }
 
     ProxyDownloadPart *downloadPart(int readerId);
     void replaceDownloadParts(ProxyDownloadPart *downloadPart, int at);
 
     ProxyInputObject *inputObject() const { return m_inputObject; }
-    void setInputObject(ProxyInputObject *inputObject) { m_inputObject = inputObject; }
+    void setInputObject(ProxyInputObject *inputObject);
     
 signals:
     void bytePartAvailable();
@@ -67,6 +68,8 @@ private:
     QMap<int, int> m_readers;
     int m_nextReaderId;
     uint m_hashCode;
+
+    bool m_headersInBody;
 };
 
 #endif // PROXYDOWNLOAD_H

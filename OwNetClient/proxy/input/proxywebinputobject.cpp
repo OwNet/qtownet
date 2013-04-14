@@ -12,13 +12,15 @@
 #include <QNetworkReply>
 #include <QNetworkProxy>
 #include <QTcpSocket>
+#include <QTimer>
 #include <QBuffer>
 
 ProxyWebInputObject::ProxyWebInputObject(ProxyRequest *request, QObject *parent)
     : ProxyInputObject(request, parent),
       m_readHeaders(false),
       m_contentLength(0),
-      m_responseLength(Unknown)
+      m_responseLength(Unknown),
+      m_timeoutTimer(NULL)
 {
 }
 
@@ -31,11 +33,27 @@ void ProxyWebInputObject::readRequest()
 
 void ProxyWebInputObject::socketConnectedToServer()
 {
-    m_socket->write(m_request->requestReader()->wholeRequestBody());
+    QByteArray bytes = m_request->requestReader()->wholeRequestBody();
+    int i = bytes.indexOf(" ");
+    if (i < 0)
+        return;
+
+    int n = bytes.indexOf(" ", i + 1) - (i + 1);
+    QString url = QString(bytes.mid(i + 1, n));
+    url.remove(0, url.indexOf('/', 7));
+
+    m_socket->write(bytes.mid(0, i + 1));
+    m_socket->write(url.toUtf8());
+    m_socket->write(bytes.mid(n + i + 1));
 }
 
 void ProxyWebInputObject::socketReadyRead()
 {
+    if (m_timeoutTimer) {
+        m_timeoutTimer->stop();
+        m_timeoutTimer->start(Timeout);
+    }
+
     QByteArray *bytes = new QByteArray(m_socket->readAll());
     QBuffer *buffer = new QBuffer(bytes, this);
     buffer->open(QBuffer::ReadOnly);
@@ -61,7 +79,7 @@ void ProxyWebInputObject::socketReadyRead()
                     m_contentLength = line.mid(colon + 1).trimmed().toLong();
                 } else if (name.compare("Transfer-encoding", Qt::CaseInsensitive) == 0) {
                     if (QString::fromUtf8(line.mid(colon + 1).trimmed()).compare("Chunked", Qt::CaseInsensitive) == 0)
-                        m_responseLength == Chunked;
+                        m_responseLength = Chunked;
                 }
             }
         }
@@ -69,8 +87,8 @@ void ProxyWebInputObject::socketReadyRead()
             m_contentLength -= buffer->bytesAvailable();
             if (m_contentLength <= 0)
                 end = true;
-        } else {
-            if (buffer->read(1).startsWith('0'))
+        } else if (m_responseLength == Chunked) {
+            if (bytes->endsWith("0\r\n\r\n"))
                 end = true;
         }
 
@@ -80,8 +98,8 @@ void ProxyWebInputObject::socketReadyRead()
             m_contentLength -= bytes->length();
             if (m_contentLength <= 0)
                 end = true;
-        } else {
-            if (bytes->startsWith('0'))
+        } else if (m_responseLength == Chunked) {
+            if (bytes->endsWith("0\r\n\r\n"))
                 end = true;
         }
     }
@@ -94,12 +112,22 @@ void ProxyWebInputObject::socketReadyRead()
 
 void ProxyWebInputObject::socketDisconnected()
 {
+    if (m_timeoutTimer)
+        m_timeoutTimer->stop();
     emit finished();
 }
 
 void ProxyWebInputObject::socketError(QAbstractSocket::SocketError error)
 {
+    if (m_timeoutTimer)
+        m_timeoutTimer->stop();
     MessageHelper::debug(QString("Download error: %1").arg(error));
+    emit failed();
+}
+
+void ProxyWebInputObject::responseTimeout()
+{
+    m_socket->close();
     emit failed();
 }
 
@@ -119,7 +147,11 @@ void ProxyWebInputObject::createReply()
         m_socket->setProxy(QNetworkProxy(QNetworkProxy::HttpProxy, ipAndPort.first(), ipAndPort.last().toInt()));
     }
 
-    m_socket->connectToHost(getServerName(server), getPort(server));
+    m_socket->connectToHost(serverName(server), port(server));
+
+    m_timeoutTimer = new QTimer(this);
+    connect(m_timeoutTimer, SIGNAL(timeout()), this, SLOT(responseTimeout()));
+    m_timeoutTimer->start(Timeout);
 }
 
 bool ProxyWebInputObject::isClientOnline(const QString &clientId) const
@@ -143,7 +175,7 @@ QString ProxyWebInputObject::extractServer(const QString &fullUrl) const
     return fullUrl;
 }
 
-QString ProxyWebInputObject::getServerName(const QString &serverAndPort) const
+QString ProxyWebInputObject::serverName(const QString &serverAndPort) const
 {
     int p = serverAndPort.indexOf(':');
     if (p != -1)
@@ -152,7 +184,7 @@ QString ProxyWebInputObject::getServerName(const QString &serverAndPort) const
         return serverAndPort;
 }
 
-int ProxyWebInputObject::getPort(const QString &serverAndPort) const
+int ProxyWebInputObject::port(const QString &serverAndPort) const
 {
     int p = serverAndPort.indexOf(':');
     if (p != -1)

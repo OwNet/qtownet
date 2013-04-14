@@ -58,9 +58,9 @@ void ProxyResponseOutputWriter::virtualClose()
  */
 void ProxyResponseOutputWriter::read(QIODevice *ioDevice)
 {
-    ProxyInputObject *inputObject = m_proxyDownload->inputObject();
+    if (!m_proxyDownload->headersInBody() && !m_hasWrittenResponseHeaders) {
+        ProxyInputObject *inputObject = m_proxyDownload->inputObject();
 
-    if (!inputObject->headersInBody() && !m_hasWrittenResponseHeaders) {
         m_hasWrittenResponseHeaders = true;
         if (!m_proxyDownload->inputObject()->httpStatusCode().toInt()) {
             MessageHelper::debug(tr("No status code in response %1").arg(inputObject->request()->url()));

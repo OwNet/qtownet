@@ -4,15 +4,21 @@
 #include "proxyhandler.h"
 
 #include <QMutexLocker>
+#include <QTimer>
 
 SocketHandler::SocketHandler(QTcpSocket * socketIn, QObject *parent) :
     QObject(parent),
     m_socketIn(socketIn),
-    m_socketOut(NULL),
     m_closed(false),
-    m_requestReader(NULL)
+    m_requestReader(NULL),
+    m_timeoutTimer(NULL),
+    m_numProxyHandlers(0)
 {
     qDebug() << "New socket";
+
+    m_timeoutTimer = new QTimer(this);
+    connect(m_timeoutTimer, SIGNAL(timeout()), this, SLOT(socketTimeout()));
+    m_timeoutTimer->setInterval(Timeout);
 }
 
 bool SocketHandler::startConnection()
@@ -22,6 +28,8 @@ bool SocketHandler::startConnection()
         return false;
     }
     m_socketIn->setParent(this);
+
+    m_timeoutTimer->start();
 
     connect(m_socketIn, SIGNAL(disconnected()), this, SLOT(inputDisconnected()));
     connect(m_socketIn, SIGNAL(readyRead()), this, SLOT(inputReadyRead()));
@@ -46,13 +54,13 @@ void SocketHandler::inputReadyRead()
 {
     qDebug() << "Input ready read";
 
+    if (m_timeoutTimer->isActive())
+        m_timeoutTimer->stop();
+    m_timeoutTimer->start();
+
     if (!m_requestReader) {
         m_requestReader = new RequestReader(this, this);
     } else if (m_requestReader->status() == RequestReader::Complete) {
-        if (m_socketOut) {
-            m_socketOut->close();
-            m_socketOut = NULL;
-        }
         m_requestReader = new RequestReader(this, this);
     }
 
@@ -74,6 +82,13 @@ void SocketHandler::inputError(QAbstractSocket::SocketError error)
     closeInput();
 }
 
+void SocketHandler::socketTimeout()
+{
+    if (m_timeoutTimer->isActive())
+        m_timeoutTimer->stop();
+    closeInput();
+}
+
 void SocketHandler::readingAborted()
 {
     qDebug() << "Reading aborted";
@@ -82,24 +97,12 @@ void SocketHandler::readingAborted()
 
 void SocketHandler::finishedReadingRequest()
 {
+    if (m_timeoutTimer->isActive())
+        m_timeoutTimer->stop();
+
+    m_numProxyHandlers++;
     ProxyHandler *handler = new ProxyHandler;
     handler->service(this);
-    return;
-
-    if (m_socketOut) {
-        m_socketOut->close();
-    }
-
-    QString server = extractServer(m_requestReader->url());
-
-    m_socketOut = new QTcpSocket(this);
-
-    connect(m_socketOut, SIGNAL(connected()), this, SLOT(outputConnectedToServer()));
-    connect(m_socketOut, SIGNAL(readyRead()), this, SLOT(outputReadyRead()));
-    connect(m_socketOut, SIGNAL(disconnected()), this, SLOT(outputDisconnected()));
-    connect(m_socketOut, SIGNAL(error(QAbstractSocket::SocketError)), this, SLOT(outputError(QAbstractSocket::SocketError)));
-
-    m_socketOut->connectToHost(getServerName(server), getPort(server));
 }
 
 void SocketHandler::write(const QByteArray &data)
@@ -132,95 +135,28 @@ void SocketHandler::writeHeaders(const QVariantMap &headers)
     write(buffer);
 }
 
-void SocketHandler::proxyHandlerFinished()
+void SocketHandler::proxyHandlerFinished(ProxyHandler *handler)
 {
-    m_socketIn->flush();
-    //outputDisconnected();
-}
-
-void SocketHandler::outputConnectedToServer()
-{
-    qDebug() << "Output connected";
-    m_socketOut->write(m_requestReader->wholeRequestBody());
-}
-
-void SocketHandler::outputReadyRead()
-{
-    qDebug() << "Output ready read";
-    QByteArray data = m_socketOut->readAll();
-    m_socketIn->write(data);
-    m_socketIn->flush();
-}
-
-void SocketHandler::outputDisconnected()
-{
-    qDebug() << "Output disconnected";
-    closeOutput();
-}
-
-void SocketHandler::outputError(QAbstractSocket::SocketError error)
-{
-    qDebug() << "Output error: " << error;
-    closeOutput();
-}
-
-QString SocketHandler::extractServer(const QString &fullUrl) const
-{
-    QString http = "http://";
-    if (fullUrl.left(http.length()).compare(http, Qt::CaseInsensitive)==0)
-    {
-        int p = fullUrl.indexOf("/", http.length()+1);
-        return fullUrl.mid(http.length(), p-http.length());
+    m_numProxyHandlers--;
+    handler->deleteLater();
+    if (!m_socketIn) {
+        if (m_numProxyHandlers <= 0)
+            emit finished();
+    } else {
+        m_timeoutTimer->start();
     }
-    return fullUrl;
-}
-
-QString SocketHandler::getServerName(const QString &serverAndPort) const
-{
-    int p = serverAndPort.indexOf(':');
-    if (p != -1)
-        return serverAndPort.left(p);
-    else
-        return serverAndPort;
-}
-
-int SocketHandler::getPort(const QString &serverAndPort) const
-{
-    int p = serverAndPort.indexOf(':');
-    if (p != -1)
-    {
-        QByteArray ba = serverAndPort.mid(p+1).toLatin1();
-        return atoi(ba.data());
-    }
-    return 80;
 }
 
 void SocketHandler::closeInput()
 {
-    if (m_closed)
-        return;
-
-    m_closed = true;
-
-    if (m_socketIn->isOpen()) {
+    if (m_socketIn && m_socketIn->isOpen()) {
         m_socketIn->flush();
+        m_socketIn->close();
     }
-    m_socketIn->disconnect();
-    m_socketIn->disconnectFromHost();
-    m_socketIn->close();
 
-    closeOutput();
+    m_socketIn = NULL;
+    m_socketIn->deleteLater();
 
-    emit finished();
-}
-
-void SocketHandler::closeOutput()
-{
-    if (m_socketOut) {
-        if (m_socketOut->isOpen()) {
-            m_socketOut->disconnect(this);
-            m_socketOut->close();
-        }
-        m_socketOut = NULL;
-    }
+    if (m_numProxyHandlers <= 0)
+        emit finished();
 }

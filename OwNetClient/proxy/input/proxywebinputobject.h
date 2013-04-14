@@ -1,18 +1,22 @@
 #ifndef PROXYWEBINPUTOBJECT_H
 #define PROXYWEBINPUTOBJECT_H
 
-class QTcpSocket;
-
 #include <QAbstractSocket>
 #include <QStringList>
 
 #include "proxyinputobject.h"
+
+class QTcpSocket;
+class QTimer;
 
 class ProxyWebInputObject : public ProxyInputObject
 {
     Q_OBJECT
 
 public:
+    enum {
+        Timeout = 10000
+    };
     enum ResponseLength {
         Chunked,
         Defined,
@@ -34,14 +38,15 @@ private slots:
     void socketReadyRead();
     void socketDisconnected();
     void socketError(QAbstractSocket::SocketError error);
+    void responseTimeout();
 
 private:
     void createReply();
     bool isClientOnline(const QString &clientId) const;
     QString clientIpAndPort(const QString &clientId) const;
     QString extractServer(const QString &fullUrl) const;
-    QString getServerName(const QString &serverAndPort) const;
-    int getPort(const QString &serverAndPort) const;
+    QString serverName(const QString &serverAndPort) const;
+    int port(const QString &serverAndPort) const;
 
     bool m_readHeaders;
     QStringList m_clientsToTry;
@@ -49,6 +54,7 @@ private:
     QTcpSocket *m_socket;
     long m_contentLength;
     ResponseLength m_responseLength;
+    QTimer *m_timeoutTimer;
 };
 
 #endif // PROXYWEBINPUTOBJECT_H

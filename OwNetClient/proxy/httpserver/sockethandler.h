@@ -7,11 +7,17 @@
 
 class QTcpSocket;
 class RequestReader;
+class ProxyHandler;
+class QTimer;
 
 class SocketHandler : public QObject
 {
     Q_OBJECT
 public:
+    enum {
+        Timeout = 5000
+    };
+
     explicit SocketHandler(QTcpSocket *socketIn, QObject *parent = 0);
 
     bool startConnection();
@@ -23,7 +29,7 @@ public:
     void writeStatusCodeAndDescription(int statusCode, const QByteArray &description);
     void writeHeaders(const QVariantMap &headers);
 
-    void proxyHandlerFinished();
+    void proxyHandlerFinished(ProxyHandler *handler);
 
     RequestReader *requestReader() const { return m_requestReader; }
 
@@ -36,30 +42,22 @@ private slots:
     void inputReadyRead();
     void inputError(QAbstractSocket::SocketError error);
 
-    /// output slots
-    void outputConnectedToServer();
-    void outputReadyRead();
-    void outputDisconnected();
-    void outputError(QAbstractSocket::SocketError error);
+    void socketTimeout();
 
 signals:
     void finished();
 
 private:
-    QString extractServer(const QString &fullUrl) const;
-    QString getServerName(const QString &serverAndPort) const;
-    int getPort(const QString &serverAndPort) const;
-
     void closeInput();
-    void closeOutput();
 
     QTcpSocket *m_socketIn;
-    QTcpSocket *m_socketOut;
 
     bool m_closed;
+    int m_numProxyHandlers;
 
     RequestReader *m_requestReader;
     QMutex m_mutex;
+    QTimer *m_timeoutTimer;
 };
 
 #endif // SOCKETHANDLER_H

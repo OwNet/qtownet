@@ -23,7 +23,8 @@ ProxyDownload::ProxyDownload(ProxyRequest *request, ProxyHandlerSession *handler
     m_proxyHandlerSession(handlerSession),
     m_nextReaderId(FirstReaderId),
     m_nextDownloadPartIndex(FirstDownloadPartIndex),
-    m_inputObject(NULL)
+    m_inputObject(NULL),
+    m_headersInBody(false)
 {
     m_hashCode = request->hashCode();
 }
@@ -139,6 +140,12 @@ void ProxyDownload::replaceDownloadParts(ProxyDownloadPart *downloadPart, int at
         else
             delete previousPart;
     }
+}
+
+void ProxyDownload::setInputObject(ProxyInputObject *inputObject)
+{
+    m_inputObject = inputObject;
+    m_headersInBody = inputObject->headersInBody();
 }
 
 /**
