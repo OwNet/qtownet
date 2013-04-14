@@ -20,8 +20,6 @@
 #include "proxydownloads.h"
 #include "proxytrafficcounter.h"
 
-#include <QMessageBox>
-
 ProxyConnection::ProxyConnection(QObject *parent) :
     QObject(parent)
 {
@@ -130,15 +128,15 @@ void ProxyConnection::message(const QVariant &message, const QString &title, Mes
         break;
 
     case InformationPopup:
-        QMessageBox::information(NULL, title, message.toString());
+        MessageHelper::information(title, message.toString());
         break;
 
     case WarningPopup:
-        QMessageBox::warning(NULL, title, message.toString());
+        MessageHelper::warning(title, message.toString());
         break;
 
     case CriticalPopup:
-        QMessageBox::critical(NULL, title, message.toString());
+        MessageHelper::error(title, message.toString());
         break;
     }
 }

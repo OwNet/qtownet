@@ -14,6 +14,7 @@ public:
 
     static void error(const QString &title, const QVariant &body);
     static void information(const QString &title, const QVariant &body);
+    static void warning(const QString &title, const QVariant &body);
     static void debug(const QVariant &message);
 
     static void writeLogFileToDisk();

@@ -35,6 +35,15 @@ void MessageHelper::information(const QString &title, const QVariant &body)
 #endif
 }
 
+void MessageHelper::warning(const QString &title, const QVariant &body)
+{
+#ifdef TEST
+    qDebug() << title << body.toString();
+#else
+    QMessageBox::warning(NULL, title, body.toString());
+#endif
+}
+
 void MessageHelper::debug(const QVariant &message)
 {
     qDebug() << message.toString();
