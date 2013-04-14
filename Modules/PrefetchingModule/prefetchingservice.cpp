@@ -32,7 +32,7 @@ PrefetchingService::PrefetchingService(IProxyConnection *proxyConnection, QObjec
 
 void PrefetchingService::init(IRouter *router)
 {
-    router->addRoute("/show/")->on(IRequest::GET, ROUTE(index));
+    router->addRoute("/show")->on(IRequest::GET, ROUTE(index));
     router->addRoute("/create/")
             ->on(IRequest::GET, ROUTE(create) );
     router->addRoute("/close/")
