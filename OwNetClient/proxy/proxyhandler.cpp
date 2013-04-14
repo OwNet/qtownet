@@ -39,7 +39,10 @@ void ProxyHandler::service(SocketHandler *socketHandler) {
 void ProxyHandler::requestTimeout()
 {
     MessageHelper::debug(QString("ProxyHandler timeout - %1").arg(m_socketHandler->requestReader()->url()));
-    m_timeoutTimer->stop();
+    if (m_timeoutTimer) {
+        m_timeoutTimer->stop();
+        m_timeoutTimer = NULL;
+    }
 
     if (m_proxyHandlerSession)
         m_proxyHandlerSession->forceQuitAll();

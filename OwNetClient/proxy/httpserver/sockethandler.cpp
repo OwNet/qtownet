@@ -149,13 +149,14 @@ void SocketHandler::proxyHandlerFinished(ProxyHandler *handler)
 
 void SocketHandler::closeInput()
 {
-    if (m_socketIn && m_socketIn->isOpen()) {
-        m_socketIn->flush();
-        m_socketIn->close();
+    if (m_socketIn) {
+        if (m_socketIn->isOpen()) {
+            m_socketIn->flush();
+            m_socketIn->close();
+        }
+        m_socketIn = NULL;
     }
 
-    m_socketIn = NULL;
-    m_socketIn->deleteLater();
 
     if (m_numProxyHandlers <= 0)
         emit finished();

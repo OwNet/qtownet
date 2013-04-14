@@ -50,7 +50,8 @@ void ProxyWebInputObject::socketConnectedToServer()
 void ProxyWebInputObject::socketReadyRead()
 {
     if (m_timeoutTimer) {
-        m_timeoutTimer->stop();
+        if (m_timeoutTimer->isActive())
+            m_timeoutTimer->stop();
         m_timeoutTimer->start(Timeout);
     }
 
@@ -112,14 +113,14 @@ void ProxyWebInputObject::socketReadyRead()
 
 void ProxyWebInputObject::socketDisconnected()
 {
-    if (m_timeoutTimer)
+    if (m_timeoutTimer && m_timeoutTimer->isActive())
         m_timeoutTimer->stop();
     emit finished();
 }
 
 void ProxyWebInputObject::socketError(QAbstractSocket::SocketError error)
 {
-    if (m_timeoutTimer)
+    if (m_timeoutTimer && m_timeoutTimer->isActive())
         m_timeoutTimer->stop();
     MessageHelper::debug(QString("Download error: %1").arg(error));
     emit failed();
