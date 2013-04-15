@@ -1,0 +1,10 @@
+each downloadOrder in downloadOrders
+	.row
+		.span2
+			span #{downloadOrder.absolute_uri}
+		.span2.offset1
+			span #{new Date(downloadOrder.date).toLocaleDateString()}
+		.span2
+			span #{downloadOrder.completed}
+		.span2
+			span X

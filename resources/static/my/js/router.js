@@ -45,6 +45,7 @@ define( function (require) {
 			editgroup: "editgroup",
 			profile: "profile",
 			editprofile: "editprofile",
+			showdownloadorders : "showdownloadorders",
 			listmembers: "listmembers",
 			recommendations: "recommendations",
 			ratings: "ratings",
@@ -100,6 +101,11 @@ define( function (require) {
 
 		editprofile: function() {
 			this.activate("#/editprofile")
+		},
+
+		showdownloadorders: function() {
+			this.activate("#/showdownloadorders")
+			this.views.profile.showDownloadOrders(1)
 		},
 
 		recommendations: function() {
