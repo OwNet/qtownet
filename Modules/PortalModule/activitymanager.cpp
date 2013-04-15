@@ -109,7 +109,8 @@ QVariantList ActivityManager::getActivities(bool *ok, QVariantMap &error, IReque
 
         while (query.next()) {
             QVariantMap activity;
-            activity.insert("id", query.value(query.record().indexOf("id")).toString());
+            activity.insert("object_id", query.value(query.record().indexOf("object_id")).toString());
+            activity.insert("user_id", query.value(query.record().indexOf("user_id")).toString());
             activity.insert("user_name", query.value(query.record().indexOf("user_name")).toString());
             activity.insert("content", query.value(query.record().indexOf("content")).toString());
             activity.insert("type", query.value(query.record().indexOf("type")).toString());
@@ -135,7 +136,8 @@ QVariantList ActivityManager::getActivities(bool *ok, QVariantMap &error, IReque
 
         while (query.next()) {
             QVariantMap activity;
-            activity.insert("id", query.value(query.record().indexOf("id")).toString());
+            activity.insert("object_id", query.value(query.record().indexOf("object_id")).toString());
+            activity.insert("user_id", query.value(query.record().indexOf("user_id")).toString());
             activity.insert("user_name", query.value(query.record().indexOf("user_name")).toString());
             activity.insert("content", query.value(query.record().indexOf("content")).toString());
             activity.insert("type", query.value(query.record().indexOf("type")).toString());
@@ -216,7 +218,8 @@ QVariantList ActivityManager::getMyActivities(bool *ok, QVariantMap &error, IReq
 
         while (query.next()) {
             QVariantMap activity;
-            activity.insert("id", query.value(query.record().indexOf("id")));
+            activity.insert("object_id", query.value(query.record().indexOf("object_id")).toString());
+            activity.insert("user_id", query.value(query.record().indexOf("user_id")).toString());
             activity.insert("user_name", query.value(query.record().indexOf("user_name")));
             activity.insert("content", query.value(query.record().indexOf("content")));
             activity.insert("type", query.value(query.record().indexOf("type")));
@@ -243,7 +246,8 @@ QVariantList ActivityManager::getMyActivities(bool *ok, QVariantMap &error, IReq
 
         while (query.next()) {
             QVariantMap activity;
-            activity.insert("id", query.value(query.record().indexOf("id")));
+            activity.insert("object_id", query.value(query.record().indexOf("object_id")).toString());
+            activity.insert("user_id", query.value(query.record().indexOf("user_id")).toString());
             activity.insert("user_name", query.value(query.record().indexOf("user_name")));
             activity.insert("content", query.value(query.record().indexOf("content")));
             activity.insert("type", query.value(query.record().indexOf("type")));
