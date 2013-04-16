@@ -17,6 +17,7 @@ public:
     void addLocation(const QString &clientId, const QString &dateTime);
     void addLocation(const QString &clientId, const QDateTime &dateTime);
     void removeLocation(const QString &clientId);
+    bool containsLocation(const QString &clientId) const;
 
     QList<ProxyCacheLocation*> sortedLocations() const;
     

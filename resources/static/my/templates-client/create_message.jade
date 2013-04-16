@@ -1,13 +1,10 @@
 form(name="create-message-form").form-horizontal
 
 	.control-group
-		label.control-label Message:
+		label.control-label Create new message:
 		.controls
 			textarea(name="message")
 			span.help-block
-			input(type="hidden", name="group_id", value="#{group_id}")
+			input(type="hidden", id="shit",name="group_id", value="#{group_id}")
 			input(type="hidden", name="parent_id", value="0")
-
-	.control-group
-		.controls
-			button.btn(type="button", name="submit-message") Send
+			button.btn.btn-info(type="button", name="submit-message") Send

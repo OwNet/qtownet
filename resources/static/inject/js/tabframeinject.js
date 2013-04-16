@@ -440,12 +440,12 @@ Array.prototype.owNetContains = function (item, comparer) {
 
 
                     /* <a href="">*/
-                    div_a = document.createElement("a");
+                    /*div_a = document.createElement("a");
                     div_a.setAttribute("href", "javascript:void(0);");
                     div_a.onclick = function () { owNetGLOBAL.ProxyContact.startRefresh(); return false; };
                     div_div.appendChild(div_a);
                     /* <img src="graphics/owetab_refresh.png" class="img-4 owe-tips" title="" alt="Refresh"/>*/
-                    a_img = document.createElement("img");
+                    /*a_img = document.createElement("img");
                     a_img.setAttribute("src", owNetGLOBAL.dataUri + "graphics/owetab_refresh.png");
                     a_img.setAttribute("class", "img-4 owe-tips");
                     a_img.setAttribute("alt", "Refresh");
@@ -471,11 +471,11 @@ Array.prototype.owNetContains = function (item, comparer) {
 
                     /*Caching popup*/
                     /* <a href="">*/
-                    div_a = document.createElement("a");
+                    /*div_a = document.createElement("a");
                     div_a.setAttribute("href", "javascript:void(0);");
                     div_div.appendChild(div_a);
                     /* <img src="graphics/owetab_star.png" class="img-4 owe-tips" title="" alt="Recommend"/>*/
-                    a_img = document.createElement("img");
+                    /*a_img = document.createElement("img");
                     a_img.setAttribute("src", owNetGLOBAL.dataUri + "graphics/owetab_caching.png");
                     a_img.setAttribute("class", "img-4 owe-tips");
                     a_img.setAttribute("alt", "Cache");
@@ -493,11 +493,11 @@ Array.prototype.owNetContains = function (item, comparer) {
                     /* </a>*/
 
                     /* <a href="">*/
-                    div_a = document.createElement("a");
+                    /*div_a = document.createElement("a");
                     div_a.setAttribute("href", "javascript:void(0);");
                     div_div.appendChild(div_a);
                     /* <img src="graphics/owetab_on.png" class="img-4 owe-tips" title="" alt="On"/>*/
-                    var a_img_switch = document.createElement("img");
+                    /*var a_img_switch = document.createElement("img");
                     a_img_switch.setAttribute("src", owNetGLOBAL.dataUri + "graphics/owetab_off.png");
                     a_img_switch.setAttribute("class", "img-4 owe-tips");
                     a_img_switch.setAttribute("alt", "Highlighting");

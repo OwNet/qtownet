@@ -60,10 +60,6 @@ void ProxyCacheOutputWriter::read(QIODevice *ioDevice)
     if (m_firstRead) {
         m_firstRead = false;
         m_url = m_request->url();
-        m_requestHeaders = VariantMap(m_request->requestHeaders()).toJsonString();
-        m_responseHeaders = m_proxyDownload->inputObject()->responseHeaders().toJsonString();
-        m_statusCode = m_proxyDownload->inputObject()->httpStatusCode().toInt();
-        m_statusDescription = m_proxyDownload->inputObject()->httpStatusDescription();
     }
 
     if (m_partSizeWritten > MaxFileSize)
@@ -106,24 +102,23 @@ void ProxyCacheOutputWriter::save()
         query.singleWhere("id", m_hashCode);
         query.setColumnValue("id", m_hashCode);
         query.setColumnValue("absolute_uri", m_url);
-        query.setColumnValue("request_headers", m_requestHeaders);
-        query.setColumnValue("response_headers", m_responseHeaders);
         query.setColumnValue("num_parts", m_numFileParts);
-        query.setColumnValue("status_code", m_statusCode);
-        query.setColumnValue("status_description", m_statusDescription);
         query.setColumnValue("size", m_sizeWritten);
         query.setColumnValue("access_value", ProxyDownloads::instance()->gdsfClock()->getGDSFPriority(accessCount, m_sizeWritten));
         query.executeQuery();
     }
     {
+        QString clientId = DatabaseSettings().clientId();
         SyncedDatabaseUpdateQuery query("client_caches");
         query.setUpdateDates(IDatabaseUpdateQuery::DateCreated);
-        query.setColumnValue("client_id", DatabaseSettings().clientId());
+        query.setColumnValue("client_id", clientId);
         query.setColumnValue("cache_id", m_hashCode);
         IDatabaseSelectQueryWhereGroup *where = query.whereGroup(IDatabaseSelectQuery::And);
-        where->where("client_id", DatabaseSettings().clientId());
+        where->where("client_id", clientId);
         where->where("cache_id", m_hashCode);
         query.setGroupId(ISyncedDatabaseUpdateQuery::GroupCaches);
+        query.setForceOperation(ProxyDownloads::instance()->containsCacheLocation(m_hashCode, clientId) ?
+                                    DatabaseUpdateQuery::ForceUpdate : DatabaseUpdateQuery::ForceInsert);
         query.executeQuery();
     }
 }

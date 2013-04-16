@@ -57,7 +57,6 @@ include($${OwNetClientPath}/jobs/jobs.pri)
 include($${OwNetClientPath}/cache/cache.pri)
 include($${OwNetClientPath}/proxy/proxy.pri)
 include($${OwNetClientPath}/init/init.pri)
-include($${LibPath}/bfHttpServer/bfHttpServer.pri)
 
 include($${ModulesPath}/MulticastModule/MulticastModule.pri)
 include($${ModulesPath}/SyncModule/SyncModule.pri)

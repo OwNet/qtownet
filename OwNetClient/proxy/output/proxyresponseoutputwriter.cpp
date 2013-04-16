@@ -5,7 +5,7 @@
 #include "messagehelper.h"
 #include "proxyinputobject.h"
 #include "proxyhandlersession.h"
-#include "httpresponse.h"
+#include "sockethandler.h"
 
 #include <QTcpSocket>
 #include <QFile>
@@ -14,10 +14,9 @@
 
 QMap<int, QString> *ProxyResponseOutputWriter::m_openRequests = new QMap<int, QString>();
 
-ProxyResponseOutputWriter::ProxyResponseOutputWriter(HttpRequest *request, HttpResponse *response, ProxyHandlerSession *proxyHandlerSession)
+ProxyResponseOutputWriter::ProxyResponseOutputWriter(SocketHandler *socketHandler, ProxyHandlerSession *proxyHandlerSession)
     : ProxyOutputWriter(proxyHandlerSession),
-      m_request(request),
-      m_response(response),
+      m_socketHandler(socketHandler),
       m_hasWrittenResponseHeaders(false),
       m_foundBody(false)
 {
@@ -28,7 +27,7 @@ ProxyResponseOutputWriter::ProxyResponseOutputWriter(HttpRequest *request, HttpR
  */
 void ProxyResponseOutputWriter::startDownload()
 {
-    ProxyRequest *request = new ProxyRequest(m_request, m_proxyHandlerSession);
+    ProxyRequest *request = new ProxyRequest(m_socketHandler->requestReader(), m_proxyHandlerSession);
     m_requestHashCode = request->hashCode();
 
     MessageHelper::debug(request->url());
@@ -51,8 +50,6 @@ QList<QString> ProxyResponseOutputWriter::dumpOpenRequests()
  */
 void ProxyResponseOutputWriter::virtualClose()
 {
-    if (!m_response->hasSentLastPart())
-        m_response->write(QByteArray(), true);
 }
 
 /**
@@ -61,57 +58,24 @@ void ProxyResponseOutputWriter::virtualClose()
  */
 void ProxyResponseOutputWriter::read(QIODevice *ioDevice)
 {
-    if (m_response->hasSentLastPart())
-        return;
+    if (!m_proxyDownload->headersInBody() && !m_hasWrittenResponseHeaders) {
+        ProxyInputObject *inputObject = m_proxyDownload->inputObject();
 
-    ProxyInputObject *inputObject = m_proxyDownload->inputObject();
-
-    if (!m_hasWrittenResponseHeaders) {
         m_hasWrittenResponseHeaders = true;
-        m_response->setStatus(m_proxyDownload->inputObject()->httpStatusCode().toInt(),
+        if (!m_proxyDownload->inputObject()->httpStatusCode().toInt()) {
+            MessageHelper::debug(tr("No status code in response %1").arg(inputObject->request()->url()));
+            return;
+        }
+
+        m_socketHandler->writeStatusCodeAndDescription(m_proxyDownload->inputObject()->httpStatusCode().toInt(),
                               m_proxyDownload->inputObject()->httpStatusDescription().toUtf8());
 
         /// Remove the Content-Length header for html because it will change after injecting the scripts
         VariantMap responseHeaders = m_proxyDownload->inputObject()->responseHeaders();
-        if (inputObject->contentType().toLower().contains("text/html")) {
-            if (responseHeaders.contains("Content-Length"))
-                responseHeaders.remove("Content-Length");
-            else if (responseHeaders.contains("Content-length"))
-                responseHeaders.remove("Content-length");
-        }
+        if (inputObject->addContentLengthHeader())
+            responseHeaders.insert("Content-length", ioDevice->size());
 
-        foreach (QString key, responseHeaders.keys())
-            m_response->setHeader(key.toUtf8(), responseHeaders.value(key).toByteArray());
+        m_socketHandler->writeHeaders(responseHeaders);
     }
-    QRegularExpression rx("(.*<body[^>]*>)(.*)");
-
-    if (!m_foundBody &&
-            !inputObject->request()->isLocalRequest() &&
-            inputObject->contentType().toLower().contains("text/html")) {
-
-        while (!ioDevice->atEnd()) {
-            QByteArray lineBytes = ioDevice->readLine();
-            QString line = QString::fromLatin1(lineBytes);
-            QRegularExpressionMatch match = rx.match(line);
-
-            if (match.hasMatch() && match.capturedTexts().length() == 3) {
-                QStringList listx = match.capturedTexts();
-
-                m_response->write(listx.at(1).toUtf8());
-
-                m_response->write(QString("<script type=\"text/javascript\" src=\"http://inject.ownet/js/inject.js\"></script>")
-                                .toLatin1());
-                m_response->write(listx.at(2).toUtf8());
-                m_response->write("\n");
-                m_foundBody = true;
-            }
-            else {
-                m_response->write(lineBytes);
-            }
-        }
-    }
-    else {
-        m_foundBody = true;
-        m_response->write(ioDevice->readAll());
-    }
+    m_socketHandler->write(ioDevice->readAll());
 }

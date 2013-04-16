@@ -23,6 +23,7 @@
 #include <QSettings>
 #include <QMap>
 #include <QStringBuilder>
+#include <QUrl>
 
 PrefetchingService::PrefetchingService(IProxyConnection *proxyConnection, QObject* parent) :
     QObject(parent),

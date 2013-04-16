@@ -3,9 +3,8 @@
 #include "centralservicereporter.h"
 #include "centralserviceupdater.h"
 
-CentralServiceSyncJob::CentralServiceSyncJob(IProxyConnection *proxyConnection, QObject *parent) :
-    QObject(parent),
-    m_proxyConnection(proxyConnection)
+CentralServiceSyncJob::CentralServiceSyncJob() :
+    m_proxyConnection(NULL)
 {
 }
 

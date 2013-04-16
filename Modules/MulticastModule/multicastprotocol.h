@@ -3,10 +3,10 @@
 
 #include <QVariantMap>
 #include <QDateTime>
-#include <QMutex>
 
 class IProxyConnection;
 class MulticastProtocolNode;
+class QMutex;
 
 class MulticastProtocol : public QObject
 {
@@ -23,7 +23,7 @@ public:
     MulticastProtocol(IProxyConnection *connection, QObject *parent = 0);
 
     void processMessage(const QVariantMap &);
-    QList<MulticastProtocolNode *> &nodes();
+    QList<MulticastProtocolNode *> *nodes();
     MulticastProtocolNode *serverNode() const;
     MulticastProtocolNode *currentNode() const;
 
@@ -35,12 +35,12 @@ public:
 private:
     MulticastProtocol::Status currentNodesStatus() const;
 
-    MulticastProtocolNode *m_currentNode;
-    QList<MulticastProtocolNode *> m_nodes;
+    static MulticastProtocolNode *m_currentNode;
+    static QList<MulticastProtocolNode *> *m_nodes;
 
     IProxyConnection *m_proxyConnection;
 
-    QMutex m_nodesMutex;
+    static QMutex *m_nodesMutex;
 };
 
 #endif // COMMUNICATIONMANAGER_H

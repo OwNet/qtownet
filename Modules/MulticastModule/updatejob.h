@@ -4,20 +4,15 @@
 #include "ijobaction.h"
 #include "multicastprotocol.h"
 
-#include <QObject>
-
-class UpdateJob : public QObject, public IJobAction
+class UpdateJob : public IJobAction
 {
     Q_OBJECT
 public:
-    explicit UpdateJob(MulticastProtocol *protocol, QObject *parent = 0);
+    explicit UpdateJob();
 
     int interval() { return 1 * 1000; }
     void execute();
-    
-signals:
-    
-public slots:
+    void setProxyConnection(IProxyConnection *proxyConnection);
 
 private:
     MulticastProtocol *m_protocol;

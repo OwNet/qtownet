@@ -7,9 +7,8 @@
 #include "irequest.h"
 #include "iresponse.h"
 
-FirewallDiscoveryJob::FirewallDiscoveryJob(IProxyConnection *proxyConnection, QObject *parent) :
-    QObject(parent),
-    m_proxyConnection(proxyConnection)
+FirewallDiscoveryJob::FirewallDiscoveryJob() :
+    m_proxyConnection(NULL)
 {
 }
 

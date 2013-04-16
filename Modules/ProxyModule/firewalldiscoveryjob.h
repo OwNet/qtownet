@@ -1,21 +1,21 @@
 #ifndef FIREWALLDISCOVERYJOB_H
 #define FIREWALLDISCOVERYJOB_H
 
-#include <QObject>
 #include <QMutex>
 
 #include "ijobaction.h"
 
 class IProxyConnection;
 
-class FirewallDiscoveryJob : public QObject, public IJobAction
+class FirewallDiscoveryJob : public IJobAction
 {
     Q_OBJECT
 public:
-    explicit FirewallDiscoveryJob(IProxyConnection *proxyConnection, QObject *parent = 0);
+    explicit FirewallDiscoveryJob();
 
     int interval() { return 10 * 1000; }
     void execute();
+    void setProxyConnection(IProxyConnection *proxyConnection) { m_proxyConnection = proxyConnection; }
 
 private:
     QMutex m_pingMutex;
