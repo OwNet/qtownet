@@ -12,13 +12,15 @@ LibPath = ../../lib
 SOURCES        += prefetchingmodule.cpp \
     prefetchingservice.cpp \
     prefetchingjob.cpp \
-    browserworker.cpp
+    browserworker.cpp \
+    downloadordersservice.cpp
 
 HEADERS        += prefetchingmodule.h \
     prefetchingservice.h \
     prefetchingjob.h \
     browserworker.h \
-    noalertwebpage.h
+    noalertwebpage.h \
+    downloadordersservice.h
 
 include($${LibPath}/QSgml/QSgml.pri)
 

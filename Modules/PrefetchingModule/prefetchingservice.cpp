@@ -32,9 +32,6 @@ PrefetchingService::PrefetchingService(IProxyConnection *proxyConnection, QObjec
 
 void PrefetchingService::init(IRouter *router)
 {
-    router->addRoute("/show")->on(IRequest::GET, ROUTE(index));
-    router->addRoute("/delete")->on(IRequest::DELETE, ROUTE(deleteOrder));
-    router->addRoute("/allPagesCount")->on(IRequest::GET, ROUTE(allPagesCount));
     router->addRoute("/create/")
             ->on(IRequest::GET, ROUTE(create) );
     router->addRoute("/close/")
@@ -177,42 +174,6 @@ bool PrefetchingService::disablePredictionQuery(uint hash)
     return query->executeQuery();
 }
 
-IResponse *PrefetchingService::index(IRequest *req) {
-    QObject parent;
-    int page = 1;
-    bool ok = false;
-    if (req->hasParameter("page")) {
-        page = req->parameterValue("page").toInt(&ok);
-        if (ok == false) {
-            page = 1;
-        }
-    }
-
-    IDatabaseSelectQuery *query = m_proxyConnection->databaseSelect("prefetch_orders", &parent);
-    query->select("absolute_uri");
-    query->select("completed");
-    query->select("date_updated");
-    query->select("page_hash_to");
-    query->offset((page - 1) * PER_PAGE);
-    query->limit(PER_PAGE);
-    query->orderBy("priority", IDatabaseSelectQuery::Descending);
-
-    QVariantList orders;
-
-
-    while (query->next()) {
-        QVariantMap order;
-        order.insert("id", query->value("page_hash_to"));
-        order.insert("absolute_uri", query->value("absolute_uri"));
-        order.insert("completed", query->value("completed"));
-        order.insert("date", query->value("date_updated"));
-
-        orders.append(order);
-    }
-
-    return req->response(QVariant(orders), IResponse::OK);
-}
-
 IResponse *PrefetchingService::create(IRequest *req)
 {
     if (req->hasParameter("page") && req->hasParameter("pid")) {
@@ -310,48 +271,6 @@ IResponse *PrefetchingService::list(IRequest *req) {
     IResponse *resp = req->response(QString("owNetAVAILABLEURIS = [%1];").arg(cached).toLatin1());
     resp->setContentType("application/javascript");
     return resp;
-}
-
-IResponse *PrefetchingService::allPagesCount(IRequest* req) {
-    QObject parent;
-
-    IDatabaseSelectQuery *query = m_proxyConnection->databaseSelect("prefetch_orders", &parent);
-    query->select("COUNT(*) as count");
-
-    if (query->next()) {
-        QVariantMap response;
-        int x = query->value("count").toInt();
-        response.insert("pages",qCeil(x/(double)PER_PAGE));
-        return req->response(QVariant(response),IResponse::OK);
-    }
-    else
-        return req->response(IResponse::INTERNAL_SERVER_ERROR);
-}
-
-IResponse* PrefetchingService::deleteOrder(IRequest *req) {
-    QObject parent;
-    if (req->hasParameter("id")) {
-        int id = req->parameterValue("id").toInt();
-
-        IDatabaseSelectQuery *query = m_proxyConnection->databaseSelect("prefetch_orders", &parent);
-        query->select("page_hash_to");
-        query->singleWhere("page_hash_to", id);
-        query->limit(1);
-        if (query->next()) {
-            id = query->value("page_hash_to").toInt();
-            IDatabaseUpdateQuery *update = m_proxyConnection->databaseUpdateQuery("prefetch_orders", &parent);
-            update->singleWhere("page_hash_to", id);
-            update->setType(IDatabaseUpdateQuery::Delete);
-            update->executeQuery();
-            return req->response(IResponse::OK);
-        }
-        else {
-            return req->response(IResponse::NOT_FOUND);
-        }
-    }
-    else {
-        return req->response(IResponse::INTERNAL_SERVER_ERROR);
-    }
 }
 
 QStringList PrefetchingService::getCachedLinks(QStringList links) {
