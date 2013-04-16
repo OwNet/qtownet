@@ -8,8 +8,10 @@
 
 OwNetClient::OwNetClient(OwNetCloudServer *cloudServer, QObject *parent) :
     m_cloudServer(cloudServer), QObject(parent)
-{
+{    
     m_path = QCoreApplication::applicationDirPath().append("/OwNetClient.exe");
+
+    qCritical() << "Path to OwNetClient " << m_path;
 }
 
 void OwNetClient::start()
@@ -23,7 +25,7 @@ void OwNetClient::start()
     m_process->setReadChannel(QProcess::StandardOutput);
     m_process->setProcessChannelMode(QProcess::MergedChannels);
 
-    m_process->start(m_path);
+    m_process->start(m_path, QStringList());
 }
 
 void OwNetClient::finished()
