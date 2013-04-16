@@ -5,7 +5,6 @@
 
 #include "version.h"
 
-#define QUAZIP_STATIC
 #include <quazip.h>
 #include <quazipfile.h>
 
@@ -13,6 +12,7 @@
 #include <QDir>
 #include <QFile>
 #include <QRegularExpression>
+#include <QCoreApplication>
 
 OwNetUpdater::OwNetUpdater(OwNetClient *client, OwNetCloudServer *cloudServer, QObject *parent) :
     m_client(client), m_cloudServer(cloudServer), QObject(parent)
@@ -94,5 +94,12 @@ void OwNetUpdater::packageDataReceived(QString fileName, QByteArray data)
     qDebug() << "Extracted files to " << extracted.absolutePath();
 
     // run update executable
-    // TODO
+    QProcessEnvironment &environment = QProcessEnvironment::systemEnvironment();
+    environment.insert("OWNET_DIR", QCoreApplication::applicationDirPath());
+
+    QProcess batch;
+    batch.setProcessEnvironment(environment);
+    batch.start("cmd.exe", QStringList() << "/c" << extracted.absoluteFilePath("update/update.bat"));
+    batch.waitForFinished();
+    qDebug() << batch.readAllStandardOutput();
 }
