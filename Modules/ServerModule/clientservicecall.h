@@ -47,6 +47,8 @@ private:
     IResponse *m_response;
     QNetworkReply *m_reply;
     QSemaphore m_semaphore;
+    QString m_proxyAddress;
+    int m_proxyPort;
 };
 
 #endif // CLIENTSERVICECALL_H

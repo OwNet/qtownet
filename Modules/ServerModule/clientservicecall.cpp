@@ -21,7 +21,8 @@ ClientServiceCall::ClientServiceCall(IProxyConnection *proxyConnection, QObject 
     m_networkAccessManager(NULL),
     m_request(NULL),
     m_reply(NULL),
-    m_response(NULL)
+    m_response(NULL),
+    m_proxyPort(0)
 {
 }
 
@@ -73,8 +74,8 @@ IResponse *ClientServiceCall::callService(const QString &url, IRequest *request,
 
     QThread* thread = new QThread;
     clientServiceCall->moveToThread(thread);
-    connect(thread, SIGNAL(started()), clientServiceCall, SLOT(startRequest()));
-    connect(clientServiceCall, SIGNAL(requestFinished()), thread, SLOT(terminate()));
+    connect(thread, SIGNAL(started()), clientServiceCall, SLOT(startRequest()), Qt::QueuedConnection);
+    connect(clientServiceCall, SIGNAL(requestFinished()), thread, SLOT(quit()));
     connect(thread, SIGNAL(finished()), thread, SLOT(deleteLater()));
     thread->start();
 
@@ -87,14 +88,15 @@ IResponse *ClientServiceCall::callService(const QString &url, IRequest *request,
 
 void ClientServiceCall::setProxy(const QString &address, int port)
 {
-    m_networkAccessManager = new QNetworkAccessManager(this);
-    m_networkAccessManager->setProxy(QNetworkProxy(QNetworkProxy::HttpProxy, address, port));
+    m_proxyAddress = address;
+    m_proxyPort = port;
 }
 
 void ClientServiceCall::startRequest()
 {
-    if (!m_networkAccessManager)
-        m_networkAccessManager = new QNetworkAccessManager(this);
+    m_networkAccessManager = new QNetworkAccessManager;
+    if (!m_proxyAddress.isEmpty())
+        m_networkAccessManager->setProxy(QNetworkProxy(QNetworkProxy::HttpProxy, m_proxyAddress, m_proxyPort));
     QNetworkRequest networkRequest((QUrl(m_url)));
 
     switch (m_request->requestType()) {
@@ -117,6 +119,7 @@ void ClientServiceCall::startRequest()
         break;
     }
 
+    connect(this, SIGNAL(requestFinished()), m_networkAccessManager, SLOT(deleteLater()));
     connect(m_reply, SIGNAL(finished()), this, SLOT(readyRead()));
 }
 
