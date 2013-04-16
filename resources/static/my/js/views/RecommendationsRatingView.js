@@ -30,6 +30,8 @@ define( function (require) {
 				'click a[name="myRatings"]' : "showMyRatings",
 				'click a[name="allRecommendations"]' : "showAllRecommendations",
 				'click a[name="allRatings"]' : "showAllRatings",
+				'click a[name="deleteRecommendation"]' : "deleteRecommendation",
+				'click a[name="deleteRating"]' : "deleteRating",
 			},
 
 
@@ -115,6 +117,34 @@ define( function (require) {
 				this.showRecommendations(filter,id)
 			},
 
+			deleteRecommendation: function(e){
+				e.preventDefault();
+        		var id = $(e.currentTarget).data("id");
+        		
+        		var data = {object_id : id}
+
+        		var DeleteRecommendation = Backbone.Model.extend({
+			  		urlRoot: '/api/recommendations',
+					defaults: {	}
+				})
+        		var recommendation = new DeleteRecommendation(data)
+        		recommendation.id = id
+        		var self = this
+
+        		recommendation.destroy({
+        			wait: true,
+        			success: function() {
+        				App.router.navigate("#/recommendations", {trigger: true})
+        				App.showMessage("Recommendation deleted")
+						self.showRecommendations("all", 1)
+					},
+					error: function() {
+						App.showMessage("Cannot delete recommendation")
+					},
+        		})
+
+			},
+
 			showRatings: function(filter, page) {
 				var RatingsCollection;
 				var Action;
@@ -184,6 +214,34 @@ define( function (require) {
 				var id = $(e.currentTarget).data("id");
 				var filter = $(e.currentTarget).data("filter");
 				this.showRatings(filter,id)
+			},
+
+			deleteRating: function(e){
+				e.preventDefault();
+        		var id = $(e.currentTarget).data("id");
+        		
+        		var data = {object_id : id}
+
+        		var DeleteRating = Backbone.Model.extend({
+			  		urlRoot: '/api/ratings',
+					defaults: {	}
+				})
+        		var rating = new DeleteRating(data)
+        		rating.id = id
+        		var self = this
+
+        		rating.destroy({
+        			wait: true,
+        			success: function() {
+        				App.router.navigate("#/ratings", {trigger: true})
+        				App.showMessage("Rating deleted")
+						self.showRatings("all", 1)
+					},
+					error: function() {
+						App.showMessage("Cannot delete rating")
+					},
+        		})
+
 			},
 			
 

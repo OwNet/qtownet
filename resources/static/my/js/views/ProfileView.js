@@ -34,6 +34,7 @@ define( function (require) {
 				'click a[name="editprofile"]': "editProfile",
 				'click a[name="RecommendationPager"]' : "showPage",
 				'click a[name="showDownloadOrders"]': "showDownloadOrders",
+				// 'click a[name="deleteDO"]': "deleteDO",
 			},
 
 			initialize: function() {
@@ -202,11 +203,11 @@ define( function (require) {
 					defaults: {	}
 				})
 
-				var downloadOrders = new DownloadOrdersCollection()
+				var downloadorders = new DownloadOrdersCollection()
 
-				downloadOrders.fetch({data: {page: page},
+				downloadorders.fetch({data: {page: page},
 					success: function() {
-						$('div#activities').html( downloadOrdersTemplate({downloadOrders: downloadOrders.toJSON()}))
+						$('div#activities').html( downloadOrdersTemplate({downloadorders: downloadorders.toJSON()}))
 					},
 					error: function(){
 						App.showMessage("Error reading activities")
@@ -229,6 +230,35 @@ define( function (require) {
 				return this
 
 			},
+
+			// deleteDO: function(e){
+			// 	e.preventDefault();
+   //      		var id = $(e.currentTarget).data("id");
+        		
+   //      		var data = {id : id}
+
+   //      		var DeleteDO = Backbone.Model.extend({
+			//   		urlRoot: '/api/prefetch/delete',
+			// 		defaults: {	}
+			// 	})
+
+   //      		var downloadorder = new DeleteDO(data)
+   //      		downloadorder.id = id
+   //      		var self = this
+
+   //      		downloadorder.destroy({
+   //      			wait: true,
+   //      			success: function() {
+   //      				App.router.navigate("#/profile", {trigger: true})
+   //      				App.showMessage("Group deleted")
+			// 			self.showDownloadOrders(1)
+			// 		},
+			// 		error: function() {
+			// 			App.showMessage("Cannot delete")
+			// 		},
+   //      		})
+
+			// },
 
 			updateNavbar: function() {
 				$('#navbar').html( userNavbarTemplate({ user:  App.user ? App.user.toJSON() : false }))
