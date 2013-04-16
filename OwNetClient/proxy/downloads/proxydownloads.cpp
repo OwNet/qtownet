@@ -198,6 +198,7 @@ ProxyInputObject *ProxyDownloads::newInputObject(ProxyRequest *request, ProxyHan
                         ProxyWebInputObject *webObject = new ProxyWebInputObject(request, handlerSession);
                         if (!location->isWeb())
                             webObject->setProxy(availableClients.value(location->clientId()).toString());
+                        inputObject = webObject;
                         break;
                     }
                 }

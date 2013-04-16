@@ -34,17 +34,21 @@ void ProxyWebInputObject::readRequest()
 void ProxyWebInputObject::socketConnectedToServer()
 {
     QByteArray bytes = m_request->requestReader()->wholeRequestBody();
-    int i = bytes.indexOf(" ");
-    if (i < 0)
-        return;
+    if (m_proxy.isEmpty()) {
+        int i = bytes.indexOf(" ");
+        if (i < 0)
+            return;
 
-    int n = bytes.indexOf(" ", i + 1) - (i + 1);
-    QString url = QString(bytes.mid(i + 1, n));
-    url.remove(0, url.indexOf('/', 7));
+        int n = bytes.indexOf(" ", i + 1) - (i + 1);
+        QString url = QString(bytes.mid(i + 1, n));
+        url.remove(0, url.indexOf('/', 7));
 
-    m_socket->write(bytes.mid(0, i + 1));
-    m_socket->write(url.toUtf8());
-    m_socket->write(bytes.mid(n + i + 1));
+        m_socket->write(bytes.mid(0, i + 1));
+        m_socket->write(url.toUtf8());
+        m_socket->write(bytes.mid(n + i + 1));
+    } else {
+        m_socket->write(bytes);
+    }
 }
 
 void ProxyWebInputObject::socketReadyRead()
@@ -144,8 +148,8 @@ void ProxyWebInputObject::createReply()
     connect(m_socket, SIGNAL(error(QAbstractSocket::SocketError)), this, SLOT(socketError(QAbstractSocket::SocketError)));
 
     if (!m_proxy.isEmpty()) {
-        QStringList ipAndPort = clientIpAndPort(m_proxy).split(":");
-        m_socket->setProxy(QNetworkProxy(QNetworkProxy::HttpProxy, ipAndPort.first(), ipAndPort.last().toInt()));
+        QStringList ipAndPort = m_proxy.split(":");
+        m_socket->setProxy(QNetworkProxy(QNetworkProxy::DefaultProxy, ipAndPort.first(), ipAndPort.last().toInt()));
     }
 
     m_socket->connectToHost(serverName(server), port(server));
