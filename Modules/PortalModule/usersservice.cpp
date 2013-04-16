@@ -155,7 +155,6 @@ IResponse *UsersService::create(IRequest *req)
 
     if ( !query->executeQuery() )
        return req->response(IResponse::INTERNAL_SERVER_ERROR);
-
     /* auto assign into general group */
     IDatabaseUpdateQuery *query2 = m_proxyConnection->databaseUpdateQuery("group_users", &parent);
 

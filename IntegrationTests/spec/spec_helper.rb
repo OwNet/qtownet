@@ -22,6 +22,7 @@ Dir[File.dirname(__FILE__) + "/support/**/*.rb"].each {|f| require f}
 RSpec.configure	do |config|
 	config.include(FixtureHelpers)
 	config.include(DatabaseHelpers)
+	config.include(LoginHelper)
 	config.include(ApiHelpers)
 	config.include(BrowserHelpers)
 	
