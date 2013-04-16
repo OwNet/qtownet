@@ -15,11 +15,11 @@ ProxyInitializer::ProxyInitializer(QObject *parent)
 
 void ProxyInitializer::init()
 {
-    Settings *settings = new Settings();
-    settings->beginGroup("application");
-    settings->setValue("readTimeout", 30*1000);
-    settings->setValue("maxRequestSize", 32000);
-    settings->setValue("minThreads", 10);
+    Settings settings;
+    settings.beginGroup("application");
+    settings.setValue("readTimeout", 30*1000);
+    settings.setValue("maxRequestSize", 32000);
+    settings.setValue("minThreads", 10);
 
     new HttpServer;
 }
