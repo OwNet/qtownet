@@ -1,4 +1,6 @@
 #include "httpserver.h"
+#include "settings.h"
+#include "messagehelper.h"
 
 #include <QTcpServer>
 #include <QThread>
@@ -8,10 +10,17 @@
 HttpServer::HttpServer(QObject *parent) :
     QObject(parent)
 {
+    Settings *settings = new Settings();
+
+    int port = settings->value("application/listen_port", 8081).toInt();
+
     m_server = new QTcpServer(this);
     connect(m_server, SIGNAL(newConnection()), SLOT(newConnection()));
-    bool ok = m_server->listen(QHostAddress::Any, 8081);
-    qDebug() << ok;
+    bool ok = m_server->listen(QHostAddress::Any, port);
+    if (ok)
+        MessageHelper::debug(QObject::tr("Listening on port %1").arg(port));
+    else
+        MessageHelper::debug(QObject::tr("Failed to listen on port %1").arg(port));
 }
 
 void HttpServer::newConnection()
