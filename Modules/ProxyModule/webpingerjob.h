@@ -1,21 +1,20 @@
 #ifndef WEBPINGERJOB_H
 #define WEBPINGERJOB_H
 
-#include <QObject>
-
 #include "ijobaction.h"
 
 class IProxyConnection;
 class WebPinger;
 
-class WebPingerJob : public QObject, public IJobAction
+class WebPingerJob : public IJobAction
 {
     Q_OBJECT
 public:
-    explicit WebPingerJob(IProxyConnection *proxyConnection, QObject *parent = 0);
+    explicit WebPingerJob();
 
     int interval() { return 15 * 1000; }
     void execute();
+    void setProxyConnection(IProxyConnection *proxyConnection) { m_proxyConnection = proxyConnection; }
 
 private:
     IProxyConnection *m_proxyConnection;

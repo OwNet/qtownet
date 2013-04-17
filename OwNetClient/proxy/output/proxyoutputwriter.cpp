@@ -13,7 +13,7 @@ ProxyOutputWriter::ProxyOutputWriter(ProxyHandlerSession *proxyHandlerSession)
     m_proxyHandlerDependentObjectId = m_proxyHandlerSession->registerDependentObject();
     m_proxyDownloads = ProxyDownloads::instance();
 
-    connect(m_proxyHandlerSession, SIGNAL(shouldForceQuit()), this, SLOT(forceQuit()));
+    connect(m_proxyHandlerSession, SIGNAL(shouldForceQuit()), this, SLOT(forceQuit()), Qt::QueuedConnection);
 }
 
 /**

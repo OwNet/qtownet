@@ -9,6 +9,7 @@ public:
     UpdateMainWindowJob(QObject *parent = 0);
 
     void execute();
+    bool createSeparateThread() const { return false; }
 };
 
 #endif // UPDATEMAINWINDOWJOB_H

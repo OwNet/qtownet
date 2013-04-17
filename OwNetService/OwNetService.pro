@@ -6,8 +6,6 @@
 
 QT       += core gui network
 
-LIBS     += -lz
-
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 TARGET = OwNetService
@@ -69,3 +67,6 @@ HEADERS  += helpers/applicationenvironment.h \
     quazip/crypt.h
 
 INCLUDEPATH += helpers initializers ownet quazip
+
+DEFINES += QUAZIP_STATIC
+INCLUDEPATH += $$[QT_INSTALL_PREFIX]/include/QtZlib

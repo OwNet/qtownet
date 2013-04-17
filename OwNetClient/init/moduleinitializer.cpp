@@ -13,6 +13,7 @@
 #include <QDir>
 #include <QPluginLoader>
 #include <QList>
+#include <QApplication>
 
 ModuleInitializer::ModuleInitializer(QObject *parent) :
     QObject(parent)
@@ -32,6 +33,8 @@ void ModuleInitializer::initModule(IModule *module)
 void ModuleInitializer::loadPlugins()
 {
     QDir modulesDir;
+
+    modulesDir.cd(QApplication::applicationDirPath());
 
 #if defined(Q_OS_WIN)
     if (modulesDir.dirName().toLower() == "debug" || modulesDir.dirName().toLower() == "release")

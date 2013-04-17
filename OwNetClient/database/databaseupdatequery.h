@@ -18,6 +18,12 @@ class DatabaseUpdateQuery : public QObject, public IDatabaseUpdateQuery
 {
     Q_OBJECT
 public:
+    enum ForceOperation {
+        DontForce = 0,
+        ForceInsert = 1,
+        ForceUpdate = 2
+    };
+
     DatabaseUpdateQuery(const QString &table, EntryType type = InsertOrUpdate, QObject *parent = 0);
 
     void setTable(const QString &table) { m_table = table; }
@@ -37,6 +43,8 @@ public:
     static void registerListener(IDatabaseUpdateListener *listener);
     static void deregisterListener(IDatabaseUpdateListener *listener);
 
+    void setForceOperation(ForceOperation force) { m_forceOperation = force; }
+
 protected:
     virtual bool executeInsert();
     virtual bool executeUpdate();
@@ -55,6 +63,7 @@ private:
     DatabaseUpdateQuery::EntryType m_type;
     QVariantMap m_temporaryBindings;
     QVariantList m_columnsForListeners;
+    ForceOperation m_forceOperation;
     static QMap<QString, QList<IDatabaseUpdateListener*>* > *m_listeners;
 };
 
