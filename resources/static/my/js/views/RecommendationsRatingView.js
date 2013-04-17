@@ -5,7 +5,8 @@ define( function (require) {
 	var App = require("App")
 	  , Backbone = require("backbone")
 	  , recommendationsTemplate = require ("tpl/recommendations")
-	  , profileTemplate = require ("tpl/profile")
+	  , profileTableTemplate = require ("tpl/profiletable")
+	  , profileTemplate = require ("tpl/otherprofile")
 	  , recommendationsTableTamplate = require ("tpl/recommendationstable")
 	  , recommendationsPagerTemplate = require ("tpl/recommendationspager")
 	  , menuRatingsTemplate = require ("tpl/menuratings")
@@ -32,6 +33,7 @@ define( function (require) {
 				'click a[name="allRatings"]' : "showAllRatings",
 				'click a[name="deleteRecommendation"]' : "deleteRecommendation",
 				'click a[name="deleteRating"]' : "deleteRating",
+				'click a[name="showOtherUser"]' : "showOtherUser",
 			},
 
 
@@ -77,7 +79,7 @@ define( function (require) {
 
 				activities.fetch({data: {page: page, type: '0'},
 					success: function() {
-						$('div#recommendations').html( recommendationsTableTamplate({activities: activities.toJSON(), filter: filter}))
+						$('div#recommendations').html( recommendationsTableTamplate({activities: activities.toJSON(), filter: filter, user: App.user.toJSON()}))
 						$('div#menu').html( menuRecommendationsTemplate({activities: activities.toJSON(), filter: filter}))
 					},
 					error: function(){
@@ -175,7 +177,7 @@ define( function (require) {
 
 				activities.fetch({data: {page: page, type: '1'},
 					success: function() {
-						$('div#ratings').html( ratingsTableTamplate({activities: activities.toJSON(), filter: filter}))
+						$('div#ratings').html( ratingsTableTamplate({activities: activities.toJSON(), filter: filter, user: App.user.toJSON()}))
 						$('div#menu').html( menuRatingsTemplate({activities: activities.toJSON(), filter: filter}))
 
 					},
@@ -242,6 +244,26 @@ define( function (require) {
 					},
         		})
 
+			},
+
+			showOtherUser: function(e){
+				e.preventDefault();
+        		var id = $(e.currentTarget).data("id");
+        		var user = new UserModel()
+        		user.id = id
+
+
+        		user.fetch({
+        			success: function() {
+        				App.router.navigate("#/otherprofile", {trigger: true})
+        	
+        				$('div#user_profile').html( profileTableTemplate({user :user.toJSON()}))
+        				$('div#pager').hide();
+
+        				
+					}
+        		})
+        						
 			},
 			
 

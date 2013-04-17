@@ -194,12 +194,12 @@ define( function (require) {
 				var Action;
 				var DownloadOrdersCollection;
 				DownloadOrdersCollection = Backbone.Collection.extend({
-					url: '/api/prefetch/show',
+					url: '/api/orders',
 					model: DownloadOrdersModel
 				})
 
 				Action = Backbone.Model.extend({
-					urlRoot: '/api/prefetch/allPagesCount',
+					urlRoot: '/api/orders/allPagesCount',
 					defaults: {	}
 				})
 
@@ -207,10 +207,11 @@ define( function (require) {
 
 				downloadorders.fetch({data: {page: page},
 					success: function() {
+						console.log( downloadOrdersTemplate({downloadorders: downloadorders.toJSON()}) )
 						$('div#activities').html( downloadOrdersTemplate({downloadorders: downloadorders.toJSON()}))
 					},
 					error: function(){
-						App.showMessage("Error reading activities")
+						App.showMessage("Error reading download orders")
 					},
 				})
 
@@ -226,7 +227,7 @@ define( function (require) {
 					},
 				})
 
-				this.$el.html( downloadOrdersTemplate({ }) )
+				this.$el.html( downloadOrdersTemplate({downloadorders: downloadorders.toJSON()}) )
 				return this
 
 			},
