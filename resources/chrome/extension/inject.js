@@ -312,7 +312,7 @@ owNetAVAILABLEURIS = [];
 				text: 'Show OwNet',
 				alt: 'Recomend',
 				title: 'Open OwNet box for rating, recommending and tagging this webpage.',
-				onclick: 'togglePageRatings',
+				onclick: 'togglePageActions',
 			},
 
 			close: {
@@ -430,8 +430,8 @@ owNetAVAILABLEURIS = [];
 			this.root.style.display = 'none'
 		},
 
-		togglePageRatings: function() {
-			this._toggleTab('page_rating')
+		togglePageActions: function() {
+			this._toggleTab('page_actions')
 		},
 
 		toggleCacheSettings: function() {
@@ -535,7 +535,7 @@ owNetAVAILABLEURIS = [];
 			var iframe = document.createElement('iframe')
 			iframe.setAttribute("src", this.iframeHost + this.iframePath)
 			iframe.setAttribute("width", "460")
-			iframe.setAttribute("height", "460");
+			iframe.setAttribute("height", "480");
 			iframe.setAttribute("scrolling", "auto")
 			iframe.setAttribute("frameborder", "0")
 
