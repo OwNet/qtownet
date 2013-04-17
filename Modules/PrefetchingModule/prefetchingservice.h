@@ -33,7 +33,6 @@ public:
 
 private:
     static const int DEFAULT_PRIORITY = 10;
-    static const int PER_PAGE = 10;
     IProxyConnection *m_proxyConnection;
     void registerPredictionsQuery(uint from, QStringList &url);
     bool completedPrefetchingQuery(QString url);
