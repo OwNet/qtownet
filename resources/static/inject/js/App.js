@@ -6,6 +6,7 @@ define( function (require) {
 	var Backbone = require('backbone')
 	  , SessionModel  = require('share/models/SessionModel')
 	  , UserModel = require ('share/models/UserModel')
+	  , Groups = require('collections/groups')
 
 	var App = {
 
@@ -13,22 +14,30 @@ define( function (require) {
 
 			window.addEventListener("message", this.receiveMessage, false)
 
+			App.on('OwNet:URI',function(uri) {
+				App.uri = uri
+			})
+
+			var groups = new Groups()
 			var session = new SessionModel()
 
 			session.fetch({
 				success: function() {
 					var user = new UserModel({ id: session.get('user_id') })
-					user.fetch({
-						success: function(){
+
+					$.when( user.fetch(), groups.fetch() )
+						.done( function(){
 							App.session = session
 							App.user = user
+							App.groups = groups
 							App.trigger('ready')
-						},
-						error:   function(){ App._userLoadError() },
-					})
+						})
+						.fail( function(){ App.fatalError('Error: User cannot be loaded!') })
+
 				},
 				error: function() { App.trigger('ready') } // user is not logged in
 			})
+
 
 		},
 

@@ -6,6 +6,7 @@ define( function (require) {
 	var Backbone = require( 'backbone' )
 	  , LoginView = require( 'views/LoginView' )
 	  , PageRatingView = require( 'views/PageRatingView' )
+	  , PageRecommendView = require( 'views/PageRecommendView' )
 	  , App = require('App')
 
 
@@ -16,6 +17,7 @@ define( function (require) {
 			this.views = {
 				login : new LoginView({ el: $('#login') }),
 				pageRatingView : new PageRatingView({ el:$('#page-ratings') }),
+				pageRecommendView : new PageRecommendView({ el:$('#page-recommend') }),
 			}
 
 			this.$tabs = $('#page > .tab-content > .tab-pane')
@@ -36,15 +38,15 @@ define( function (require) {
 
 		routes: {
 			'login'       : 'login',
-			'page_rating' : 'page_rating',
+			'page_actions' : 'page_actions',
 		},
 
 		login: function() {
 
 		},
 
-		page_rating: function() {
-			this.views.page_rating
+		page_actions: function() {
+			// this.views.page_rating
 		},
 
 	});
