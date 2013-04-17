@@ -16,6 +16,7 @@ public:
     ProxyRequestBus(ProxyRequest *request, QObject *parent = 0);
 
     InputType inputType() const { return LocalService; }
+    bool addContentLengthHeader() const { return true; }
 
 protected:
     void readRequest();

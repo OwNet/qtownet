@@ -6,12 +6,13 @@
 #include "iservice.h"
 
 class PingServer;
+class IProxyConnection;
 
 class PingService : public QObject, public IService
 {
     Q_OBJECT
 public:
-    explicit PingService(PingServer *pingServer, QObject *parent = 0);
+    explicit PingService(IProxyConnection *proxyConnection, QObject *parent = 0);
 
     virtual QString name() const { return "ping"; }
     void init(IRouter* router);

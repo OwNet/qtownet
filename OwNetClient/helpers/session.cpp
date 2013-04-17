@@ -2,7 +2,10 @@
 
 #include "databasesettings.h"
 
+#include <QMutex>
+
 QVariantMap *Session::m_sessionData = new QVariantMap;
+QMutex *Session::m_mutex = new QMutex;
 
 Session::Session(QObject *parent)
     : QObject(parent)
@@ -11,45 +14,55 @@ Session::Session(QObject *parent)
 
 void Session::setValue(const QString &key, const QVariant &value)
 {
+    m_mutex->lock();
     m_sessionData->insert(key, value);
+    m_mutex->unlock();
 }
 
-QVariant Session::value(const QString &key) const
+QVariant Session::value(const QString &key, const QVariant &defaultValue) const
 {
-    return m_sessionData->value(key);
+    m_mutex->lock();
+    QVariant value = m_sessionData->value(key, defaultValue);
+    m_mutex->unlock();
+    return value;
 }
 
 bool Session::contains(const QString &key) const
 {
-    return m_sessionData->contains(key);
+    m_mutex->lock();
+    bool contains = m_sessionData->contains(key);
+    m_mutex->unlock();
+    return contains;
 }
 
 void Session::clear()
 {
+    m_mutex->lock();
     m_sessionData->clear();
+    m_mutex->unlock();
 }
 
 bool Session::isLoggedIn() const
 {
-    return m_sessionData->contains("logged");
+    return contains("logged");
 }
 
 uint Session::userId() const
 {
-    return m_sessionData->value("logged").toUInt();
+    return value("logged").toUInt();
 }
 
 QVariantMap Session::availableClients() const
 {
-    if (m_sessionData->contains("available_clients"))
-        return m_sessionData->value("available_clients").toMap();
+    if (contains("available_clients"))
+        return value("available_clients").toMap();
     return QVariantMap();
 }
 
 QString Session::serverId() const
 {
-    if (m_sessionData->contains("server_id") && !m_sessionData->value("server_id").isNull())
-        return m_sessionData->value("server_id").toString();
+    if (contains("server_id") && !value("server_id").isNull())
+        return value("server_id").toString();
     return DatabaseSettings().clientId();
 }
 
@@ -60,10 +73,10 @@ bool Session::isServer() const
 
 bool Session::isOnline() const
 {
-    return m_sessionData->value("is_online", true).toBool();
+    return value("is_online", true).toBool();
 }
 
 bool Session::isRefreshSession() const
 {
-    return m_sessionData->value("refresh_session", false).toBool();
+    return value("refresh_session", false).toBool();
 }

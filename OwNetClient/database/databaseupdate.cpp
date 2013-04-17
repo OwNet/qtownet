@@ -21,6 +21,7 @@ void DatabaseUpdate::saveLastRecordNumbers()
     QMap<int, int> recordNumbers(*m_lastRecordNumbers);
     m_lastRecordNumbers->clear();
     DatabaseSettings databaseSettings;
+    databaseSettings.saveLastClientSyncRecordNumber();
 
     for (auto i = recordNumbers.begin(); i != recordNumbers.end(); ++i) {
         DatabaseUpdateQuery query("client_sync_records");

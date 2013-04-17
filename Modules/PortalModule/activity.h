@@ -21,6 +21,7 @@ public:
     {
         RECOMMENDATION,
         RATING,
+        MESSAGE,
         FILE
     };
 

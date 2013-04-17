@@ -3,10 +3,10 @@
 #include "pingserver.h"
 #include "irouter.h"
 
-PingService::PingService(PingServer *pingServer, QObject *parent) :
-    QObject(parent),
-    m_pingServer(pingServer)
+PingService::PingService(IProxyConnection *proxyConnection, QObject *parent) :
+    QObject(parent)
 {
+    m_pingServer = new PingServer(proxyConnection, this);
 }
 
 void PingService::init(IRouter *router)
