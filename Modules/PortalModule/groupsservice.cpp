@@ -427,22 +427,23 @@ IResponse *GroupsService::allPagesCount(IRequest *req)
 IResponse *GroupsService::index(IRequest *req)
 {
     int  page;
+    QSqlQuery query;
 
-    if(!(page= req->parameterValue("page").toInt())){
-        QVariantMap error;
-        error.insert("page_number","error");
-        return req->response(QVariant(error), IResponse::BAD_REQUEST);
-    }
 
-    QString user_id = m_proxyConnection->session()->value("logged").toString();
     if(!m_proxyConnection->session()->isLoggedIn())
         req->response(IResponse::UNAUTHORIEZED);
 
+    QString user_id = m_proxyConnection->session()->value("logged").toString();
 
-    QSqlQuery query;
-    query.prepare("SELECT * FROM groups ORDER BY name LIMIT :limit OFFSET :offset");
-    query.bindValue(":limit",PER_PAGE);
-    query.bindValue(":offset", (page-1)* PER_PAGE);
+    if ( req->hasParameter("page") ) {
+        page= req->parameterValue("page").toInt();
+        query.prepare("SELECT * FROM groups ORDER BY name LIMIT :limit OFFSET :offset");
+        query.bindValue(":limit",PER_PAGE);
+        query.bindValue(":offset", (page-1)* PER_PAGE);
+    }
+    else
+        query.prepare("SELECT * FROM groups ORDER BY name");
+
 
     if( query.exec()){
         QVariantList groups;
