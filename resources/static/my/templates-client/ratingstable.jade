@@ -11,4 +11,5 @@ each activity in activities
 		.span2
 			span #{activity.user_name}
 		.span1
+		if (user.id == activity.user_id)
 			a( href="#/ratings",data-id="#{activity.object_id}",name="deleteRating") Delete

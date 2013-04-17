@@ -77,7 +77,7 @@ define( function (require) {
 
 				activities.fetch({data: {page: page, type: '0'},
 					success: function() {
-						$('div#recommendations').html( recommendationsTableTamplate({activities: activities.toJSON(), filter: filter}))
+						$('div#recommendations').html( recommendationsTableTamplate({activities: activities.toJSON(), filter: filter, user: App.user.toJSON()}))
 						$('div#menu').html( menuRecommendationsTemplate({activities: activities.toJSON(), filter: filter}))
 					},
 					error: function(){
@@ -175,7 +175,7 @@ define( function (require) {
 
 				activities.fetch({data: {page: page, type: '1'},
 					success: function() {
-						$('div#ratings').html( ratingsTableTamplate({activities: activities.toJSON(), filter: filter}))
+						$('div#ratings').html( ratingsTableTamplate({activities: activities.toJSON(), filter: filter, user: App.user.toJSON()}))
 						$('div#menu').html( menuRatingsTemplate({activities: activities.toJSON(), filter: filter}))
 
 					},
