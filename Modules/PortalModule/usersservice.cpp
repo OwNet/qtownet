@@ -33,6 +33,7 @@ IResponse *UsersService::index(IRequest * req)
             user.insert("last_name", query.value(query.record().indexOf("last_name")));
             user.insert("login", query.value(query.record().indexOf("login")));
             user.insert("email", query.value(query.record().indexOf("email")));
+            user.insert("school", query.value(query.record().indexOf("school")));
             users.append(user);
         }
 
@@ -60,6 +61,7 @@ IResponse *UsersService::show(IRequest *req, uint id)
         user.insert("login", row.value("login"));
         user.insert("email", row.value("email"));
         user.insert("gender", row.value("gender"));
+        user.insert("school", row.value("school"));
         user.insert("date_of_birth", row.value("date_of_birth"));
         // count of messages, ratings and recommendations
         int i = 0;
@@ -129,6 +131,7 @@ IResponse *UsersService::create(IRequest *req)
     //0 female 1 male
     QString date_of_birth = reqJson["date_of_birth"].toString();
     QString gender = reqJson["gender"].toString();
+     QString school = reqJson["school"].toString();
 
     QString password = reqJson["password"].toString();
 
@@ -151,11 +154,11 @@ IResponse *UsersService::create(IRequest *req)
     query->setColumnValue("password", password);
     query->setColumnValue("salt", salt);
     query->setColumnValue("gender", gender);
+    query->setColumnValue("school", school);
     query->setColumnValue("date_of_birth", date_of_birth);
 
     if ( !query->executeQuery() )
        return req->response(IResponse::INTERNAL_SERVER_ERROR);
-
     /* auto assign into general group */
     IDatabaseUpdateQuery *query2 = m_proxyConnection->databaseUpdateQuery("group_users", &parent);
 

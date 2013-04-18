@@ -1,0 +1,10 @@
+each downloadorder in downloadorders
+	.row
+		.span2
+			span #{downloadorder.absolute_uri}
+		.span2.offset1
+			span #{new Date(downloadorder.date).toLocaleDateString()}
+		.span2
+			span #{downloadorder.completed}
+		.span2
+			a( href="#/showdownloadorders",data-id="#{downloadorder.id}",name="deleteDO") Delete

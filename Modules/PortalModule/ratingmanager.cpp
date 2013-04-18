@@ -147,7 +147,7 @@ IResponse::Status RatingManager::deleteRating(QString uid, uint userId, QVariant
     if (!query->executeQuery())
         return IResponse::INTERNAL_SERVER_ERROR;
     else {
-        //**** delete activity ********//
+        // delete activity
         m_activityManager->deleteActivity( rating["uid"].toString());
         return IResponse::OK;
     }

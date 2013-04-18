@@ -8,10 +8,13 @@ define( function (require) {
 	  , profileTableTemplate = require ("tpl/profiletable")
 	  , profileFormTemplate = require ("tpl/profileform")
 	  , menuTemplate = require ("tpl/menu")
+	  , downloadOrdersTemplate = require("tpl/downloadorders")
 	  , pagerRecommTemplate = require ("tpl/profilepager")
+	  , pagerDownloadTemplate = require ("tpl/downloadorderspager")
 	  , showactivitiesTemplate = require ("tpl/showactivities")
 	  , UserModel = require ("share/models/UserModel")
 	  , ActivityModel = require ("share/models/ActivityModel")
+	  , DownloadOrdersModel = require ("share/models/DownloadOrdersModel")
 
 	  , userNavbarTemplate = require ("tpl/user-navbar")
 
@@ -30,12 +33,13 @@ define( function (require) {
 				'click form[name="profile-form"] button[name="update"]': "saveProfile", 
 				'click a[name="editprofile"]': "editProfile",
 				'click a[name="RecommendationPager"]' : "showPage",
+				'click a[name="showDownloadOrders"]': "showDownloadOrders",
+				'click a[name="deleteDO"]': "deleteDO",
 			},
 
 			initialize: function() {
 				this.updateNavbar()
 			},
-
 
 			render: function() {
 				this.$el.html( profileTemplate({}) )
@@ -43,28 +47,6 @@ define( function (require) {
 				return this
 			}, 
 		
-			/*showAll: function(message) {
-				var UsersCollection = Backbone.Collection.extend({
-		  			url: '/api/users/',
-		  			model: UserModel
-				})
-				
-				var users = new UsersCollection()
-
-				users.fetch({
-					success: function() {
-						$('div#all_profiles').html( showAllTemplate({users :users.toJSON()}))
-
-					},
-					error: function() {
-						App.showMessage("No user found")
-					},
-				})
-
-				this.$el.html( profileTemplate({ }) )
-				return this
-			},*/
-
 			showActivities: function(page) {
 				var Action;
 				var ActivitiesCollection;
@@ -150,27 +132,6 @@ define( function (require) {
 
 			},
 
-			/*showActivities: function() {
-				var ActivitiesCollection = Backbone.Collection.extend({
-					url: '/api/activities',
-					model: ActivityModel
-				})
-
-				var activities = new ActivitiesCollection()
-
-				activities.fetch({
-					success: function() {
-						$('div#activities').html( showactivitiesTemplate({activities: activities.toJSON()}))
-					},
-					error: function(){
-						App.showMessage("Error reading activities")
-					},
-				})
-				this.$el.html( profileTemplate({ }) )
-				return this
-
-			},*/
-
 			show: function(){
 				        		     		
         		App.user.fetch({
@@ -220,12 +181,112 @@ define( function (require) {
         			success: function() {
         				App.router.navigate("#/editprofile", {trigger: true})
         	
-        				$('div#edit_profile').html( profileFormTemplate({user :user.toJSON()}))
+        				$('div#activities').html( profileFormTemplate({user :user.toJSON()}))
+        				$('div#pager').hide();
 
         				
 					}
         		})
         						
+			},
+
+			showDownloadOrders: function(page) {
+				var Action;
+				var downloadOrdersCollection;
+				downloadOrdersCollection = Backbone.Collection.extend({
+					url: '/api/orders',
+					model: DownloadOrdersModel
+				})
+
+				Action = Backbone.Model.extend({
+					urlRoot: '/api/orders/allPagesCount',
+					defaults: {	}
+				})
+
+				var downloadorders = new downloadOrdersCollection()
+
+				downloadorders.fetch({data: {page: page},
+					success: function() {
+						$('div#activities').html( downloadOrdersTemplate({downloadorders: downloadorders.toJSON()}))
+						$('div#menu').html( menuTemplate({user :App.user.toJSON()}))
+					},
+					error: function(){
+						App.showMessage("Error reading downloadorders")
+					},
+				})
+
+				var action = new Action()
+
+
+				action.fetch({
+					success: function() {
+						$('div#user_profile').html( profileTableTemplate({user :App.user.toJSON()}))
+						$('div#pager').html( pagerRecommTemplate({action :action.toJSON()}))
+					},
+					error: function() {
+						
+					},
+				})
+
+				this.$el.html( profileTemplate({ }) )
+				return this
+
+			},
+
+			deleteRating: function(e){
+				e.preventDefault();
+        		var id = $(e.currentTarget).data("id");
+        		
+        		var data = {object_id : id}
+
+        		var DeleteRating = Backbone.Model.extend({
+			  		urlRoot: '/api/ratings',
+					defaults: {	}
+				})
+        		var rating = new DeleteRating(data)
+        		rating.id = id
+        		var self = this
+
+        		rating.destroy({
+        			wait: true,
+        			success: function() {
+        				App.router.navigate("#/ratings", {trigger: true})
+        				App.showMessage("Rating deleted")
+						self.showRatings("all", 1)
+					},
+					error: function() {
+						App.showMessage("Cannot delete rating")
+					},
+        		})
+
+			},
+			deleteDO: function(e){
+				e.preventDefault();
+        		var id = $(e.currentTarget).data("id");
+        		
+        		var data = {id : id}
+
+        		var DeleteDO = Backbone.Model.extend({
+			  		urlRoot: '/api/orders',
+					defaults: {	}
+				})
+
+        		var downloadorder = new DeleteDO(data)
+        		downloadorder.id = id
+        		var self = this
+
+        		downloadorder.destroy({
+        			wait: true,
+        			success: function() {
+        				App.router.navigate("#/showdownloadorders", {trigger: true})
+        				App.showMessage("Download Order deleted")
+						self.showDownloadOrders(1)
+					},
+					error: function() {
+						App.showMessage("Cannot delete")
+					},
+        		})
+
 			},
 
 			updateNavbar: function() {

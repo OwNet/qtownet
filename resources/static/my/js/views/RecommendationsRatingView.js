@@ -5,7 +5,8 @@ define( function (require) {
 	var App = require("App")
 	  , Backbone = require("backbone")
 	  , recommendationsTemplate = require ("tpl/recommendations")
-	  , profileTemplate = require ("tpl/profile")
+	  , profileTableTemplate = require ("tpl/otherprofile")
+	  , profileTemplate = require ("tpl/otherprofile")
 	  , recommendationsTableTamplate = require ("tpl/recommendationstable")
 	  , recommendationsPagerTemplate = require ("tpl/recommendationspager")
 	  , menuRatingsTemplate = require ("tpl/menuratings")
@@ -30,6 +31,9 @@ define( function (require) {
 				'click a[name="myRatings"]' : "showMyRatings",
 				'click a[name="allRecommendations"]' : "showAllRecommendations",
 				'click a[name="allRatings"]' : "showAllRatings",
+				'click a[name="deleteRecommendation"]' : "deleteRecommendation",
+				'click a[name="deleteRating"]' : "deleteRating",
+				'click a[name="showOtherUser"]' : "showOtherUser",
 			},
 
 
@@ -75,7 +79,7 @@ define( function (require) {
 
 				activities.fetch({data: {page: page, type: '0'},
 					success: function() {
-						$('div#recommendations').html( recommendationsTableTamplate({activities: activities.toJSON(), filter: filter}))
+						$('div#recommendations').html( recommendationsTableTamplate({activities: activities.toJSON(), filter: filter, user: App.user.toJSON()}))
 						$('div#menu').html( menuRecommendationsTemplate({activities: activities.toJSON(), filter: filter}))
 					},
 					error: function(){
@@ -115,6 +119,34 @@ define( function (require) {
 				this.showRecommendations(filter,id)
 			},
 
+			deleteRecommendation: function(e){
+				e.preventDefault();
+        		var id = $(e.currentTarget).data("id");
+        		
+        		var data = {object_id : id}
+
+        		var DeleteRecommendation = Backbone.Model.extend({
+			  		urlRoot: '/api/recommendations',
+					defaults: {	}
+				})
+        		var recommendation = new DeleteRecommendation(data)
+        		recommendation.id = id
+        		var self = this
+
+        		recommendation.destroy({
+        			wait: true,
+        			success: function() {
+        				App.router.navigate("#/recommendations", {trigger: true})
+        				App.showMessage("Recommendation deleted")
+						self.showRecommendations("all", 1)
+					},
+					error: function() {
+						App.showMessage("Cannot delete recommendation")
+					},
+        		})
+
+			},
+
 			showRatings: function(filter, page) {
 				var RatingsCollection;
 				var Action;
@@ -145,7 +177,7 @@ define( function (require) {
 
 				activities.fetch({data: {page: page, type: '1'},
 					success: function() {
-						$('div#ratings').html( ratingsTableTamplate({activities: activities.toJSON(), filter: filter}))
+						$('div#ratings').html( ratingsTableTamplate({activities: activities.toJSON(), filter: filter, user: App.user.toJSON()}))
 						$('div#menu').html( menuRatingsTemplate({activities: activities.toJSON(), filter: filter}))
 
 					},
@@ -184,6 +216,56 @@ define( function (require) {
 				var id = $(e.currentTarget).data("id");
 				var filter = $(e.currentTarget).data("filter");
 				this.showRatings(filter,id)
+			},
+
+			deleteRating: function(e){
+				e.preventDefault();
+        		var id = $(e.currentTarget).data("id");
+        		
+        		var data = {object_id : id}
+
+        		var DeleteRating = Backbone.Model.extend({
+			  		urlRoot: '/api/ratings',
+					defaults: {	}
+				})
+        		var rating = new DeleteRating(data)
+        		rating.id = id
+        		var self = this
+
+        		rating.destroy({
+        			wait: true,
+        			success: function() {
+        				App.router.navigate("#/ratings", {trigger: true})
+        				App.showMessage("Rating deleted")
+						self.showRatings("all", 1)
+					},
+					error: function() {
+						App.showMessage("Cannot delete rating")
+					},
+        		})
+
+			},
+
+			showOtherUser: function(e){
+				e.preventDefault();
+        		var id = $(e.currentTarget).data("id");
+        		var user = new UserModel()
+        		user.id = id
+
+
+        		user.fetch({
+        			success: function() {
+        				App.router.navigate("#/otherprofile", {trigger: true})
+        	
+        				$('div#other_user_profile').html( profileTableTemplate({user :user.toJSON()}))
+        				$('div#user_profile').hide();
+        				$('div#activities').hide();
+        				$('div#pager').hide();
+
+        				
+					}
+        		})
+        						
 			},
 			
 

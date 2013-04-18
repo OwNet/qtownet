@@ -87,6 +87,7 @@ bool PrefetchingJob::prefetch()
     qDebug("Attempting to start prefetching.");
     // IDatabaseUpdate *update = m_proxyConnection->databaseUpdate(&parent);
     IDatabaseSelectQuery *select = m_proxyConnection->databaseSelect("prefetch_orders", &parent);
+    select->singleWhere("completed", false);
     select->orderBy("priority desc");
     select->select("absolute_uri");
 

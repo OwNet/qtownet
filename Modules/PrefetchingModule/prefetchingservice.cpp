@@ -212,9 +212,6 @@ IResponse *PrefetchingService::create(IRequest *req)
     return resp;
 }
 
-
-
-
 IResponse *PrefetchingService::close(IRequest *req)
 {
     if (req->hasParameter("pid")) {
@@ -242,7 +239,6 @@ IResponse *PrefetchingService::load(IRequest *req)
     return response;
 }
 
-
 IResponse *PrefetchingService::done(IRequest *req)
 {
     if (req->hasParameter("page") && !req->parameterValue("page").isEmpty()) {
@@ -253,7 +249,6 @@ IResponse *PrefetchingService::done(IRequest *req)
     resp->setContentType("application/javascript");
     return  resp;
 }
-
 
 IResponse *PrefetchingService::list(IRequest *req) {
     QString cached = "";

@@ -1,14 +1,17 @@
 require "spec_helper.rb"
 require "support/database_helpers.rb"
+require "support/login_helper.rb"
 
 # NOTE: users row => [id, first_name, last_name, login, role, password, mail,...]
 
 describe "Users service" do
 	let(:proxy) { Ownet::Proxy.start }
+ 
 
-	it "sends success on create user" do
+	it "sends success on create group" do
 
-		response = proxy.post('http://my.ownet/api/users', {
+		create_user_and_login
+		response = proxy.post('http://my.ownet/api/groups', {
 			login: 'login',
 			password: 'password',
 			first_name: 'First',
@@ -31,8 +34,7 @@ describe "Users service" do
 			last_name: 'Last',
 			login: 'login',
 			password: 'password',
-			role_id: 1,
-			uid: "A"
+			role_id: 1
 		}
 
 		proxy.post( 'http://my.ownet/api/session',{

@@ -4,6 +4,7 @@
 #include <QObject>
 
 #include "iuidrestservice.h"
+#include "activitymanager.h"
 
 class IProxyConnection;
 
@@ -17,14 +18,15 @@ public:
 
     QString name() const { return "messages"; }
 
-     IResponse *create( IRequest *req);
-    // QVariant *show(IBus *bus, IRequest *req);
+    IResponse *create( IRequest *req);
+    IResponse *show(IRequest *req, const QString &uid);
     IResponse  *index(IRequest *req);
     IResponse  *del(IRequest *req, const QString &uid);
 
     IResponse *allPagesCount(IRequest *req);
 private:
     IProxyConnection *m_proxyConnection;
+    ActivityManager *m_activityManager;
 };
 
 #endif // MESSAGESSERVICE_H
