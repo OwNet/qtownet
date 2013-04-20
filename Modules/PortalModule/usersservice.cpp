@@ -204,6 +204,18 @@ IResponse *UsersService::edit(IRequest *req, uint id)
     if(login != "")
         query->setColumnValue("login", login);
 
+    QString school = reqJson["school"].toString();
+    if(school != "")
+        query->setColumnValue("school", school);
+
+    QString gender = reqJson["gender"].toString();
+    if(gender != "")
+        query->setColumnValue("gender", gender);
+
+    QString date_of_birth = reqJson["date_of_birth"].toString();
+    if(date_of_birth != "")
+        query->setColumnValue("date_of_birth", date_of_birth);
+
     QString email = reqJson["email"].toString();
     if(email != "")
         query->setColumnValue("email", email);
