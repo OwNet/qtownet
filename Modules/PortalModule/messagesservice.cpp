@@ -124,7 +124,7 @@ IResponse *MessagesService::create(IRequest *req)
 
             //username is solved inside createActivity method
             ac.activity_type = Activity::MESSAGE;
-            ac.content = message + QString(";");
+            ac.content = message;
             ac.group_id = "";
             ac.object_id = uid;
             ac.user_id = cur_user_id;
@@ -313,16 +313,23 @@ IResponse *MessagesService::show(IRequest *req, const QString &uid)
 {
 
     QVariantMap error;
+    QString group_id;
 
     QString curUser_id = m_proxyConnection->session()->value("logged").toString();
     if(curUser_id == "")
         return req->response(IResponse::UNAUTHORIEZED);
 
-    QString group_id = req->parameterValue("group_id");
-    if(group_id == ""){
-        error.insert("group_id_parameter","required");
-        return req->response(QVariant(error),IResponse::BAD_REQUEST);
-    }
+    QSqlQuery queryGId;
+    queryGId.prepare("SELECT * FROM messages WHERE uid = :uid");
+    queryGId.bindValue(":uid",uid);
+
+    if(!queryGId.exec())
+        return req->response(IResponse::INTERNAL_SERVER_ERROR);
+
+    if(queryGId.first())
+        group_id = queryGId.value(queryGId.record().indexOf("group_id")).toString();
+    else
+        return req->response(IResponse::BAD_REQUEST);
 
     IRequest *request = m_proxyConnection->createRequest(IRequest::POST, "groups", "isMember");
     request->setParamater("user_id", curUser_id);
@@ -335,8 +342,8 @@ IResponse *MessagesService::show(IRequest *req, const QString &uid)
 
         QSqlQuery query;
 
-        query.prepare("SELECT * FROM messages JOIN users ON users.id = messages.user_id WHERE group_id = :group_id"
-                      "AND uid = :uid");
+        query.prepare("SELECT * FROM messages JOIN users ON users.id = messages.user_id WHERE messages.group_id = :group_id "
+                      "AND messages.uid = :uid");
         query.bindValue(":group_id",group_id);
         query.bindValue(":uid",uid);
 
@@ -347,14 +354,14 @@ IResponse *MessagesService::show(IRequest *req, const QString &uid)
 
         if(query.first()) {
 
-            message.insert("id", query.value(query.record().indexOf("_id")));
-            message.insert("message", query.value(query.record().indexOf("message")));
-            message.insert("first_name", query.value(query.record().indexOf("first_name")));
-            message.insert("last_name", query.value(query.record().indexOf("last_name")));
-            message.insert("date_created", query.value(query.record().indexOf("date_created")));
-            message.insert("user_id", query.value(query.record().indexOf("user_id")));
-            message.insert("parent_id", query.value(query.record().indexOf("parent_id")));
-            message.insert("uid", query.value(query.record().indexOf("uid")));
+            message.insert("id", query.value(query.record().indexOf("_id")).toString());
+            message.insert("message", query.value(query.record().indexOf("message")).toString());
+            message.insert("first_name", query.value(query.record().indexOf("first_name")).toString());
+            message.insert("last_name", query.value(query.record().indexOf("last_name")).toString());
+            message.insert("date_created", query.value(query.record().indexOf("date_created")).toString());
+            message.insert("user_id", query.value(query.record().indexOf("user_id")).toString());
+            message.insert("parent_id", query.value(query.record().indexOf("parent_id")).toString());
+            message.insert("uid", query.value(query.record().indexOf("uid")).toString());
             message.insert("type", "message");
 
         }

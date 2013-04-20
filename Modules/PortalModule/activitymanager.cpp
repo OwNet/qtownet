@@ -208,7 +208,7 @@ QVariantList ActivityManager::getMyActivities(bool *ok, QVariantMap &error, IReq
             queryMessages.prepare("SELECT * FROM messages WHERE parent_id = :uid");
             queryMessages.bindValue(":uid", query.value(query.record().indexOf("object_id")).toString());
             queryMessages.exec();
-            int i;
+            int i = 0;
             while(queryMessages.next())
                 i++;
             QString content = query.value(query.record().indexOf("content")).toString() + QString(";") + QString::number(i);
