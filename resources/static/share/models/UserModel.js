@@ -10,7 +10,12 @@ define( function (require) {
 
 			urlRoot: '/api/users',
 
-			defaults: {	}
+			defaults: {	},
+
+			name: function() {
+				var attrs = this.attributes
+				return attrs.first_name + ' ' + attrs.last_name
+			}
 
 	})
 
