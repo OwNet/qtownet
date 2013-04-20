@@ -35,6 +35,9 @@ define( function (require) {
 				'click a[name="RecommendationPager"]' : "showPage",
 				'click a[name="showDownloadOrders"]': "showDownloadOrders",
 				'click a[name="deleteDO"]': "deleteDO",
+				'click a[name="deleteActivityRecommendation"]': "deleteActivityRecommendation",
+				'click a[name="deleteActivityRating"]': "deleteActivityRating",
+				"click input[type=radio]": "onRadioClick",
 			},
 
 			initialize: function() {
@@ -64,7 +67,7 @@ define( function (require) {
 
 				activities.fetch({data: {page: page},
 					success: function() {
-						$('div#activities').html( showactivitiesTemplate({activities: activities.toJSON()}))
+						$('div#activities').html( showactivitiesTemplate({activities: activities.toJSON(), user: App.user.toJSON()}))
 						$('div#menu').html( menuTemplate({user :App.user.toJSON()}))
 					},
 					error: function(){
@@ -233,33 +236,6 @@ define( function (require) {
 
 			},
 
-			deleteRating: function(e){
-				e.preventDefault();
-        		var id = $(e.currentTarget).data("id");
-        		
-        		var data = {object_id : id}
-
-        		var DeleteRating = Backbone.Model.extend({
-			  		urlRoot: '/api/ratings',
-					defaults: {	}
-				})
-        		var rating = new DeleteRating(data)
-        		rating.id = id
-        		var self = this
-
-        		rating.destroy({
-        			wait: true,
-        			success: function() {
-        				App.router.navigate("#/ratings", {trigger: true})
-        				App.showMessage("Rating deleted")
-						self.showRatings("all", 1)
-					},
-					error: function() {
-						App.showMessage("Cannot delete rating")
-					},
-        		})
-
-			},
 			deleteDO: function(e){
 				e.preventDefault();
         		var id = $(e.currentTarget).data("id");
@@ -291,6 +267,68 @@ define( function (require) {
 
 			updateNavbar: function() {
 				$('#navbar').html( userNavbarTemplate({ user:  App.user ? App.user.toJSON() : false }))
+			},
+
+			onRadioClick: function (e) {
+            e.stopPropagation();
+            var user = new UserModel()
+            user.set({ gender: $(e.currentTarget).val() }, {silent:true}); // {silent: true} is optional. I'm only doing this to prevent an unnecessary re-rendering of the view
+        	},
+
+        	deleteActivityRecommendation: function(e){
+				e.preventDefault();
+        		var id = $(e.currentTarget).data("id");
+        		
+        		var data = {object_id : id}
+
+        		var DeleteRecommendation = Backbone.Model.extend({
+			  		urlRoot: '/api/recommendations',
+					defaults: {	}
+				})
+        		var recommendation = new DeleteRecommendation(data)
+        		recommendation.id = id
+        		var self = this
+
+        		recommendation.destroy({
+        			wait: true,
+        			success: function() {
+        				App.router.navigate("#/profile", {trigger: true})
+        				App.showMessage("Recommendation deleted")
+						self.showactivities("all", 1)
+					},
+					error: function() {
+						App.showMessage("Cannot delete recommendation")
+					},
+        		})
+
+			},
+
+			deleteActivityRating: function(e){
+				e.preventDefault();
+        		var id = $(e.currentTarget).data("id");
+        		
+        		var data = {object_id : id}
+
+        		var DeleteRating = Backbone.Model.extend({
+			  		urlRoot: '/api/ratings',
+					defaults: {	}
+				})
+        		var rating = new DeleteRating(data)
+        		rating.id = id
+        		var self = this
+
+        		rating.destroy({
+        			wait: true,
+        			success: function() {
+        				App.router.navigate("#/profile", {trigger: true})
+        				App.showMessage("Rating deleted")
+						self.showactivities("all", 1)
+					},
+					error: function() {
+						App.showMessage("Cannot delete rating")
+					},
+        		})
+
 			},
 
 			

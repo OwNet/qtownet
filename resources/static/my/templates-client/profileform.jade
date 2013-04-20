@@ -2,11 +2,15 @@ form(name="profile-form").form-horizontal
 	.control-group
 		label.control-label Name:
 		.controls
-		input(type="text",name="first_name",value="#{user.first_name}")
+		input(type="text",name="first_name",value="#{user.first_name}",placeholder="::")
 	.control-group
 		label.control-label Last Name:
 		.controls
 		input(type="text",name="last_name",value="#{user.last_name}")
+	//- .control-group
+	//- 	label.control-label Password:
+	//- 	.controls
+	//- 	input(type="text",name="last_name",value="#{user.password}")
 	.control-group
 		label.control-label Email:
 		.controls
@@ -14,13 +18,27 @@ form(name="profile-form").form-horizontal
 	.control-group
 		label.control-label Birthday:
 		.controls
-		input(type="date",name="birth_day")
+		input(type="date",name="birth_day",value="#{user.date_of_birth}")
 	.control-group
 		label.control-label Gender:
 		.controls
-		input(type="text",name="gender",value="#{user.gender}")
+			if (user.gender == "Male")
+				label.radio
+					input(type="radio",name="gender",value="Male",checked)
+					|Male
+				label.radio
+					input(type="radio",name="gender",value="Female")
+					|Female
+			else
+				label.radio
+					input(type="radio",name="gender",value="Male")
+					| Male
+				label.radio
+					input(type="radio",name="gender",value="Female",checked)
+					|Female
 	.control-group
 		label.control-label School:
 		.controls
 		input(type="text",name="school",value="#{user.school}")
+		br
 		button.btn(type="button",name="update") Update
