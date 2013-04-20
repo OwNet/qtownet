@@ -235,6 +235,7 @@ IResponse *MessagesService::index(IRequest *req)
             message.insert("message", query.value(query.record().indexOf("message")));
             message.insert("first_name", query.value(query.record().indexOf("first_name")));
             message.insert("last_name", query.value(query.record().indexOf("last_name")));
+            message.insert("gender", query.value(query.record().indexOf("gender")));
             message.insert("date_created", query.value(query.record().indexOf("date_created")));
             message.insert("user_id", query.value(query.record().indexOf("user_id")));
             message.insert("parent_id", query.value(query.record().indexOf("parent_id")));
@@ -263,6 +264,7 @@ IResponse *MessagesService::index(IRequest *req)
             comment.insert("message", query.value(query.record().indexOf("message")));
             comment.insert("first_name", query.value(query.record().indexOf("first_name")));
             comment.insert("last_name", query.value(query.record().indexOf("last_name")));
+            comment.insert("gender", query.value(query.record().indexOf("gender")));
             comment.insert("user_id", query.value(query.record().indexOf("user_id")));
             comment.insert("date_created", query.value(query.record().indexOf("date_created")));
             comment.insert("parent_id", query.value(query.record().indexOf("parent_id")));

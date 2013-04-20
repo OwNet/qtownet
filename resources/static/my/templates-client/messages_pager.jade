@@ -1,3 +1,8 @@
-- for (var page=1; page<=action.pages; page++)
-	div.page
-		a( href="#", data-group_id="#{group_id}", data-id="#{page}", name="pager-message") #{page}
+if(action.pages>1)
+	- for (var page=1; page<=action.pages; page++)
+		if (act_page == page)
+			div.page.act-page
+				a( href="#", data-group_id="#{group_id}", data-id="#{page}", name="pager-message", class="act-page") #{page}
+		else
+			div.page
+				a( href="#", data-group_id="#{group_id}", data-id="#{page}", name="pager-message") #{page}

@@ -4,15 +4,17 @@ html {
 
 .navbar {
     margin-bottom: 0px;
+    padding: 0px 10px;
+    width: @pageWidth;
+    margin: auto
 }
 
 #navbar .navbar-inner {
 	text-align: center;
 }
 
-#navbar .navbar-inner .inner{
-	width: @pageWidth;
-	margin: auto
+.navbar .pull-right {
+	padding-right: 10px;
 }
 
 .controls {
@@ -27,6 +29,7 @@ html {
 	height: 35px;
 	width: auto;
 	margin: 3px;
+	float: left;
 }
 /* left collumn*/
 .left {
@@ -53,6 +56,11 @@ html {
 .left .links .link {
 	border-top: 1px solid #D8D8D8;
 	border-bottom: 1px solid #D8D8D8;
+	height: 40px;
+}
+
+.left .links .link label {
+	margin-top: 12px;
 }
 
 .left .links .active {
@@ -67,18 +75,35 @@ html {
 	border-bottom-right-radius:5px;
 }
 
+.left .title {
+	height: 60px;
+}
+
+.left .title img {
+	float: left;
+}
+
+.left .title label {
+	color: @blue;
+	font-size: 20px;
+	font-weight: bold;
+	margin-top: 15px;
+	margin-left: 10px;
+}
+
 .right {
 	margin-left: 220px;
 	margin-right: 50px;
 	margin-top: 20px;
 	margin-bottom: 20px;
 	padding-top: 30px;
-	min-height: 95%;
+	min-height: 400px;
 }
 
 body {
 	position:		relative;
 	width:			100%;
+	min-height:			100%;
 	background: 	#e0e0e0;
 	padding-top:	@pageTopPadding;
 	padding-bottom: @pageBottomPadding;
@@ -207,6 +232,10 @@ body {
 		margin-right: 3px;
 	}
 
+	.orange a {
+		color: @orange;
+	}
+
 	.created {
 		margin-top: 0px;
 	}
@@ -242,21 +271,26 @@ body {
 }
 
 #pager {
-	margin-left: 200px;
-
+	margin-left: 230px;
+	
 	.page {
 		height: 16px;
 		width: 16px;
 		padding: 2px;
 		border-radius: 10px;
-		background-color: @blue;
 		margin: 5px;
 		float: left;
 		text-align: center;
+		background-color: @white;
+		color: @blue;
+		font-size: 10px;
 	}
 
-	a {
+	div.act-page {
+		background-color: @blue;
+	}
+
+	div.act-page a {
 		color: @white;
-		font-size: 10px;
 	}
 }

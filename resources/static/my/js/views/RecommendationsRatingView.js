@@ -92,7 +92,7 @@ define( function (require) {
 
 				action.fetch({
 					success: function() {
-						$('div#pager').html( recommendationsPagerTemplate({action :action.toJSON(), filter: filter}))
+						$('div#pager').html( recommendationsPagerTemplate({action :action.toJSON(), filter: filter, act_page: page}))
 					},
 					error: function() {
 						
@@ -191,7 +191,7 @@ define( function (require) {
 
 				action.fetch({
 					success: function() {
-						$('div#pager').html( ratingsPagerTemplate({action :action.toJSON(), filter: filter}))
+						$('div#pager').html( ratingsPagerTemplate({action :action.toJSON(), filter: filter, act_page: page}))
 					},
 					error: function() {
 						

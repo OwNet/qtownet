@@ -3,7 +3,9 @@
 		img( src="img/ownet.png" )
 	.links
 		.link
-			| <a href="#/" name="messages"> <img src="img/message.png" class="icon"> Messages </a>
+			a(href="#/", name="messages")
+				img(src="img/message.png", class="icon") 
+				label Messages 
 .right.messages-right
 	.create-message#create_message
 
