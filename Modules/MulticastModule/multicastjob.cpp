@@ -4,7 +4,6 @@
 #include "iproxyconnection.h"
 
 #include <QUdpSocket>
-#include <QThread>
 
 MulticastJob::MulticastJob(QHostAddress *groupAddress, int port)
     : m_groupAddress(groupAddress),
@@ -25,8 +24,6 @@ void MulticastJob::execute()
 
 void MulticastJob::setProxyConnection(IProxyConnection *proxyConnection)
 {
-    moveToThread(QThread::currentThread());
-
     m_proxyConnection = proxyConnection;
     m_protocol = new MulticastProtocol(m_proxyConnection, this);
     // this should be done after first synchronisation

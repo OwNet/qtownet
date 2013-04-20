@@ -3,8 +3,6 @@
 #include "ijobaction.h"
 #include "proxyconnection.h"
 
-#include <QThread>
-
 ModuleJob::ModuleJob(IJobAction *jobAction, QObject *parent)
     : Job(jobAction->interval(), parent),
       m_jobAction(jobAction)
