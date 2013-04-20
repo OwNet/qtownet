@@ -9,7 +9,7 @@ each activity in activities
 				span Stars
 		else
 			.span2
-				span Recommendation
+				//- span(title="#{activity.description}") #{activity.description.substr(0,30)}...
 		.span2
 			span #{new Date(activity.date_created).toLocaleDateString()}
 		.span2
