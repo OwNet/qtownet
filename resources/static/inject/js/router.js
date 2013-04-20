@@ -87,8 +87,8 @@ define( function (require) {
 		},
 
 		size: {
-			login: { width : 445, height : 311 },
-			page_actions: { width : 445, height : 505 }
+			login: { width : 420, height : 311 },
+			page_actions: { width : 420, height : 505 }
 		}
 
 	});
