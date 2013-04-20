@@ -71,6 +71,7 @@ define( function (require) {
 			var self = this
 
 			rate.set('val',val)
+			rate.set('absolute_uri',self.pageUrl)
 			rate.save({},{
 				success: function() {
 					self.loadPageStats()
