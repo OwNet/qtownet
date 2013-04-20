@@ -74,6 +74,7 @@ IResponse::Status RecommendationManager::createRecomm(IRequest *req, QString cur
 
         if(q.first()){
             error.insert("error","duplicate recommendations");
+            error.insert("uid", q.value("uid"));
             return IResponse::CONFLICT;
         }
 
