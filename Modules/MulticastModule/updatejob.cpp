@@ -1,11 +1,16 @@
 #include "updatejob.h"
 
-UpdateJob::UpdateJob(MulticastProtocol *protocol, QObject *parent)
-    : m_protocol(protocol)
+UpdateJob::UpdateJob()
+    : m_protocol(NULL)
 {
 }
 
 void UpdateJob::execute()
 {
     m_protocol->update();
+}
+
+void UpdateJob::setProxyConnection(IProxyConnection *proxyConnection)
+{
+    m_protocol = new MulticastProtocol(proxyConnection, this);
 }

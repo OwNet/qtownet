@@ -19,7 +19,8 @@ DatabaseUpdateQuery::DatabaseUpdateQuery(const QString &table, EntryType type, Q
     QObject(parent),
     m_selectQuery(NULL),
     m_table(table),
-    m_type(type)
+    m_type(type),
+    m_forceOperation(DontForce)
 {
 }
 
@@ -133,7 +134,9 @@ bool DatabaseUpdateQuery::executeQuery()
         success = executeDelete();
     } else if (type() == InsertOrUpdate) {
         bool update = false;
-        if (m_selectQuery) {
+        if (m_forceOperation != DontForce) {
+            update = m_forceOperation == ForceUpdate;
+        } else if (m_selectQuery) {
             m_selectQuery->select("1");
             update = m_selectQuery->first();
         }

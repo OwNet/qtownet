@@ -34,7 +34,7 @@ void CleanCacheJob::clean()
 
     if (size > maximumSize + cacheFolder.cacheReserveSize()) {
         QSqlQuery query;
-        query.prepare("SELECT * FROM caches WHERE date_updated < :date_updated ORDER BY access_value");
+        query.prepare("SELECT * FROM caches WHERE date_updated < :date_updated ORDER BY access_value LIMIT 100");
         query.bindValue("date_updated", QDateTime::currentDateTime().addSecs(-600).toString(Qt::ISODate));
 
         if (query.exec()) {

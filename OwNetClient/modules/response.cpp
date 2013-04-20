@@ -30,7 +30,7 @@ IResponse *Response::setStatus(IResponse::Status status)
         return setStatus(BAD_REQUEST,"Bad Request");
 
     case UNAUTHORIEZED :
-        return setStatus(UNAUTHORIEZED,"Unathorized");
+        return setStatus(UNAUTHORIEZED,"Unauthorized");
 
     case FORBIDDEN :
         return setStatus(FORBIDDEN,"Forbidden");

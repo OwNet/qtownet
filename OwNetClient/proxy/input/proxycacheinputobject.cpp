@@ -20,17 +20,6 @@ ProxyCacheInputObject::ProxyCacheInputObject(ProxyRequest *request, QObject *par
         m_exists = true;
         m_numParts = query.value(query.record().indexOf("num_parts")).toInt();
 
-        setHttpStatusCode(query.value(query.record().indexOf("status_code")).toInt());
-        setHttpStatusDescription(query.value(query.record().indexOf("status_description")).toString());
-
-        bool ok;
-        QVariantMap result = JsonDocument::fromJson(query.value(query.record().indexOf("response_headers"))
-                                                    .toByteArray(), &ok)
-                .object().toVariantMap();
-
-        if (ok)
-            m_responseHeaders = VariantMap(result);
-
         int accessCount = query.value(query.record().indexOf("access_count")).toInt() + 1;
         long size = query.value(query.record().indexOf("size")).toLongLong();
 
@@ -42,11 +31,9 @@ ProxyCacheInputObject::ProxyCacheInputObject(ProxyRequest *request, QObject *par
         query.exec();
     }
 
-    if (m_exists) {
-        QFile *file = CacheFolder().cacheFile(m_request, 0);
-        m_exists = file->exists();
-        delete file;
-    }
+    QFile *file = CacheFolder().cacheFile(m_request, 0);
+    m_exists = file->exists();
+    delete file;
 }
 
 void ProxyCacheInputObject::readRequest()

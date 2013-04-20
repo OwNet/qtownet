@@ -147,7 +147,7 @@ IResponse::Status RatingManager::deleteRating(QString uid, uint userId, QVariant
     if (!query->executeQuery())
         return IResponse::INTERNAL_SERVER_ERROR;
     else {
-        //**** delete activity ********//
+        // delete activity
         m_activityManager->deleteActivity( rating["uid"].toString());
         return IResponse::OK;
     }
@@ -217,7 +217,7 @@ IResponse::Status RatingManager::showPageStats(QString uri, uint userId, QVarian
 
     if (userId != -1) {
         QSqlQuery userQuery;
-        userQuery.prepare("SELECT _id, val FROM ratings WHERE user_id=:user_id AND absolute_uri=:uri");
+        userQuery.prepare("SELECT uid, val FROM ratings WHERE user_id=:user_id AND absolute_uri=:uri");
         userQuery.bindValue(":user_id",userId);
         userQuery.bindValue(":uri",uri);
 
@@ -226,7 +226,7 @@ IResponse::Status RatingManager::showPageStats(QString uri, uint userId, QVarian
 
         if (userQuery.first()) {
             QSqlRecord userRow = userQuery.record();
-            stats.insert("id", userRow.value("_id"));
+            stats.insert("id", userRow.value("uid"));
             stats.insert("val", userRow.value("val"));
        }
     }

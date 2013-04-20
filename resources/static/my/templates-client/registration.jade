@@ -37,19 +37,27 @@
 					.control-group
 						label.control-label Email:
 						.controls
-							input(type="text",name="email")
+							input(type="email ",name="email")
 							span.help-block
 					.control-group
 						label.control-label Gender:
 						.controls
-							input(type="text",name="gender")
-							span.help-block
+							label.radio
+								input(type="radio",name="gender",value="Male")
+								| Male
+							label.radio
+								input(type="radio",name="gender",value="Female")
+								|Female		
 					.control-group
 						label.control-label Birthday:
 						.controls
 							input(type="date",name="date_of_birth")
 							span.help-block
-
+					.control-group
+						label.control-label School:
+						.controls
+							input(type="text",name="school")
+							span.help-block
 					.control-group
 						.controls
 							button.btn.btn-info(type="button",name="submit") Sign Up

@@ -3,12 +3,18 @@
 #include "initializer.h"
 #include "proxyrequestbus.h"
 #include "applicationenvironment.h"
+#ifndef Q_OS_WIN
+#include <sys/signal.h>
+#endif
 
 // 24.12.2012: Stastne a vesele prajem :-)
 
 int main(int argc, char *argv[])
 {
     OwNetApplication a(argc, argv);
+#ifndef Q_OS_WIN
+    signal(SIGPIPE, SIG_IGN);
+#endif
 
     MainWindow *w = NULL;
 

@@ -27,6 +27,9 @@ public:
     IResponse *load(IRequest *);
     IResponse *done(IRequest *);
     IResponse *list(IRequest *);
+    IResponse *index(IRequest *);
+    IResponse *deleteOrder(IRequest *);
+    IResponse *allPagesCount(IRequest *);
 
 private:
     static const int DEFAULT_PRIORITY = 10;

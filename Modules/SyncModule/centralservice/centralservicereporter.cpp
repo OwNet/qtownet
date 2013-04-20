@@ -79,6 +79,7 @@ bool CentralServiceReporter::reportBrowsingHistory()
     if (lastReport != "")
         joinOn->where("user_visits_pages.date_created", lastReport, IDatabaseSelectQuery::GreaterThan);
     query->select("pages.id, pages.absolute_uri, user_visits_pages.date_created");
+    query->limit(500);
 
     QString currentDate = QDateTime::currentDateTime().toString(Qt::ISODate);
 

@@ -21,7 +21,7 @@ void OwNetCloudServer::sendCrashReport(QString report)
     data.insert("feedback", "crash_report");
     data.insert("output", report);
 
-    QString url = "http://localhost:3000/feedback";
+    QString url = "http://192.168.1.11:3000/feedback";
     QByteArray postData;
     postData.append(JsonDocument::fromVariant(data).toJson());
 
@@ -34,7 +34,7 @@ void OwNetCloudServer::sendCrashReport(QString report)
 
 void OwNetCloudServer::checkUpdateMetadata()
 {
-    QString url = "http://localhost:3000/update/metadata.json";
+    QString url = "http://192.168.1.11:3000/update/metadata.json";
     QNetworkRequest *request = new QNetworkRequest(QUrl(url));
 
     QNetworkAccessManager *nam = new QNetworkAccessManager(this);
@@ -54,7 +54,7 @@ void OwNetCloudServer::updateMetadataReceived(QNetworkReply *reply)
 
 void OwNetCloudServer::downloadUpdatePackage(QString packageName)
 {
-    QString url = QString("http://localhost:3000/update/").append(packageName);
+    QString url = QString("http://192.168.1.11:3000/update/").append(packageName);
     QNetworkRequest *request = new QNetworkRequest(QUrl(url));
 
     QNetworkAccessManager *nam = new QNetworkAccessManager(this);

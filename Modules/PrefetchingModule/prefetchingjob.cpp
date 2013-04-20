@@ -14,14 +14,11 @@
 #include "idatabaseupdatequery.h"
 #include "idatabaseselectquerywheregroup.h"
 #include <QDebug>
-#include <QThread>
 
 #include "browserworker.h"
-PrefetchingJob::PrefetchingJob(IProxyConnection *proxyConnection, QObject* parent) :
-    QObject(parent),
-    m_proxyConnection(proxyConnection)
+PrefetchingJob::PrefetchingJob() :
+    m_proxyConnection(NULL)
 {
-    m_workerThread = NULL;
     m_running = false;
     runs = 0;
 }
@@ -54,19 +51,6 @@ void PrefetchingJob::execute()
 }
 
 void PrefetchingJob::resetWorker() {
-    if (m_workerThread != NULL) {
-        try {
-            if (m_workerThread->isRunning()) {
-                m_workerThread->terminate();
-            }
-            delete m_workerThread;
-
-        } catch (std::exception& e) {
-            qDebug()<<e.what();
-        }
-
-        m_workerThread = NULL;
-    }
 }
 
 void PrefetchingJob::tryClean() {
@@ -103,6 +87,7 @@ bool PrefetchingJob::prefetch()
     qDebug("Attempting to start prefetching.");
     // IDatabaseUpdate *update = m_proxyConnection->databaseUpdate(&parent);
     IDatabaseSelectQuery *select = m_proxyConnection->databaseSelect("prefetch_orders", &parent);
+    select->singleWhere("completed", false);
     select->orderBy("priority desc");
     select->select("absolute_uri");
 
@@ -120,13 +105,9 @@ bool PrefetchingJob::prefetch()
 }
 
 void PrefetchingJob::startWorker(QString &link) {
-    m_workerThread = new QThread(this);
-    BrowserWorker *worker = new BrowserWorker(link, m_workerThread);
-    connect(m_workerThread, SIGNAL(started()), worker, SLOT(doWork()));
-    connect(m_workerThread, SIGNAL(finished()), worker, SLOT(deleteLater()));
+    BrowserWorker *worker = new BrowserWorker(link, this);
     connect(worker, SIGNAL(workCompleted()), this, SLOT(workerCompleted()));
-
-    m_workerThread->start();
+    worker->doWork();
 }
 
 void PrefetchingJob::workerCompleted() {

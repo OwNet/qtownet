@@ -3,20 +3,20 @@
 
 #include "ijobaction.h"
 
-#include <QObject>
 #include <QMutex>
 
 class IProxyConnection;
 class PingServer;
 
-class PingJob : public QObject, public IJobAction
+class PingJob : public IJobAction
 {
     Q_OBJECT
 public:
-    explicit PingJob(PingServer *server, IProxyConnection *proxyConnection, QObject *parent = 0);
+    explicit PingJob();
 
     int interval() { return 10 * 1000; }
     void execute();
+    void setProxyConnection(IProxyConnection *proxyConnection);
 
 private:
     IProxyConnection *m_proxyConnection;

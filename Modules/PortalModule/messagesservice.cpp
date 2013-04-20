@@ -1,9 +1,11 @@
 #include "messagesservice.h"
+#include "activitiesservice.h"
 
 #include "irequest.h"
 #include "idatabaseupdate.h"
 #include "iproxyconnection.h"
 #include "isession.h"
+#include "isynceddatabaseupdatequery.h"
 
 #include <QSqlQuery>
 #include <QSqlRecord>
@@ -19,6 +21,7 @@ MessagesService::MessagesService(IProxyConnection *proxyConnection, QObject *par
     QObject(parent),
     m_proxyConnection(proxyConnection)
 {
+    m_activityManager = new ActivityManager(proxyConnection);
 }
 
 void MessagesService::init(IRouter *router)
@@ -32,8 +35,8 @@ IResponse *MessagesService::create(IRequest *req)
     bool ok = false;
     QVariantMap error;
 
-    QString curUser_id = m_proxyConnection->session()->value("logged").toString();
-    if(curUser_id == "")
+    QString cur_user_id = m_proxyConnection->session()->value("logged").toString();
+    if(cur_user_id == "")
         return req->response(IResponse::UNAUTHORIEZED);
 
     QVariantMap reqJson = req->postBodyFromJson(&ok).toMap();
@@ -88,7 +91,7 @@ IResponse *MessagesService::create(IRequest *req)
     }
 
    IRequest *request = m_proxyConnection->createRequest(IRequest::POST, "groups", "isMember");
-   request->setParamater("user_id", curUser_id);
+   request->setParamater("user_id", cur_user_id);
    request->setParamater("group_id", group_id);
 
    QString member = m_proxyConnection->callModule(request)->body().toMap().value("member").toString();
@@ -106,13 +109,31 @@ IResponse *MessagesService::create(IRequest *req)
         query->setColumnValue("message", message);
         query->setColumnValue("group_id", group_id);
         query->setColumnValue("parent_id", parent_id);
-        query->setColumnValue("user_id", curUser_id);
+        query->setColumnValue("user_id", cur_user_id);
 
         if(!query->executeQuery()){
 
             return req->response(IResponse::INTERNAL_SERVER_ERROR);
         }
-         return req->response(IResponse::CREATED);
+        QString uid = query->syncedQuery()->lastUid();
+
+        if(parent_id == "0"){
+            // create activity
+
+            Activity ac;
+
+            //username is solved inside createActivity method
+            ac.activity_type = Activity::MESSAGE;
+            ac.content = message;
+            ac.group_id = "";
+            ac.object_id = uid;
+            ac.user_id = cur_user_id;
+
+
+            m_activityManager->createActivity(ac);
+        }
+
+        return req->response(IResponse::CREATED);
 
     }
     else{
@@ -208,13 +229,6 @@ IResponse *MessagesService::index(IRequest *req)
         QVariantList messages;
 
         while (query.next()) {
-            QSqlQuery query_user;
-
-            query_user.prepare("SELECT * FROM users WHERE id = :id");
-            query_user.bindValue(":id",query.value(query.record().indexOf("user_id")));
-            query_user.exec();
-
-
 
             QVariantMap message;
             message.insert("id", query.value(query.record().indexOf("_id")));
@@ -230,7 +244,6 @@ IResponse *MessagesService::index(IRequest *req)
             messages.append(message);
         }
 
-
         query.prepare("SELECT * FROM messages JOIN users ON users.id = messages.user_id WHERE group_id = :group_id AND "
                       "parent_id !=0 AND parent_id IN (SELECT uid FROM messages WHERE group_id = :group_id AND parent_id = 0 "
                       "ORDER BY date_created DESC LIMIT :limit OFFSET :offset ) ORDER BY date_created DESC");
@@ -244,11 +257,6 @@ IResponse *MessagesService::index(IRequest *req)
         QVariantList comments;
 
         while (query.next()) {
-            QSqlQuery query_user;
-
-            query_user.prepare("SELECT * FROM users WHERE id = :id");
-            query_user.bindValue(":id",query.value(query.record().indexOf("user_id")));
-            query_user.exec();
 
             QVariantMap comment;
             comment.insert("id", query.value(query.record().indexOf("_id")));
@@ -256,17 +264,10 @@ IResponse *MessagesService::index(IRequest *req)
             comment.insert("first_name", query.value(query.record().indexOf("first_name")));
             comment.insert("last_name", query.value(query.record().indexOf("last_name")));
             comment.insert("user_id", query.value(query.record().indexOf("user_id")));
-            if ( query_user.first() ) {
-                QSqlRecord row = query_user.record();
-
-                comment.insert("first_name", row.value("first_name"));
-                comment.insert("last_name", row.value("last_name"));
-            }
             comment.insert("date_created", query.value(query.record().indexOf("date_created")));
             comment.insert("parent_id", query.value(query.record().indexOf("parent_id")));
             comment.insert("uid", query.value(query.record().indexOf("uid")));
             comment.insert("type", "comment");
-
 
             comments.append(comment);
         }
@@ -308,36 +309,144 @@ IResponse *MessagesService::index(IRequest *req)
 
 }
 
-IResponse *MessagesService::del(IRequest *req, const QString &uid)
+IResponse *MessagesService::show(IRequest *req, const QString &uid)
 {
+
     QVariantMap error;
+    QString group_id;
 
     QString curUser_id = m_proxyConnection->session()->value("logged").toString();
     if(curUser_id == "")
         return req->response(IResponse::UNAUTHORIEZED);
 
-    bool owner;
+    QSqlQuery queryGId;
+    queryGId.prepare("SELECT * FROM messages WHERE uid = :uid");
+    queryGId.bindValue(":uid",uid);
+
+    if(!queryGId.exec())
+        return req->response(IResponse::INTERNAL_SERVER_ERROR);
+
+    if(queryGId.first())
+        group_id = queryGId.value(queryGId.record().indexOf("group_id")).toString();
+    else
+        return req->response(IResponse::BAD_REQUEST);
+
+    IRequest *request = m_proxyConnection->createRequest(IRequest::POST, "groups", "isMember");
+    request->setParamater("user_id", curUser_id);
+    request->setParamater("group_id", group_id);
+
+    QString member = m_proxyConnection->callModule(request)->body().toMap().value("member").toString();
+
+    // overit ci je userom skupiny d
+    if(member == "1"){
+
+        QSqlQuery query;
+
+        query.prepare("SELECT * FROM messages JOIN users ON users.id = messages.user_id WHERE messages.group_id = :group_id "
+                      "AND messages.uid = :uid");
+        query.bindValue(":group_id",group_id);
+        query.bindValue(":uid",uid);
+
+        if(!query.exec())
+            return req->response(IResponse::INTERNAL_SERVER_ERROR);
+
+        QVariantMap message;
+
+        if(query.first()) {
+
+            message.insert("id", query.value(query.record().indexOf("_id")).toString());
+            message.insert("message", query.value(query.record().indexOf("message")).toString());
+            message.insert("first_name", query.value(query.record().indexOf("first_name")).toString());
+            message.insert("last_name", query.value(query.record().indexOf("last_name")).toString());
+            message.insert("date_created", query.value(query.record().indexOf("date_created")).toString());
+            message.insert("user_id", query.value(query.record().indexOf("user_id")).toString());
+            message.insert("parent_id", query.value(query.record().indexOf("parent_id")).toString());
+            message.insert("uid", query.value(query.record().indexOf("uid")).toString());
+            message.insert("type", "message");
+
+        }
+
+
+        query.prepare("SELECT * FROM messages JOIN users ON users.id = messages.user_id WHERE group_id = :group_id AND "
+                      "parent_id = :parent_id  ORDER BY date_created DESC");
+        query.bindValue(":group_id",group_id);
+        query.bindValue(":parent_id", uid);
+
+        if(!query.exec())
+            return req->response(IResponse::INTERNAL_SERVER_ERROR);
+
+        QVariantList comments;
+
+        while (query.next()) {
+            QSqlQuery query_user;
+
+            query_user.prepare("SELECT * FROM users WHERE id = :id");
+            query_user.bindValue(":id",query.value(query.record().indexOf("user_id")));
+            query_user.exec();
+
+            QVariantMap comment;
+            comment.insert("id", query.value(query.record().indexOf("_id")));
+            comment.insert("message", query.value(query.record().indexOf("message")));
+            comment.insert("first_name", query.value(query.record().indexOf("first_name")));
+            comment.insert("last_name", query.value(query.record().indexOf("last_name")));
+            comment.insert("user_id", query.value(query.record().indexOf("user_id")));
+            comment.insert("date_created", query.value(query.record().indexOf("date_created")));
+            comment.insert("parent_id", query.value(query.record().indexOf("parent_id")));
+            comment.insert("uid", query.value(query.record().indexOf("uid")));
+            comment.insert("type", "comment");
+
+            comments.append(comment);
+        }
+        QVariantList response;
+
+        if(!comments.empty())
+            message.insert("comments",comments);
+        response.append(message);
+
+        return req->response(QVariant(response), IResponse::OK);
+    }
+
+    else{
+       error.insert("membership in group","required");
+       return req->response(QVariant(error),IResponse::UNAUTHORIEZED);
+    }
+
+}
+
+IResponse *MessagesService::del(IRequest *req, const QString &uid)
+{
+    QVariantMap error;
+
+    QString cur_user_id = m_proxyConnection->session()->value("logged").toString();
+    if(cur_user_id == "")
+        return req->response(IResponse::UNAUTHORIEZED);
+
+    bool owner = false;
     bool admin = false;
 
+    QString parent_id;
+
     QSqlQuery q;
-    q.prepare("SELECT * FROM messages WHERE uid=:uid AND user_id=:user_id ");
-    q.bindValue(":user_id",curUser_id);
+    q.prepare("SELECT * FROM messages WHERE uid=:uid");
     q.bindValue(":uid",uid);
     q.exec();
 
-    owner = q.first();
+    if(q.first()){
+        parent_id = q.value(q.record().indexOf("parent_id")).toString();
+        QString group_id;
+        if(q.value(q.record().indexOf("user_id")).toString() == cur_user_id)
+            owner = q.first();
+        else{
+            group_id = q.value(q.record().indexOf("group_id")).toString();
+            QSqlQuery q2;
+            q2.prepare("SELECT * FROM group_admins WHERE group_id=:group_id AND user_id=:user_id ");
+            q2.bindValue(":user_id",cur_user_id);
+            q2.bindValue(":group_id",group_id);
+            q2.exec();
 
-    if(owner){
-        QString group_id = q.value(q.record().indexOf("group_id")).toString();
-        QSqlQuery q2;
-        q2.prepare("SELECT * FROM group_admins WHERE group_id=:group_id AND user_id=:user_id ");
-        q2.bindValue(":user_id",curUser_id);
-        q2.bindValue(":group_id",group_id);
-        q2.exec();
-
-        admin = q2.first();
+            admin = q2.first();
+        }
     }
-    // TODO pridat mazanie adminom
 
     if(owner || admin ){
 
@@ -361,6 +470,9 @@ IResponse *MessagesService::del(IRequest *req, const QString &uid)
             return req->response( IResponse::INTERNAL_SERVER_ERROR);
         }
 
+        if(parent_id == "0")
+            // delete activity
+            m_activityManager->deleteActivity( uid);
         return req->response(IResponse::OK);
     }
     else{

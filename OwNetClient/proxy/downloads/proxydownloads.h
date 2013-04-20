@@ -51,6 +51,8 @@ public:
     QString tableName() const { return "client_caches"; }
     void tableUpdated(IDatabaseUpdateQuery *query);
 
+    bool containsCacheLocation(uint cacheId, const QString &clientId) const;
+
 private:
     ProxyDownloads();
     ProxyInputObject *newInputObject(ProxyRequest *request, ProxyHandlerSession *handlerSession);

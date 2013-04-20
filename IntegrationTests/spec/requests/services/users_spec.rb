@@ -9,7 +9,6 @@ describe "Users service" do
 	it "sends success on create user" do
 
 		response = proxy.post('http://my.ownet/api/users', {
-			id: '1',
 			login: 'login',
 			password: 'password',
 			first_name: 'First',
@@ -32,7 +31,8 @@ describe "Users service" do
 			last_name: 'Last',
 			login: 'login',
 			password: 'password',
-			role_id: 1
+			role_id: 1,
+			uid: "A"
 		}
 
 		proxy.post( 'http://my.ownet/api/session',{

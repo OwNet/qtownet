@@ -74,6 +74,7 @@ IResponse::Status RecommendationManager::createRecomm(IRequest *req, QString cur
 
         if(q.first()){
             error.insert("error","duplicate recommendations");
+            error.insert("uid", q.value("uid"));
             return IResponse::CONFLICT;
         }
 
@@ -99,7 +100,7 @@ IResponse::Status RecommendationManager::createRecomm(IRequest *req, QString cur
 
         //username is solved inside createActivity method
         ac.activity_type = Activity::RECOMMENDATION;
-        ac.content = absolute_uri + QString(";") + title;
+        ac.content = absolute_uri + QString(";") + title + QString(";") + description;
         ac.group_id = group_id;
         ac.object_id = uid;
         ac.user_id = curUser_id;
@@ -253,17 +254,20 @@ IResponse::Status RecommendationManager::editRecomm(IRequest *req, const QString
 
 IResponse::Status RecommendationManager::deleteRecomm(IRequest *req, const QString &uid,  QString curUser_id, QVariantMap &error)
 {
-     bool missingValue = false;
 
-    QString group_id = req->parameterValue("group_id");
-    if(group_id == ""){
-        error.insert("group_id_parameter","required");
-        missingValue = true;
-    }
+     QString group_id;
+     QSqlQuery query;
+     query.prepare("SELECT * FROM recommendations WHERE uid=:uid");
+     query.bindValue(":uid",uid);
 
 
-    if(missingValue)
-        return IResponse::BAD_REQUEST;
+     if(!query.exec())
+         return IResponse::INTERNAL_SERVER_ERROR;
+
+
+     if(query.first())
+          group_id = query.value(query.record().indexOf("group_id")).toString();
+
 
     IRequest *request = m_proxyConnection->createRequest(IRequest::GET, "groups", "isAdmin");
     request->setParamater("user_id", curUser_id);

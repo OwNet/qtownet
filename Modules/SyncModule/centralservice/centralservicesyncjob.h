@@ -8,15 +8,15 @@
 
 class IProxyConnection;
 
-class CentralServiceSyncJob : public QObject, public IJobAction
+class CentralServiceSyncJob : public IJobAction
 {
     Q_OBJECT
 public:
-    explicit CentralServiceSyncJob(IProxyConnection *proxyConnection, QObject *parent = 0);
+    explicit CentralServiceSyncJob();
 
     int interval() { return 15 * 1000; }
-
     void execute();
+    void setProxyConnection(IProxyConnection *proxyConnection) { m_proxyConnection = proxyConnection; }
 
 private:
     QMutex m_syncMutex;

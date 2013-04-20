@@ -58,29 +58,23 @@ int ActivityManager::pagesCount(IRequest *req)
     //TODO add some validations + error response trought parameter
 
     QString type = req->parameterValue("type");
+    QSqlQuery query;
 
     if(type == "")
     {
-        QSqlQuery query;
-        query.prepare("SELECT COUNT(*) AS n FROM activities");
-        if(query.exec())
-            query.first();
-            int x =  query.value(query.record().indexOf("n")).toInt();
-            return qCeil(x/(double)PER_PAGE);
-
+        query.prepare("SELECT COUNT(*) AS n FROM activities");   
     }
     else{
-        QSqlQuery query;
         query.prepare("SELECT COUNT(*) AS n FROM activities WHERE type=:type");
         query.bindValue(":type",type);
-        if(query.exec()){
-            query.first();
-            int x =  query.value(query.record().indexOf("n")).toInt();
-            return qCeil(x/(double)PER_PAGE);
-        }
-        return 0;
-
     }
+
+    if(query.exec()){
+        query.first();
+        int x =  query.value(query.record().indexOf("n")).toInt();
+        return qCeil(x/(double)PER_PAGE);
+    }
+    return 0;
 }
 
 
@@ -89,6 +83,7 @@ QVariantList ActivityManager::getActivities(bool *ok, QVariantMap &error, IReque
 
 
     QString type = req->parameterValue("type");
+    QSqlQuery query;
 
     int intPage;
     if(!(intPage= req->parameterValue("page").toInt())){
@@ -98,56 +93,37 @@ QVariantList ActivityManager::getActivities(bool *ok, QVariantMap &error, IReque
 
     if(type == "")
     {
-        QSqlQuery query;
+
         query.prepare("SELECT * FROM activities ORDER BY date_created DESC LIMIT :limit OFFSET :offset");
         query.bindValue(":limit",PER_PAGE);
         query.bindValue(":offset", (intPage-1)* PER_PAGE);
-        if(!query.exec())
-            *ok = false;
-
-        QVariantList activities;
-
-        while (query.next()) {
-            QVariantMap activity;
-            activity.insert("id", query.value(query.record().indexOf("id")).toString());
-            activity.insert("user_name", query.value(query.record().indexOf("user_name")).toString());
-            activity.insert("content", query.value(query.record().indexOf("content")).toString());
-            activity.insert("type", query.value(query.record().indexOf("type")).toString());
-            activity.insert("date_created", query.value(query.record().indexOf("date_created")).toString());
-
-            activities.append(activity);
-        }
-
-        *ok = true;
-        return activities;
     }
     else
     {
-        QSqlQuery query;
         query.prepare("SELECT * FROM activities WHERE type = :type ORDER BY date_created DESC LIMIT :limit OFFSET :offset");
         query.bindValue(":limit",PER_PAGE);
         query.bindValue(":offset", (intPage-1)* PER_PAGE);
         query.bindValue(":type",type);
-        if(!query.exec())
-            *ok = false;
-
-        QVariantList activities;
-
-        while (query.next()) {
-            QVariantMap activity;
-            activity.insert("id", query.value(query.record().indexOf("id")).toString());
-            activity.insert("user_name", query.value(query.record().indexOf("user_name")).toString());
-            activity.insert("content", query.value(query.record().indexOf("content")).toString());
-            activity.insert("type", query.value(query.record().indexOf("type")).toString());
-            activity.insert("date_created", query.value(query.record().indexOf("date_created")).toString());
-
-            activities.append(activity);
-        }
-
-        *ok = true;
-        return activities;
-
     }
+
+    if(!query.exec())
+        *ok = false;
+    QVariantList activities;
+
+    while (query.next()) {
+        QVariantMap activity;
+        activity.insert("object_id", query.value(query.record().indexOf("object_id")).toString());
+        activity.insert("user_id", query.value(query.record().indexOf("user_id")).toString());
+        activity.insert("user_name", query.value(query.record().indexOf("user_name")).toString());
+        activity.insert("content", query.value(query.record().indexOf("content")).toString());
+        activity.insert("type", query.value(query.record().indexOf("type")).toString());
+        activity.insert("date_created", query.value(query.record().indexOf("date_created")).toString());
+
+        activities.append(activity);
+    }
+
+    *ok = true;
+    return activities;
 
 }
 
@@ -160,31 +136,28 @@ int ActivityManager::myPagesCount(IRequest *req)
     //TODO add some validations + error response trought parameter
 
     QString type = req->parameterValue("type");
+    QSqlQuery query;
 
     if(type == "")
     {
-        QSqlQuery query;
         query.prepare("SELECT COUNT(*) AS n FROM activities WHERE user_id = :user_id");
         query.bindValue(":user_id",curUserId);
-        if(query.exec())
-            query.first();
-            int x =  query.value(query.record().indexOf("n")).toInt();
-            return qCeil((double)x/(double)PER_PAGE);
 
     }
     else{
-        QSqlQuery query;
+
         query.prepare("SELECT COUNT(*) AS n FROM activities WHERE type=:type AND user_id=:user_id");
         query.bindValue(":type",type);
         query.bindValue(":user_id",curUserId);
-        if(query.exec()){
-            query.first();
-            int x =  query.value(query.record().indexOf("n")).toInt();
-            return qCeil(x/(double)PER_PAGE);
-        }
-        return 0;
 
     }
+    if(query.exec()){
+        query.first();
+        int x =  query.value(query.record().indexOf("n")).toInt();
+        return qCeil((double)x/(double)PER_PAGE);
+    }
+    else
+        return 0;
 }
 
 
@@ -193,8 +166,8 @@ int ActivityManager::myPagesCount(IRequest *req)
 QVariantList ActivityManager::getMyActivities(bool *ok, QVariantMap &error, IRequest *req)
 {
     QString curUserId = m_proxyConnection->session()->value("logged").toString();
-
     QString type = req->parameterValue("type");
+    QSqlQuery query;
 
     int intPage;
     if(!(intPage= req->parameterValue("page").toInt())){
@@ -204,59 +177,53 @@ QVariantList ActivityManager::getMyActivities(bool *ok, QVariantMap &error, IReq
 
     if(type == "")
     {
-        QSqlQuery query;
         query.prepare("SELECT * FROM activities WHERE user_id = :user_id ORDER BY date_created DESC LIMIT :limit OFFSET :offset");
         query.bindValue(":user_id",curUserId);
         query.bindValue(":limit",PER_PAGE);
         query.bindValue(":offset", (intPage-1)* PER_PAGE);
-        if(!query.exec())
-            *ok = false;
 
-        QVariantList activities;
-
-        while (query.next()) {
-            QVariantMap activity;
-            activity.insert("id", query.value(query.record().indexOf("id")));
-            activity.insert("user_name", query.value(query.record().indexOf("user_name")));
-            activity.insert("content", query.value(query.record().indexOf("content")));
-            activity.insert("type", query.value(query.record().indexOf("type")));
-            activity.insert("date_created", query.value(query.record().indexOf("date_created")));
-
-            activities.append(activity);
-        }
-
-        *ok = true;
-        return activities;
     }
     else
     {
-        QSqlQuery query;
+
         query.prepare("SELECT * FROM activities WHERE type = :type AND user_id=:user_id ORDER BY date_created DESC LIMIT :limit OFFSET :offset");
         query.bindValue(":limit",PER_PAGE);
         query.bindValue(":offset", (intPage-1)* PER_PAGE);
         query.bindValue(":user_id",curUserId);
         query.bindValue(":type",type);
-        if(!query.exec())
-            *ok = false;
+    }
+    if(!query.exec())
+        *ok = false;
 
-        QVariantList activities;
+    QVariantList activities;
 
-        while (query.next()) {
-            QVariantMap activity;
-            activity.insert("id", query.value(query.record().indexOf("id")));
-            activity.insert("user_name", query.value(query.record().indexOf("user_name")));
-            activity.insert("content", query.value(query.record().indexOf("content")));
-            activity.insert("type", query.value(query.record().indexOf("type")));
-            activity.insert("date_created", query.value(query.record().indexOf("date_created")));
+    while (query.next()) {
+        QVariantMap activity;
+        activity.insert("object_id", query.value(query.record().indexOf("object_id")).toString());
+        activity.insert("user_id", query.value(query.record().indexOf("user_id")).toString());
+        activity.insert("user_name", query.value(query.record().indexOf("user_name")));
 
-            activities.append(activity);
+        if(query.value(query.record().indexOf("type")).toString() == QString::number(Activity::MESSAGE)){
+            QSqlQuery queryMessages;
+            queryMessages.prepare("SELECT * FROM messages WHERE parent_id = :uid");
+            queryMessages.bindValue(":uid", query.value(query.record().indexOf("object_id")).toString());
+            queryMessages.exec();
+            int i = 0;
+            while(queryMessages.next())
+                i++;
+            QString content = query.value(query.record().indexOf("content")).toString() + QString(";") + QString::number(i);
+            activity.insert("content",content);
         }
+        else
+            activity.insert("content", query.value(query.record().indexOf("content")).toString());
+        activity.insert("type", query.value(query.record().indexOf("type")).toString());
+        activity.insert("date_created", query.value(query.record().indexOf("date_created")).toString());
 
-        *ok = true;
-        return activities;
-
+        activities.append(activity);
     }
 
+    *ok = true;
+    return activities;
 }
 
 bool ActivityManager::deleteActivity(const QString &objectId)

@@ -1,25 +1,22 @@
 #ifndef PREFETCHJOB_H
 #define PREFETCHJOB_H
-
-
 #include <QMutex>
-#include <QMap>
-#include <QWebView>
-#include <QObject>
+
 #include "ijobaction.h"
+
 class IProxyConnection;
 class BrowserWorker;
 
-
-
-class PrefetchingJob : public QObject, public IJobAction
+class PrefetchingJob : public IJobAction
 {
     Q_OBJECT
 public:
-    PrefetchingJob(IProxyConnection *proxyConnection, QObject* parent);
+    PrefetchingJob();
 
     int interval() { return 3 * 60 * 1000; }
     void execute();
+    void setProxyConnection(IProxyConnection *proxyConnection) { m_proxyConnection = proxyConnection; }
+    bool createSeparateThread() const { return false; }
 
 private:
     static const int CLEAN_THRESHOLD = 50;
@@ -30,7 +27,6 @@ private:
     void tryClean();
     bool m_running;
 
-    QThread *m_workerThread;
     QMutex m_activeMutex;
 
     int runs;

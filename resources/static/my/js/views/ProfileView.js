@@ -8,10 +8,14 @@ define( function (require) {
 	  , profileTableTemplate = require ("tpl/profiletable")
 	  , profileFormTemplate = require ("tpl/profileform")
 	  , menuTemplate = require ("tpl/menu")
+	  , downloadOrdersTemplate = require("tpl/downloadorders")
 	  , pagerRecommTemplate = require ("tpl/profilepager")
+	  , pagerDownloadTemplate = require ("tpl/downloadorderspager")
 	  , showactivitiesTemplate = require ("tpl/showactivities")
 	  , UserModel = require ("share/models/UserModel")
+	  , MessageModel = require ("share/models/MessageModel")
 	  , ActivityModel = require ("share/models/ActivityModel")
+	  , DownloadOrdersModel = require ("share/models/DownloadOrdersModel")
 
 	  , userNavbarTemplate = require ("tpl/user-navbar")
 
@@ -30,12 +34,17 @@ define( function (require) {
 				'click form[name="profile-form"] button[name="update"]': "saveProfile", 
 				'click a[name="editprofile"]': "editProfile",
 				'click a[name="RecommendationPager"]' : "showPage",
+				'click a[name="showDownloadOrders"]': "showDownloadOrders",
+				'click a[name="deleteDO"]': "deleteDO",
+				'click a[name="deleteActivityRecommendation"]': "deleteActivityRecommendation",
+				'click a[name="deleteActivityRating"]': "deleteActivityRating",
+				'click a[name="deletemessage"]': "deleteMessage",
+				"click input[type=radio]": "onRadioClick",
 			},
 
 			initialize: function() {
 				this.updateNavbar()
 			},
-
 
 			render: function() {
 				this.$el.html( profileTemplate({}) )
@@ -43,28 +52,6 @@ define( function (require) {
 				return this
 			}, 
 		
-			/*showAll: function(message) {
-				var UsersCollection = Backbone.Collection.extend({
-		  			url: '/api/users/',
-		  			model: UserModel
-				})
-				
-				var users = new UsersCollection()
-
-				users.fetch({
-					success: function() {
-						$('div#all_profiles').html( showAllTemplate({users :users.toJSON()}))
-
-					},
-					error: function() {
-						App.showMessage("No user found")
-					},
-				})
-
-				this.$el.html( profileTemplate({ }) )
-				return this
-			},*/
-
 			showActivities: function(page) {
 				var Action;
 				var ActivitiesCollection;
@@ -82,7 +69,7 @@ define( function (require) {
 
 				activities.fetch({data: {page: page},
 					success: function() {
-						$('div#activities').html( showactivitiesTemplate({activities: activities.toJSON()}))
+						$('div#activities').html( showactivitiesTemplate({activities: activities.toJSON(), user: App.user.toJSON()}))
 						$('div#menu').html( menuTemplate({user :App.user.toJSON()}))
 					},
 					error: function(){
@@ -150,27 +137,6 @@ define( function (require) {
 
 			},
 
-			/*showActivities: function() {
-				var ActivitiesCollection = Backbone.Collection.extend({
-					url: '/api/activities',
-					model: ActivityModel
-				})
-
-				var activities = new ActivitiesCollection()
-
-				activities.fetch({
-					success: function() {
-						$('div#activities').html( showactivitiesTemplate({activities: activities.toJSON()}))
-					},
-					error: function(){
-						App.showMessage("Error reading activities")
-					},
-				})
-				this.$el.html( profileTemplate({ }) )
-				return this
-
-			},*/
-
 			show: function(){
 				        		     		
         		App.user.fetch({
@@ -220,7 +186,8 @@ define( function (require) {
         			success: function() {
         				App.router.navigate("#/editprofile", {trigger: true})
         	
-        				$('div#edit_profile').html( profileFormTemplate({user :user.toJSON()}))
+        				$('div#activities').html( profileFormTemplate({user :user.toJSON()}))
+        				$('div#pager').hide();
 
         				
 					}
@@ -228,8 +195,165 @@ define( function (require) {
         						
 			},
 
+			showDownloadOrders: function(page) {
+				var Action;
+				var downloadOrdersCollection;
+				downloadOrdersCollection = Backbone.Collection.extend({
+					url: '/api/orders',
+					model: DownloadOrdersModel
+				})
+
+				Action = Backbone.Model.extend({
+					urlRoot: '/api/orders/allPagesCount',
+					defaults: {	}
+				})
+
+				var downloadorders = new downloadOrdersCollection()
+
+				downloadorders.fetch({data: {page: page},
+					success: function() {
+						$('div#activities').html( downloadOrdersTemplate({downloadorders: downloadorders.toJSON()}))
+						$('div#menu').html( menuTemplate({user :App.user.toJSON()}))
+					},
+					error: function(){
+						App.showMessage("Error reading downloadorders")
+					},
+				})
+
+				var action = new Action()
+
+
+				action.fetch({
+					success: function() {
+						$('div#user_profile').html( profileTableTemplate({user :App.user.toJSON()}))
+						$('div#pager').html( pagerRecommTemplate({action :action.toJSON()}))
+					},
+					error: function() {
+						
+					},
+				})
+
+				this.$el.html( profileTemplate({ }) )
+				return this
+
+			},
+
+			deleteDO: function(e){
+				e.preventDefault();
+        		var id = $(e.currentTarget).data("id");
+        		
+        		var data = {id : id}
+
+        		var DeleteDO = Backbone.Model.extend({
+			  		urlRoot: '/api/orders',
+					defaults: {	}
+				})
+
+        		var downloadorder = new DeleteDO(data)
+        		downloadorder.id = id
+        		var self = this
+
+        		downloadorder.destroy({
+        			wait: true,
+        			success: function() {
+        				App.router.navigate("#/showdownloadorders", {trigger: true})
+        				App.showMessage("Download Order deleted")
+						self.showDownloadOrders(1)
+					},
+					error: function() {
+						App.showMessage("Cannot delete")
+					},
+        		})
+
+			},
+
 			updateNavbar: function() {
 				$('#navbar').html( userNavbarTemplate({ user:  App.user ? App.user.toJSON() : false }))
+			},
+
+			onRadioClick: function (e) {
+            e.stopPropagation();
+            var user = new UserModel()
+            user.set({ gender: $(e.currentTarget).val() }, {silent:true}); // {silent: true} is optional. I'm only doing this to prevent an unnecessary re-rendering of the view
+        	},
+
+        	deleteActivityRecommendation: function(e){
+				e.preventDefault();
+        		var id = $(e.currentTarget).data("id");
+        		
+        		var data = {object_id : id}
+
+        		var DeleteRecommendation = Backbone.Model.extend({
+			  		urlRoot: '/api/recommendations',
+					defaults: {	}
+				})
+        		var recommendation = new DeleteRecommendation(data)
+        		recommendation.id = id
+        		var self = this
+
+        		recommendation.destroy({
+        			wait: true,
+        			success: function() {
+        				App.router.navigate("#/profile", {trigger: true})
+        				App.showMessage("Recommendation deleted")
+						self.showactivities("all", 1)
+					},
+					error: function() {
+						App.showMessage("Cannot delete recommendation")
+					},
+        		})
+
+			},
+
+			deleteActivityRating: function(e){
+				e.preventDefault();
+        		var id = $(e.currentTarget).data("id");
+        		
+        		var data = {object_id : id}
+
+        		var DeleteRating = Backbone.Model.extend({
+			  		urlRoot: '/api/ratings',
+					defaults: {	}
+				})
+        		var rating = new DeleteRating(data)
+        		rating.id = id
+        		var self = this
+
+        		rating.destroy({
+        			wait: true,
+        			success: function() {
+        				App.router.navigate("#/profile", {trigger: true})
+        				App.showMessage("Rating deleted")
+						self.showactivities("all", 1)
+					},
+					error: function() {
+						App.showMessage("Cannot delete rating")
+					},
+        		})
+
+			},
+
+			deleteMessage: function(e){
+				e.preventDefault();
+        		var id = $(e.currentTarget).data("id");
+        		var group_id = $(e.currentTarget).data("group_id");
+        		var data = {group_id : group_id}
+
+        		var message = new MessageModel(data)
+        		message.id = id
+        		message.group_id = group_id
+        		var self = this
+
+        		message.destroy({
+        			success: function() {
+        				App.router.navigate("#/profile", {trigger: true})
+        				App.showMessage("Message deleted")
+					},
+					error: function() {
+						App.showMessage("Cannot delete")
+					},
+        		})
+
 			},
 
 			

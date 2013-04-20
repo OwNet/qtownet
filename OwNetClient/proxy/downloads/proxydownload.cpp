@@ -23,9 +23,18 @@ ProxyDownload::ProxyDownload(ProxyRequest *request, ProxyHandlerSession *handler
     m_proxyHandlerSession(handlerSession),
     m_nextReaderId(FirstReaderId),
     m_nextDownloadPartIndex(FirstDownloadPartIndex),
-    m_inputObject(NULL)
+    m_inputObject(NULL),
+    m_headersInBody(false)
 {
     m_hashCode = request->hashCode();
+}
+
+ProxyDownload::~ProxyDownload()
+{
+    m_readersMutex.lock();
+    m_readersMutex.unlock();
+    m_downloadPartsMutex.lock();
+    m_downloadPartsMutex.unlock();
 }
 
 /**
@@ -133,6 +142,12 @@ void ProxyDownload::replaceDownloadParts(ProxyDownloadPart *downloadPart, int at
     }
 }
 
+void ProxyDownload::setInputObject(ProxyInputObject *inputObject)
+{
+    m_inputObject = inputObject;
+    m_headersInBody = inputObject->headersInBody();
+}
+
 /**
  * @brief Read the response from the input object, creates a new download part.
  * Triggered when the response is ready.
@@ -140,22 +155,22 @@ void ProxyDownload::replaceDownloadParts(ProxyDownloadPart *downloadPart, int at
  */
 void ProxyDownload::readReply(QIODevice *ioDevice)
 {
-    QMutexLocker locker(&m_downloadPartsMutex);
+    {
+        QMutexLocker locker(&m_downloadPartsMutex);
 
-    int partIndex = m_nextDownloadPartIndex++;
+        int partIndex = m_nextDownloadPartIndex++;
 
-    QObject *parent = this;
-    if (partIndex > FirstDownloadPartIndex)
-        parent = m_downloadParts.value(partIndex - 1);
+        QObject *parent = this;
+        if (partIndex > FirstDownloadPartIndex)
+            parent = m_downloadParts.value(partIndex - 1);
 
-    ProxyDownloadPart *part = NULL;
-    if (shareDownload())
-        part = new ProxyByteDownloadPart(new QByteArray(ioDevice->readAll()), m_nextDownloadPartIndex, parent);
-    else
-        part = new ProxyStreamDownloadPart(ioDevice, m_nextDownloadPartIndex, parent);
-    m_downloadParts.insert(partIndex, part);
-
-    locker.unlock();
+        ProxyDownloadPart *part = NULL;
+        if (shareDownload())
+            part = new ProxyByteDownloadPart(new QByteArray(ioDevice->readAll()), m_nextDownloadPartIndex, parent);
+        else
+            part = new ProxyStreamDownloadPart(ioDevice, m_nextDownloadPartIndex, parent);
+        m_downloadParts.insert(partIndex, part);
+    }
 
     emit bytePartAvailable();
 }

@@ -12,20 +12,26 @@ define( function (require) {
 	var LoginView = Backbone.View.extend({
 
 			events: {
-				'click form[name="login-form"] button[name="submit"]': 'login'
+				'submit form[name="login-form"]': 'onLoginSubmit'
 			},
 
-			login: function() {
-				var form = Form( $('form[name="login-form"]', this.$el) )
-				var fields = form.toJSON()
+			initialize: function() {
+				App.on('user:logout', this.onUserLogout, this)
+				this.form = Form( $('form[name="login-form"]', this.$el) )
+			},
 
-				App.login({
-					login: fields.login,
-					password: fields.password,
-					success: function() {
+			onLoginSubmit: function() {
+				var form =
+				App.login( this.form.toJSON() )
+				return false
+			},
 
-					},
-				})
+			onUserLogout: function() {
+				this.form.el.reset()
+			},
+
+			focus: function() {
+				$('input[name="login"]', this.$el).focus()
 			},
 	})
 
