@@ -325,7 +325,7 @@ owNetAVAILABLEURIS = [];
 				'padding': '7px 0px 9px 10px',
 				'margin': '0px',
 				'border-bottom-right-radius' : '5px',
-				'background': 'rgba(255, 244, 190, 0.8)',
+				'background-image': 'linear-gradient(to bottom, rgba(252, 195, 98, 0.8), rgba(244, 155, 4, 0.8))',
 				'-webkit-touch-callout': 'none',
 				'-webkit-user-select': 'none',
 				'-khtml-user-select': 'none',
