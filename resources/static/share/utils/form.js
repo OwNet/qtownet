@@ -9,12 +9,13 @@ define( function (require) {
 		if ( ! (this instanceof Form) )
 			return new Form($form)
 
-		this.$f = $form
+		this.$el = $form
+		this.el = $form.get(0)
 	}
 
 
 	Form.prototype.toJSON = function() {
-		var ar = this.$f.serializeArray()
+		var ar = this.$el.serializeArray()
 		var data = {}
 
 		for (var i=0; i<ar.length; i++)

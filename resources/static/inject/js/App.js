@@ -14,37 +14,24 @@ define( function (require) {
 
 			window.addEventListener("message", this.receiveMessage, false)
 
-			App.on('OwNet:URI',function(uri) {
-				App.uri = uri
+			App.on('OwNet:page',function(page) { App.page = page })
+
+			App.user = new UserModel()
+			App.groups = new Groups()
+			App.session = new SessionModel()
+
+			App.session.fetch({
+				success: App.loadUser
 			})
 
-			var groups = new Groups()
-			var session = new SessionModel()
-
-			session.fetch({
-				success: function() {
-					var user = new UserModel({ id: session.get('user_id') })
-
-					$.when( user.fetch(), groups.fetch() )
-						.done( function(){
-							App.session = session
-							App.user = user
-							App.groups = groups
-							App.trigger('ready')
-						})
-						.fail( function(){ App.fatalError('Error: User cannot be loaded!') })
-
-				},
-				error: function() { App.trigger('ready') } // user is not logged in
-			})
-
-
+			App.trigger('ready')
 		},
 
 		receiveMessage: function(event) {
 			var msg = event.data
 			if (!msg.OwNet)
 				return
+
 			App.trigger('OwNet:'+msg.name, msg.data)
 		},
 
@@ -52,54 +39,64 @@ define( function (require) {
 			parent.postMessage({name:name, data:data}, '*')
 		},
 
-		login: function(opts /*{login,password,succes,error}*/ ) {
-
+		login: function(opts /*{login,password,success,error}*/ ) {
 			var session = new SessionModel({login:opts.login, password:opts.password})
 
 			session.save({},{
 				success: function() {
 					session.unset('password')
-					var user = new UserModel({ id: session.get('user_id') })
-					user.fetch({
-						success: function() {
-							if ( App.isUserLogged() ) {
-								App.session.off()
-								App.user.off()
-							}
-							App.session = session
-							App.user = user
-							opts.success(user)
-							App.trigger('login',App.user)
-						},
-						error: function (){ App.fatalError('Error: User cannot be loaded!') }
-					})
+					App.session = session
+					App.loadUser( session.get('user_id'))
+
+					if (opts.success)
+						opts.success()
 				},
 				error: opts.error
 			})
 		},
 
-		logout: function(opts) {
-			this.session.destroy({
-				success: function (){
-					App.session.off()
-					delete App.session
-					App.user.off()
-					delete App.user
-					opts.success()
-					App.trigger('logout')
-				},
-				error: function (){ App.fatalError('Error: Logout failed') }
-			})
+		logout: function(alreadyLogouted) {
+			var success = function (){
+				App.session.clear
+				App.user.clear
+				App.groups.clear
+				App._isUserLogged = false
+				App.trigger('user:logout')
+			}
+
+			if (alreadyLogouted)
+				success()
+			else
+				this.session.destroy({
+					success: success,
+					error: function (){ App.fatalError('Logout failed') }
+				})
+		},
+
+		loadUser: function() {
+			App.user.clear()
+			App.user.set('id', App.session.get('user_id'))
+
+			$.when( App.user.fetch(), App.groups.fetch() )
+				.done( function(){
+					App._isUserLogged = true
+					App.trigger('user:loaded')
+				})
+				.fail( function(){ App.fatalError('User cannot be loaded!') })
 		},
 
 		isUserLogged: function (){
-			return App.user != null
+			return App._isUserLogged
 		},
 
 		fatalError: function(msg) {
-			alert(msg)
+			App.error(msg)
 			location.reload()
 		},
+
+		error: function(msg) {
+			alert('Error: '+msg)
+		}
 	}
 
 	_.extend(App, Backbone.Events)

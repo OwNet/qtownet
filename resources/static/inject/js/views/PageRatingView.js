@@ -6,7 +6,7 @@ define( function (require) {
 	var App = require('App')
 	  , Backbone = require('backbone')
 	  , TabstarRatings = require('views/TabstarRatings')
-	  , PageStatsModel = require('models/PageStatsModel')
+	  , PageRatingModel = require('share/models/PageRatingModel')
 
 
 	var PageRatingView = Backbone.View.extend({
@@ -15,66 +15,61 @@ define( function (require) {
 			this.tabstar = new TabstarRatings({ el: $('#star-ratings') })
 			this.tabstar.on('change', this.onUserRate, this)
 
-			this._pageStats = new PageStatsModel()
-			this._pageStats.on('change', this.updateStats, this)
-			this._pageStats.getUserRating().on('change', this.updateUserRate, this)
-
-
-			App.on('OwNet:URI',this.loadPageStats,this)
+			App.on('OwNet:page', this.loadPageStats, this)
+			App.on('user:loaded', this.loadPageStats, this)
 		},
 
-		loadPageStats: function(url, opts) {
-			if (url)
-				this.pageUrl = url
+		loadPageStats: function() {
 
-			this._pageStats.fetch( this.pageUrl, opts )
+			if ( !App.isUserLogged() || !App.page )
+				return
+
+			var self = this
+			PageRatingModel.getPageStats(App.page.uri,{
+				success: function(stats) {
+					self.stats = stats
+					self.updateStats(stats)
+					self.updateUserRate(stats)
+				},
+				error: function() { App.error('Loading page stats failed') },
+			})
 		},
 
-		updateStats: function() {
-			var avg = Number(this._pageStats.get('average')).toFixed(1)
-			var count = this._pageStats.get('count')
-
-			avg = avg.replace(/\.0+$/,'')
-
+		updateStats: function(stats) {
+			var avg = Number(stats.average).toFixed(1).replace(/\.0+$/,'')
 			$('#average-rating').text( avg )
-			$('#average-count').text( count+' votes' )
+			$('#average-count').text( stats.count+' votes' )
 		},
 
-		updateUserRate: function() {
-			if ( this._pageStats.hasUserRate() ) {
-				var rate = this._pageStats.getUserRating()
-				this.tabstar.setValue( rate.get('val') )
+		updateUserRate: function(stats) {
+			if ( stats.val ) {
+				this.tabstar.setValue( stats.val )
 			} else
 				this.tabstar.setValue( 0 )
 		},
 
 		onUserRate: function(val) {
-			var self = this
-			var rate = this._pageStats.getUserRating()
+			var model = new PageRatingModel()
+			  , rate = { val: val }
 
-			if ( !App.isUserLogged() ) {
-				this.tabstar.setValue( 0 )
-				App.router.tabSelect('login')
-				App.once('login', function (){
-					App.router.tabSelect('page_rating')
-					self.loadPageStats( self.pageUrl, {
-						success: function() {
-							rate.save({val:val})
-
-						}
-					} )
-
-				})
-				return
-			}
+			if (this.stats.id)
+				rate.id = this.stats.id
+			else
+				rate.absolute_uri = App.page.uri
 
 			var self = this
-
-			rate.set('val',val)
-			rate.save({},{
+			model.save(rate, {
 				success: function() {
 					self.loadPageStats()
-				}
+				},
+				error: function(model, resp) {
+					if (resp.status===401) { // Unauthorized
+						alert('You have been logged out!')
+						App.logout(true)
+					}
+					else
+						App.error(resp.statusText)
+				},
 			})
 		},
 
