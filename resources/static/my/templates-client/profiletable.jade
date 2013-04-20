@@ -3,18 +3,15 @@
 		span #{user.first_name} #{user.last_name}
 .row
 	.span12.center
-		span #{user.last_name}
-.row
-	.span12.center
 		span #{user.email}
 .row
 	.span12.center
 		span #{user.phone}
 .row
 	.span12.center
-		//- - var bdayfull = user.birth_day
-		//- - var bday = bdayfull.split("-")
-		//- span #{bday[2]}.#{bday[1]}.#{bday[0]}
+		- var bdayfull = user.date_of_birth
+		- var bday = bdayfull.split("-")
+		span #{bday[2]}.#{bday[1]}.#{bday[0]}
 .row
 	.span12.center
 		span #{user.gender}
