@@ -6,7 +6,8 @@ each message, index in messages
 				.delete
 					img.icon( src="img/no.png" , href="#",data-id="#{message.uid}",name="delete-message",data-group_id="#{group_id}", title="Delete") 
 		.name
-			label.orange #{message.first_name} #{message.last_name} 
+			label.orange
+				a( data-id="#{message.user_id}",name="showOtherUser" ) #{message.first_name} #{message.last_name} 
 			label wrote:
 		.created
 			label created #{new Date(message.date_created).toLocaleDateString()}

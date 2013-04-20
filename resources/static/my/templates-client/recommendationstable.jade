@@ -5,12 +5,11 @@ each activity in activities
 			- var content = array.split(";")
 			a( href="http://#{content[0]}",name="recommendation" ) #{content[1]}
 		.span2
-			span
-			span #{new Date(activity.date_created).toLocaleDateString()}
+			span(title="#{content[2]}") #{content[2].substr(0,15)}...
 		.span2
 			a( data-id="#{activity.user_id}",name="showOtherUser") #{activity.user_name}
 		.span2
-		//- 	span(title="#{activity.description}") #{activity.description.substr(0,30)}...
+			span #{new Date(activity.date_created).toLocaleDateString()}
 		.span1
 		if (user.id == activity.user_id)
 			a( href="#/recommendations",data-id="#{activity.object_id}",name="deleteRecommendation") Delete

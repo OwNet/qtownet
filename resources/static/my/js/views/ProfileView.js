@@ -13,6 +13,7 @@ define( function (require) {
 	  , pagerDownloadTemplate = require ("tpl/downloadorderspager")
 	  , showactivitiesTemplate = require ("tpl/showactivities")
 	  , UserModel = require ("share/models/UserModel")
+	  , MessageModel = require ("share/models/MessageModel")
 	  , ActivityModel = require ("share/models/ActivityModel")
 	  , DownloadOrdersModel = require ("share/models/DownloadOrdersModel")
 
@@ -37,6 +38,7 @@ define( function (require) {
 				'click a[name="deleteDO"]': "deleteDO",
 				'click a[name="deleteActivityRecommendation"]': "deleteActivityRecommendation",
 				'click a[name="deleteActivityRating"]': "deleteActivityRating",
+				'click a[name="deletemessage"]': "deleteMessage",
 				"click input[type=radio]": "onRadioClick",
 			},
 
@@ -326,6 +328,29 @@ define( function (require) {
 					},
 					error: function() {
 						App.showMessage("Cannot delete rating")
+					},
+        		})
+
+			},
+
+			deleteMessage: function(e){
+				e.preventDefault();
+        		var id = $(e.currentTarget).data("id");
+        		var group_id = $(e.currentTarget).data("group_id");
+        		var data = {group_id : group_id}
+
+        		var message = new MessageModel(data)
+        		message.id = id
+        		message.group_id = group_id
+        		var self = this
+
+        		message.destroy({
+        			success: function() {
+        				App.router.navigate("#/profile", {trigger: true})
+        				App.showMessage("Message deleted")
+					},
+					error: function() {
+						App.showMessage("Cannot delete")
 					},
         		})
 
