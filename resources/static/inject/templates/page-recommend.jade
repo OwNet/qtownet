@@ -1,0 +1,23 @@
+h1 Recommend this website
+br
+form(name="recommend-form").form-horizontal
+	.control-group
+		label.control-label Title:
+		.controls
+			input(type="text",name="title", required)
+
+	.control-group
+		label.control-label Description:
+		.controls
+			textarea(name="description", required)
+
+	.control-group
+		label.control-label Group:
+		.controls
+			select(name="group_id", required)
+
+	.control-group
+		.controls
+			input.btn(type="submit", name="recommend", value="Recommend this site")
+			span#recommend-ok.status-ok.hide OK
+

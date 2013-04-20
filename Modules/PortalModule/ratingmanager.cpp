@@ -217,7 +217,7 @@ IResponse::Status RatingManager::showPageStats(QString uri, uint userId, QVarian
 
     if (userId != -1) {
         QSqlQuery userQuery;
-        userQuery.prepare("SELECT _id, val FROM ratings WHERE user_id=:user_id AND absolute_uri=:uri");
+        userQuery.prepare("SELECT uid, val FROM ratings WHERE user_id=:user_id AND absolute_uri=:uri");
         userQuery.bindValue(":user_id",userId);
         userQuery.bindValue(":uri",uri);
 
@@ -226,7 +226,7 @@ IResponse::Status RatingManager::showPageStats(QString uri, uint userId, QVarian
 
         if (userQuery.first()) {
             QSqlRecord userRow = userQuery.record();
-            stats.insert("id", userRow.value("_id"));
+            stats.insert("id", userRow.value("uid"));
             stats.insert("val", userRow.value("val"));
        }
     }

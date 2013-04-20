@@ -37,14 +37,6 @@ owNetAVAILABLEURIS = [];
 		}, false);
 	}
 
-	$.isArray = function () {
-		if (arguments && typeof arguments[0] === "object") {
-			var criterion = arguments[0].constructor.toString().match(/array/i);
-			return (criterion != null);
-		}
-		return false;
-	},
-
 	$.getEncodedPageUri = function () {
 		return encodeURIComponent(document.location.href.replace(/#.*$/, ""));
 	}
@@ -91,6 +83,7 @@ owNetAVAILABLEURIS = [];
 	$.isNotOwnet = function () {
 		return document.location.href.match(/[a-zA-Z]+.ownet\/api\/[a-zA-Z]+/) === null;
 	}
+
 	$.isFromOwnet = function () {
 		return document.referrer.match(/[a-zA-Z]+.ownet\/api\/[a-zA-Z]+/) !== null;
 	}
@@ -194,7 +187,7 @@ owNetAVAILABLEURIS = [];
 			$.addCss("a.OwNetHIGHLIGHT { border: 2px solid #F49B04; }");
 		},
 		receiveLinks: function (linksobj) {
-			if ($.isArray(linksobj)) {
+			if (Array.isArray(linksobj)) {
 				this.availableUris = linksobj;
 				for (var i = 0; i < this.availableUris.length; ++i) {
 					this.availableUris[i] = decodeURIComponent(this.availableUris[i]);
@@ -287,12 +280,6 @@ owNetAVAILABLEURIS = [];
 				href: 'http://my.ownet',
 			},
 
-			refresh: {
-				icon: 'owetab_refresh.png',
-				alt: 'Refresh',
-				title: 'Download new version of current webpage.',
-			},
-
 			cache_settings: {
 				icon: 'owetab_caching.png',
 				alt: 'Cache',
@@ -312,7 +299,7 @@ owNetAVAILABLEURIS = [];
 				text: 'Show OwNet',
 				alt: 'Recomend',
 				title: 'Open OwNet box for rating, recommending and tagging this webpage.',
-				onclick: 'togglePageRatings',
+				onclick: 'togglePageActions',
 			},
 
 			close: {
@@ -337,10 +324,7 @@ owNetAVAILABLEURIS = [];
 				'text-align': 'left',
 				'padding': '7px 0px 9px 10px',
 				'margin': '0px',
-				'border-bottom': '2px solid #ffe566',
-				'border-right': '2px solid #ffe566',
-				'border-left': 'none',
-				'border-top': 'none',
+				'border-bottom-right-radius' : '5px',
 				'background': 'rgba(255, 244, 190, 0.8)',
 				'-webkit-touch-callout': 'none',
 				'-webkit-user-select': 'none',
@@ -379,27 +363,17 @@ owNetAVAILABLEURIS = [];
 				'position': 'fixed',
 				'display' : 'none',
 				'left': '0px',
-				'top': '30px',
-				'background-color': 'rgb(255, 244, 190)',
-				'border': '3px solid rgb(196, 196, 196)',
+				'top': '40px',
 				'z-index': '999998',
+				'background': 'transparent',
 			},
 
-			iframeTitleBar: {
-				'text-align': 'right',
-				'height': '20px',
-			},
-
-			ifrmaeClose: {
-				'margin-top': '3px',
-				'margin-right': '3px',
-				'width': '16px',
-				'height': '16px',
-			},
 		},
 
 		events: {
 			'OwNet:ready' : 'onOwnetReady',
+			'OwNet:iframe:resize' : 'iframeResize',
+			'OwNet:iframe:close'  : 'iframeClose',
 		},
 
 		/* public */
@@ -407,11 +381,13 @@ owNetAVAILABLEURIS = [];
 
 			this._initEvents()
 
+			this.root = document.createElement('div')
+			document.body.appendChild(this.root)
+
 			window.addEventListener("message", function(e) {
 				Ownet.receiveMessage(e)
 			}, false)
 
-			this._initControls()
 			this._initIFrame()
 		},
 
@@ -430,8 +406,8 @@ owNetAVAILABLEURIS = [];
 			this.root.style.display = 'none'
 		},
 
-		togglePageRatings: function() {
-			this._toggleTab('page_rating')
+		togglePageActions: function() {
+			this._toggleTab('page_actions')
 		},
 
 		toggleCacheSettings: function() {
@@ -439,16 +415,26 @@ owNetAVAILABLEURIS = [];
 		},
 
 		toggleOfflineLinks: function() {
-			HighlightSwitch.doSwitch();
+			HighlightSwitch.doSwitch()
 		},
 
-		sendURI: function() {
-			this.sendMessage('URI', location.hostname + (location.pathname !== '/' ? location.pathname:'') )
+		sendPageInfo: function() {
+			var data = {
+				uri: location.hostname + (location.pathname !== '/' ? location.pathname:''),
+				title: document.title,
+			}
+			this.sendMessage('page', data)
+		},
+
+		iframeResize: function(rect) {
+			this.iframe.setAttribute("width", rect.width)
+			this.iframe.setAttribute("height", rect.height)
 		},
 
 		/* events */
 		onOwnetReady: function() {
-			this.sendURI()
+			this._initControls()
+			this.sendPageInfo()
 		},
 
 		/* private */
@@ -462,19 +448,19 @@ owNetAVAILABLEURIS = [];
 		},
 
 		_initControls: function() {
-			this.root = document.createElement('div')
-
-			var controls = document.createElement('div')
+			var controlsRoot = document.createElement('div')
+			  , controlsShadowRoot = controlsRoot.webkitCreateShadowRoot()
 			  , controlsBox = document.createElement('div')
+			  , controls = document.createElement('div')
 
 			$.setCSS( controls, this.style.controls)
 			$.setCSS( controlsBox, this.style.controlsBox)
 
-			this.root.appendChild(controlsBox)
+			this.root.appendChild(controlsRoot)
+			controlsShadowRoot.appendChild(controlsBox)
 			controlsBox.appendChild(controls)
 
 			var self = this
-
 			for (var key in this.links) {
 
 				var link = this.links[key]
@@ -506,38 +492,18 @@ owNetAVAILABLEURIS = [];
 
 			}
 
-			document.getElementsByTagName("body")[0].appendChild(this.root);
+			document.body.appendChild(this.root);
 		},
 
-		_initIFrame: function(onload) {
+		_initIFrame: function() {
 			var box = document.createElement('div')
 			$.setCSS(box, this.style.iframeBox)
 			this.iframeBox = box
 
-
-			var title_bar = document.createElement('div')
-			$.setCSS(title_bar, this.style.iframeTitleBar)
-
-			var close_link = document.createElement('a')
-			close_link.style.cursor = 'pointer'
-			close_link.onclick = this._closeIFrameTab.bind(this)
-
-			var img_close = document.createElement('img')
-			img_close.setAttribute('src',this.imgBaseURI + this.links.close.icon)
-			img_close.setAttribute('alt','Close OwNet box')
-			img_close.setAttribute('title','Close OwNet box')
-			$.setCSS(img_close, this.style.ifrmaeClose)
-
-			close_link.appendChild(img_close)
-			title_bar.appendChild(close_link)
-			box.appendChild(title_bar)
-
 			var iframe = document.createElement('iframe')
 			iframe.setAttribute("src", this.iframeHost + this.iframePath)
-			iframe.setAttribute("width", "460")
-			iframe.setAttribute("height", "460");
-			iframe.setAttribute("scrolling", "auto")
 			iframe.setAttribute("frameborder", "0")
+			iframe.setAttribute("allowtransparency",true)
 
 			box.appendChild(iframe)
 			this.root.appendChild(box)
@@ -547,15 +513,15 @@ owNetAVAILABLEURIS = [];
 
 		_toggleTab: function(tab) {
 			if (this.activeTab === tab)
-				this._closeIFrameTab()
+				this.sendMessage('close')
 			else {
 				this.activeTab = tab
-				this.sendMessage('tabselect',tab)
 				this.iframeBox.style.display = 'block'
+				this.sendMessage('show',tab)
 			}
 		},
 
-		_closeIFrameTab: function() {
+		iframeClose: function() {
 			this.activeTab = null
 			this.iframeBox.style.display = 'none'
 		}

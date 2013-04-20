@@ -3,21 +3,22 @@ each activity in activities
 		.span2
 			- var array = activity.content
 			- var content = array.split(";")
-			a( href="#{content[0]}",name="activities" ) #{content[0]}
+			a( href="http://#{content[0]}",name="activities" ) #{content[1]}
 		if (activity.type == 1)
 			.span2
-				span #{content[1]} Stars
+				span Stars
 		else
 			.span2
-				span #{content[1]} 
+				//- span(title="#{activity.description}") #{activity.description.substr(0,30)}...
 		.span2
 			span #{new Date(activity.date_created).toLocaleDateString()}
 		.span2
-			span #{activity.user_name}
-		if (activity.type == 0)
-			.span1
-				span Recommendations
-		else
-			.span1
-				span Rating
+			a( data-id="#{activity.user_id}",name="showOtherUser" ) #{activity.user_name}
+		if (user.id == activity.user_id)
+			if (activity.type == 1)
+				.span1
+					a( href="#/profile",data-id="#{activity.object_id}",name="deleteActivityRating") Delete
+			else
+				.span1
+					a( href="#/profile",data-id="#{activity.object_id}",name="deleteActivityRecommendation") Delete
 

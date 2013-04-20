@@ -19,7 +19,6 @@ define( function (require) {
 			},
 
 			setValue: function(val) {
-				console.log( 'set',val )
 				this.$el.attr('data-rating',val)
 			},
 

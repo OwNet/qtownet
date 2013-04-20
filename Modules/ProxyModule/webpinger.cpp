@@ -26,6 +26,8 @@ void WebPinger::ping()
     QNetworkAccessManager *manager = new QNetworkAccessManager(this);
     connect(manager, SIGNAL(finished(QNetworkReply*)),
             this, SLOT(replyFinished(QNetworkReply*)));
+    connect(manager, SIGNAL(finished(QNetworkReply*)),
+            manager, SLOT(deleteLater()));
 
     manager->get(QNetworkRequest(QUrl(nextUrl())));
 }

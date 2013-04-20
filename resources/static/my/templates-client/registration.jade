@@ -42,8 +42,12 @@
 					.control-group
 						label.control-label Gender:
 						.controls
-							input(type="text",name="gender")
-							span.help-block
+							label.radio
+								input(type="radio",name="gender",value="Male")
+								| Male
+							label.radio
+								input(type="radio",name="gender",value="Female")
+								|Female		
 					.control-group
 						label.control-label Birthday:
 						.controls
