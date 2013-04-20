@@ -6,7 +6,6 @@ define( function (require) {
 	var App = require('App')
 	  , Backbone = require('backbone')
 	  , TabstarRatings = require('views/TabstarRatings')
-	  , PageStatsModel = require('models/PageStatsModel')
 	  , PageRatingModel = require('share/models/PageRatingModel')
 
 
