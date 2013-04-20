@@ -5,7 +5,7 @@ define( function (require) {
 	var App = require("App")
 	  , Backbone = require("backbone")
 	  , recommendationsTemplate = require ("tpl/recommendations")
-	  , profileTableTemplate = require ("tpl/profiletable")
+	  , profileTableTemplate = require ("tpl/otherprofile")
 	  , profileTemplate = require ("tpl/otherprofile")
 	  , recommendationsTableTamplate = require ("tpl/recommendationstable")
 	  , recommendationsPagerTemplate = require ("tpl/recommendationspager")
@@ -257,7 +257,9 @@ define( function (require) {
         			success: function() {
         				App.router.navigate("#/otherprofile", {trigger: true})
         	
-        				$('div#user_profile').html( profileTableTemplate({user :user.toJSON()}))
+        				$('div#other_user_profile').html( profileTableTemplate({user :user.toJSON()}))
+        				$('div#user_profile').hide();
+        				$('div#activities').hide();
         				$('div#pager').hide();
 
         				

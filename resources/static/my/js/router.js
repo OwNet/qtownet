@@ -101,8 +101,8 @@ define( function (require) {
 		},
 
 		otherprofile: function() {
-			this.views.recommendations.showOtherUser()
-			this.activate("#/otherprofile")
+			this.views.profile.show()
+			this.activate("#/profile")
 		},
 
 		editprofile: function() {

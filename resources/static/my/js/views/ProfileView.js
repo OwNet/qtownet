@@ -34,7 +34,7 @@ define( function (require) {
 				'click a[name="editprofile"]': "editProfile",
 				'click a[name="RecommendationPager"]' : "showPage",
 				'click a[name="showDownloadOrders"]': "showDownloadOrders",
-				// 'click a[name="deleteDO"]': "deleteDO",
+				'click a[name="deleteDO"]': "deleteDO",
 			},
 
 			initialize: function() {
@@ -192,8 +192,8 @@ define( function (require) {
 
 			showDownloadOrders: function(page) {
 				var Action;
-				var DownloadOrdersCollection;
-				DownloadOrdersCollection = Backbone.Collection.extend({
+				var downloadOrdersCollection;
+				downloadOrdersCollection = Backbone.Collection.extend({
 					url: '/api/orders',
 					model: DownloadOrdersModel
 				})
@@ -203,15 +203,15 @@ define( function (require) {
 					defaults: {	}
 				})
 
-				var downloadorders = new DownloadOrdersCollection()
+				var downloadorders = new downloadOrdersCollection()
 
 				downloadorders.fetch({data: {page: page},
 					success: function() {
-						console.log( downloadOrdersTemplate({downloadorders: downloadorders.toJSON()}) )
 						$('div#activities').html( downloadOrdersTemplate({downloadorders: downloadorders.toJSON()}))
+						$('div#menu').html( menuTemplate({user :App.user.toJSON()}))
 					},
 					error: function(){
-						App.showMessage("Error reading download orders")
+						App.showMessage("Error reading downloadorders")
 					},
 				})
 
@@ -220,46 +220,74 @@ define( function (require) {
 
 				action.fetch({
 					success: function() {
-						$('div#pager').html( pagerDownloadTemplate({action :action.toJSON()}))
+						$('div#user_profile').html( profileTableTemplate({user :App.user.toJSON()}))
+						$('div#pager').html( pagerRecommTemplate({action :action.toJSON()}))
 					},
 					error: function() {
 						
 					},
 				})
 
-				this.$el.html( downloadOrdersTemplate({downloadorders: downloadorders.toJSON()}) )
+				this.$el.html( profileTemplate({ }) )
 				return this
 
 			},
 
-			// deleteDO: function(e){
-			// 	e.preventDefault();
-   //      		var id = $(e.currentTarget).data("id");
+			deleteRating: function(e){
+				e.preventDefault();
+        		var id = $(e.currentTarget).data("id");
         		
-   //      		var data = {id : id}
+        		var data = {object_id : id}
 
-   //      		var DeleteDO = Backbone.Model.extend({
-			//   		urlRoot: '/api/prefetch/delete',
-			// 		defaults: {	}
-			// 	})
+        		var DeleteRating = Backbone.Model.extend({
+			  		urlRoot: '/api/ratings',
+					defaults: {	}
+				})
+        		var rating = new DeleteRating(data)
+        		rating.id = id
+        		var self = this
 
-   //      		var downloadorder = new DeleteDO(data)
-   //      		downloadorder.id = id
-   //      		var self = this
+        		rating.destroy({
+        			wait: true,
+        			success: function() {
+        				App.router.navigate("#/ratings", {trigger: true})
+        				App.showMessage("Rating deleted")
+						self.showRatings("all", 1)
+					},
+					error: function() {
+						App.showMessage("Cannot delete rating")
+					},
+        		})
 
-   //      		downloadorder.destroy({
-   //      			wait: true,
-   //      			success: function() {
-   //      				App.router.navigate("#/profile", {trigger: true})
-   //      				App.showMessage("Group deleted")
-			// 			self.showDownloadOrders(1)
-			// 		},
-			// 		error: function() {
-			// 			App.showMessage("Cannot delete")
-			// 		},
-   //      		})
+			},
+			deleteDO: function(e){
+				e.preventDefault();
+        		var id = $(e.currentTarget).data("id");
+        		
+        		var data = {id : id}
 
-			// },
+        		var DeleteDO = Backbone.Model.extend({
+			  		urlRoot: '/api/orders',
+					defaults: {	}
+				})
+
+        		var downloadorder = new DeleteDO(data)
+        		downloadorder.id = id
+        		var self = this
+
+        		downloadorder.destroy({
+        			wait: true,
+        			success: function() {
+        				App.router.navigate("#/showdownloadorders", {trigger: true})
+        				App.showMessage("Download Order deleted")
+						self.showDownloadOrders(1)
+					},
+					error: function() {
+						App.showMessage("Cannot delete")
+					},
+        		})
+
+			},
 
 			updateNavbar: function() {
 				$('#navbar').html( userNavbarTemplate({ user:  App.user ? App.user.toJSON() : false }))
