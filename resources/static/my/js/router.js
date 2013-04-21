@@ -10,7 +10,6 @@ define( function (require) {
 	  , GroupsView = require( 'views/GroupsView' )
 	  , ProfileView = require( 'views/ProfileView' )
 	  , NewsFeedView = require( 'views/NewsFeedView' )
-	  , RecommendationsRatingView = require( 'views/RecommendationsRatingView')
 
 
 
@@ -25,8 +24,6 @@ define( function (require) {
 				groups: new GroupsView({ el:$("#content") }),
 				newsfeed: new NewsFeedView({el: $("#content")}),
 				profile: new ProfileView({ el:$("#content") }),
-				recommendations: new RecommendationsRatingView({ el:$("#content")}),
-				ratings: new RecommendationsRatingView({el:$("#content")}),
 			}
 
 		},
@@ -49,7 +46,6 @@ define( function (require) {
 			editprofile: "editprofile",
 			showdownloadorders : "showdownloadorders",
 			listmembers: "listmembers",
-			recommendations: "recommendations",
 			ratings: "ratings",
 			logout: "logout",
 
@@ -115,16 +111,6 @@ define( function (require) {
 		showdownloadorders: function() {
 			this.activate("#/showdownloadorders")
 			this.views.profile.showDownloadOrders(1)
-		},
-
-		recommendations: function() {
-			this.views.recommendations.showRecommendations("all", 1)
-			this.activate("#/recommendations")
-		},
-
-		ratings: function() {
-			this.views.recommendations.showRatings("all", 1)
-			this.activate("#/ratings")
 		},
 
 		logout: function() {

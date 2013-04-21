@@ -13,10 +13,14 @@
 	.name
 		label.orange
 			a( href="#/otherprofile",data-id="#{activity.user_id}",name="showOtherUser" ) #{activity.user_name}
-		label recommended:
+		label
+			| Recommended:&nbsp;
 			a( href="http://#{content[0]}",name="recommendation", target="_blank" ) #{content[1]}
+
+	.text #{content[2]}
+
 	.created
 		label created #{new Date(activity.date_created).toLocaleDateString()}
-	.text #{content[2]}
+
 
 
