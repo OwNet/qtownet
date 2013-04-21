@@ -11,7 +11,7 @@ each message, index in messages
 					img.icon( src="img/no.png" , href="#",data-id="#{message.uid}",name="delete-message",data-group_id="#{group_id}", title="Delete") 
 		.name
 			label.orange
-				a( data-id="#{message.user_id}",name="showOtherUser" ) #{message.first_name} #{message.last_name} 
+				a( data-id="#{message.user_id}",name="showProfile" ) #{message.first_name} #{message.last_name} 
 			label wrote:
 		.created
 			label created #{new Date(message.date_created).toLocaleDateString()}
@@ -33,7 +33,7 @@ each message, index in messages
 							img.icon( src="img/no.png" , href="#",data-id="#{comment.uid}",name="delete-message",data-group_id="#{group_id}", title="Delete") 
 					.name
 						label.orange 
-							a( data-id="#{comment.user_id}",name="showOtherUser" ) #{comment.first_name} #{comment.last_name} 
+							a( data-id="#{comment.user_id}",name="showProfile" ) #{comment.first_name} #{comment.last_name} 
 						label commented: 
 					.created
 						label created #{new Date(comment.date_created).toLocaleDateString()}
@@ -49,7 +49,7 @@ each message, index in messages
 						img( src="img/boy.png" )
 				.name
 					label.orange 
-						a( data-id="#{user.id}",name="showOtherUser" ) #{user.first_name} #{user.last_name} 
+						a( data-id="#{user.id}",name="showProfile" ) #{user.first_name} #{user.last_name} 
 					label :
 				.text
 					input(type="text", name="message").comment-message

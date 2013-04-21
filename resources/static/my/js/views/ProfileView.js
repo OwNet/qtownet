@@ -67,14 +67,14 @@ define( function (require) {
         			}
         		})
 
-				// this.$el.html( profileTemplate({ }) )
+				this.$el.html( profileTemplate({user :user.toJSON(), current: current}) )
 
 				this.showActivities(id, 1)
 				return this
 			},
 
 			showProfile: function(e) {
-				App.router.navigate("#/profile", {trigger: true})
+				// App.router.navigate("#/profile", {trigger: true})
 				e.preventDefault()
 				var id = $(e.currentTarget).data("id")
 				console.log(id)
@@ -122,7 +122,7 @@ define( function (require) {
 				})
 
 
-				// this.$el.html( showactivitiesTemplate({ }) )
+				this.$el.html( showactivitiesTemplate({activities: activities.toJSON() }) )
 				return this
 								
 			},
