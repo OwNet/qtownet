@@ -27,11 +27,11 @@ define( function (require) {
 			events: {
 				'click form[name="create-group-form"] button[name="submit"]': 'saveGroup',
 				'click a[name="show"]': "showGroup", 
-				'click a[name="delete"]': "deleteGroup", 
-				'click a[name="edit"]': "editGroup", 
-				'click a[name="join"]': "joinGroup", 
+				'click img[name="delete"]': "deleteGroup", 
+				'click img[name="edit"]': "editGroup", 
+				'click img[name="join"]': "joinGroup", 
 				'click a[name="filter"]' : "showWithFilter",
-				'click a[name="leave"]' : "leaveGroup",
+				'click img[name="leave"]' : "leaveGroup",
 				'click a[name="listMembers"]' : "listMembers",
 				'click a[name="groups-page"]' : "showPage",
 				'click a[name="add-admin"]' : "addAdmin",
@@ -197,6 +197,7 @@ define( function (require) {
 					success: function() {
 						App.router.navigate('groups', {trigger: true})
 						App.showMessage("Leaved", "alert-success")
+						self.show("all",1)
 					},
 					error: function() {
 						App.showMessage("Leaving failed")
@@ -207,6 +208,7 @@ define( function (require) {
 			showWithFilter: function(e){
 				e.preventDefault();
 				var filter = $(e.currentTarget).data("filter");
+				App.router.navigate('groups', {trigger: true})
 				this.show(filter,1)
 			},
 
@@ -315,7 +317,7 @@ define( function (require) {
 
 				action.fetch({
 					success: function() {
-						$('div#pager').html( pagerTemplate({action :action.toJSON(), filter: filter}))
+						$('div#pager').html( pagerTemplate({action :action.toJSON(), filter: filter, act_page: page}))
 					},
 					error: function() {
 						
@@ -336,8 +338,7 @@ define( function (require) {
 				var groups = new GroupsCollection(group)
 
 				
-				this.$el.html( createGroupsTemplate() )
-				$('div#form-create').html( groupFormTemplate({group: groups.toJSON()}))
+				$('div#groups_list').html( groupFormTemplate({group: groups.toJSON()}))
 				return this
 			},
 

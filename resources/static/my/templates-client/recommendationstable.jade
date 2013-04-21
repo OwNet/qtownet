@@ -2,7 +2,7 @@ each activity in activities
 	- var array = activity.content
 	- var content = array.split(";")
 	.message
-		if (user.gender == "Female")
+		if (activity.gender == "Female")
 			.image
 				img( src="img/girl.png" )
 		else
@@ -17,6 +17,7 @@ each activity in activities
 			label recommended: 
 				a( href="http://#{content[0]}",name="recommendation", target="_blank" ) #{content[1]}
 		.created
-			label created  #{new Date(activity.date_created).toLocaleDateString()}
-		.text
-			span(title="#{content[2]}") #{content[2].substr(0,15)}...	
+			label created #{new Date(activity.date_created).toLocaleDateString()}
+		.text #{content[2]}
+
+			

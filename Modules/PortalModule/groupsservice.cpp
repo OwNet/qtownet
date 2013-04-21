@@ -530,12 +530,13 @@ IResponse *GroupsService::getUsersGroups( IRequest *req)
            QString user_id = m_proxyConnection->session()->value("logged").toString();
 
            QVariantMap group;
+           QString group_id = query.value(query.record().indexOf("id")).toString();
            group.insert("id",query.value(query.record().indexOf("id")));
            group.insert("name",query.value(query.record().indexOf("name")));
            group.insert("description",query.value(query.record().indexOf("description")));
            group.insert("date_created", query.value(query.record().indexOf("date_created")));
 
-           if(isAdmin(user_id.toUInt(), query.record().indexOf("id")))
+           if(isAdmin(user_id.toUInt(),group_id.toUInt()))
                group.insert("admin","1");
            else
                group.insert("admin","0");

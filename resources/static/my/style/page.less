@@ -17,10 +17,6 @@ html {
 	padding-right: 10px;
 }
 
-.controls {
-	text-align: right
-}
-
 .btn {
 	margin-right: 0px;
 }
@@ -51,6 +47,10 @@ html {
 	position: absolute;
 	top: 200px;
 	width: 100%;
+}
+
+.left .links-second {
+	top: 400px;
 }
 
 .left .links .link {
@@ -89,7 +89,7 @@ html {
 	color: @blue;
 	font-size: 20px;
 	font-weight: bold;
-	margin-top: 15px;
+	margin-top: 25px;
 	margin-left: 20px;
 }
 
@@ -102,6 +102,7 @@ html {
 	min-height: 400px;
 	float: left;
 	width: 70%;
+	text-align: left;
 }
 
 body {
@@ -159,10 +160,8 @@ body {
 }
 
 .messages-right {
-	text-align: left;
-}
 	
-.right{
+
 	.control-label {
 		text-align: left;
 		width: 100%;
@@ -188,7 +187,14 @@ body {
 		margin-top: 10px;
 	}
 
+	.controls {
+		text-align: right
+	}
 
+}
+	
+.right{
+	
 	.list-message {
 		margin-left: 20px;
 	}
@@ -271,9 +277,14 @@ body {
 		margin-top: 14px;
 		margin-bottom: 10px;
 	}
+	
+	.new-comment .btn {
+		float: right;
+		margin-right: 10px;
+	}
 
 	.new-comment .text input {
-		width: 405px;
+		width: 360px;
 		margin-right: 10px;
 	}
 
@@ -323,4 +334,8 @@ body {
 	.star_rating li.full {
 		background-position: -25px;
 	}
+}
+
+.form-horizontal {
+	text-align: left;
 }
