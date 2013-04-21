@@ -19,7 +19,7 @@ define( function (require) {
 			defaultOptions: {
 				refresh: true,
 				interval: 5000,
-				filter: {},
+				params: { page:1 },
 			}
 
 			initialize: function(opts) {
@@ -27,10 +27,12 @@ define( function (require) {
 				this.options = _.extend({}, this.defaultOptions, opts.options)
 
 				this.activities = new Activities()
-				this.activities.setFilter(opts.filter)
+				this.activities.setFilter(this.options.params)
 
-				var elManagerFactory = new Backbone.CollectionBinder.ViewManagerFactory(this._viewFactory)
-				this.collectionBinder = new Backbone.CollectionBinder(elManagerFactory)
+				var viewManagerFactory = new Backbone.CollectionBinder.ViewManagerFactory(this._viewFactory)
+				this.collectionBinder = new Backbone.CollectionBinder(viewManagerFactory)
+
+				this.page = 1
 			},
 
 
@@ -52,9 +54,9 @@ define( function (require) {
 				this.activities.off()
 				delete this.activities
 
-				if (this.refresh.timer) {
-					clearTimeout(this.refresh.timer)
-					delete this.refresh.timer
+				if (this._refreshTimer) {
+					clearTimeout(this._refreshTimer)
+					delete this._refreshTimer
 				}
 
 				this.undelegateEvents()
@@ -62,15 +64,36 @@ define( function (require) {
 			},
 
 			refresh: function() {
-				this.activities.fetch()
+				if (this.refreshXhr)
+					this.refreshXhr.abort()
+
+				var self = this
+				this.refreshXhr = this.activities.fetch({
+					success: function() {
+
+					},
+					error: function() {
+
+					},
+					complete: function() {
+						delete self.refreshXhr
+					}
+				})
 			},
+
+			setPage: function(page) {
+				if (page != this.options.params.page) {
+					this.options.params.page = page
+					this.refresh()
+				}
+			}
 
 			_refreshSetTimeout: function() {
 				var self = this
-				this.refresh.timer = setTimeout( function() {
+				this._refreshTimer = setTimeout( function() {
 					self.refresh()
 					self._refreshSetTimeout()
-				},this.options.interval)
+				}, this.options.interval)
 			},
 
 			_viewFactory: function(model) {

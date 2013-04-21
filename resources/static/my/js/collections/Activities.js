@@ -6,22 +6,36 @@ define( function (require) {
 
 		url: '/api/activities',
 
-		_filter: {},
+		_params: null,
 
 		setFilter: function(obj /*{user,group,type}*/ ) {
-			this._filter = obj
+			this._params = obj
 		},
 
 		fetch: function(opts, ) {
 			if (opts)
-				opts.data = opts.data ?  _.extend(opts.data, this._filter) : this._filter
+				opts.data = opts.data ?  _.extend(opts.data, this._params) : this._params
 			else
-				opts = { data: this._filter }
+				opts = { data: this._params }
 
 
-			Activities.__super__.fetch.call(this, opts)
+			return Activities.__super__.fetch.call(this, opts)
 		},
 
+
+		fetchPageCount: function(opts) {
+			return $.ajax({
+				type: 'GET',
+				url: this.url + '/pagesCount',
+				data: this._params,
+				success: function(count) {
+					this.pageCount = count
+					if (opts && opts.success)
+						opts.success(count)
+				},
+				error: opts ? opts.error : null,
+			})
+		}
 
 	})
 
