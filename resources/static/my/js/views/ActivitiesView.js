@@ -27,14 +27,13 @@ define( function (require) {
 				this.options = _.extend({}, this.defaultOptions, opts.options)
 
 				this.activities = new Activities()
-				this.activities.setFilter(this.options.params)
+				this.activities.setParam(this.options.params)
 
 				var viewManagerFactory = new Backbone.CollectionBinder.ViewManagerFactory(this._viewFactory)
 				this.collectionBinder = new Backbone.CollectionBinder(viewManagerFactory)
 
 				this.page = 1
 			},
-
 
 			render: function() {
 				this.$el.html( '' )

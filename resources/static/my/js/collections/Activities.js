@@ -8,11 +8,11 @@ define( function (require) {
 
 		_params: null,
 
-		setFilter: function(obj /*{user,group,type}*/ ) {
+		setParams: function(obj /*{user,group,type}*/ ) {
 			this._params = obj
 		},
 
-		fetch: function(opts, ) {
+		fetch: function(opts) {
 			if (opts)
 				opts.data = opts.data ?  _.extend(opts.data, this._params) : this._params
 			else
@@ -21,7 +21,6 @@ define( function (require) {
 
 			return Activities.__super__.fetch.call(this, opts)
 		},
-
 
 		fetchPageCount: function(opts) {
 			return $.ajax({
@@ -39,4 +38,5 @@ define( function (require) {
 
 	})
 
+	return Activities
 })
