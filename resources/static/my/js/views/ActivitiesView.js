@@ -5,12 +5,15 @@ define( function (require) {
 	var App = require("App")
 	  , Backbone = require("backbone")
 	  , Activities = require('collections/Activities')
-	  , MessageView = require('views/activities/MessageView')
+	  , RecommendationView = require('views/activities/RecommendationView')
 	  , RatingView = require('views/activities/RatingView')
+	  , MessageView = require('views/activities/MessageView')
+
 
 	require('Backbone.CollectionBinder')
 
 	var activitiesTypesView = {
+		0: RecommendationView,
 		1: RatingView,
 		2: MessageView,
 	}
@@ -47,10 +50,7 @@ define( function (require) {
 				this.$el.html( '' )
 				this.collectionBinder.bind(this.activities, this.$el)
 
-				if (this.options.refresh)
-					this._refreshSetTimeout(0)
-				else
-					this.refresh()
+				this.options.refresh ? this._refreshSetTimeout(0) : this.refresh()
 
 				return this
 			},
@@ -96,10 +96,25 @@ define( function (require) {
 				}
 			},
 
+			setParams: function(params) {
+				this.options.params = _.extend(this.options.params, params)
+				this.options.refresh ? this._refreshSetTimeout(0) : this.refresh()
+			},
+
+			deleteParam: function(key) {
+				delete this.options.params[key]
+				this.options.refresh ? this._refreshSetTimeout(0) : this.refresh()
+			},
+
 			_refreshSetTimeout: function(timeout) {
+				if (this._refreshTimer) {
+					clearTimeout(this.this._refreshTimer)
+				}
+
 				var self = this
 				this._refreshTimer = setTimeout( function() {
 					self.refresh()
+					this._refreshTimer = null
 					self._refreshSetTimeout()
 				}, timeout !== undefined ? timeout : this.options.interval)
 			},

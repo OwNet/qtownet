@@ -25,7 +25,11 @@ define( function (require) {
 
 				this.$el.html( template(data) )
 				return this
-			}
+			},
+
+			close: function() {
+				this.remove()
+			},
 
 	})
 

@@ -11,7 +11,7 @@ define( function (require) {
 	var NewsFeedView = Backbone.View.extend({
 
 			events: {
-
+				'click a[data-filter]' : 'onFilterClick',
 			},
 
 			initialize: function(opts) {
@@ -37,9 +37,27 @@ define( function (require) {
 			},
 
 			render: function() {
-				this.$el.html( template() )
+				var data = {
+					group_id: 0,
+				}
+
+				this.$el.html( template(data) )
 				return this
 			},
+
+			onFilterClick: function(e) {
+				var typeName = $(e.target).closest('a').attr('data-filter')
+
+				if (typeName=='all')
+					this.activitiesView.deleteParam('type')
+				else {
+				  typeId = ['recommendations','ratings','messages'].indexOf(typeName)
+				  this.activitiesView.setParams({type: typeId})
+				}
+
+
+				return false
+			}
 	})
 
 	return NewsFeedView;

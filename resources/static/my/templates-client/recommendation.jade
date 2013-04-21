@@ -1,0 +1,22 @@
+- var array = activity.content
+- var content = array.split(";")
+.message
+	if (activity.gender == "Female")
+		.image
+			img( src="img/girl.png" )
+	else
+		.image
+			img( src="img/boy.png" )
+	if (user.id == activity.user_id)
+		.delete
+			img.icon( src="img/no.png" , data-filter="user",href="#/recommendations",data-id="#{activity.object_id}",name="deleteRecommendation", title="Delete")
+	.name
+		label.orange
+			a( href="#/otherprofile",data-id="#{activity.user_id}",name="showOtherUser" ) #{activity.user_name}
+		label recommended:
+			a( href="http://#{content[0]}",name="recommendation", target="_blank" ) #{content[1]}
+	.created
+		label created #{new Date(activity.date_created).toLocaleDateString()}
+	.text #{content[2]}
+
+

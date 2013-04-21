@@ -4,10 +4,10 @@ define( function (require) {
 
 	var App = require("App")
 	  , Backbone = require("backbone")
-	  , template = require('tpl/message')
+	  , template = require('tpl/recommendation')
 
 
-	var MessageView = Backbone.View.extend({
+	var RecommentationView = Backbone.View.extend({
 
 			events: {
 
@@ -19,7 +19,7 @@ define( function (require) {
 
 			render: function() {
 				var data = {
-					message: this.model.attributes,
+					activity: this.model.attributes,
 					user: App.user.attributes,
 				}
 
@@ -33,6 +33,6 @@ define( function (require) {
 
 	})
 
-	return MessageView;
+	return RecommentationView;
 
 });
