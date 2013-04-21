@@ -38,7 +38,7 @@ private:
     bool completedPrefetchingQuery(QString url);
     bool disablePredictionQuery(uint hash);
 
-    QStringList getPageLinks(QString url);
+    //QStringList getPageLinks(QString url);
     QStringList getCachedLinks(QStringList links);
    //int registerPage(QString &url);
 };
