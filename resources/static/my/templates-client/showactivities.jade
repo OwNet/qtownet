@@ -1,35 +1,36 @@
 each activity in activities
 	.row
-		.span2
-			- var array = activity.content
-			- var content = array.split(";")
-			if (activity.type == 0)	
-				a( href="http://#{content[0]}",name="activities" ) #{content[1]}
-			else if (activity.type == 1)
-				a( href="http://#{content[0]}",name="activities" ) #{content[0]}
-			else if (activity.type == 2)
-				span(title="#{content[0]}") #{content[0].substr(0,15)}...
-		if (activity.type == 1)
-			.span2
-				span #{content[1]} Stars
-		else if (activity.type == 0)
-			.span2
-				span(title="#{content[2]}") #{content[2].substr(0,15)}...
-		else if (activity.type == 2)
-			.span2
-				span Message
-		.span2
-			a( data-id="#{activity.user_id}",name="showOtherUser" ) #{activity.user_name}
-		.span2
-			span #{new Date(activity.date_created).toLocaleDateString()}	
 		if (user.id == activity.user_id)
+			.span2
+				- var array = activity.content
+				- var content = array.split(";")
+				if (activity.type == 0)	
+					a( href="http://#{content[0]}",name="activities" ) #{content[1]}
+				else if (activity.type == 1)
+					a( href="http://#{content[0]}",name="activities" ) #{content[0]}
+				else if (activity.type == 2)
+					span(title="#{content[0]}") #{content[0].substr(0,15)}...
 			if (activity.type == 1)
-				.span1
-					a( href="#/profile",data-id="#{activity.object_id}",name="deleteActivityRating") Delete
-			else if (activity.type == 2)
-				.span1
-					a( href="#/profile",data-id="#{activity.object_id}",name="deletemessage") Delete
+				.span2
+					span #{content[1]} Stars
 			else if (activity.type == 0)
-				.span1
-					a( href="#/profile",data-id="#{activity.object_id}",name="deleteActivityRecommendation") Delete
+				.span2
+					span(title="#{content[2]}") #{content[2].substr(0,15)}...
+			else if (activity.type == 2)
+				.span2
+					span Message
+			//- .span2
+			//- 	a( data-id="#{activity.user_id}",name="showOtherUser" ) #{activity.user_name}
+			.span2
+				span #{new Date(activity.date_created).toLocaleDateString()}	
+			if (user.id == activity.user_id)
+				if (activity.type == 1)
+					.span1
+						a( href="#/profile",data-id="#{activity.object_id}",name="deleteActivityRating") Delete
+				else if (activity.type == 2)
+					.span1
+						a( href="#/profile",data-id="#{activity.object_id}",name="deletemessage") Delete
+				else if (activity.type == 0)
+					.span1
+						a( href="#/profile",data-id="#{activity.object_id}",name="deleteActivityRecommendation") Delete
 

@@ -33,7 +33,7 @@ define( function (require) {
 				'click a[name="allRatings"]' : "showAllRatings",
 				'click a[name="deleteRecommendation"]' : "deleteRecommendation",
 				'click a[name="deleteRating"]' : "deleteRating",
-				'click a[name="showOtherUser"]' : "showOtherUser",
+				
 			},
 
 
@@ -246,30 +246,7 @@ define( function (require) {
 
 			},
 
-			showOtherUser: function(e){
-				e.preventDefault();
-        		var id = $(e.currentTarget).data("id");
-        		var user = new UserModel()
-        		user.id = id
-
-
-        		user.fetch({
-        			success: function() {
-        				App.router.navigate("#/otherprofile", {trigger: true})
-        	
-        				$('div#other_user_profile').html( profileTableTemplate({user :user.toJSON()}))
-        				$('div#user_profile').hide();
-        				$('div#activities').hide();
-        				$('div#pager').hide();
-
-        				
-					}
-        		})
-        						
-			},
-			
-
-
+		
 			
 	})
 

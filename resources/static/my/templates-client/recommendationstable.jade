@@ -12,4 +12,4 @@ each activity in activities
 			span #{new Date(activity.date_created).toLocaleDateString()}
 		.span1
 		if (user.id == activity.user_id)
-			a( href="#/recommendations",data-id="#{activity.object_id}",name="deleteRecommendation") Delete
+			a( href="#/recommendations",data-filter="user",data-id="#{activity.object_id}",name="deleteRecommendation") Delete
