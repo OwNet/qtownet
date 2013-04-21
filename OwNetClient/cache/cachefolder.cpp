@@ -9,16 +9,15 @@
 CacheFolder::CacheFolder()
     : QDir()
 {
-    QDir appDataDir;
     if (ApplicationEnvironment().contains("CACHE_FOLDER")) {
-        appDataDir.setPath(ApplicationEnvironment().value("CACHE_FOLDER"));
-        qDebug() << appDataDir.absolutePath();
+        setPath(ApplicationEnvironment().value("CACHE_FOLDER"));
     } else {
+        QDir appDataDir;
         appDataDir = ApplicationDataStorage().appDataDirectory();
         if (!appDataDir.exists("cache"))
             appDataDir.mkdir("cache");
+        setPath(appDataDir.absoluteFilePath("cache"));
     }
-    setPath(appDataDir.absoluteFilePath("cache"));
 }
 
 long CacheFolder::size()

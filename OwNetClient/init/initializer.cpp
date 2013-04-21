@@ -36,7 +36,7 @@ void Initializer::init()
 
     createPidFile();
 
-    MessageHelper::debug("Proxy initialized and waiting for requests.");
+    MessageHelper::debug("READY");
 }
 
 /*

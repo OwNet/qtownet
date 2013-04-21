@@ -21,7 +21,7 @@ int main(int argc, char *argv[])
     Initializer initializer;
     initializer.init();
 
-    if (! ApplicationEnvironment().contains("OWNET_TEST_ENVIRONMENT"))
+    if (!ApplicationEnvironment().contains("OWNET_TEST_ENVIRONMENT") && !ApplicationEnvironment().contains("NO_GUI"))
     {
         w = new MainWindow;
         w->show();
