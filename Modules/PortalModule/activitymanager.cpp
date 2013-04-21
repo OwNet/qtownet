@@ -144,7 +144,10 @@ QSqlQuery ActivityManager::buildQuery(IRequest *req, bool count)
     if (hasType) query.bindValue(":type", req->parameterValue("type"));
     if (hasUser) query.bindValue(":user_id", req->parameterValue("user_id"));
     if (hasGroup) query.bindValue(":group_id", req->parameterValue("group_id"));
-    if (hasPage) query.bindValue(":page", req->parameterValue("page"));
+    if (hasPage) {
+        query.bindValue(":limit", PER_PAGE);
+        query.bindValue(":offset", (req->parameterValue("page").toInt() -1) * PER_PAGE);
+    }
 
     return query;
 }
