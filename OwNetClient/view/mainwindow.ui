@@ -149,13 +149,6 @@
        </spacer>
       </item>
       <item>
-       <widget class="QPushButton" name="btnCrash">
-        <property name="text">
-         <string>Crash</string>
-        </property>
-       </widget>
-      </item>
-      <item>
        <widget class="QPushButton" name="btnSync">
         <property name="text">
          <string>Sync</string>
