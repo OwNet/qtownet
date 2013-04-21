@@ -32,7 +32,7 @@ define( function (require) {
 				'click a[name="allRecommendations"]' : "showAllRecommendations",
 				'click a[name="allRatings"]' : "showAllRatings",
 				'click a[name="deleteRecommendation"]' : "deleteRecommendation",
-				'click a[name="deleteRating"]' : "deleteRating",
+				'click img[name="deleteRating"]' : "deleteRating",
 				
 			},
 
