@@ -1,21 +1,25 @@
 each group in groups
-		.row
-			.span1
-				label #{group.name}
-			.span2
-				label #{group.description.substr(0,30)}...
-			.span3
-				label created #{new Date(group.date_created).toLocaleDateString()}
-			if (group.member == "1")
-				.span4
-					a( href="#/showgroup",data-id="#{group.id}",name="show") Show group
-			else
-				.span4
-					a( href="#/groups",data-id="#{group.id}",name="join") Join group
-			if (group.admin == "1")
-				.span5
-					a( href="#/editGroup",data-id="#{group.id}",name="edit") Edit group
-					a( href="#/groups",data-id="#{group.id}",name="delete") Delete group
-			if (group.admin == "0" && group.member == "1")
-				.span5
-					a( href="#/groups",data-id="#{group.id}",name="leave") Leave group
+	.message
+		.image
+				img( src="img/all.png" )
+		if (group.admin == "1")
+			.delete
+				img.icon( src="img/delete.png" , href="#/groups",data-id="#{group.id}",name="delete", title="Delete")
+			.edit
+				img.icon( src="img/edit.png" , href="#/editGroup",data-id="#{group.id}",name="edit", title="Edit")
+		if (group.admin == "0" && group.member == "1" && group.id != "0")
+			.delete
+				img.icon( src="img/no.png" , href="#/groups",data-id="#{group.id}",name="leave", title="Leave")
+		if (group.member != "1")
+			.delete
+				img.icon( src="img/plus.png" , href="#/groups",data-id="#{group.id}",name="join", title="Join")
+		.name
+			label.orange #{group.name}
+			label 
+				if (group.id == "0")
+					a( href="#/",data-id="#{group.id}",name="showFront") show >>
+				else if (group.member == "1")
+					a( href="#/showgroup",data-id="#{group.id}",name="show") show >>
+		.created
+			label created #{new Date(group.date_created).toLocaleDateString()}
+		.text #{group.description.substr(0,30)}...

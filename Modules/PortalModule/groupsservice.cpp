@@ -542,12 +542,13 @@ IResponse *GroupsService::getUsersGroups( IRequest *req)
            QString user_id = m_proxyConnection->session()->value("logged").toString();
 
            QVariantMap group;
+           QString group_id = query.value(query.record().indexOf("id")).toString();
            group.insert("id",query.value(query.record().indexOf("id")));
            group.insert("name",query.value(query.record().indexOf("name")));
            group.insert("description",query.value(query.record().indexOf("description")));
            group.insert("date_created", query.value(query.record().indexOf("date_created")));
 
-           if(isAdmin(user_id.toUInt(), query.record().indexOf("id")))
+           if(isAdmin(user_id.toUInt(),group_id.toUInt()))
                group.insert("admin","1");
            else
                group.insert("admin","0");
@@ -1267,6 +1268,7 @@ IResponse *GroupsService::getGroupUsers( IRequest *req)
            user.insert("first_name",query.value(query.record().indexOf("first_name")));
            user.insert("first_name",query.value(query.record().indexOf("first_name")));
            user.insert("last_name",query.value(query.record().indexOf("last_name")));
+           user.insert("gender",query.value(query.record().indexOf("gender")));
            user.insert("isAdmin","0");
            user.insert("status","awaiting");
 
@@ -1288,6 +1290,7 @@ IResponse *GroupsService::getGroupUsers( IRequest *req)
            user.insert("id",query.value(query.record().indexOf("id")));
            user.insert("first_name",query.value(query.record().indexOf("first_name")));
            user.insert("last_name",query.value(query.record().indexOf("last_name")));
+           user.insert("gender",query.value(query.record().indexOf("gender")));
            if(this->isAdmin(query.value(query.record().indexOf("id")).toUInt(),group_id.toUInt()))
                user.insert("isAdmin","1");
            else

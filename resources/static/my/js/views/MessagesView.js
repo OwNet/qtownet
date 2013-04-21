@@ -36,7 +36,9 @@ define( function (require) {
 			}, 
 
 			showFront: function() {
+				this.$el.html( messagesTemplate({}) )
 				this.show(1, 0)
+				return this
 			},
 
 			showPage: function(e){
@@ -47,7 +49,6 @@ define( function (require) {
 			},
 
 			showHome: function(page, group_id) {
-				this.$el.html( messagesTemplate() )
 				this.show(page, group_id)
 			},
 
