@@ -202,6 +202,7 @@
 		isSwitchedOn: 0,
 		switchObj: null,
 		availableUris: null,
+        switchable: null,
 		highlightedLinks: [],
 		init: function() {
 		    $.addCss("a.OwNetHIGHLIGHT { border: 2px solid #F49B04; }");
@@ -219,7 +220,8 @@
 			return linksobj;
 
 		},
-		doSwitch: function () {
+		doSwitch: function (switchable) {
+		    this.switchable = switchable;
 			if (this.isSwitchedOn == 0) {  /* switch on */
 					this.highlightedLinks = [];
                     
@@ -248,7 +250,7 @@
 		            }
 		        }
 		    }
-
+		    this.switchable.switchOn();
 			this.isSwitchedOn = 1;
 		},
 		switchOff: function () {
@@ -260,6 +262,7 @@
 
 			this.highlightedLinks = [];
 			this.isSwitchedOn = 0;
+			this.switchable.switchOff();
 		}
 	};
 
@@ -313,7 +316,7 @@
 				icon: 'owetab_off.png',
 				alt: 'Highlight',
 				title: 'Highlight links on this webpage which are available offline.',
-				onclick: 'toggleOfflineLinks',
+				onclickself: 'toggleOfflineLinks',
 			},
 
 			page_rating: {
@@ -437,8 +440,9 @@
 			this._toggleTab('cache_settings')
 		},
 
-		toggleOfflineLinks: function() {
-			HighlightSwitch.doSwitch()
+		toggleOfflineLinks: function () {
+		    var self = this
+		    HighlightSwitch.doSwitch({ switchOn: function () { self.childNodes[0].src = self.childNodes[0].src.replace("off.png", "on.png"); }, switchOff: function () { self.childNodes[0].src = self.childNodes[0].src.replace("on.png", "off.png"); } });
 		},
 
 		sendPageInfo: function() {
@@ -502,6 +506,10 @@
 
 				if (link.onclick)
 					a.onclick = self[link.onclick].bind(this)
+
+				if (link.onclickself) {
+				    a.onclick = self[link.onclickself].bind(a)
+				}
 
 				if (link.href)
 					a.setAttribute('href', link.href)
