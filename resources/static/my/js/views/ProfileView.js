@@ -6,8 +6,10 @@ define( function (require) {
 	  , Backbone = require("backbone")
 	  , profileTemplate = require ("tpl/profile")
 	  , profileTableTemplate = require ("tpl/profiletable")
+	  , otherProfileTableTemplate = require ("tpl/profiletable")
 	  , profileFormTemplate = require ("tpl/profileform")
 	  , menuTemplate = require ("tpl/menu")
+	  , otherMenuTemplate = require ("tpl/menuother")
 	  , downloadOrdersTemplate = require("tpl/downloadorders")
 	  , profilePagerTemplate = require ("tpl/profilepager")
 	  , pagerOtherProfileTemplate = require ("tpl/otherprofilepager")
@@ -28,7 +30,7 @@ define( function (require) {
 			events: {
 				'click form[name="profile-form"] button[name="update"]': "saveProfile", 
 				'click a[name="editprofile"]': "editProfile",
-				'click a[name="RecommendationPager"]' : "showMyPage",
+				'click a[name="ProfilePager"]' : "showMyPage",
 				'click a[name="showDownloadOrders"]': "showDownloadOrders",
 				'click a[name="deleteDO"]': "deleteDO",
 				'click a[name="deleteActivityRecommendation"]': "deleteActivityRecommendation",
@@ -55,7 +57,7 @@ define( function (require) {
         			success: function() {
 						$('div#user_profile').html( profileTableTemplate({user :App.user.toJSON()}))
 						$('div#menu').html( menuTemplate({user :App.user.toJSON()}))
-						$('a[name="showDownloadOrders"]').hide()
+						$('a[name="showDownloadOrders"]')
 					}
         		})
 
@@ -65,11 +67,12 @@ define( function (require) {
         		if (filter == "other"){
         		var user = new UserModel()
         		user.id = id
+        		console.log(id)
         		user.fetch({
         			success: function(){
         				$('div#user_profile').hide()
-        				$('div#other_user_profile').html( profileTableTemplate({user :user.toJSON()}))
-        				$('div#menu').html( menuTemplate({user :user.toJSON()}))
+        				$('div#other_user_profile').html( otherProfileTableTemplate({user :user.toJSON()}))
+        				$('div#menu').html( otherMenuTemplate({user :user.toJSON()}))
         				$('a[name="editprofile"]').hide()
         				$('a[name="showDownloadOrders"]').hide()
         			}
@@ -86,8 +89,7 @@ define( function (require) {
 				e.preventDefault()
 				var id = $(e.currentTarget).data("id");
       			this.show("other", id)
-
-			},
+    		},
 
 		
 			showActivities: function(filter, id, page) {
@@ -110,7 +112,7 @@ define( function (require) {
 				activities.fetch({data: {page: page},
 					success: function() {
 						$('div#activities').html( showactivitiesTemplate({activities: activities.toJSON(), user: App.user.toJSON()}))	
-						$('a[name="showOtherUser"]').hide()					
+						$('a[name="showOtherUser"]').hide()				
 					},
 					error: function(){
 						App.showMessage("Error reading activities")
@@ -171,7 +173,7 @@ define( function (require) {
 
 				action.fetch({
 					success: function() {
-						$('div#pager').html( pagerOtherProfileTemplate({action :action.toJSON(), filter :filter}))
+						$('div#pager').html( pagerOtherProfileTemplate({action :action.toJSON()}))
 					},
 					error: function() {
 						
@@ -189,12 +191,32 @@ define( function (require) {
 			showMyPage: function(e){
 				e.preventDefault();
 				var pid = $(e.currentTarget).data("id");
+				var id = null
+				App.user.fetch({
+        			success: function() {
+						$('div#user_profile').html( profileTableTemplate({user :App.user.toJSON()}))
+						$('div#menu').html( menuTemplate({user :App.user.toJSON()}))
+						$('a[name="showDownloadOrders"]')
+					}
+        		})
 				this.showActivities("my", id, pid)
 			},
 			showOtherPage: function(e){
 				e.preventDefault();
 				var pid = $(e.currentTarget).data("id");
-				this.showActivities("other", id, pid)
+				var user = new UserModel()
+        		user.id = id
+        		user.fetch({
+        			success: function(){
+        				$('div#user_profile').hide()
+        				$('div#other_user_profile').html( profileTableTemplate({user :user.toJSON()}))
+        				$('div#menu').html( otherMenuTemplate({user :user.toJSON()}))
+        				$('a[name="editprofile"]').hide()
+        				$('a[name="showDownloadOrders"]').hide()
+        			}
+        		})
+
+        		this.showActivities("all", id, 2)
 			},
 			saveProfile: function() {
 				var form = Form( $('form[name="profile-form"]', this.$el) )
@@ -265,7 +287,7 @@ define( function (require) {
 				action.fetch({
 					success: function() {
 						$('div#user_profile').html( profileTableTemplate({user :App.user.toJSON()}))
-						$('div#pager').html( profilePagerTemplate({action :action.toJSON(), filter: filter}))
+						$('div#pager').html( profilePagerTemplate({action :action.toJSON()}))
 					},
 					error: function() {
 						

@@ -1256,6 +1256,7 @@ IResponse *GroupsService::getGroupUsers( IRequest *req)
            user.insert("first_name",query.value(query.record().indexOf("first_name")));
            user.insert("first_name",query.value(query.record().indexOf("first_name")));
            user.insert("last_name",query.value(query.record().indexOf("last_name")));
+           user.insert("gender",query.value(query.record().indexOf("gender")));
            user.insert("isAdmin","0");
            user.insert("status","awaiting");
 
@@ -1277,6 +1278,7 @@ IResponse *GroupsService::getGroupUsers( IRequest *req)
            user.insert("id",query.value(query.record().indexOf("id")));
            user.insert("first_name",query.value(query.record().indexOf("first_name")));
            user.insert("last_name",query.value(query.record().indexOf("last_name")));
+           user.insert("gender",query.value(query.record().indexOf("gender")));
            if(this->isAdmin(query.value(query.record().indexOf("id")).toUInt(),group_id.toUInt()))
                user.insert("isAdmin","1");
            else
