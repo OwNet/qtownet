@@ -58,6 +58,7 @@ define( function (require) {
 				rate.absolute_uri = App.page.uri
 
 			var self = this
+
 			model.save(rate, {
 				success: function() {
 					self.loadPageStats()

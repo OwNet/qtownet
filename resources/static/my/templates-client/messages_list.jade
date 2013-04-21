@@ -1,7 +1,11 @@
 each message, index in messages
 	.message
-		.image
-			img( src="img/girl.png" )
+		if (message.gender == "Female")
+			.image
+				img( src="img/girl.png" )
+		else
+			.image
+				img( src="img/boy.png" )
 		if (user.id == message.user_id)
 				.delete
 					img.icon( src="img/no.png" , href="#",data-id="#{message.uid}",name="delete-message",data-group_id="#{group_id}", title="Delete") 
@@ -18,25 +22,34 @@ each message, index in messages
 		if (message.comments)
 			each comment in message.comments
 				.comment
-					.image
-						img( src="img/girl.png" )
+					if (comment.gender == "Female")
+						.image
+							img( src="img/girl.png" )
+					else
+						.image
+							img( src="img/boy.png" )
 					if (user.id == comment.user_id)
 						.delete
 							img.icon( src="img/no.png" , href="#",data-id="#{comment.uid}",name="delete-message",data-group_id="#{group_id}", title="Delete") 
 					.name
-						label.orange #{comment.first_name} #{comment.last_name} 
-						label commented
+						label.orange 
+							a( data-id="#{comment.user_id}",name="showOtherUser" ) #{comment.first_name} #{comment.last_name} 
+						label commented: 
 					.created
 						label created #{new Date(comment.date_created).toLocaleDateString()}
 					.text
 						label #{comment.message}
 		form(name="comment-message-form", id="comment-#{index}").form-horizontal
-
 			.new-comment
-				.image
-					img( src="img/girl.png" )
+				if (user.gender == "Female")
+					.image
+						img( src="img/girl.png" )
+				else
+					.image
+						img( src="img/boy.png" )
 				.name
-					label.orange #{message.first_name} #{message.last_name} 
+					label.orange 
+						a( data-id="#{user.id}",name="showOtherUser" ) #{user.first_name} #{user.last_name} 
 					label :
 				.text
 					input(type="text", name="message").comment-message

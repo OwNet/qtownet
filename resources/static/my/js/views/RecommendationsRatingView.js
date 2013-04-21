@@ -31,8 +31,8 @@ define( function (require) {
 				'click a[name="myRatings"]' : "showMyRatings",
 				'click a[name="allRecommendations"]' : "showAllRecommendations",
 				'click a[name="allRatings"]' : "showAllRatings",
-				'click a[name="deleteRecommendation"]' : "deleteRecommendation",
-				'click a[name="deleteRating"]' : "deleteRating",
+				'click img[name="deleteRecommendation"]' : "deleteRecommendation",
+				'click img[name="deleteRating"]' : "deleteRating",
 				
 			},
 
@@ -80,7 +80,7 @@ define( function (require) {
 				activities.fetch({data: {page: page, type: '0'},
 					success: function() {
 						$('div#recommendations').html( recommendationsTableTamplate({activities: activities.toJSON(), filter: filter, user: App.user.toJSON()}))
-						$('div#menu').html( menuRecommendationsTemplate({activities: activities.toJSON(), filter: filter}))
+
 					},
 					error: function(){
 						App.showMessage("Error reading Recommendations")
@@ -92,7 +92,7 @@ define( function (require) {
 
 				action.fetch({
 					success: function() {
-						$('div#pager').html( recommendationsPagerTemplate({action :action.toJSON(), filter: filter}))
+						$('div#pager').html( recommendationsPagerTemplate({action :action.toJSON(), filter: filter, act_page: page}))
 					},
 					error: function() {
 						
@@ -191,7 +191,7 @@ define( function (require) {
 
 				action.fetch({
 					success: function() {
-						$('div#pager').html( ratingsPagerTemplate({action :action.toJSON(), filter: filter}))
+						$('div#pager').html( ratingsPagerTemplate({action :action.toJSON(), filter: filter, act_page: page}))
 					},
 					error: function() {
 						

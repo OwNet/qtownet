@@ -1,8 +1,16 @@
-.row
-	.span12.center
-			img( src="img/ownet.png" )
-.row
-	.span2#menu
-	.span10#ratings
-.row
-	.span#pager
+.left.ratings-left
+	.span6.title
+		img( src="img/star1.png" )
+	.title-name Ratings
+	.links
+		.link
+			a( href="#/ratings",data-filter="all",name="allRatings") 
+				img(src="img/stars.png", class="icon") 
+				label All ratings
+		.link
+			a( href="#/ratings",data-filter="my",name="myRatings") 
+				img(src="img/star1.png", class="icon") 
+				label My ratings
+.right.messages-right
+	.list-messages#ratings
+.span#pager
