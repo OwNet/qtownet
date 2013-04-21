@@ -464,11 +464,23 @@ IResponse *GroupsService::index(IRequest *req)
             else
                 group.insert("admin","0");
 
-            if(isMember(user_id.toUInt(), group_id.toUInt()))
-                group.insert("member","1");
-            else
-                group.insert("member","0");
+            //Check group membership
+            QSqlQuery q_check;
 
+            q_check.prepare("SELECT status FROM group_users WHERE user_id = :user_id AND group_id = :group_id");
+            q_check.bindValue(":user_id",user_id);
+            q_check.bindValue(":group_id",group_id);
+            q_check.exec();
+
+            if(!q_check.first())
+                group.insert("member","0");
+            else{
+
+                if(q_check.value(q_check.record().indexOf("status")).toString() == "1")
+                    group.insert("member","1");
+                else
+                    group.insert("member","awaiting");
+            }
 
             groups.append(group);
         }
@@ -1256,6 +1268,7 @@ IResponse *GroupsService::getGroupUsers( IRequest *req)
            user.insert("first_name",query.value(query.record().indexOf("first_name")));
            user.insert("first_name",query.value(query.record().indexOf("first_name")));
            user.insert("last_name",query.value(query.record().indexOf("last_name")));
+           user.insert("gender",query.value(query.record().indexOf("gender")));
            user.insert("isAdmin","0");
            user.insert("status","awaiting");
 
@@ -1277,6 +1290,7 @@ IResponse *GroupsService::getGroupUsers( IRequest *req)
            user.insert("id",query.value(query.record().indexOf("id")));
            user.insert("first_name",query.value(query.record().indexOf("first_name")));
            user.insert("last_name",query.value(query.record().indexOf("last_name")));
+           user.insert("gender",query.value(query.record().indexOf("gender")));
            if(this->isAdmin(query.value(query.record().indexOf("id")).toUInt(),group_id.toUInt()))
                user.insert("isAdmin","1");
            else

@@ -145,10 +145,14 @@ QVariantList ActivityManager::getActivities(bool *ok, QVariantMap &error, IReque
 }
 
 
-int ActivityManager::myPagesCount(IRequest *req)
+int ActivityManager::usersPagesCount(IRequest *req)
 {
 
-    QString curUserId = m_proxyConnection->session()->value("logged").toString();
+    QString userId;
+    if(req->parameterValue("user_id") == "")
+        userId = m_proxyConnection->session()->value("logged").toString();
+    else
+        userId = req->parameterValue("user_id");
 
     //TODO add some validations + error response trought parameter
 
@@ -158,14 +162,14 @@ int ActivityManager::myPagesCount(IRequest *req)
     if(type == "")
     {
         query.prepare("SELECT COUNT(*) AS n FROM activities WHERE user_id = :user_id");
-        query.bindValue(":user_id",curUserId);
+        query.bindValue(":user_id",userId);
 
     }
     else{
 
         query.prepare("SELECT COUNT(*) AS n FROM activities WHERE type=:type AND user_id=:user_id");
         query.bindValue(":type",type);
-        query.bindValue(":user_id",curUserId);
+        query.bindValue(":user_id",userId);
 
     }
     if(query.exec()){
@@ -180,9 +184,14 @@ int ActivityManager::myPagesCount(IRequest *req)
 
 
 
-QVariantList ActivityManager::getMyActivities(bool *ok, QVariantMap &error, IRequest *req)
+QVariantList ActivityManager::getUsersActivities(bool *ok, QVariantMap &error, IRequest *req)
 {
-    QString curUserId = m_proxyConnection->session()->value("logged").toString();
+    QString userId;
+    if(req->parameterValue("user_id") == "")
+        userId = m_proxyConnection->session()->value("logged").toString();
+    else
+        userId = req->parameterValue("user_id");
+
     QString type = req->parameterValue("type");
     QSqlQuery query;
 
@@ -195,7 +204,7 @@ QVariantList ActivityManager::getMyActivities(bool *ok, QVariantMap &error, IReq
     if(type == "")
     {
         query.prepare("SELECT * FROM activities WHERE user_id = :user_id ORDER BY date_created DESC LIMIT :limit OFFSET :offset");
-        query.bindValue(":user_id",curUserId);
+        query.bindValue(":user_id",userId);
         query.bindValue(":limit",PER_PAGE);
         query.bindValue(":offset", (intPage-1)* PER_PAGE);
 
@@ -206,7 +215,7 @@ QVariantList ActivityManager::getMyActivities(bool *ok, QVariantMap &error, IReq
         query.prepare("SELECT * FROM activities WHERE type = :type AND user_id=:user_id ORDER BY date_created DESC LIMIT :limit OFFSET :offset");
         query.bindValue(":limit",PER_PAGE);
         query.bindValue(":offset", (intPage-1)* PER_PAGE);
-        query.bindValue(":user_id",curUserId);
+        query.bindValue(":user_id",userId);
         query.bindValue(":type",type);
     }
     if(!query.exec())
@@ -249,7 +258,7 @@ bool ActivityManager::deleteActivity(const QString &objectId)
 {
     QObject parentObject;
     IDatabaseUpdateQuery *query = m_proxyConnection->databaseUpdateQuery("activities", &parentObject);
-    query->setUpdateDates(true);
+    //query->setUpdateDates(true);
     query->setType(IDatabaseUpdateQuery::Delete);
     query->singleWhere("object_id",objectId);
 
