@@ -7,7 +7,7 @@
 #include "isession.h"
 #include "qmath.h"
 
-#define PER_PAGE 10
+#define PER_PAGE 2
 
 ActivityManager::ActivityManager(IProxyConnection *proxyConnection, QObject *parent) :
     QObject(parent),

@@ -80,7 +80,7 @@ define( function (require) {
 				activities.fetch({data: {page: page, type: '0'},
 					success: function() {
 						$('div#recommendations').html( recommendationsTableTamplate({activities: activities.toJSON(), filter: filter, user: App.user.toJSON()}))
-						$('div#menu').html( menuRecommendationsTemplate({activities: activities.toJSON(), filter: filter}))
+
 					},
 					error: function(){
 						App.showMessage("Error reading Recommendations")

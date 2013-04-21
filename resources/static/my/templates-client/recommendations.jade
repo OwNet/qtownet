@@ -1,8 +1,16 @@
-.row
-	.span12.center
-			img( src="img/ownet.png" )
-.row
-	.span2#menu
-	.span10#recommendations
-.row
-	.span#pager
+.left.ratings-left
+	.span6.title
+		img( src="img/recommend.png" )
+	.title-name Recommendations
+	.links
+		.link
+			a( href="#/recommendations", data-filter="all",name="allRecommendations") 
+				img(src="img/recomm-all.png", class="icon") 
+				label All recommendations
+		.link
+			a( href="#/recommendations",data-filter="my",name="myRecommendations")
+				img(src="img/recommend.png", class="icon") 
+				label My recommendations
+.right.messages-right
+	.list-messages#recommendations
+.span#pager
