@@ -1,15 +1,29 @@
 each activity in activities
-	.row
-		.span2
-			- var array = activity.content
-			- var content = array.split(";")
-			a( href="#{content[0]}" ) #{content[0]}
-		.span2
-			span #{content[1]} Stars
-		.span2
-			span #{new Date(activity.date_created).toLocaleDateString()}
-		.span2
-			a( data-id="#{activity.user_id}",name="showOtherUser" ) #{activity.user_name}
-		.span1
+	- var array = activity.content
+	- var content = array.split(";")
+	.message
+		if (user.gender == "Female")
+			.image
+				img( src="img/girl.png" )
+		else
+			.image
+				img( src="img/boy.png" )
 		if (user.id == activity.user_id)
-			a( href="#/ratings",data-id="#{activity.object_id}",name="deleteRating") Delete
+			.delete
+				img.icon( src="img/no.png" , href="#/ratings",data-id="#{activity.object_id}",name="deleteRating", title="Delete") 
+		.name
+			label.orange
+				a( href="#/otherprofile",data-id="#{activity.user_id}",name="showOtherUser" ) #{activity.user_name}
+			label rated: 
+				a( href="http://#{content[0]}", target="_blank") #{content[0]}
+		.created
+			label created #{new Date(activity.date_created).toLocaleDateString()}
+		.rating.text
+			ul.star_rating
+				- for (var star=1; star<=5; star++)
+					if (star <= content[1])
+						li.full 
+							div.star
+					else
+						li
+							div.star

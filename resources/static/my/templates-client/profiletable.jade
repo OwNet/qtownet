@@ -6,9 +6,6 @@
 		span #{user.email}
 .row
 	.span12.center
-		span #{user.phone}
-.row
-	.span12.center
 		- var bdayfull = user.date_of_birth
 		- var bday = bdayfull.split("-")
 		span #{bday[2]}.#{bday[1]}.#{bday[0]}

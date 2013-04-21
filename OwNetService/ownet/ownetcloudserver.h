@@ -9,6 +9,7 @@ class QNetworkReply;
 
 class OwNetCloudServer : public QObject
 {
+
     Q_OBJECT
 public:
     explicit OwNetCloudServer(QObject *parent = 0);
@@ -24,6 +25,8 @@ public slots:
     void packageDataReceived(QNetworkReply *);
     
 private:
-};
 
+    static const QString crashReportServiceURL;
+    static const QString updateServiceURL;
+};
 #endif // OWNETCLOUDSERVER_H

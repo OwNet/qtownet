@@ -96,13 +96,13 @@ define( function (require) {
 		},
 
 		profile: function() {
-			this.views.profile.show()
+			this.views.profile.show("my")
 			this.activate("#/profile")
 		},
 
 		otherprofile: function() {
-			this.views.profile.show()
-			this.activate("#/profile")
+			this.views.profile.show("other")
+			this.activate("#/otherprofile")
 		},
 
 		editprofile: function() {

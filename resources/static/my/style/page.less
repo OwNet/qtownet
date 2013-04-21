@@ -4,15 +4,17 @@ html {
 
 .navbar {
     margin-bottom: 0px;
+    padding: 0px 10px;
+    width: @pageWidth;
+    margin: auto
 }
 
 #navbar .navbar-inner {
 	text-align: center;
 }
 
-#navbar .navbar-inner .inner{
-	width: @pageWidth;
-	margin: auto
+.navbar .pull-right {
+	padding-right: 10px;
 }
 
 .controls {
@@ -27,6 +29,7 @@ html {
 	height: 35px;
 	width: auto;
 	margin: 3px;
+	float: left;
 }
 /* left collumn*/
 .left {
@@ -53,6 +56,11 @@ html {
 .left .links .link {
 	border-top: 1px solid #D8D8D8;
 	border-bottom: 1px solid #D8D8D8;
+	height: 40px;
+}
+
+.left .links .link label {
+	margin-top: 12px;
 }
 
 .left .links .active {
@@ -67,18 +75,39 @@ html {
 	border-bottom-right-radius:5px;
 }
 
+.left .title {
+	height: 60px;
+	width: 160px;
+	text-align: center;
+}
+
+
+.left .title-name {
+	text-align: center;
+	width: 160px;
+	float: left;
+	color: @blue;
+	font-size: 20px;
+	font-weight: bold;
+	margin-top: 15px;
+	margin-left: 20px;
+}
+
 .right {
 	margin-left: 220px;
 	margin-right: 50px;
 	margin-top: 20px;
 	margin-bottom: 20px;
 	padding-top: 30px;
-	min-height: 95%;
+	min-height: 400px;
+	float: left;
+	width: 70%;
 }
 
 body {
 	position:		relative;
 	width:			100%;
+	min-height:			100%;
 	background: 	#e0e0e0;
 	padding-top:	@pageTopPadding;
 	padding-bottom: @pageBottomPadding;
@@ -131,20 +160,20 @@ body {
 
 .messages-right {
 	text-align: left;
-
+}
 	
-
+.right{
 	.control-label {
 		text-align: left;
 		width: 100%;
-		margin-left: 20px !important; 
+		margin-left: 30px !important; 
 	}
 
 	.controls {
 		float: left;
 		text-align: left;
 		clear: both;
-		margin-left: 20px !important; 
+		margin-left: 30px !important; 
 	}
 
 	.controls textarea {
@@ -169,11 +198,13 @@ body {
 	}
 
 	.message {
+		clear: both;
 		width: 100%;
 		background-color: #f5f5f5;
 		border: 1px solid #EEE;
 		border-radius: 6px;
 		margin: 10px;
+		min-height: 72px;
 	}
 
 	.comment, .new-comment {
@@ -199,6 +230,9 @@ body {
 		margin-right: 15px;
 	}
 
+	.name {
+		width: 100%;
+	}
 	.name .orange {
 		color: @orange;
 		font-weight: bold;
@@ -207,14 +241,17 @@ body {
 		margin-right: 3px;
 	}
 
+	.orange a {
+		color: @orange;
+	}
+
 	.created {
-		margin-top: 0px;
+		margin-top: 2px;
 	}
 
 	.created label {
 		font-size: 11px;
 		color: #333;
-
 	}
 
 	.icon {		
@@ -238,5 +275,52 @@ body {
 	.new-comment .text input {
 		width: 405px;
 		margin-right: 10px;
+	}
+
+	.rating {
+		height: 30px;
+	}
+
+	.rating ul {
+		margin: 0px;
+	}
+}
+
+#pager {
+	margin-left: 230px;
+	
+	.page {
+		height: 16px;
+		width: 16px;
+		padding: 2px;
+		border-radius: 10px;
+		margin: 5px;
+		float: left;
+		text-align: center;
+		background-color: @white;
+		color: @blue;
+		font-size: 10px;
+	}
+
+	div.act-page {
+		background-color: @blue;
+	}
+
+	div.act-page a {
+		color: @white;
+	}
+}
+
+.rating {
+	.star_rating li {
+		float: left;
+		height: 25px;
+		width: 25px;
+		background-image: url("../img/star.png");
+		display: inline-block;
+	}
+
+	.star_rating li.full {
+		background-position: -25px;
 	}
 }

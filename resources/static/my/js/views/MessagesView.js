@@ -77,7 +77,7 @@ define( function (require) {
 				var action = new Action()
 				action.fetch({data: {group_id: group_id}, 
 					success: function() {
-						$('div#pager').html( pagerTemplate({action :action.toJSON(), group_id: group_id}))
+						$('div#pager').html( pagerTemplate({action :action.toJSON(), group_id: group_id, act_page: page}))
 					},
 					error: function() {
 						
@@ -111,14 +111,13 @@ define( function (require) {
 				e.preventDefault();
 				var id = $(e.currentTarget).data("id");
 				
-				var m = this.$('#comment-'+id+' > .control-group > .controls > .comment-message').val()
-				var group_id = this.$('#comment-'+id+' > .control-group > .controls > .group_id').val()
-				var parent_id = this.$('#comment-'+id+' > .control-group > .controls > .parent_id').val()
-				var page = this.$('#comment-'+id+' > .control-group > .controls > .page').val()
+				var m = this.$('#comment-'+id+' > .new-comment > .text > .comment-message').val()
+				var group_id = this.$('#comment-'+id+' > .new-comment > .text > .group_id').val()
+				var parent_id = this.$('#comment-'+id+' > .new-comment > .text > .parent_id').val()
+				var page = this.$('#comment-'+id+' > .new-comment > .text > .page').val()
 
 				//Form( $('.comment-1', this.$el) )
 				console.log(m)
-				
 				var data = {message: m, group_id :group_id, parent_id :parent_id}
 				var message = new MessageModel(data)
 				var self = this

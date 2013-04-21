@@ -30,7 +30,7 @@ define( function (require) {
 
 			show: function() {
 				if ( App.isUserLogged() ) {
-					App.router.navigate('#/live')
+					App.router.navigate('#/')
 					return
 				}
 				App.router.navigate('#/login')

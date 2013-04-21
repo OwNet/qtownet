@@ -9,7 +9,11 @@
 OwNetClient::OwNetClient(OwNetCloudServer *cloudServer, QObject *parent) :
     m_cloudServer(cloudServer), QObject(parent)
 {    
-    m_path = QCoreApplication::applicationDirPath().append("/OwNetClient.exe");
+    m_path = QCoreApplication::applicationDirPath().append("/OwNetClient");
+
+#if defined(Q_OS_WIN)
+    m_path = m_path.append(".exe");
+#endif
 
     qCritical() << "Path to OwNetClient " << m_path;
 }

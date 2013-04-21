@@ -37,17 +37,16 @@
 					.control-group
 						label.control-label Email:
 						.controls
-							input(type="text",name="email")
+							input(type="email ",name="email")
 							span.help-block
 					.control-group
 						label.control-label Gender:
-						.controls
-							label.radio
-								input(type="radio",name="gender",value="Male")
-								| Male
-							label.radio
-								input(type="radio",name="gender",value="Female")
-								|Female		
+						label.radio.offset3
+							input(type="radio",name="gender",value="Male",checked)
+							|Male
+						label.radio.offset3
+							input(type="radio",name="gender",value="Female")
+							|Female
 					.control-group
 						label.control-label Birthday:
 						.controls

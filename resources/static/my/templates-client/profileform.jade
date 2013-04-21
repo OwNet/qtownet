@@ -14,28 +14,28 @@ form(name="profile-form").form-horizontal
 	.control-group
 		label.control-label Email:
 		.controls
-		input(type="text",name="email",value="#{user.email}")
+		input(type="email",name="email",value="#{user.email}")
 	.control-group
 		label.control-label Birthday:
 		.controls
-		input(type="date",name="birth_day",value="#{user.date_of_birth}")
+		input(type="date",name="date_of_birth",value="#{user.date_of_birth}")
 	.control-group
-		label.control-label Gender:
-		.controls
-			if (user.gender == "Male")
-				label.radio
-					input(type="radio",name="gender",value="Male",checked)
-					|Male
-				label.radio
-					input(type="radio",name="gender",value="Female")
-					|Female
-			else
-				label.radio
-					input(type="radio",name="gender",value="Male")
-					| Male
-				label.radio
-					input(type="radio",name="gender",value="Female",checked)
-					|Female
+		if (user.gender == "Male")
+			label.control-label Gender:
+			label.radio.offset2
+				input(type="radio",name="gender",value="Male",checked)
+				|Male
+			label.radio.offset2
+				input(type="radio",name="gender",value="Female")
+				|Female
+		else
+			label.control-label Gender:
+			label.radio.offset2
+				input(type="radio",name="gender",value="Male")
+				| Male
+			label.radio.offset2
+				input(type="radio",name="gender",value="Female",checked)
+				|Female
 	.control-group
 		label.control-label School:
 		.controls
