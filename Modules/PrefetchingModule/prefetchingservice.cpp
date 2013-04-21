@@ -41,7 +41,7 @@ void PrefetchingService::init(IRouter *router)
             ->on(IRequest::GET, ROUTE(done));
     router->addRoute("/load/")
             ->on(IRequest::GET, ROUTE(load));
-    router->addRoute("/list/")->on(IRequest::GET, ROUTE(list));
+    router->addRoute("/list/")->on(IRequest::POST, ROUTE(list));
 }
 
 
@@ -180,10 +180,10 @@ IResponse *PrefetchingService::create(IRequest *req)
     bool ok = false;
 
     QVariantMap reqJson = req->postBodyFromJson(&ok).toMap();
-    if (ok) {
+    if (ok && reqJson.contains("page") && reqJson.contains("links")) {
         QString page = reqJson["page"].toString();
         QString links = reqJson["links"].toString();
-        bool ok = false;
+
         uint pageId = page.toUInt(&ok);
         QStringList predictions = links.split(',');
         if (predictions.length() > 0)
@@ -213,6 +213,8 @@ IResponse *PrefetchingService::create(IRequest *req)
 //        }
     }
     IResponse *resp = req->response(IResponse::OK);
+    resp->setHeader("Access-Control-Allow-Origin","*");
+    resp->setContentType("application/json");
     return resp;
 }
 
@@ -257,8 +259,14 @@ IResponse *PrefetchingService::done(IRequest *req)
 IResponse *PrefetchingService::list(IRequest *req) {
     QString cached = "";
 
-    if (req->hasParameter("page") && !req->parameterValue("page").isEmpty()) {
-        QStringList links = getPageLinks(req->parameterValue("page"));
+    bool ok = false;
+
+    QVariantMap reqJson = req->postBodyFromJson(&ok).toMap();
+    if (ok && reqJson.contains("links")) {
+
+        QString linksString = reqJson["links"].toString();
+
+        QStringList links = linksString.split(',');
         if (links.size() > 0) {
             QStringList filtered = getCachedLinks(links);
 
@@ -269,13 +277,25 @@ IResponse *PrefetchingService::list(IRequest *req) {
                 for (i = 1; i < filtered.size(); ++i) {
                     cached = cached + ",\"" + filtered.at(i) + "\"";
                 }
+                QVariantMap ret;
+                ret.insert("links",filtered);
+
+
+                IResponse *resp = req->response(QVariant(ret),IResponse::OK);
+                resp->setContentType("application/json");
+                resp->setHeader("Access-Control-Allow-Origin","*");
+                return resp;
             }
+
+
         }
 
     }
-    IResponse *resp = req->response(QString("owNetAVAILABLEURIS = [%1];").arg(cached).toLatin1());
-    resp->setContentType("application/javascript");
-    return resp;
+
+ //   IResponse *resp = req->response(QString("owNetAVAILABLEURIS = [%1];").arg(cached).toLatin1());
+   // resp->setContentType("application/javascript");
+
+    return req->response(IResponse::OK);
 }
 
 QStringList PrefetchingService::getCachedLinks(QStringList links) {

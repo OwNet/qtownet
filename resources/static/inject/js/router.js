@@ -30,8 +30,8 @@ define( function (require) {
 			App.on('OwNet:close', this.close, this)
 			App.on('user:logout', function (){ this.navigate('login', trigger) }, this)
 			App.on('user:loaded', function (){ this.navigate(this.requestedTab, trigger) }, this)
-		    //		App.on('OwNet:letmeknow', function() { alert("hey here I am") }, this)
 			App.on('OwNet:prefetch', this.prefetch, this)
+            App.on('OwNet:cached', this.cachedLinks, this)
 		},
 
 		start: function() {
@@ -80,9 +80,23 @@ define( function (require) {
 		        type: "POST",
 		        url: "http://aaa.ownet/api/prefetch/create/",
 		        data: JSON.stringify(data),
-		        success: function () { alert("success"); }
 		    });
 
+		},
+
+		cachedLinks: function(links) {
+		    $.ajax({
+		        type : "POST",
+		        url: "http://aaa.ownet/api/prefetch/list/",
+		        data: JSON.stringify(links),
+		        success: function (data) {
+		            if (data && data.links) {
+		                if (Array.isArray(data.links)) data.links = data.links.toString();
+		                App.sendMessage("highlight", data.links);
+		            }
+		        },
+		      
+		    });
 		},
 
 		routes: {
