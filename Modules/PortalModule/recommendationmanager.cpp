@@ -288,7 +288,7 @@ IResponse::Status RecommendationManager::deleteRecomm(IRequest *req, const QStri
         QObject parentObject;
         IDatabaseUpdateQuery *query = m_proxyConnection->databaseUpdateQuery("recommendations", &parentObject);
 
-        query->setUpdateDates(true);
+        //query->setUpdateDates(true);
         query->setType(IDatabaseUpdateQuery::Delete);
 
         query->singleWhere("uid", uid);

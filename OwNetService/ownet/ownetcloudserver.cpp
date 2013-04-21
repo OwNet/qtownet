@@ -10,6 +10,9 @@
 #include <QNetworkReply>
 #include <QFileInfo>
 
+const QString OwNetCloudServer::crashReportServiceURL = "http://yatta.fiit.stuba.sk/OwNetRestService/Feedback/Send";
+const QString OwNetCloudServer::updateServiceURL = "http://yatta.fiit.stuba.sk/OwNetUpdate/";
+
 OwNetCloudServer::OwNetCloudServer(QObject *parent) :
     QObject(parent)
 {
@@ -21,11 +24,10 @@ void OwNetCloudServer::sendCrashReport(QString report)
     data.insert("feedback", "crash_report");
     data.insert("output", report);
 
-    QString url = "http://192.168.1.11:3000/feedback";
     QByteArray postData;
     postData.append(JsonDocument::fromVariant(data).toJson());
 
-    QNetworkRequest *request = new QNetworkRequest(QUrl(url));
+    QNetworkRequest *request = new QNetworkRequest(QUrl(crashReportServiceURL));
     request->setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
 
     QNetworkAccessManager *nam = new QNetworkAccessManager(this);
@@ -34,8 +36,7 @@ void OwNetCloudServer::sendCrashReport(QString report)
 
 void OwNetCloudServer::checkUpdateMetadata()
 {
-    QString url = "http://192.168.1.11:3000/update/metadata.json";
-    QNetworkRequest *request = new QNetworkRequest(QUrl(url));
+    QNetworkRequest *request = new QNetworkRequest(QUrl(updateServiceURL));
 
     QNetworkAccessManager *nam = new QNetworkAccessManager(this);
     connect(nam, SIGNAL(finished(QNetworkReply*)), this, SLOT(updateMetadataReceived(QNetworkReply*)));
@@ -54,7 +55,7 @@ void OwNetCloudServer::updateMetadataReceived(QNetworkReply *reply)
 
 void OwNetCloudServer::downloadUpdatePackage(QString packageName)
 {
-    QString url = QString("http://192.168.1.11:3000/update/").append(packageName);
+    QString url = QString(updateServiceURL).append(packageName);
     QNetworkRequest *request = new QNetworkRequest(QUrl(url));
 
     QNetworkAccessManager *nam = new QNetworkAccessManager(this);

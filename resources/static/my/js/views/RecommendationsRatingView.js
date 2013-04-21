@@ -9,8 +9,6 @@ define( function (require) {
 	  , profileTemplate = require ("tpl/otherprofile")
 	  , recommendationsTableTamplate = require ("tpl/recommendationstable")
 	  , recommendationsPagerTemplate = require ("tpl/recommendationspager")
-	  , menuRatingsTemplate = require ("tpl/menuratings")
-	  , menuRecommendationsTemplate = require ("tpl/menurecommendations")
 	  , ratingsPagerTemplate = require ("tpl/ratingspager")
 	  , ratingsTemplate = require ("tpl/ratings")
 	  , ratingsTableTamplate = require ("tpl/ratingstable")
@@ -31,8 +29,8 @@ define( function (require) {
 				'click a[name="myRatings"]' : "showMyRatings",
 				'click a[name="allRecommendations"]' : "showAllRecommendations",
 				'click a[name="allRatings"]' : "showAllRatings",
-				'click a[name="deleteRecommendation"]' : "deleteRecommendation",
-				'click a[name="deleteRating"]' : "deleteRating",
+				'click img[name="deleteRecommendation"]' : "deleteRecommendation",
+				'click img[name="deleteRating"]' : "deleteRating",
 				
 			},
 
@@ -70,7 +68,7 @@ define( function (require) {
 				})
 
 				Action = Backbone.Model.extend({
-				  		urlRoot: '/api/activities/myPagesCount?type=0',
+				  		urlRoot: '/api/activities/usersPagesCount?type=0',
 						defaults: {	}
 					})
 				}
@@ -80,7 +78,6 @@ define( function (require) {
 				activities.fetch({data: {page: page, type: '0'},
 					success: function() {
 						$('div#recommendations').html( recommendationsTableTamplate({activities: activities.toJSON(), filter: filter, user: App.user.toJSON()}))
-						$('div#menu').html( menuRecommendationsTemplate({activities: activities.toJSON(), filter: filter}))
 					},
 					error: function(){
 						App.showMessage("Error reading Recommendations")
@@ -92,7 +89,7 @@ define( function (require) {
 
 				action.fetch({
 					success: function() {
-						$('div#pager').html( recommendationsPagerTemplate({action :action.toJSON(), filter: filter}))
+						$('div#pager').html( recommendationsPagerTemplate({action :action.toJSON(), filter: filter, act_page: page}))
 					},
 					error: function() {
 						
@@ -168,7 +165,7 @@ define( function (require) {
 				})
 
 				Action = Backbone.Model.extend({
-				  		urlRoot: '/api/activities/myPagesCount?type=1',
+				  		urlRoot: '/api/activities/usersPagesCount?type=1',
 						defaults: {	}
 					})
 				}
@@ -178,8 +175,6 @@ define( function (require) {
 				activities.fetch({data: {page: page, type: '1'},
 					success: function() {
 						$('div#ratings').html( ratingsTableTamplate({activities: activities.toJSON(), filter: filter, user: App.user.toJSON()}))
-						$('div#menu').html( menuRatingsTemplate({activities: activities.toJSON(), filter: filter}))
-
 					},
 					error: function(){
 						App.showMessage("Error reading Ratings")
@@ -191,7 +186,7 @@ define( function (require) {
 
 				action.fetch({
 					success: function() {
-						$('div#pager').html( ratingsPagerTemplate({action :action.toJSON(), filter: filter}))
+						$('div#pager').html( ratingsPagerTemplate({action :action.toJSON(), filter: filter, act_page: page}))
 					},
 					error: function() {
 						

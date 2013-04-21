@@ -21,8 +21,8 @@ ActivitiesService::ActivitiesService(IProxyConnection *proxyConnection, QObject 
 void ActivitiesService::init(IRouter *router)
 {
     router->addRoute("/allPagesCount")->on(IRequest::GET, ROUTE(pagesCount));
-    router->addRoute("/my")->on(IRequest::GET, ROUTE(getMyActivities) );
-    router->addRoute("/myPagesCount")->on(IRequest::GET, ROUTE(myPagesCount) );
+    router->addRoute("/my")->on(IRequest::GET, ROUTE(getUsersActivities) );
+    router->addRoute("/usersPagesCount")->on(IRequest::GET, ROUTE(usersPagesCount) );
 
 }
 
@@ -70,18 +70,18 @@ IResponse *ActivitiesService::index(IRequest *req)
 }
 
 
-IResponse *ActivitiesService::myPagesCount(IRequest *req)
+IResponse *ActivitiesService::usersPagesCount(IRequest *req)
 {
     if(!m_proxyConnection->session()->isLoggedIn())
         req->response(IResponse::UNAUTHORIEZED);
 
     QVariantMap response;
-    response.insert("pages", m_activityManager->myPagesCount(req));
+    response.insert("pages", m_activityManager->usersPagesCount(req));
 
     return req->response(QVariant(response), IResponse::OK);
 }
 
-IResponse *ActivitiesService::getMyActivities(IRequest *req)
+IResponse *ActivitiesService::getUsersActivities(IRequest *req)
 {
 
     bool logged = false;
@@ -100,7 +100,7 @@ IResponse *ActivitiesService::getMyActivities(IRequest *req)
 
     bool ok;
 
-    QVariantList activities = m_activityManager->getMyActivities(&ok, error,req);
+    QVariantList activities = m_activityManager->getUsersActivities(&ok, error,req);
 
     if(!error.empty())
     {

@@ -27,7 +27,6 @@ private slots:
     void dumpOpenSockets();
     void dumpAvailableClients();
     void sync();
-    void crash();
     void editWorkspaceName();
     void newWorkspace();
     

@@ -1,19 +1,6 @@
+.name #{user.first_name} #{user.last_name}
+.age #{Math.floor( (new Date() - new Date(user.date_of_birth)) / (1000 * 60 * 60 * 24 * 365) )} years old
+.email #{user.email}
+.school from #{user.school}
 .row
-	.span12.center
-		span #{user.first_name} #{user.last_name}
-.row
-	.span12.center
-		span #{user.email}
-.row
-	.span12.center
-		- var bdayfull = user.date_of_birth
-		- var bday = bdayfull.split("-")
-		span #{bday[2]}.#{bday[1]}.#{bday[0]}
-.row
-	.span12.center
-		span #{user.gender}
-.row
-	.span12.center
-		span #{user.school}
-
-	.span
+	.span 

@@ -4,6 +4,7 @@ define( function (require) {
 	require('init')
 
 	var Backbone = require( 'backbone' )
+	  , App = require("App")
 	  , NavbarView = require( 'views/NavbarView')
 	  , LoginView = require( 'views/LoginView' )
 	  , RegistrationView = require( 'views/RegistrationView' )
@@ -44,7 +45,6 @@ define( function (require) {
 			showgroup: "showgroup",
 			editgroup: "editgroup",
 			profile: "profile",
-			otherprofile: "otherprofile",
 			editprofile: "editprofile",
 			showdownloadorders : "showdownloadorders",
 			listmembers: "listmembers",
@@ -60,7 +60,7 @@ define( function (require) {
 		},
 
 		home: function() {
-			this.views.messages.showHome(1, 0)
+			this.views.messages.showFront(1, 0)
 		},
 
 		login: function() {
@@ -90,23 +90,17 @@ define( function (require) {
 		editgroup: function() {
 			this.activate("#/editgroups")
 		},
+		editprofile: function() {
+			this.activate("#/editprofile")
+		},
 
 		listmembers: function() {
 			this.activate("#/listmembers")
 		},
 
 		profile: function() {
-			this.views.profile.show("my")
+			this.views.profile.show(App.user ? App.user.id : "0")
 			this.activate("#/profile")
-		},
-
-		otherprofile: function() {
-			this.views.profile.show("other")
-			this.activate("#/otherprofile")
-		},
-
-		editprofile: function() {
-			this.activate("#/editprofile")
 		},
 
 		showdownloadorders: function() {

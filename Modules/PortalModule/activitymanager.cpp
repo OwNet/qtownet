@@ -30,6 +30,7 @@ bool ActivityManager::createActivity(Activity &ac)
 
     queryName.first();
     ac.user_name =  queryName.value(queryName.record().indexOf("first_name")).toString() + QString(" ") +  queryName.value(queryName.record().indexOf("last_name")).toString();
+    ac.gender = queryName.value(queryName.record().indexOf("gender")).toString();
 
     QObject parentObject;
     IDatabaseUpdateQuery *query = m_proxyConnection->databaseUpdateQuery("activities", &parentObject);
@@ -42,6 +43,7 @@ bool ActivityManager::createActivity(Activity &ac)
     query->setColumnValue("group_id", ac.group_id);
     query->setColumnValue("user_id", ac.user_id);
     query->setColumnValue("object_id", ac.object_id);
+    query->setColumnValue("gender", ac.gender);
 
     if(!query->executeQuery()){
         return false;
@@ -115,9 +117,24 @@ QVariantList ActivityManager::getActivities(bool *ok, QVariantMap &error, IReque
         activity.insert("object_id", query.value(query.record().indexOf("object_id")).toString());
         activity.insert("user_id", query.value(query.record().indexOf("user_id")).toString());
         activity.insert("user_name", query.value(query.record().indexOf("user_name")).toString());
-        activity.insert("content", query.value(query.record().indexOf("content")).toString());
+
+        if(query.value(query.record().indexOf("type")).toString() == QString::number(Activity::MESSAGE)){
+            QSqlQuery queryMessages;
+            queryMessages.prepare("SELECT * FROM messages WHERE parent_id = :uid");
+            queryMessages.bindValue(":uid", query.value(query.record().indexOf("object_id")).toString());
+            queryMessages.exec();
+            int i = 0;
+            while(queryMessages.next())
+                i++;
+            QString content = query.value(query.record().indexOf("content")).toString() + QString(";") + QString::number(i);
+            activity.insert("content",content);
+        }
+        else
+            activity.insert("content", query.value(query.record().indexOf("content")).toString());
+
         activity.insert("type", query.value(query.record().indexOf("type")).toString());
         activity.insert("date_created", query.value(query.record().indexOf("date_created")).toString());
+        activity.insert("gender", query.value(query.record().indexOf("gender")).toString());
 
         activities.append(activity);
     }
@@ -128,10 +145,14 @@ QVariantList ActivityManager::getActivities(bool *ok, QVariantMap &error, IReque
 }
 
 
-int ActivityManager::myPagesCount(IRequest *req)
+int ActivityManager::usersPagesCount(IRequest *req)
 {
 
-    QString curUserId = m_proxyConnection->session()->value("logged").toString();
+    QString userId;
+    if(req->parameterValue("user_id") == "")
+        userId = m_proxyConnection->session()->value("logged").toString();
+    else
+        userId = req->parameterValue("user_id");
 
     //TODO add some validations + error response trought parameter
 
@@ -141,14 +162,14 @@ int ActivityManager::myPagesCount(IRequest *req)
     if(type == "")
     {
         query.prepare("SELECT COUNT(*) AS n FROM activities WHERE user_id = :user_id");
-        query.bindValue(":user_id",curUserId);
+        query.bindValue(":user_id",userId);
 
     }
     else{
 
         query.prepare("SELECT COUNT(*) AS n FROM activities WHERE type=:type AND user_id=:user_id");
         query.bindValue(":type",type);
-        query.bindValue(":user_id",curUserId);
+        query.bindValue(":user_id",userId);
 
     }
     if(query.exec()){
@@ -163,9 +184,14 @@ int ActivityManager::myPagesCount(IRequest *req)
 
 
 
-QVariantList ActivityManager::getMyActivities(bool *ok, QVariantMap &error, IRequest *req)
+QVariantList ActivityManager::getUsersActivities(bool *ok, QVariantMap &error, IRequest *req)
 {
-    QString curUserId = m_proxyConnection->session()->value("logged").toString();
+    QString userId;
+    if(req->parameterValue("user_id") == "")
+        userId = m_proxyConnection->session()->value("logged").toString();
+    else
+        userId = req->parameterValue("user_id");
+
     QString type = req->parameterValue("type");
     QSqlQuery query;
 
@@ -178,7 +204,7 @@ QVariantList ActivityManager::getMyActivities(bool *ok, QVariantMap &error, IReq
     if(type == "")
     {
         query.prepare("SELECT * FROM activities WHERE user_id = :user_id ORDER BY date_created DESC LIMIT :limit OFFSET :offset");
-        query.bindValue(":user_id",curUserId);
+        query.bindValue(":user_id",userId);
         query.bindValue(":limit",PER_PAGE);
         query.bindValue(":offset", (intPage-1)* PER_PAGE);
 
@@ -189,7 +215,7 @@ QVariantList ActivityManager::getMyActivities(bool *ok, QVariantMap &error, IReq
         query.prepare("SELECT * FROM activities WHERE type = :type AND user_id=:user_id ORDER BY date_created DESC LIMIT :limit OFFSET :offset");
         query.bindValue(":limit",PER_PAGE);
         query.bindValue(":offset", (intPage-1)* PER_PAGE);
-        query.bindValue(":user_id",curUserId);
+        query.bindValue(":user_id",userId);
         query.bindValue(":type",type);
     }
     if(!query.exec())
@@ -216,8 +242,10 @@ QVariantList ActivityManager::getMyActivities(bool *ok, QVariantMap &error, IReq
         }
         else
             activity.insert("content", query.value(query.record().indexOf("content")).toString());
+
         activity.insert("type", query.value(query.record().indexOf("type")).toString());
         activity.insert("date_created", query.value(query.record().indexOf("date_created")).toString());
+        activity.insert("gender", query.value(query.record().indexOf("gender")).toString());
 
         activities.append(activity);
     }
@@ -230,7 +258,7 @@ bool ActivityManager::deleteActivity(const QString &objectId)
 {
     QObject parentObject;
     IDatabaseUpdateQuery *query = m_proxyConnection->databaseUpdateQuery("activities", &parentObject);
-    query->setUpdateDates(true);
+    //query->setUpdateDates(true);
     query->setType(IDatabaseUpdateQuery::Delete);
     query->singleWhere("object_id",objectId);
 

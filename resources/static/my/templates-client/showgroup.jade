@@ -1,20 +1,39 @@
-.row
-	.span6.offset3
+.left.groups-left
+	.span6.title
+		img( src="img/all.png" )
+		.title-name #{group[0].name.substr(0,30)}
+		.title-desc #{group[0].description.substr(0,55)}...
+	.links
+		.link
+			a(href="#/showgroup", data-id="#{group[0].id}", name="showGroup")
+				img(src="img/message.png", class="icon") 
+				label Messages 
+	.links.links-half
+		.link
+			a( href="#/listmembers",data-id="#{group[0].id}",name="listMembers") 
+				img(src="img/all.png", class="icon")
+				label Show members
+	.links.links-second
+		if (group[0].admin == "1")
+			.link
+				a( href="#/editGroup",data-id="#{group[0].id}",name="edit") 
+					img(src="img/edit.png", class="icon") 
+					label Edit group
+			.link
+				a( href="#/groups",data-id="#{group[0].id}",name="delete")
+					img(src="img/delete.png", class="icon") 
+					label Delete group
+		else if (group[0].member == "1")
+			.link
+				a( href="#/groups",data-id="#{group[0].id}",name="leave")
+					img(src="img/no.png", class="icon") 
+					label Leave group
 
-		.row
-			.span6.center
-				img( src="img/ownet.png" )
+.right.groups-right
+	.messages-right
 
-		.row
-			if (group[0].admin == "1")
-				.span5
-					a( href="#/editGroup",data-id="#{group[0].id}",name="edit") Edit group
-					a( href="#/groups",data-id="#{group[0].id}",name="delete") Delete group
-			if (group[0].admin == "0" && group[0].member == "1")
-				.span5
-					a( href="#/groups",data-id="#{group[0].id}",name="leave") Leave group
+		.create-message#create_message
 
-			.span6
-				a( href="#/listmembers",data-id="#{group[0].id}",name="listMembers") Show members
+		.list-message#messages_list
 
-			.span#group_detail
+.span#pager
