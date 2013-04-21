@@ -30,6 +30,8 @@ define( function (require) {
 			App.on('OwNet:close', this.close, this)
 			App.on('user:logout', function (){ this.navigate('login', trigger) }, this)
 			App.on('user:loaded', function (){ this.navigate(this.requestedTab, trigger) }, this)
+		    //		App.on('OwNet:letmeknow', function() { alert("hey here I am") }, this)
+			App.on('OwNet:prefetch', this.prefetch, this)
 		},
 
 		start: function() {
@@ -61,6 +63,7 @@ define( function (require) {
 
 		},
 
+
 		close: function() {
 			var size = this.size[this.activeTab]
 
@@ -70,6 +73,16 @@ define( function (require) {
 
 			this.activeTab = null
 			this.navigate(null)
+		},
+
+		prefetch: function(data) {
+		    $.ajax({
+		        type: "POST",
+		        url: "http://aaa.ownet/api/prefetch/create/",
+		        data: JSON.stringify(data),
+		        success: function () { alert("success"); }
+		    });
+
 		},
 
 		routes: {

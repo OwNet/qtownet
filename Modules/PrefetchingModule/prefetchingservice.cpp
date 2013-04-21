@@ -34,7 +34,7 @@ PrefetchingService::PrefetchingService(IProxyConnection *proxyConnection, QObjec
 void PrefetchingService::init(IRouter *router)
 {
     router->addRoute("/create/")
-            ->on(IRequest::GET, ROUTE(create) );
+            ->on(IRequest::POST, ROUTE(create) );
     router->addRoute("/close/")
             ->on(IRequest::GET, ROUTE(close));
     router->addRoute("/done/")
@@ -177,38 +177,42 @@ bool PrefetchingService::disablePredictionQuery(uint hash)
 
 IResponse *PrefetchingService::create(IRequest *req)
 {
-    if (req->hasParameter("page") && req->hasParameter("pid")) {
-        QString page = req->parameterValue("page");
-        QString padeIdString = req->parameterValue("pid");
+    bool ok = false;
+
+    QVariantMap reqJson = req->postBodyFromJson(&ok).toMap();
+    if (ok) {
+        QString page = reqJson["page"].toString();
+        QString links = reqJson["links"].toString();
         bool ok = false;
-        uint pageId = padeIdString.toUInt(&ok);
+        uint pageId = page.toUInt(&ok);
+        QStringList predictions = links.split(',');
+        if (predictions.length() > 0)
+            registerPredictionsQuery(pageId, predictions);
+//        if (ok) {
+//            QStringList list = getPageLinks(page);
 
-        if (ok) {
-            QStringList list = getPageLinks(page);
+//            int count = list.length();
 
-            int count = list.length();
+//            if (count > 0) {
+//                QStringList predictions;
+//                int xF = qFloor(count * 0.35);
+//                if (xF >= 0 && xF < count)
+//                    predictions.push_back(list.at(xF));
 
-            if (count > 0) {
-                QStringList predictions;
-                int xF = qFloor(count * 0.35);
-                if (xF >= 0 && xF < count)
-                    predictions.push_back(list.at(xF));
-
-                int yF = qFloor(count * 0.5);
-                if (yF > xF && yF < count)
-                    predictions.push_back(list.at(yF));
+//                int yF = qFloor(count * 0.5);
+//                if (yF > xF && yF < count)
+//                    predictions.push_back(list.at(yF));
 
 
-                int zF = qFloor(count * 0.65);
-                if (zF > yF && zF < count)
-                    predictions.push_back(list.at(zF));
+//                int zF = qFloor(count * 0.65);
+//                if (zF > yF && zF < count)
+//                    predictions.push_back(list.at(zF));
 
-                registerPredictionsQuery(pageId, predictions);
-            }
-        }
+
+//            }
+//        }
     }
     IResponse *resp = req->response(IResponse::OK);
-    resp->setContentType("application/javascript");
     return resp;
 }
 

@@ -1,5 +1,5 @@
 owNetAVAILABLEURIS = [];
-
+OWNET = null;
 (function() {
 
 	"use_strict"
@@ -29,8 +29,8 @@ owNetAVAILABLEURIS = [];
 		document.getElementsByTagName("head")[0].appendChild(styleElement);
 	}
 
-	$.onDocumentReady = function(callback, document) {
-		document || (document = window.document)
+	$.onDocumentReady = function (callback, document) {
+	    document || (document = window.document)
 		document.addEventListener("DOMContentLoaded", function once() {
 			document.removeEventListener("DOMContentLoaded", once, false)
 			callback()
@@ -100,16 +100,38 @@ owNetAVAILABLEURIS = [];
 		hasReportedPrefetch  : 0,
 		TIMEOUT_DELAY_SECS   : 10,
 		startRequestTimeout: function () {
-			this.requestTimeout = setTimeout(function () { PrefetchContact.requestPrefetch(); }, this.TIMEOUT_DELAY_SECS * 1000);
+		    this.requestTimeout = setTimeout(function () { PrefetchContact.requestPrefetch(); }, this.TIMEOUT_DELAY_SECS * 1000);
+		    //this.requestPrefetch();
 		},
 		stopRequestTimeout: function() {
 			if (this.requestTimeout) clearTimeout(this.requestTimeout);
 		},
 		requestPrefetch: function () {
-			if ($.getPageId() != 0) {
-				$.loadScript(this.apiUri + "create/?page=" + $.getEncodedPageUri() + "&pid=" + $.getPageId() + "&gid=" + $.getRandomId(), function () {
-					PrefetchContact.hasRequestedPrefetch = 1;
-				});
+		   
+		    if ($.getPageId() != 0) {
+		       
+		        var count = document.links.length;
+
+                if (count > 0) {
+                    predictions = [];
+                    var xF = Math.floor(count * 0.35);
+                    if (xF >= 0 && xF < count)
+                        predictions[predictions.length] = document.links[xF];
+
+                    var yF = Math.floor(count * 0.5);
+                    if (yF > xF && yF < count)
+                        predictions[predictions.length] = document.links[yF];
+
+                    var zF = Math.floor(count * 0.65);
+                    if (zF > yF && zF < count)
+                        predictions[predictions.length] = document.links[zF];
+
+                    Ownet.sendMessage("prefetch", { page: $.getPageId(), links: predictions.toString() });
+                }
+
+				//$.loadScript(this.apiUri + "create/?page=" + $.getEncodedPageUri() + "&pid=" + $.getPageId() + "&gid=" + $.getRandomId(), function () {
+				//	PrefetchContact.hasRequestedPrefetch = 1;
+				//});
 			}
 			else {
 				this.startRequestTimeout();
@@ -527,6 +549,8 @@ owNetAVAILABLEURIS = [];
 		}
 	}
 
+	OWNET = Ownet;
+
 
 	if ($.isFromOwnet()) {
 		$.onDocumentReady(function () {
@@ -538,9 +562,8 @@ owNetAVAILABLEURIS = [];
 		HistoryContact.reportVisit();
 		Ownet.initialize();
 
-		$.onDocumentReady(function () {
-			PrefetchContact.startRequestTimeout();
-		});
+		PrefetchContact.startRequestTimeout();
+	
 	}
 
 
