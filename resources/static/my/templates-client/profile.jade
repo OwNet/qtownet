@@ -1,11 +1,28 @@
-.row
-	.span#user_profile
-	.span#other_user_profile
-.row
-	.span10.offset2#edit_profile
-.row
-	.span2#menu
-	.span10#activities
-	.span10#downloadorders
-.row
-	.span#pager
+.left.profile-left
+	.span6.title
+		if (user.gender == "Female")
+			img( src="img/girl.png" )
+		else
+			img( src="img/boy.png" )
+		if (current == true)
+			.title-desc You have
+		else 
+			if (user.gender == "Female")
+				.title-desc She has
+			else 
+				.title-desc He has
+	#stats
+	if (current == true) 
+		.links.links-second
+			.link
+				a( href="#/editprofile",data-id="#{user.id}",name="editprofile")
+					img(src="img/edit.png", class="icon") 
+					label Edit profile
+			.link
+				a( href="#/showdownloadorders",name="showDownloadOrders") 
+					img(src="img/download.png", class="icon") 
+					label Download orders
+.right.profile-right
+	#profile-info
+	#profile
+.span#pager

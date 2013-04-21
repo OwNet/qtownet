@@ -13,7 +13,7 @@ each activity in activities
 				img.icon( src="img/no.png" , href="#/ratings",data-id="#{activity.object_id}",name="deleteRating", title="Delete") 
 		.name
 			label.orange
-				a( href="#/otherprofile",data-id="#{activity.user_id}",name="showOtherUser" ) #{activity.user_name}
+				a( href="#/profile",data-id="#{activity.user_id}",name="showProfile" ) #{activity.user_name}
 			label rated: 
 				a( href="http://#{content[0]}", target="_blank") #{content[0]}
 		.created

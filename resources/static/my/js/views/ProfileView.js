@@ -6,13 +6,10 @@ define( function (require) {
 	  , Backbone = require("backbone")
 	  , profileTemplate = require ("tpl/profile")
 	  , profileTableTemplate = require ("tpl/profiletable")
-	  , otherProfileTableTemplate = require ("tpl/profiletable")
 	  , profileFormTemplate = require ("tpl/profileform")
-	  , menuTemplate = require ("tpl/menu")
-	  , otherMenuTemplate = require ("tpl/menuother")
+	  , profileStatsTemplate = require ("tpl/profile_stats")
 	  , downloadOrdersTemplate = require("tpl/downloadorders")
 	  , profilePagerTemplate = require ("tpl/profilepager")
-	  , pagerOtherProfileTemplate = require ("tpl/otherprofilepager")
 	  , pagerDownloadTemplate = require ("tpl/downloadorderspager")
 	  , showactivitiesTemplate = require ("tpl/showactivities")
 	  , UserModel = require ("share/models/UserModel")
@@ -28,7 +25,8 @@ define( function (require) {
 	var ProfileView = Backbone.View.extend({
 
 			events: {
-				'click form[name="profile-form"] button[name="update"]': "saveProfile", 
+				'click a[name="showProfile"]' : "showProfile",
+				/*'click form[name="profile-form"] button[name="update"]': "saveProfile", 
 				'click a[name="editprofile"]': "editProfile",
 				'click a[name="ProfilePager"]' : "showMyPage",
 				'click a[name="showDownloadOrders"]': "showDownloadOrders",
@@ -37,7 +35,7 @@ define( function (require) {
 				'click a[name="deleteActivityRating"]': "deleteActivityRating",
 				'click a[name="deletemessage"]': "deleteMessage",
 				"click input[type=radio]": "onRadioClick",
-				'click a[name="showOtherUser"]' : "otherShow",
+				'click a[name="showOtherUser"]' : "otherShow",*/
 			},
 
 			initialize: function() {
@@ -45,54 +43,38 @@ define( function (require) {
 			},
 
 			render: function() {
-				this.$el.html( profileTemplate({}) )
-
 				return this
 			}, 
 
-			show: function(filter, id){
-				        		 
-				if (filter == "my"){        		     		
-        		App.user.fetch({
-        			success: function() {
-						$('div#user_profile').html( profileTableTemplate({user :App.user.toJSON()}))
-						$('div#menu').html( menuTemplate({user :App.user.toJSON()}))
-						$('a[name="showDownloadOrders"]')
-					}
-        		})
-
-        		this.showActivities("my", id, 1)
-        		}
-
-        		if (filter == "other"){
-        		var user = new UserModel()
+			show: function(id){
+				var user = new UserModel()
         		user.id = id
-        		console.log(id)
+
+        		var current = false
+        		if (App.user.id == id ) {
+        			current = true
+        		}
+        		self = this
         		user.fetch({
         			success: function(){
-        				$('div#user_profile').hide()
-        				$('div#other_user_profile').html( otherProfileTableTemplate({user :user.toJSON()}))
-        				$('div#menu').html( otherMenuTemplate({user :user.toJSON()}))
-        				$('a[name="editprofile"]').hide()
-        				$('a[name="showDownloadOrders"]').hide()
+        				self.$el.html( profileTemplate({user :user.toJSON(), current: current}) )
+        				$('div#profile-info').html( profileTableTemplate({user :user.toJSON(), current: current}))
+        				$('div#stats').html( profileStatsTemplate({user :user.toJSON(), current: current}))
         			}
         		})
-
-        		this.showActivities("all", id, 1)
-        		}        		
 
 				this.$el.html( profileTemplate({ }) )
 				return this
 			},
 
-			otherShow: function(e) {
+			showProfile: function(e) {
 				e.preventDefault()
-				var id = $(e.currentTarget).data("id");
-      			this.show("other", id)
+				var id = $(e.currentTarget).data("id")
+      			this.show(id)
     		},
 
 		
-			showActivities: function(filter, id, page) {
+			showActivities: function(id, page) {
 				var Action;
 				var ActivitiesCollection;
 
@@ -201,6 +183,8 @@ define( function (require) {
         		})
 				this.showActivities("my", id, pid)
 			},
+
+			/*
 			showOtherPage: function(e){
 				e.preventDefault();
 				var pid = $(e.currentTarget).data("id");
@@ -328,10 +312,6 @@ define( function (require) {
 
 			},
 
-			updateNavbar: function() {
-				$('#navbar').html( userNavbarTemplate({ user:  App.user ? App.user.toJSON() : false }))
-			},
-
 			onRadioClick: function (e) {
             e.stopPropagation();
             var user = new UserModel()
@@ -415,6 +395,10 @@ define( function (require) {
 					},
         		})
 
+			},*/
+
+			updateNavbar: function() {
+				$('#navbar').html( userNavbarTemplate({ user:  App.user ? App.user.toJSON() : false }))
 			},
 
 			
