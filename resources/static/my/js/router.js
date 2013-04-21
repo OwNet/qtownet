@@ -90,6 +90,9 @@ define( function (require) {
 		editgroup: function() {
 			this.activate("#/editgroups")
 		},
+		editprofile: function() {
+			this.activate("#/editprofile")
+		},
 
 		listmembers: function() {
 			this.activate("#/listmembers")

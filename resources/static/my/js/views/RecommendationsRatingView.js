@@ -68,7 +68,7 @@ define( function (require) {
 				})
 
 				Action = Backbone.Model.extend({
-				  		urlRoot: '/api/activities/myPagesCount?type=0',
+				  		urlRoot: '/api/activities/usersPagesCount?type=0',
 						defaults: {	}
 					})
 				}
@@ -165,7 +165,7 @@ define( function (require) {
 				})
 
 				Action = Backbone.Model.extend({
-				  		urlRoot: '/api/activities/myPagesCount?type=1',
+				  		urlRoot: '/api/activities/usersPagesCount?type=1',
 						defaults: {	}
 					})
 				}
