@@ -6,6 +6,7 @@
 #include "cacheexceptionsservice.h"
 #include "firewalldiscoveryjob.h"
 #include "firewalldiscoveryservice.h"
+#include "appservice.h"
 
 void ProxyModule::init(IProxyConnection *proxyConnection)
 {
@@ -14,6 +15,7 @@ void ProxyModule::init(IProxyConnection *proxyConnection)
     m_proxyConnection->registerService(new RefreshService(m_proxyConnection, this));
     m_proxyConnection->registerService(new CacheExceptionsService(m_proxyConnection, this));
     m_proxyConnection->registerService(new FirewallDiscoveryService(m_proxyConnection, this));
+    m_proxyConnection->registerService(new AppService(m_proxyConnection, this));
 
     m_proxyConnection->registerJob(new WebPingerJob);
     m_proxyConnection->registerJob(new FirewallDiscoveryJob);

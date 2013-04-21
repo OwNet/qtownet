@@ -37,6 +37,7 @@ public:
     int lastConnectionTraffic() const;
     QString generateUniqueId() const;
     uint cacheId(const QString &url) const;
+    void quit() const;
 };
 
 #endif // PROXYCONNECTION_H

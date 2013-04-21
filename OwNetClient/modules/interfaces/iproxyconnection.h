@@ -59,6 +59,7 @@ public:
     virtual QString generateUniqueId() const = 0;
     virtual int lastConnectionTraffic() const = 0;
     virtual uint cacheId(const QString &url) const = 0;
+    virtual void quit() const = 0;
 };
 
 #endif // IPROXYCONNECTION_H

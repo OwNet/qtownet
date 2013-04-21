@@ -20,6 +20,8 @@
 #include "proxydownloads.h"
 #include "proxytrafficcounter.h"
 
+#include <QApplication>
+
 ProxyConnection::ProxyConnection(QObject *parent) :
     QObject(parent)
 {
@@ -154,4 +156,9 @@ QString ProxyConnection::generateUniqueId() const
 uint ProxyConnection::cacheId(const QString &url) const
 {
     return CacheHelper::cacheId(url);
+}
+
+void ProxyConnection::quit() const
+{
+    qApp->quit();
 }
