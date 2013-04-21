@@ -12,6 +12,9 @@ require.config({
 			jade        :  'share/lib/jade.runtime.min',
 
 			'jquery.escape' : 'share/utils/jquery.escape',
+
+			'Backbone.CollectionBinder' : 'share/lib/Backbone.CollectionBinder',
+			'Backbone.ModelBinder'      : 'share/lib/Backbone.ModelBinder'
 	},
 
 	shim: {
@@ -20,6 +23,14 @@ require.config({
 			backbone: {
 				deps: ['underscore', 'jquery'],
 				exports: 'Backbone',
+			},
+
+			'Backbone.CollectionBinder' : {
+				deps: ['backbone']
+			},
+
+			'Backbone.ModelBinder' : {
+				deps: ['backbone']
 			},
 
 			jade: {
