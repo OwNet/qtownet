@@ -3,8 +3,7 @@
 #include "iproxyconnection.h"
 #include "isession.h"
 #include "syncserver.h"
-
-#include <QSettings>
+#include "isettings.h"
 
 CentralServiceUpdater::CentralServiceUpdater(IProxyConnection *proxyConnection, QObject *parent) :
     QObject(parent),
@@ -50,7 +49,7 @@ bool CentralServiceUpdater::updateJournal()
 QString CentralServiceUpdater::workspaceId() const
 {
     QObject parent;
-    QSettings *settings = m_proxyConnection->settings(&parent);
+    ISettings *settings = m_proxyConnection->settings(&parent);
     settings->beginGroup("current_workspace");
     return settings->value("id").toString();
 }

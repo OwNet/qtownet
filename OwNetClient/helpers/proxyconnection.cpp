@@ -42,7 +42,7 @@ IDatabaseSelectQuery *ProxyConnection::databaseSelect(const QString &table, QObj
     return new DatabaseSelectQuery(table, parent);
 }
 
-QSettings *ProxyConnection::settings(QObject *parent)
+ISettings *ProxyConnection::settings(QObject *parent)
 {
     return new Settings(parent);
 }

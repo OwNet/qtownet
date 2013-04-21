@@ -22,7 +22,7 @@ public:
     ISession *session(QObject *parent = 0);
     IDatabaseUpdateQuery *databaseUpdateQuery(const QString &table, QObject *parent = 0, bool sync = true);
     IDatabaseSelectQuery *databaseSelect(const QString &table, QObject *parent = 0);
-    QSettings *settings(QObject *parent = 0);
+    ISettings *settings(QObject *parent = 0);
     IDatabaseSettings *databaseSettings(QObject *parent = 0);
 
     /// Proxy requests

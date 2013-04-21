@@ -5,8 +5,7 @@
 #endif
 
 #include "iproxyconnection.h"
-
-#include <QSettings>
+#include "isettings.h"
 
 MulticastProtocolNode::MulticastProtocolNode(const QString &id, IProxyConnection *proxyConnection, QObject *parent) :
     m_id(id),
@@ -66,7 +65,7 @@ QVariantMap MulticastProtocolNode::message() const
     QString s;
 
     QObject parent;
-    QSettings *settings = m_proxyConnection->settings(&parent);
+    ISettings *settings = m_proxyConnection->settings(&parent);
     settings->beginGroup("current_workspace");
 
     switch (status())

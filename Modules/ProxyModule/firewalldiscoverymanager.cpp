@@ -4,8 +4,8 @@
 #include "iproxyconnection.h"
 #include "idatabasesettings.h"
 #include "isession.h"
+#include "isettings.h"
 
-#include <QSettings>
 #include <QThread>
 #include <QTimer>
 
@@ -78,7 +78,7 @@ void FirewallDiscoveryManager::checkPingResponse()
 {
     if (!m_wasPingedBack) {
         QObject parent;
-        int port = m_proxyConnection->settings(&parent)->value("application/listen_port", 8081).toInt();
+        int port = m_proxyConnection->settings(&parent)->listenPort();
         m_proxyConnection->message(tr("Firewall was detected that prevents OwNet from functioning properly. Please deactivate the firewall on port %1.").arg(port), tr("Firewall Detected"), IProxyConnection::CriticalPopup);
     }
     emit finishedPing();

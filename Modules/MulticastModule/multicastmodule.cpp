@@ -9,9 +9,9 @@
 #include "pingjob.h"
 #include "pingserver.h"
 #include "pingservice.h"
+#include "isettings.h"
 
 #include <QHostAddress>
-#include <QSettings>
 
 void MulticastModule::init(IProxyConnection *proxyConnection)
 {

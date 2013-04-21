@@ -12,10 +12,8 @@ public:
     
     QString value( const QString & name, const QString & defaultValue = QString() ) const;
     bool contains ( const QString & name ) const;
-signals:
-    
-public slots:
-    
+
+    void init();
 };
 
 #endif // APPLICATIONENVIRONMENT_H

@@ -2,13 +2,21 @@
 
 #include "applicationdatastorage.h"
 #include "proxyrequest.h"
+#include "applicationenvironment.h"
+
+#include <QDebug>
 
 CacheFolder::CacheFolder()
     : QDir()
 {
-    QDir appDataDir = ApplicationDataStorage().appDataDirectory();
-    if (!appDataDir.exists("cache")) {
-        appDataDir.mkdir("cache");
+    QDir appDataDir;
+    if (ApplicationEnvironment().contains("CACHE_FOLDER")) {
+        appDataDir.setPath(ApplicationEnvironment().value("CACHE_FOLDER"));
+        qDebug() << appDataDir.absolutePath();
+    } else {
+        appDataDir = ApplicationDataStorage().appDataDirectory();
+        if (!appDataDir.exists("cache"))
+            appDataDir.mkdir("cache");
     }
     setPath(appDataDir.absoluteFilePath("cache"));
 }

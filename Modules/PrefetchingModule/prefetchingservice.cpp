@@ -11,6 +11,7 @@
 #include "idatabaseselectquery.h"
 #include "idatabaseselectquerywheregroup.h"
 #include "irouter.h"
+#include "isettings.h"
 
 #include <QDir>
 #include "QSgml.h"
@@ -20,7 +21,6 @@
 #include <QDebug>
 #include <QFile>
 #include <qmath.h>
-#include <QSettings>
 #include <QMap>
 #include <QStringBuilder>
 #include <QUrl>

@@ -4,9 +4,9 @@
 #include "clientservicecall.h"
 #include "irouter.h"
 #include "iproxyconnection.h"
+#include "isettings.h"
 
 #include <QStringList>
-#include <QSettings>
 
 CustomServerService::CustomServerService(IProxyConnection *proxyConnection, QObject *parent) :
     QObject(parent),
@@ -18,7 +18,7 @@ void CustomServerService::init(IRouter *router)
 {
     router->setDefaultRoute(DEFAULT_ROUTE_FN {
         QObject parent;
-        QSettings *settings = m_proxyConnection->settings(&parent);
+        ISettings *settings = m_proxyConnection->settings(&parent);
         if (settings->value("custom_server_ip").isNull() || settings->value("custom_server_port").isNull())
             return req->response(IResponse::SERVICE_UNAVAILABLE);
 

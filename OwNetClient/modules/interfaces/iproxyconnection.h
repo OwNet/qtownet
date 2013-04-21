@@ -7,7 +7,7 @@
 
 class ISession;
 class IDatabaseUpdateQuery;
-class QSettings;
+class ISettings;
 class IDatabaseSettings;
 class IDatabaseSelectQuery;
 class IService;
@@ -38,7 +38,7 @@ public:
     virtual ISession *session(QObject *parent = 0) = 0;
     virtual IDatabaseUpdateQuery *databaseUpdateQuery(const QString &table, QObject *parent = 0, bool sync = true) = 0;
     virtual IDatabaseSelectQuery *databaseSelect(const QString &table, QObject *parent = 0) = 0;
-    virtual QSettings *settings(QObject *parent = 0) = 0;
+    virtual ISettings *settings(QObject *parent = 0) = 0;
     virtual IDatabaseSettings *databaseSettings(QObject *parent = 0) = 0;
 
     /// Proxy requests

@@ -2,8 +2,8 @@
 
 #include "isession.h"
 #include "iproxyconnection.h"
+#include "isettings.h"
 
-#include <QSettings>
 #include <QNetworkAccessManager>
 #include <QNetworkReply>
 
@@ -14,7 +14,7 @@ WebPinger::WebPinger(IProxyConnection *proxyConnection, QObject *parent) :
     m_lastOK(false)
 {
     QObject parentObject;
-    QSettings *settings = m_proxyConnection->settings(&parentObject);
+    ISettings *settings = m_proxyConnection->settings(&parentObject);
     settings->beginGroup("current_workspace");
 
     m_urlsToPing.append("http://www.google.com");
