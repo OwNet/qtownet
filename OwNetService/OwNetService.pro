@@ -69,4 +69,9 @@ HEADERS  += helpers/applicationenvironment.h \
 INCLUDEPATH += helpers initializers ownet quazip
 
 DEFINES += QUAZIP_STATIC
-INCLUDEPATH += $$[QT_INSTALL_PREFIX]/include/QtZlib
+win32 {
+    INCLUDEPATH += $$[QT_INSTALL_PREFIX]/include/QtZlib
+}
+unix {
+    LIBS += -lz
+}
