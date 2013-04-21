@@ -1,8 +1,8 @@
 .left.groups-left
 	.span6.title
 		img( src="img/all.png" )
-		.title-name #{group[0].name}
-		.title-desc #{group[0].description}
+		.title-name #{group[0].name.substr(0,30)}
+		.title-desc #{group[0].description.substr(0,55)}...
 	.links
 		.link
 			a(href="#/showgroup", data-id="#{group[0].id}", name="showGroup")

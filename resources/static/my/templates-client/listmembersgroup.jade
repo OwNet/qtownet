@@ -17,7 +17,8 @@ each user in action
 			.edit
 				img.icon( src="img/yes.png" , href="#/listMembers",data-id="#{user.id}", data-group="#{group[0].id}", name="approve-member", title="Approve")
 		.name
-			label.orange #{user.first_name} #{user.last_name}
+			label.orange 
+				a( href="#/otherprofile",data-id="#{user.id}",name="showOtherUser" ) #{user.first_name} #{user.last_name}
 		if (user.status == "member")
 			.created
 				label member since #{new Date(user.member_since).toLocaleDateString()}
