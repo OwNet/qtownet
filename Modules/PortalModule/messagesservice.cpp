@@ -455,7 +455,7 @@ IResponse *MessagesService::del(IRequest *req, const QString &uid)
         QObject parentObject;
         IDatabaseUpdateQuery *query = m_proxyConnection->databaseUpdateQuery("messages", &parentObject);
 
-        query->setUpdateDates(true);
+        //query->setUpdateDates(true);
         query->setType(IDatabaseUpdateQuery::Delete);
         query->singleWhere("uid", uid);
 

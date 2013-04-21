@@ -16,7 +16,7 @@ RatingManager::RatingManager(IProxyConnection *proxyConnection, QObject *parent)
     m_activityManager = new ActivityManager(proxyConnection);
 }
 
-IResponse::Status RatingManager::createRating(QString userId, QString  uri, int value, QVariantMap &error)
+IResponse::Status RatingManager::createRating(QString userId, QString  uri, int value, QString title, QVariantMap &error)
  {
 
      // if rating already exist throw error
@@ -39,6 +39,7 @@ IResponse::Status RatingManager::createRating(QString userId, QString  uri, int 
      query->setColumnValue("absolute_uri", uri);
      query->setColumnValue("val", value);
      query->setColumnValue("user_id", userId);
+     query->setColumnValue("title", title);
 
      if(!query->executeQuery())
          return IResponse::INTERNAL_SERVER_ERROR;
@@ -50,7 +51,7 @@ IResponse::Status RatingManager::createRating(QString userId, QString  uri, int 
 
      //username is solved inside createActivity method
      ac.activity_type = Activity::RATING;
-     ac.content = uri + QString(";") + QString::number(value);
+     ac.content = uri + QString(";") + title + QString(";") + QString::number(value);
      ac.group_id = "";
      ac.object_id = uid;
      ac.user_id = userId;
@@ -80,12 +81,13 @@ IResponse::Status RatingManager::showRating(QString uid, QVariantMap &rating, QV
     rating.insert("user_id", row.value("user_id"));
     rating.insert("absolute_uri", row.value("absolute_uri"));
     rating.insert("value", row.value("val"));
+    rating.insert("title", row.value("title"));
     rating.insert("uid", row.value("uid"));
 
     return IResponse::OK;
 }
 
-IResponse::Status RatingManager::editRating(QString uid, uint userId, int value, QVariantMap &error)
+IResponse::Status RatingManager::editRating(QString uid, uint userId, int value, QString title,  QVariantMap &error)
 {
     QVariantMap rating;
     IResponse::Status status = showRating(uid, rating, error);
@@ -109,6 +111,8 @@ IResponse::Status RatingManager::editRating(QString uid, uint userId, int value,
     query->setUpdateDates(IDatabaseUpdateQuery::DateCreated);
     query->setType(IDatabaseUpdateQuery::InsertOrUpdate);
     query->setColumnValue("val", value);
+    if(title != "")
+        query->setColumnValue("title", title);
 
     IDatabaseSelectQueryWhereGroup *where = query->whereGroup(IDatabaseSelectQuery::And);
     where->where("uid", uid);
@@ -137,7 +141,7 @@ IResponse::Status RatingManager::deleteRating(QString uid, uint userId, QVariant
 
     QObject parentObject;
     IDatabaseUpdateQuery *query = m_proxyConnection->databaseUpdateQuery("ratings", &parentObject);
-    query->setUpdateDates(IDatabaseUpdateQuery::DateCreated);
+    //query->setUpdateDates(IDatabaseUpdateQuery::DateCreated);
     query->setType(IDatabaseUpdateQuery::Delete);
 
     IDatabaseSelectQueryWhereGroup *where = query->whereGroup(IDatabaseSelectQuery::And);
@@ -168,6 +172,7 @@ IResponse::Status RatingManager::showAllPageRatings(QString uri, QVariantList &r
         rating.insert("id", row.value("_id"));
         rating.insert("user_id", row.value("user_id"));
         rating.insert("value", row.value("val"));
+        rating.insert("title", row.value("title"));
 //        rating.insert("uid", query.value(query.record().indexOf("uid")));
 
         ratings.append(rating);
@@ -192,6 +197,7 @@ IResponse::Status RatingManager::showAllUserRatings(uint userId, QVariantList &r
         rating.insert("id", row.value("_id"));
         rating.insert("absolute_uri", row.value("absolute_uri"));
         rating.insert("value", row.value("val"));
+        rating.insert("title", row.value("title"));
         ratings.append(rating);
     }
 
@@ -228,6 +234,7 @@ IResponse::Status RatingManager::showPageStats(QString uri, uint userId, QVarian
             QSqlRecord userRow = userQuery.record();
             stats.insert("id", userRow.value("uid"));
             stats.insert("val", userRow.value("val"));
+            stats.insert("title", row.value("title"));
        }
     }
 
