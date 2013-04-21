@@ -44,6 +44,10 @@ IResponse *RatingsService::create(IRequest *req)
     if (absolute_uri == "")
         error.insert("absolute_uri","required");
 
+    QString title = reqJson["title"].toString();
+    if (title == "")
+        error.insert("title","required");
+
     int value = reqJson["val"].toInt(&ok);
     if(!ok)
         error.insert("val","required");
@@ -55,7 +59,7 @@ IResponse *RatingsService::create(IRequest *req)
         return req->response(QVariant(error), IResponse::BAD_REQUEST);
 
     IResponse::Status responseStatus;
-    responseStatus = this->m_ratingManager->createRating(userId, absolute_uri, value, error);
+    responseStatus = this->m_ratingManager->createRating(userId, absolute_uri, value, title, error);
 
     if (responseStatus != IResponse::CREATED)
         return req->response(QVariant(error), responseStatus);
@@ -119,10 +123,12 @@ IResponse *RatingsService::edit(IRequest *req, const QString &uid)
     if(!ok)
         error.insert("val","required");
 
+    QString title = reqJson["title"].toString();
+
     if (!error.isEmpty())
         return req->response(QVariant(error), IResponse::BAD_REQUEST);
 
-    IResponse::Status responseStatus = this->m_ratingManager->editRating(uid, userId, value, error );
+    IResponse::Status responseStatus = this->m_ratingManager->editRating(uid, userId, value, title, error );
 
     if (responseStatus != IResponse::OK)
         return req->response(QVariant(error), responseStatus);

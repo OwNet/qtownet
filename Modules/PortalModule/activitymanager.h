@@ -21,8 +21,8 @@ public:
     int pagesCount(IRequest *req);
 
 
-    QVariantList getMyActivities(bool *ok, QVariantMap &error, IRequest *req);
-    int myPagesCount(IRequest *req);
+    QVariantList getUsersActivities(bool *ok, QVariantMap &error, IRequest *req);
+    int usersPagesCount(IRequest *req);
 
 private:
     IProxyConnection *m_proxyConnection;
