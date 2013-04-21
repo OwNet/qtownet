@@ -30,6 +30,7 @@ bool ActivityManager::createActivity(Activity &ac)
 
     queryName.first();
     ac.user_name =  queryName.value(queryName.record().indexOf("first_name")).toString() + QString(" ") +  queryName.value(queryName.record().indexOf("last_name")).toString();
+    ac.gender = queryName.value(queryName.record().indexOf("gender")).toString();
 
     QObject parentObject;
     IDatabaseUpdateQuery *query = m_proxyConnection->databaseUpdateQuery("activities", &parentObject);
@@ -42,6 +43,7 @@ bool ActivityManager::createActivity(Activity &ac)
     query->setColumnValue("group_id", ac.group_id);
     query->setColumnValue("user_id", ac.user_id);
     query->setColumnValue("object_id", ac.object_id);
+    query->setColumnValue("gender", ac.gender);
 
     if(!query->executeQuery()){
         return false;
@@ -115,9 +117,24 @@ QVariantList ActivityManager::getActivities(bool *ok, QVariantMap &error, IReque
         activity.insert("object_id", query.value(query.record().indexOf("object_id")).toString());
         activity.insert("user_id", query.value(query.record().indexOf("user_id")).toString());
         activity.insert("user_name", query.value(query.record().indexOf("user_name")).toString());
-        activity.insert("content", query.value(query.record().indexOf("content")).toString());
+
+        if(query.value(query.record().indexOf("type")).toString() == QString::number(Activity::MESSAGE)){
+            QSqlQuery queryMessages;
+            queryMessages.prepare("SELECT * FROM messages WHERE parent_id = :uid");
+            queryMessages.bindValue(":uid", query.value(query.record().indexOf("object_id")).toString());
+            queryMessages.exec();
+            int i = 0;
+            while(queryMessages.next())
+                i++;
+            QString content = query.value(query.record().indexOf("content")).toString() + QString(";") + QString::number(i);
+            activity.insert("content",content);
+        }
+        else
+            activity.insert("content", query.value(query.record().indexOf("content")).toString());
+
         activity.insert("type", query.value(query.record().indexOf("type")).toString());
         activity.insert("date_created", query.value(query.record().indexOf("date_created")).toString());
+        activity.insert("gender", query.value(query.record().indexOf("gender")).toString());
 
         activities.append(activity);
     }
@@ -216,8 +233,10 @@ QVariantList ActivityManager::getMyActivities(bool *ok, QVariantMap &error, IReq
         }
         else
             activity.insert("content", query.value(query.record().indexOf("content")).toString());
+
         activity.insert("type", query.value(query.record().indexOf("type")).toString());
         activity.insert("date_created", query.value(query.record().indexOf("date_created")).toString());
+        activity.insert("gender", query.value(query.record().indexOf("gender")).toString());
 
         activities.append(activity);
     }
