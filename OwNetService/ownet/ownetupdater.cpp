@@ -94,7 +94,7 @@ void OwNetUpdater::packageDataReceived(QString fileName, QByteArray data)
     qDebug() << "Extracted files to " << extracted.absolutePath();
 
     // run update executable
-    QProcessEnvironment &environment = QProcessEnvironment::systemEnvironment();
+    QProcessEnvironment environment = QProcessEnvironment::systemEnvironment();
     environment.insert("OWNET_DIR", QCoreApplication::applicationDirPath());
 
     QProcess batch;
