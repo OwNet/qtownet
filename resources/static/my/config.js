@@ -25,12 +25,12 @@ require.config({
 				exports: 'Backbone',
 			},
 
-			'Backbone.CollectionBinder' : {
+			'Backbone.ModelBinder' : {
 				deps: ['backbone']
 			},
 
-			'Backbone.ModelBinder' : {
-				deps: ['backbone']
+			'Backbone.CollectionBinder' : {
+				deps: ['backbone', 'Backbone.ModelBinder']
 			},
 
 			jade: {

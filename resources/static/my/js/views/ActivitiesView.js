@@ -5,29 +5,36 @@ define( function (require) {
 	var App = require("App")
 	  , Backbone = require("backbone")
 	  , Activities = require('collections/Activities')
+	  , MessageView = require('views/activities/MessageView')
+	  , RatingView = require('views/activities/RatingView')
 
 	require('Backbone.CollectionBinder')
 
+	var activitiesTypesView = {
+		1: RatingView,
+		2: MessageView,
+	}
 
 
-	var MessagesView = Backbone.View.extend({
+	var ActivitiesView = Backbone.View.extend({
 
 			events: {
 
 			},
 
 			defaultOptions: {
-				refresh: true,
+				// refresh: true,
+				refresh: false,
 				interval: 5000,
 				params: { page:1 },
-			}
+			},
 
 			initialize: function(opts) {
 				opts || (opts = {})
 				this.options = _.extend({}, this.defaultOptions, opts.options)
 
 				this.activities = new Activities()
-				this.activities.setParam(this.options.params)
+				this.activities.setParams(this.options.params)
 
 				var viewManagerFactory = new Backbone.CollectionBinder.ViewManagerFactory(this._viewFactory)
 				this.collectionBinder = new Backbone.CollectionBinder(viewManagerFactory)
@@ -36,12 +43,14 @@ define( function (require) {
 			},
 
 			render: function() {
+				this.activities.reset([])
 				this.$el.html( '' )
-				this.collectionBinder.bind(this.activities, $('...'))
+				this.collectionBinder.bind(this.activities, this.$el)
 
-				if (this.options.refresh) {
-
-				}
+				if (this.options.refresh)
+					this._refreshSetTimeout(0)
+				else
+					this.refresh()
 
 				return this
 			},
@@ -59,7 +68,7 @@ define( function (require) {
 				}
 
 				this.undelegateEvents()
-				MessagesView.__super__.remove.call(this)
+				ActivitiesView.__super__.remove.call(this)
 			},
 
 			refresh: function() {
@@ -68,12 +77,12 @@ define( function (require) {
 
 				var self = this
 				this.refreshXhr = this.activities.fetch({
-					success: function() {
+					/*success: function() {
 
 					},
 					error: function() {
 
-					},
+					},*/
 					complete: function() {
 						delete self.refreshXhr
 					}
@@ -85,23 +94,24 @@ define( function (require) {
 					this.options.params.page = page
 					this.refresh()
 				}
-			}
+			},
 
-			_refreshSetTimeout: function() {
+			_refreshSetTimeout: function(timeout) {
 				var self = this
 				this._refreshTimer = setTimeout( function() {
 					self.refresh()
 					self._refreshSetTimeout()
-				}, this.options.interval)
+				}, timeout !== undefined ? timeout : this.options.interval)
 			},
 
 			_viewFactory: function(model) {
-				return new Backbone.View()
+				var View = activitiesTypesView[model.get('type')] || Backbone.View
+				return new View({model: model})
 			}
 
 
 	})
 
-	return MessagesView;
+	return ActivitiesView;
 
 });

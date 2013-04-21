@@ -9,7 +9,7 @@ define( function (require) {
 	  , RegistrationView = require( 'views/RegistrationView' )
 	  , GroupsView = require( 'views/GroupsView' )
 	  , ProfileView = require( 'views/ProfileView' )
-	  , MessagesView = require( 'views/MessagesView' )
+	  , NewsFeedView = require( 'views/NewsFeedView' )
 	  , RecommendationsRatingView = require( 'views/RecommendationsRatingView')
 
 
@@ -23,7 +23,7 @@ define( function (require) {
 				login : new LoginView({ el:$("#content") }),
 				registration: new RegistrationView({ el:$("#content") }),
 				groups: new GroupsView({ el:$("#content") }),
-				messages: new MessagesView({el: $("#content")}),
+				newsfeed: new NewsFeedView({el: $("#content")}),
 				profile: new ProfileView({ el:$("#content") }),
 				recommendations: new RecommendationsRatingView({ el:$("#content")}),
 				ratings: new RecommendationsRatingView({el:$("#content")}),
@@ -36,7 +36,8 @@ define( function (require) {
 		},
 
 		routes: {
-			""    : "home",
+			""    : "newsfeed",
+			newsfeed : "newsfeed",
 			login : "login",
 			registration: "registration",
 			groups : "groups",
@@ -50,17 +51,19 @@ define( function (require) {
 			listmembers: "listmembers",
 			recommendations: "recommendations",
 			ratings: "ratings",
-			logout: "logout", 
+			logout: "logout",
 
 		},
 
 		activate: function(href) {
 			$("#appmenu .active").removeClass("active")
-			$.query('.navbar a[href="?"]', href).parent().addClass('active')
+			if (href)
+				$.query('.navbar a[href="?"]', href).parent().addClass('active')
 		},
 
-		home: function() {
-			this.views.messages.showFront(1, 0)
+		newsfeed: function() {
+			this.activate(null),
+			this.views.newsfeed.show()
 		},
 
 		login: function() {
