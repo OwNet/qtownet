@@ -28,22 +28,31 @@ define( function (require) {
 				'click form[name="create-group-form"] button[name="submit"]': 'saveGroup',
 				'click a[name="show"]': "showGroup", 
 				'click img[name="delete"]': "deleteGroup", 
+				'click a[name="delete"]': "deleteGroup", 
 				'click img[name="edit"]': "editGroup", 
+				'click a[name="edit"]': "editGroup", 
 				'click img[name="join"]': "joinGroup", 
 				'click a[name="filter"]' : "showWithFilter",
 				'click img[name="leave"]' : "leaveGroup",
+				'click a[name="leave"]' : "leaveGroup",
 				'click a[name="listMembers"]' : "listMembers",
 				'click a[name="groups-page"]' : "showPage",
 				'click a[name="add-admin"]' : "addAdmin",
 				'click a[name="delete-member"]' : "deleteUser",
 				'click a[name="approve-member"]' : "approveUser",
 				'click a[name="reject-member"]' : "rejectUser",
+				'click a[name="showFront"]' : "showFront",
+				'click a[name="showGroup"]' : "showGroup",
 			},
 
 			initialize: function() {
 				this.updateNavbar()
 			},
 
+			showFront: function() {
+				var messageView = new MessagesView({el:$("#content") })
+				messageView.showFront(1, 0)	
+			},
 
 			render: function() {
 				this.$el.html( groupsTemplate({}) )
@@ -345,18 +354,13 @@ define( function (require) {
 			saveGroup: function() {
 				var form = Form( $('form[name="create-group-form"]', this.$el) )
 				var data = form.toJSON()
-				if(data.has_approvement != "1"){
-					data.has_approvement = "0"
-					if(data.has_password != "1") {
-						data.has_password = "0"
-					}
-				} else {
+				if(data.has_approvement == "on"){
 					data.has_approvement = "1"
+				} else {
+					data.has_approvement = "0"
 				}
 
 				var group = new GroupsModel(data)
-
-
 				group.save({group_type: 0, has_password: 0},{
 					wait: true,
 					success: function() {
@@ -406,7 +410,7 @@ define( function (require) {
 							wait: true,
 							success: function() {
 								App.router.navigate('listMembers', {trigger: true})
-								$('div#group_detail').html( listMembersGroupTemplate({group :group.toJSON(), action : action.toJSON(),  user:  App.user ? App.user.toJSON() : false}))
+								$('div.groups-right').html( listMembersGroupTemplate({group :group.toJSON(), action : action.toJSON(),  user:  App.user ? App.user.toJSON() : false}))
 							},
 							error: function() {
 								App.showMessage("Error")
@@ -437,7 +441,7 @@ define( function (require) {
         			success: function() {
         				App.router.navigate("#/editgroup", {trigger: true})
         				$('div#groups_list').html( groupFormTemplate({group: group.toJSON()}))
-        				
+        				$('div.groups-right').html( groupFormTemplate({group: group.toJSON()}))
 					}
         		})
         						

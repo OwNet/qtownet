@@ -4,10 +4,10 @@ each group in groups
 				img( src="img/all.png" )
 		if (group.admin == "1")
 			.delete
-				img.icon( src="img/no.png" , href="#/groups",data-id="#{group.id}",name="delete", title="Delete")
+				img.icon( src="img/delete.png" , href="#/groups",data-id="#{group.id}",name="delete", title="Delete")
 			.edit
 				img.icon( src="img/edit.png" , href="#/editGroup",data-id="#{group.id}",name="edit", title="Edit")
-		if (group.admin == "0" && group.member == "1")
+		if (group.admin == "0" && group.member == "1" && group.id != "0")
 			.delete
 				img.icon( src="img/no.png" , href="#/groups",data-id="#{group.id}",name="leave", title="Leave")
 		if (group.member != "1")
@@ -16,7 +16,9 @@ each group in groups
 		.name
 			label.orange #{group.name}
 			label 
-				if (group.member == "1")
+				if (group.id == "0")
+					a( href="#/",data-id="#{group.id}",name="showFront") show >>
+				else if (group.member == "1")
 					a( href="#/showgroup",data-id="#{group.id}",name="show") show >>
 		.created
 			label created #{new Date(group.date_created).toLocaleDateString()}
