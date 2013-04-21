@@ -382,8 +382,8 @@ define( function (require) {
 						self.$el.html( showGroupTemplate({group :group.toJSON()}) )
 						$('div#group_detail').html( groupDetailTemplate({group :group.toJSON()}))
 
-						/*var messageView = new MessagesView({el:$("#group_messages")})
-						messageView.showHome(1, group.id)*/
+						var messageView = new MessagesView({el:$("#group_messages")})
+						messageView.showHome(1, group.id)
 					}
         		})
 			},
