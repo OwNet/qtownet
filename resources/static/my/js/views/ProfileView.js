@@ -64,6 +64,8 @@ define( function (require) {
         		})
 
 				this.$el.html( profileTemplate({ }) )
+
+				this.showActivities(id, 1)
 				return this
 			},
 
@@ -172,16 +174,9 @@ define( function (require) {
 					
 			showMyPage: function(e){
 				e.preventDefault();
-				var pid = $(e.currentTarget).data("id");
-				var id = null
-				App.user.fetch({
-        			success: function() {
-						$('div#user_profile').html( profileTableTemplate({user :App.user.toJSON()}))
-						$('div#menu').html( menuTemplate({user :App.user.toJSON()}))
-						$('a[name="showDownloadOrders"]')
-					}
-        		})
-				this.showActivities("my", id, pid)
+				var page = $(e.currentTarget).data("id");
+				
+				this.showActivities(id, page)
 			},
 
 			/*
