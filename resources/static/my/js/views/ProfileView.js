@@ -67,6 +67,8 @@ define( function (require) {
         			}
         		})
 
+        		
+
 				this.$el.html( profileTemplate({user :user.toJSON(), current: current}) )
 
 				this.showActivities(id, 1)
