@@ -60,7 +60,7 @@ define( function (require) {
 		},
 
 		home: function() {
-			this.views.messages.showHome(1, 0)
+			this.views.messages.showFront(1, 0)
 		},
 
 		login: function() {

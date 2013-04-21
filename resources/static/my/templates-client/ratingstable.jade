@@ -2,7 +2,7 @@ each activity in activities
 	- var array = activity.content
 	- var content = array.split(";")
 	.message
-		if (user.gender == "Female")
+		if (activity.gender == "Female")
 			.image
 				img( src="img/girl.png" )
 		else

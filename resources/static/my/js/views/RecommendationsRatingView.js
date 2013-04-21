@@ -9,8 +9,6 @@ define( function (require) {
 	  , profileTemplate = require ("tpl/otherprofile")
 	  , recommendationsTableTamplate = require ("tpl/recommendationstable")
 	  , recommendationsPagerTemplate = require ("tpl/recommendationspager")
-	  , menuRatingsTemplate = require ("tpl/menuratings")
-	  , menuRecommendationsTemplate = require ("tpl/menurecommendations")
 	  , ratingsPagerTemplate = require ("tpl/ratingspager")
 	  , ratingsTemplate = require ("tpl/ratings")
 	  , ratingsTableTamplate = require ("tpl/ratingstable")
@@ -80,7 +78,6 @@ define( function (require) {
 				activities.fetch({data: {page: page, type: '0'},
 					success: function() {
 						$('div#recommendations').html( recommendationsTableTamplate({activities: activities.toJSON(), filter: filter, user: App.user.toJSON()}))
-
 					},
 					error: function(){
 						App.showMessage("Error reading Recommendations")
@@ -178,8 +175,6 @@ define( function (require) {
 				activities.fetch({data: {page: page, type: '1'},
 					success: function() {
 						$('div#ratings').html( ratingsTableTamplate({activities: activities.toJSON(), filter: filter, user: App.user.toJSON()}))
-						$('div#menu').html( menuRatingsTemplate({activities: activities.toJSON(), filter: filter}))
-
 					},
 					error: function(){
 						App.showMessage("Error reading Ratings")
