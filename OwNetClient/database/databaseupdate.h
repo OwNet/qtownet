@@ -2,7 +2,9 @@
 #define DATABASEUPDATE_H
 
 #include <QObject>
-#include <QList>
+#include <QMap>
+
+class QMutex;
 
 /**
  * @brief Container for insert, update and delete database queries.
@@ -18,6 +20,7 @@ public:
 
 private:
     static QMap<int, int> *m_lastRecordNumbers;
+    static QMutex *m_lastRecordNumbersMutex;
 };
 
 #endif // DATABASEUPDATE_H
