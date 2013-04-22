@@ -15,11 +15,16 @@
 
 	.text
 		label #{ar[0]}
-
+	.comments-count
+		a(name="loadComments")
+			if (ar[1] == "0" )
+				label Add 
+			else
+				label Show #{ar[1]}
+			img(src="img/comment.png")
 	.created
 		label created #{new Date(message.date_created).toLocaleString()}
-
-//- .comments
+	.comments
 	if (message.comments)
 		each comment in message.comments
 			.comment
@@ -40,7 +45,7 @@
 					label created #{new Date(comment.date_created).toLocaleDateString()}
 				.text
 					label #{comment.message}
-	form(name="comment-message-form", id="comment-#{index}").form-horizontal
+	//-form(name="comment-message-form", id="comment").form-horizontal
 		.new-comment
 			if (user.gender == "Female")
 				.image
@@ -57,4 +62,4 @@
 				input(type="hidden", name="group_id", value="#{group_id}").group_id
 				input(type="hidden", name="parent_id", value="#{message.uid}").parent_id
 				input(type="hidden", name="page", value="#{page}").page
-				button.btn.btn-info(type="button", name="submit-message", data-id="#{index}") Comment
+				button.btn.btn-info(type="button", name="submit-message") Comment

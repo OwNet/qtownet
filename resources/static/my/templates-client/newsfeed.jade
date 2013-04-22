@@ -2,24 +2,27 @@
 	.span6.title
 		img( src="img/ownet.png" )
 	.links
-		.link
+		.link.active
 			a(data-filter="all")
+				img(src="img/icon48.png", class="icon")
 				label: b All news
 		.link
 			a(data-filter="my")
+				img(src="img/boy.png", class="icon")
 				label: b My news
+	.links.links-half
 		.link
 			a(data-filter="messages")
 				img(src="img/message.png", class="icon")
-				label All Messages
+				label Messages
 		.link
 			a(data-filter="ratings")
-				img(src="img/stars.png", class="icon")
-				label All Ratings
+				img(src="img/star1.png", class="icon")
+				label Ratings
 		.link
 			a(data-filter="recommendations")
-				img(src="img/recomm-all.png", class="icon")
-				label All Recommendations
+				img(src="img/recommend.png", class="icon")
+				label Recommendations
 
 .right.messages-right
 	#create_message.create-message

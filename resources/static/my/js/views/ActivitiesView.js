@@ -27,8 +27,8 @@ define( function (require) {
 			},
 
 			defaultOptions: {
-				refresh: true,
-				// refresh: false,
+				//refresh: true,
+				refresh: false,
 				interval: 10000,
 				params: { page:1 },
 			},

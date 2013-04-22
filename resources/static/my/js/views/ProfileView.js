@@ -24,7 +24,10 @@ define( function (require) {
 
 			events: {
 				'click form[name="profile-form"] button[name="update"]': "saveProfile",
-				'click a[name="deleteDO"]': "deleteDO",
+				"click input[type=radio]": "onRadioClick",
+				'click a[data-id]' : 'showOtherProfile',
+				'click a[name="showDownloadOrders"]': "showDownloadOrders",
+				'click img[name="deleteDO"]': "deleteDO",
 			},
 
 			render: function() {
@@ -73,8 +76,6 @@ define( function (require) {
 			},
 
 
-			////////////////////////////////////////////////////////////////////
-
 			showActivities: function(id) {
 				var options = { params: { user_id: id }}
 				this.activitiesView = new ActivitiesView({ el: $('#newsfeed_list'), options: options }).render()
@@ -89,7 +90,6 @@ define( function (require) {
 					wait: true,
 					success: function() {
 						App.router.navigate('profile', {trigger: true})
-
 						App.showMessage("Profile updated", "alert-success")
 					},
 					error: function() {
@@ -128,14 +128,14 @@ define( function (require) {
 
 				action.fetch({
 					success: function() {
-						$('div#pager').html( profilePagerTemplate({action :action.toJSON()}))
+						$('div#pager').html( pagerDownloadTemplate({action :action.toJSON(), current :page}))
 					},
 					error: function() {
 
 					},
 				})
 
-				this.$el.html( profileTemplate({user: App.user.toJSON(), current: current }) )
+				this.$el.html( profileTemplate({user: App.user.toJSON()}) )
 				return this
 
 			},

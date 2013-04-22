@@ -55,14 +55,17 @@ define( function (require) {
 					this.activitiesView.deleteParam("user_id")
 					this.activitiesView.deleteParam("type")
 					}
-				else if (typeName == "my")
+				else if (typeName == "my"){
 					this.activitiesView.setParams({user_id: App.user.id, page: 1})
+					this.activitiesView.deleteParam("type")
+				}
 				else {
 					this.activitiesView.deleteParam("user_id")
 				 	typeId = ['recommendations','ratings','messages'].indexOf(typeName)
 				 	this.activitiesView.setParams({type: typeId, page: 1})
 				}
-
+				$('.messages-left > .links > .link').removeClass('active')
+				$(e.target).closest('a').parent().addClass('active')
 				this.activitiesView.refresh()
 
 				return false
