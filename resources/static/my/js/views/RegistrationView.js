@@ -31,6 +31,9 @@ define( function (require) {
 				this.render()
 			},
 
+			hide: function() {
+				this.$el.html('')
+			},
 
 			registration: function() {
 				var form = Form( $('form[name="registration-form"]', this.$el) )

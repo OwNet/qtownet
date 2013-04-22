@@ -16,6 +16,7 @@ public:
     QString group_id;
     QString user_id;
     QString object_id;
+    QString gender;
 
     enum ActivitiesTypes
     {

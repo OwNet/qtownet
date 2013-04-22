@@ -1,22 +1,29 @@
-.row
-	.span6.offset3
-
-		.row
-			.span6.center
-				img( src="img/ownet.png" )
-
-		.row
-			.span6
-				a( href="#/groups",data-filter="all",name="filter") All
-			.span6
-				a( href="#/creategroups",data-filter="admin",name="filter") I am admin in
-			.span6
-				a( href="#/creategroups",data-filter="my",name="filter") I am member
-			.span6
-				a( href="#/creategroups", data-filter="wait", name="filter") I am waiting
-			.span6
-				a( href="#/creategroups", data-filter="notMy", name="filter") Other
-			.span6
-				a( href="#/creategroups" ,name="create") Create new
-			.span#groups_list
-			.span#pager
+.left.groups-left
+	.span6.title
+		img( src="img/all.png" )
+		.title-name Groups
+	.links
+		.link
+			a( href="#/groups",data-filter="all",name="filter") 
+				img(src="img/all.png", class="icon") 
+				label All groups
+		.link
+			a( href="#/groups",data-filter="admin",name="filter") 
+				img(src="img/admin.png", class="icon") 
+				label I am admin
+		.link
+			a( href="#/groups",data-filter="my",name="filter")
+				img(src="img/boy.png", class="icon") 
+				label I am member
+		.link
+			a( href="#/groups", data-filter="wait", name="filter") 
+				img(src="img/wait.png", class="icon") 
+				label I am waiting
+	.links.links-second
+		.link
+			a( href="#/creategroups" ,name="create")
+				img(src="img/plus.png", class="icon") 
+				label Create new
+.right.groups-right
+	.list-messages#groups_list
+.span#pager

@@ -1,5 +1,3 @@
-owNetAVAILABLEURIS = [];
-
 (function() {
 
 	"use_strict"
@@ -29,8 +27,8 @@ owNetAVAILABLEURIS = [];
 		document.getElementsByTagName("head")[0].appendChild(styleElement);
 	}
 
-	$.onDocumentReady = function(callback, document) {
-		document || (document = window.document)
+	$.onDocumentReady = function (callback, document) {
+	    document || (document = window.document)
 		document.addEventListener("DOMContentLoaded", function once() {
 			document.removeEventListener("DOMContentLoaded", once, false)
 			callback()
@@ -100,16 +98,38 @@ owNetAVAILABLEURIS = [];
 		hasReportedPrefetch  : 0,
 		TIMEOUT_DELAY_SECS   : 10,
 		startRequestTimeout: function () {
-			this.requestTimeout = setTimeout(function () { PrefetchContact.requestPrefetch(); }, this.TIMEOUT_DELAY_SECS * 1000);
+		    this.requestTimeout = setTimeout(function () { PrefetchContact.requestPrefetch(); }, this.TIMEOUT_DELAY_SECS * 1000);
+		    //this.requestPrefetch();
 		},
 		stopRequestTimeout: function() {
 			if (this.requestTimeout) clearTimeout(this.requestTimeout);
 		},
 		requestPrefetch: function () {
-			if ($.getPageId() != 0) {
-				$.loadScript(this.apiUri + "create/?page=" + $.getEncodedPageUri() + "&pid=" + $.getPageId() + "&gid=" + $.getRandomId(), function () {
-					PrefetchContact.hasRequestedPrefetch = 1;
-				});
+		   
+		    if ($.getPageId() != 0) {
+		       
+		        var count = document.links.length;
+
+                if (count > 0) {
+                    predictions = [];
+                    var xF = Math.floor(count * 0.35);
+                    if (xF >= 0 && xF < count)
+                        predictions[predictions.length] = document.links[xF];
+
+                    var yF = Math.floor(count * 0.5);
+                    if (yF > xF && yF < count)
+                        predictions[predictions.length] = document.links[yF];
+
+                    var zF = Math.floor(count * 0.65);
+                    if (zF > yF && zF < count)
+                        predictions[predictions.length] = document.links[zF];
+
+                    Ownet.sendMessage("prefetch", { page: $.getPageId(), links: predictions.toString() });
+                }
+
+				//$.loadScript(this.apiUri + "create/?page=" + $.getEncodedPageUri() + "&pid=" + $.getPageId() + "&gid=" + $.getRandomId(), function () {
+				//	PrefetchContact.hasRequestedPrefetch = 1;
+				//});
 			}
 			else {
 				this.startRequestTimeout();
@@ -182,51 +202,55 @@ owNetAVAILABLEURIS = [];
 		isSwitchedOn: 0,
 		switchObj: null,
 		availableUris: null,
+        switchable: null,
 		highlightedLinks: [],
 		init: function() {
-			$.addCss("a.OwNetHIGHLIGHT { border: 2px solid #F49B04; }");
-		},
-		receiveLinks: function (linksobj) {
-			if (Array.isArray(linksobj)) {
-				this.availableUris = linksobj;
-				for (var i = 0; i < this.availableUris.length; ++i) {
-					this.availableUris[i] = decodeURIComponent(this.availableUris[i]);
-				}
-			}
+		    $.addCss("a.OwNetHIGHLIGHT { border: 2px solid #F49B04; }");
 
 		},
-		doSwitch: function () {
+		receiveLinks: function (linksobj) {
+		    if (Array.isArray(linksobj)) {
+		        for (var i = 0; i < linksobj.length; ++i) {
+		            linksobj[i] = decodeURIComponent(linksobj[i]);
+		        }
+		    }
+		    else {
+		        linksobj = [];
+		    }
+			return linksobj;
+
+		},
+		doSwitch: function (switchable) {
+		    this.switchable = switchable;
 			if (this.isSwitchedOn == 0) {  /* switch on */
-				owNetAVAILABLEURIS = null;  // check the client everytime
-				this.availableUris = null;
-				if (this.availableUris === null || this.availableUris.length === 0) { // || $.pageUriChanged() === true) {
-					// $.updatePageUri();
-					this.availableUris = null;
 					this.highlightedLinks = [];
-					$.loadScript(this.apiUri + "list/?page=" + $.getEncodedPageUri() + "&gid=" + Math.floor((Math.random() * 1000) + 1), function () {
-						HighlightSwitch.receiveLinks(owNetAVAILABLEURIS); HighlightSwitch.switchOn();
-					});
-				}
-				else {
-					this.switchOn();
-				}
+                    
+					var x = []; for (var i in document.links) { if (x.indexOf(document.links[i]) < 0) x[x.length] = document.links[i]; } // JSON.stringify({ links: x.toString() });
+
+					Ownet.sendMessage("cached", { links : x.toString() });
+
+			
 			}
 			else {  /* switch off*/
 				this.switchOff();
 			}
 		},
-		switchOn: function () {
-			for (var i = 0; i < document.links.length; ++i) {
-				for (var j = 0; j < this.availableUris.length; ++j) {
-					if ($.urlEquals(this.availableUris[j], document.links[i].href)) {
-						document.links[i].className += " OwNetHIGHLIGHT";
+		switchOn: function (links) {
+		    links = this.receiveLinks(links);
+		    this.highlightedLinks = [];
+		    if (links.length > 0) {
+		        for (var i = 0; i < document.links.length; ++i) {
+		            for (var j = 0; j < links.length; ++j) {
+		                if ($.urlEquals(links[j], document.links[i].href)) {
+		                    document.links[i].className += " OwNetHIGHLIGHT";
 
-						this.highlightedLinks[this.highlightedLinks.length] = document.links[i];
-						break;
-					}
-				}
-			}
-
+		                    this.highlightedLinks[this.highlightedLinks.length] = document.links[i];
+		                    break;
+		                }
+		            }
+		        }
+		    }
+		    this.switchable.switchOn();
 			this.isSwitchedOn = 1;
 		},
 		switchOff: function () {
@@ -238,6 +262,7 @@ owNetAVAILABLEURIS = [];
 
 			this.highlightedLinks = [];
 			this.isSwitchedOn = 0;
+			this.switchable.switchOff();
 		}
 	};
 
@@ -291,7 +316,7 @@ owNetAVAILABLEURIS = [];
 				icon: 'owetab_off.png',
 				alt: 'Highlight',
 				title: 'Highlight links on this webpage which are available offline.',
-				onclick: 'toggleOfflineLinks',
+				onclickself: 'toggleOfflineLinks',
 			},
 
 			page_rating: {
@@ -373,7 +398,8 @@ owNetAVAILABLEURIS = [];
 		events: {
 			'OwNet:ready' : 'onOwnetReady',
 			'OwNet:iframe:resize' : 'iframeResize',
-			'OwNet:iframe:close'  : 'iframeClose',
+			'OwNet:iframe:close': 'iframeClose',
+            'OwNet:highlight':'highlightLinks'
 		},
 
 		/* public */
@@ -414,8 +440,9 @@ owNetAVAILABLEURIS = [];
 			this._toggleTab('cache_settings')
 		},
 
-		toggleOfflineLinks: function() {
-			HighlightSwitch.doSwitch()
+		toggleOfflineLinks: function () {
+		    var self = this
+		    HighlightSwitch.doSwitch({ switchOn: function () { self.childNodes[0].src = self.childNodes[0].src.replace("off.png", "on.png"); }, switchOff: function () { self.childNodes[0].src = self.childNodes[0].src.replace("on.png", "off.png"); } });
 		},
 
 		sendPageInfo: function() {
@@ -480,6 +507,10 @@ owNetAVAILABLEURIS = [];
 				if (link.onclick)
 					a.onclick = self[link.onclick].bind(this)
 
+				if (link.onclickself) {
+				    a.onclick = self[link.onclickself].bind(a)
+				}
+
 				if (link.href)
 					a.setAttribute('href', link.href)
 
@@ -521,11 +552,16 @@ owNetAVAILABLEURIS = [];
 			}
 		},
 
+		highlightLinks: function (data) {
+		    HighlightSwitch.switchOn(data.split(','));
+		},
+
 		iframeClose: function() {
 			this.activeTab = null
 			this.iframeBox.style.display = 'none'
 		}
 	}
+
 
 
 	if ($.isFromOwnet()) {
@@ -538,9 +574,8 @@ owNetAVAILABLEURIS = [];
 		HistoryContact.reportVisit();
 		Ownet.initialize();
 
-		$.onDocumentReady(function () {
-			PrefetchContact.startRequestTimeout();
-		});
+		PrefetchContact.startRequestTimeout();
+	
 	}
 
 

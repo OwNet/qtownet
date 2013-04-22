@@ -1,3 +1,8 @@
-.span12.center
+if(action.pages>1)
 	- for (var page=1; page<=action.pages; page++)
-		a( href="#/ratings",data-filter="#{filter}",data-id="#{page}",name="ratingpager") #{page}
+		if (act_page == page)
+			div.page.act-page
+				a( href="#/ratings",data-filter="#{filter}",data-id="#{page}",name="ratingpager", class="act-page") #{page}
+		else
+			div.page
+				a( href="#/ratings",data-filter="#{filter}",data-id="#{page}",name="ratingpager") #{page}

@@ -1,37 +1,40 @@
-form(name="create-group-form").form-horizontal
+.row
+	form(name="create-group-form").form-horizontal
+		.control-group
+			label.control-label Name:
+			.controls
+				input(type="text",name="name",value="#{group[0].name}")
+				span.help-block
 
-					.control-group
-						label.control-label Name:
-						.controls
-							input(type="text",name="name",value="#{group[0].name}")
-							span.help-block
+		.control-group
+			label.control-label Description:
+			.controls
+				textarea(name="description") #{group[0].description}
+				span.help-block
 
-					.control-group
-						label.control-label Description:
-						.controls
-							textarea(name="description") #{group[0].description}
-							span.help-block
+		//-.control-group
+			label.control-label Has password:
+			.controls
+				input(type="checkbox" name="has_password"  value="#{group[0].has_password}")
+				span.help-block
 
-					//-.control-group
-						label.control-label Has password:
-						.controls
-							input(type="checkbox" name="has_password"  value="#{group[0].has_password}")
-							span.help-block
+		//-.control-group
+			label.control-label Password:
+			.controls
+				input(type="password" name="password")
+				span.help-block
 
-					//-.control-group
-						label.control-label Password:
-						.controls
-							input(type="password" name="password")
-							span.help-block
+		.control-group
+			label.control-label Has approvement:
+			.controls
+				if (group[0].has_approvement == "1")
+					input(type="checkbox",name="has_approvement",checked)
+				else 
+					input(type="checkbox",name="has_approvement")
+				span.help-block
+				if (group[0].id)
+					input(type="hidden",name="id",value="#{group[0].id}")
 
-					.control-group
-						label.control-label Has approvement:
-						.controls
-							input(type="checkbox",name="has_approvement",value="#{group[0].has_approvement}")
-							span.help-block
-							if (group[0].id)
-								input(type="hidden",name="id",value="#{group[0].id}")
-
-					.control-group
-						.controls
-							button.btn(type="button",name="submit") Create
+		.control-group
+			.controls
+				button.btn.btn-info(type="button",name="submit") Create
