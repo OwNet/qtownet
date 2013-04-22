@@ -53,7 +53,7 @@ define( function (require) {
 
 		activate: function(href, view) {
 
-			if ( !App.user && href!='#/login' ) {
+			if ( !App.user && href!='#/login' && href!='#/registration') {
 				this.navigate('#/login', {trigger: true})
 				return false
 			}
@@ -97,6 +97,7 @@ define( function (require) {
 		profile: function() {
 			if (this.activate("#/profile", this.views.profile))
 				this.views.profile.show(App.user ? App.user.id : "0")
+				
 
 		},
 

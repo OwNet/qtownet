@@ -21,6 +21,8 @@ define( function (require) {
 
 			App.groups.on('reset', this.updateGroups, this)
 			App.on('OwNet:page', this.updateForm, this)
+
+			this.updateGroups()
 		},
 
 		updateGroups: function() {
@@ -52,7 +54,6 @@ define( function (require) {
 				model.save(attrs, {
 					success: function() { self.showOkStatusAndClose() },
 					error: function (model, resp){
-						console.log( resp )
 						if (resp.status===409) { // Conflict
 							var grp = App.groups.get(attrs.group_id).get('name')
 							if (confirm('You have already recommend this site in group '+grp+'. Do you want edit your recommendation?')) {
