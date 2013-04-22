@@ -25,6 +25,7 @@ define( function (require) {
 
 			render: function() {
 				this.$el.html( loginTemplate() )
+				this.trigger('render')
 				return this
 			},
 

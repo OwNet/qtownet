@@ -113,16 +113,16 @@
                 if (count > 0) {
                     predictions = [];
                     var xF = Math.floor(count * 0.35);
-                    if (xF >= 0 && xF < count)
-                        predictions[predictions.length] = document.links[xF];
+                    if (xF >= 0 && xF < count && document.links[xF].href && document.links[xF].href.match(/^http:.*/) !== null)
+                        predictions[predictions.length] = document.links[xF].href;
 
                     var yF = Math.floor(count * 0.5);
-                    if (yF > xF && yF < count)
-                        predictions[predictions.length] = document.links[yF];
+                    if (yF > xF && yF < count && document.links[yF].href && document.links[yF].href.match(/^http:.*/) !== null)
+                        predictions[predictions.length] = document.links[yF].href;
 
                     var zF = Math.floor(count * 0.65);
-                    if (zF > yF && zF < count)
-                        predictions[predictions.length] = document.links[zF];
+                    if (zF > yF && zF < count && document.links[zF].href && document.links[zF].href.match(/^http:.*/) !== null)
+                        predictions[predictions.length] = document.links[zF].href;
 
                     Ownet.sendMessage("prefetch", { page: $.getPageId(), links: predictions.toString() });
                 }
@@ -193,18 +193,45 @@
 		}
 	}
 
+	var CacheSwitch = { 
+        isSwitchedOn: 0,
+        switchable : null,
+        init : function(switchable) {
+            if (this.switchable == null) {
+                this.switchable = switchable;
+                Ownet.sendMessage("caching:check", { url : document.location.href.replace(/#.*$/, "") });
+            }
+        },
+	    doSwitch : function() {
+	        if (this.isSwitchedOn == 0) {
+	            Ownet.sendMessage("caching:change", { url:  document.location.href.replace(/#.*$/, ""), settings: true });
+	            this.switchable.switchOn();
+	            this.isSwitchedOn = 1;
+	        }
+	        else {
+	            Ownet.sendMessage("caching:change", { url : document.location.href.replace(/#.*$/, ""), settings: false });
+	            this.switchable.switchOff();
+	            this.isSwitchedOn = 0;
+	        }
+	    },
+	    checkSwitch: function (settings) {
+	        if (settings) {
+	            this.switchable.switchOn();
+	            this.isSwitchedOn = 1;
+	        }
+	        else {
+	            this.switchable.switchOff();
+	            this.isSwitchedOn = 0;
+	        }
+	    }
+	}
 
 	var HighlightSwitch = {
-		apiUri: "http://api.ownet/api/prefetch/",
-		highlightStyle : {
-
-		},
 		isSwitchedOn: 0,
-		switchObj: null,
-		availableUris: null,
         switchable: null,
 		highlightedLinks: [],
-		init: function() {
+		init: function (switchable) {
+		    this.switchable = switchable;
 		    $.addCss("a.OwNetHIGHLIGHT { border: 2px solid #F49B04; }");
 
 		},
@@ -220,16 +247,12 @@
 			return linksobj;
 
 		},
-		doSwitch: function (switchable) {
-		    this.switchable = switchable;
+		doSwitch: function () {
 			if (this.isSwitchedOn == 0) {  /* switch on */
-					this.highlightedLinks = [];
+				this.highlightedLinks = [];
                     
-					var x = []; for (var i in document.links) { if (x.indexOf(document.links[i]) < 0) x[x.length] = document.links[i]; } // JSON.stringify({ links: x.toString() });
-
-					Ownet.sendMessage("cached", { links : x.toString() });
-
-			
+				var x = []; for (var i in document.links) { if (document.links[i].href && document.links[i].href.match(/^http:.*/) !== null  && x.indexOf(document.links[i].href) < 0) { x[x.length] = document.links[i].href; /* console.log(document.links[i].href); */ } } // JSON.stringify({ links: x.toString() });
+				Ownet.sendMessage("cached", { links : x.toString() });
 			}
 			else {  /* switch off*/
 				this.switchOff();
@@ -307,17 +330,19 @@
 			},
 
 			cache_settings: {
-				icon: 'owetab_caching.png',
+			    icon: 'owetab_cache_exc_off.png',
 				alt: 'Cache',
 				title: 'Open options to configure caching.',
 				onclick: 'toggleCacheSettings',
+                init: 'initToggleCacheSettings'
 			},
 
 			offline_links: {
 				icon: 'owetab_off.png',
 				alt: 'Highlight',
 				title: 'Highlight links on this webpage which are available offline.',
-				onclickself: 'toggleOfflineLinks',
+				onclick: 'toggleOfflineLinks',
+				init: 'initToggleOfflineLinks'
 			},
 
 			page_rating: {
@@ -400,7 +425,8 @@
 			'OwNet:ready' : 'onOwnetReady',
 			'OwNet:iframe:resize' : 'iframeResize',
 			'OwNet:iframe:close': 'iframeClose',
-            'OwNet:highlight':'highlightLinks'
+			'OwNet:highlight': 'highlightLinks',
+            'OwNet:caching:checked': 'cachingChecked'
 		},
 
 		/* public */
@@ -437,13 +463,21 @@
 			this._toggleTab('page_actions')
 		},
 
-		toggleCacheSettings: function() {
-			this._toggleTab('cache_settings')
+
+		initToggleCacheSettings: function (icon) {
+		    CacheSwitch.init({ switchOn: function () { icon.src = icon.src.replace("off.png", "on.png"); }, switchOff: function () { icon.src = icon.src.replace("on.png", "off.png"); } });
+		},
+
+		toggleCacheSettings: function () {
+		    CacheSwitch.doSwitch();
+		},
+
+		initToggleOfflineLinks: function (icon) {
+		    HighlightSwitch.init({ switchOn: function () { icon.src = icon.src.replace("off.png", "on.png"); }, switchOff: function () { icon.src = icon.src.replace("on.png", "off.png"); } });
 		},
 
 		toggleOfflineLinks: function () {
-		    var self = this
-		    HighlightSwitch.doSwitch({ switchOn: function () { self.childNodes[0].src = self.childNodes[0].src.replace("off.png", "on.png"); }, switchOff: function () { self.childNodes[0].src = self.childNodes[0].src.replace("on.png", "off.png"); } });
+		    HighlightSwitch.doSwitch();
 		},
 
 		sendPageInfo: function() {
@@ -508,8 +542,8 @@
 				if (link.onclick)
 					a.onclick = self[link.onclick].bind(this)
 
-				if (link.onclickself) {
-				    a.onclick = self[link.onclickself].bind(a)
+				if (link.init) {
+				    self[link.init](img);
 				}
 
 				if (link.href)
@@ -553,6 +587,10 @@
 			}
 		},
 
+		cachingChecked: function (data) {
+		    CacheSwitch.checkSwitch(data && data.is_exception);
+		},
+
 		highlightLinks: function (data) {
 		    HighlightSwitch.switchOn(data.split(','));
 		},
@@ -571,13 +609,9 @@
 		});
 	}
 	else if ($.isNotOwnet()) {
-		HighlightSwitch.init();
 		HistoryContact.reportVisit();
 		Ownet.initialize();
 
 		PrefetchContact.startRequestTimeout();
-	
 	}
-
-
 }());

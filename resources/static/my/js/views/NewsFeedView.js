@@ -70,19 +70,27 @@ define( function (require) {
 			},
 
 			sendMessage: function() {
-				var form = Form( $('form[name="create-message-form"]', this.$el) )
-				var data = form.toJSON()
+				var $text = $('textarea[name="message"]', this.$el)
+				var content = $text.val()
+
+				if (content==="")
+					return
+
+				var data = {
+					message: content,
+					group_id: 0,
+					parent_id: 0,
+				}
 
 				var message = new MessageModel(data)
 				var self = this
 
-				message.save({},{
-						wait: true,
-						success: function() { 
-							self.activitiesView.showPage(1, true)
-							$('.controls > textarea').val("")
-						},
-						error: function() {	App.showMessage("Message send failed!")	},
+				message.save(null, {
+					success: function() {
+						self.activitiesView.showPage(1, true)
+						$text.val('')
+					},
+					error: function() {	App.showMessage("Message send failed!")	},
 				})
 			},
 	})

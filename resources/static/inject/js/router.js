@@ -31,7 +31,9 @@ define(function (require) {
 			App.on('user:logout', function (){ this.navigate('login', trigger) }, this)
 			App.on('user:loaded', function (){ this.navigate(this.requestedTab, trigger) }, this)
 			App.on('OwNet:prefetch', this.prefetch, this)
-            App.on('OwNet:cached', this.cachedLinks, this)
+			App.on('OwNet:cached', this.cachedLinks, this)
+			App.on('OwNet:caching:check', this.checkCaching, this)
+			App.on('OwNet:caching:change', this.changeCaching, this)
 		},
 
 		start: function() {
@@ -84,7 +86,8 @@ define(function (require) {
 
 		},
 
-		cachedLinks: function(links) {
+		cachedLinks: function (links) {
+		   
 		    $.ajax({
 		        type : "POST",
 		        url: "http://inject.ownet/api/prefetch/list/",
@@ -97,6 +100,39 @@ define(function (require) {
 		        },
 		      
 		    });
+		},
+
+		checkCaching: function (data) {
+		    if (data && data.url) {
+		        $.ajax({
+		            type: "POST",
+		            data: JSON.stringify({ url : data.url }),
+		            url: "http://inject.ownet/api/cache_exceptions/check",
+		            success: function (data) {
+		                App.sendMessage("caching:checked", data);
+		            }
+		        });
+		    }
+		},
+
+		changeCaching: function (data) {
+		    if (data && data.url) {
+		        var service = null;
+		        if (data.settings) {
+		            service = "http://inject.ownet/api/cache_exceptions/add";
+		        }
+		        else {
+		            service = "http://inject.ownet/api/cache_exceptions/remove";
+		        }
+		        $.ajax({
+		            type: "POST",
+		            data: JSON.stringify({ url : data.url }),
+		            url: service,
+		            success: function () {
+		                App.sendMessage("caching:check", data);
+		            }
+		        });
+		    }
 		},
 
 		routes: {

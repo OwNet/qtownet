@@ -35,7 +35,7 @@ define( function (require) {
 
 			initialize: function(opts) {
 				opts || (opts = {})
-				this.options = _.extend({}, this.defaultOptions, opts.options)
+				this.options =  $.extend(true, {}, this.defaultOptions, opts.options)
 
 				this.activities = new Activities()
 				this.activities.setParams(this.options.params)

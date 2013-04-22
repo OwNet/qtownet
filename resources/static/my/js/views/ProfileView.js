@@ -45,6 +45,7 @@ define( function (require) {
 			},
 
 			render: function() {
+				this.trigger('render')
 				return this
 			},
 

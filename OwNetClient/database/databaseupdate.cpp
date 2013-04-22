@@ -8,8 +8,11 @@
 #include <QDebug>
 #include <QSqlQuery>
 #include <QStringList>
+#include <QMutex>
+#include <QMutexLocker>
 
 QMap<int, int> *DatabaseUpdate::m_lastRecordNumbers = new QMap<int, int>;
+QMutex *DatabaseUpdate::m_lastRecordNumbersMutex = new QMutex;
 
 /**
  * @brief Save record numbers of the last created queries of the client in sync journal to client_sync_records.
@@ -18,8 +21,11 @@ QMap<int, int> *DatabaseUpdate::m_lastRecordNumbers = new QMap<int, int>;
  */
 void DatabaseUpdate::saveLastRecordNumbers()
 {
+    m_lastRecordNumbersMutex->lock();
     QMap<int, int> recordNumbers(*m_lastRecordNumbers);
     m_lastRecordNumbers->clear();
+    m_lastRecordNumbersMutex->unlock();
+
     DatabaseSettings databaseSettings;
     databaseSettings.saveLastClientSyncRecordNumber();
 
@@ -44,6 +50,8 @@ void DatabaseUpdate::saveLastRecordNumbers()
 
 void DatabaseUpdate::setLastRecordNumber(int groupId, int clientRecNum)
 {
+    QMutexLocker locker(m_lastRecordNumbersMutex);
+
     if (m_lastRecordNumbers->contains(groupId) && m_lastRecordNumbers->value(groupId) >= clientRecNum)
         return;
     m_lastRecordNumbers->insert(groupId, clientRecNum);

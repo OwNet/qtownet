@@ -30,7 +30,7 @@ private:
     bool executeDelete(const QString &uid) const;
 
     QStringList getUidsToModify() const;
-    void saveSyncJournalItem(const QString &uid, int clientRecNum = -1);
+    void saveSyncJournalItem(const QString &uid, int clientRecNum);
 
     QString m_syncWith;
     int m_groupId;

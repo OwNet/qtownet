@@ -67,9 +67,10 @@ IResponse::Status RecommendationManager::createRecomm(IRequest *req, QString cur
 
         // if rating already exist throw error
         QSqlQuery q;
-        q.prepare("SELECT * FROM recommendations WHERE absolute_uri=:absolute_uri AND user_id=:user_id");
+        q.prepare("SELECT * FROM recommendations WHERE absolute_uri=:absolute_uri AND user_id=:user_id AND group_id=:group_id");
         q.bindValue(":absolute_uri", absolute_uri);
         q.bindValue(":user_id",curUser_id);
+        q.bindValue(":group_id",group_id);
         q.exec();
 
         if(q.first()){
