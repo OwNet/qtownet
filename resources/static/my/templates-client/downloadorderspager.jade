@@ -1,9 +1,8 @@
 .pager
-	if(action.pages>1)
-		- for (var page=1; page<=action.pages; page++)
-			if (current == page)
-				div.page.act-page
-					a.act-page( href="#/showdownloadorders",data-id="#{page}",name="downpager") #{page}
-			else
-				div.page
-					a( href="#/showdownloadorders",data-id="#{page}",name="downpager") #{page}
+	- for (var page=1; page<=action.pages; page++)
+		if (current == page)
+			div.page.act-page
+				a.act-page( href="#/showdownloadorders",data-id="#{page}",name="downpager") #{page}
+		else
+			div.page
+				a( href="#/showdownloadorders",data-id="#{page}",name="downpager") #{page}

@@ -231,14 +231,14 @@ define( function (require) {
 
 				action.fetch({
 					success: function() {
-						$('div#pager').html( profilePagerTemplate({action :action.toJSON()}))
+						$('div#pager').html( pagerDownloadTemplate({action :action.toJSON(), current :page}))
 					},
 					error: function() {
 
 					},
 				})
 
-				this.$el.html( profileTemplate({user: App.user.toJSON(), current: current }) )
+				this.$el.html( profileTemplate({user: App.user.toJSON()}) )
 				return this
 
 			},
