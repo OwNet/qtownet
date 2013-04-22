@@ -13,11 +13,9 @@ define( function (require) {
 		},
 
 		fetch: function(opts) {
-			if (opts)
-				opts.data = opts.data ?  _.extend(opts.data, this._params) : this._params
-			else
-				opts = { data: this._params }
-
+			opts || (opts={})
+			opts.data = opts.data ?  _.extend(opts.data, this._params) : this._params
+			opts.reset = true
 
 			return Activities.__super__.fetch.call(this, opts)
 		},

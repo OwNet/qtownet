@@ -1,6 +1,6 @@
 - var array = activity.content
 - var content = array.split(";")
-.message
+.message(data-type="recommendation", data-id=activity.object_id)
 	if (activity.gender == "Female")
 		.image
 			img( src="img/girl.png" )
@@ -9,7 +9,7 @@
 			img( src="img/boy.png" )
 	if (user.id == activity.user_id)
 		.delete
-			img.icon( src="img/no.png" , data-filter="user",href="#/recommendations",data-id="#{activity.object_id}",name="deleteRecommendation", title="Delete")
+			img.icon( src="img/no.png", ,name="delete-activity", title="Delete")
 	.name
 		label.orange
 			a( href="#/otherprofile",data-id="#{activity.user_id}",name="showOtherUser" ) #{activity.user_name}
@@ -20,7 +20,7 @@
 	.text #{content[2]}
 
 	.created
-		label created #{new Date(activity.date_created).toLocaleDateString()}
+		label created #{new Date(activity.date_created).toLocaleString()}
 
 
 

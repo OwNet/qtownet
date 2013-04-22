@@ -4,13 +4,14 @@ define( function (require) {
 
 	var App = require("App")
 	  , Backbone = require("backbone")
+	  , PageRatingModel = require('share/models/PageRatingModel')
 	  , template = require('tpl/rating')
 
 
 	var RatingView = Backbone.View.extend({
 
 			events: {
-
+				'click img[name="delete-activity"]' : "onDeleteClick",
 			},
 
 			initialize: function(opts) {
@@ -28,7 +29,19 @@ define( function (require) {
 			},
 
 			close: function() {
+				this.undelegateEvents()
+				this.off()
 				this.remove()
+			},
+
+			onDeleteClick: function() {
+				var model = new PageRatingModel()
+				model.set('id', this.model.get('object_id'))
+
+				var self = this
+				model.destroy({
+					success: function() { self.model.collection.remove(self.model.id) }
+				})
 			},
 
 	})

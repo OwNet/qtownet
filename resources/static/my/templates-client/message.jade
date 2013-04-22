@@ -1,5 +1,5 @@
 - var ar = message.content.split(';')
-.message
+.message(data-type="message", data-id=message.uid)
 	if (message.gender == "Female")
 		.image
 			img( src="img/girl.png" )
@@ -8,7 +8,7 @@
 			img( src="img/boy.png" )
 	if (user.id == message.user_id)
 			.delete
-				img.icon( src="img/no.png" , href="#",data-id="#{message.uid}",name="delete-message",data-group_id=message.group_id, title="Delete")
+				img.icon( src="img/no.png", name="delete-activity",data-group_id=message.group_id, title="Delete")
 	.name
 		label.orange
 			a( href="#/otherprofile",data-id="#{message.user_id}",name="showOtherUser" ) #{message.user_name}
@@ -17,7 +17,7 @@
 		label #{ar[0]}
 
 	.created
-		label created #{new Date(message.date_created).toLocaleDateString()}
+		label created #{new Date(message.date_created).toLocaleString()}
 
 //- .comments
 	if (message.comments)

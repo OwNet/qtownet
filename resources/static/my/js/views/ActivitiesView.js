@@ -26,9 +26,9 @@ define( function (require) {
 			},
 
 			defaultOptions: {
-				// refresh: true,
-				refresh: false,
-				interval: 5000,
+				refresh: true,
+				// refresh: false,
+				interval: 10000,
 				params: { page:1 },
 			},
 
@@ -108,7 +108,7 @@ define( function (require) {
 
 			_refreshSetTimeout: function(timeout) {
 				if (this._refreshTimer) {
-					clearTimeout(this.this._refreshTimer)
+					clearTimeout(this._refreshTimer)
 				}
 
 				var self = this

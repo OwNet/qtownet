@@ -82,6 +82,7 @@ QVariantList ActivityManager::getActivities(bool *ok, QVariantMap &error, IReque
 
     while (query.next()) {
         QVariantMap activity;
+        activity.insert("id", query.value("uid").toString());
         activity.insert("object_id", query.value("object_id").toString());
         activity.insert("user_id", query.value("user_id").toString());
         activity.insert("user_name", query.value("user_name").toString());
