@@ -1,0 +1,25 @@
+.left.messages-left
+	.span6.title
+		img( src="img/ownet.png" )
+	.links
+		.link
+			a(data-filter="all")
+				label: b All news
+		.link
+			a(data-filter="messages")
+				img(src="img/message.png", class="icon")
+				label Messages
+		.link
+			a(data-filter="ratings")
+				img(src="img/stars.png", class="icon")
+				label Ratings
+		.link
+			a(data-filter="recommendations")
+				img(src="img/recomm-all.png", class="icon")
+				label Recommendations
+
+.right.messages-right
+	#create_message.create-message
+		include create_message
+
+	#newsfeed_list.list-message
