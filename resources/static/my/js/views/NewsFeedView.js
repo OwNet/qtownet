@@ -56,7 +56,8 @@ define( function (require) {
 				  typeId = ['recommendations','ratings','messages'].indexOf(typeName)
 				  this.activitiesView.setParams({type: typeId, page: 1})
 				}
-
+				$('.messages-left > .links > .link').removeClass('active')
+				$(e.target).closest('a').parent().addClass('active')
 				this.activitiesView.refresh()
 
 				return false

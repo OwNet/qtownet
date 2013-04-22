@@ -391,9 +391,12 @@ define( function (require) {
         				App.router.navigate("#/showgroup", {trigger: true})
 						self.$el.html( showGroupTemplate({group :group.toJSON()}) )
 						$('div#group_detail').html( groupDetailTemplate({group :group.toJSON()}))
-
-						var messageView = new MessagesView({el:$("#group_messages")})
-						messageView.showHome(1, group.id)
+						if (this.isShown)
+							return
+						this.render()
+						this.activitiesView = new ActivitiesView({ el: $('#newsfeed_list') }).render()
+						this.isShown = true
+		
 					}
         		})
 			},

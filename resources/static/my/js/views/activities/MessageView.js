@@ -6,12 +6,14 @@ define( function (require) {
 	  , Backbone = require("backbone")
 	  , MessageModel = require('share/models/MessageModel')
 	  , template = require('tpl/message')
+	  , commentsTemplate = require('tpl/comments')
 
 
 	var MessageView = Backbone.View.extend({
 
 			events: {
 				'click img[name="delete-activity"]' : "onDeleteClick",
+				'click a[name="loadComments"]' : "loadComments",
 			},
 
 			initialize: function(opts) {
@@ -41,6 +43,18 @@ define( function (require) {
 				var self = this
 				model.destroy({
 					success: function() { self.model.collection.remove(self.model.id) }
+				})
+			},
+
+			loadComments: function(e) {
+				var model = new MessageModel()
+				model.set('id', this.model.get('object_id'))
+
+				var self = this
+				model.fetch({
+					success: function() { 
+						$(e.currentTarget).parent().next()( commentsTemplate({ message:model }) )
+					}
 				})
 			},
 
