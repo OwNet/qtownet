@@ -4,7 +4,7 @@ each downloadorder in downloadorders
 			span #{downloadorder.absolute_uri}
 		.span2.offset1
 			span #{new Date(downloadorder.date).toLocaleDateString()}
-		.span2
+		.span1
 			span #{downloadorder.completed}
 		.span2
 			a( href="#/showdownloadorders",data-id="#{downloadorder.id}",name="deleteDO") Delete

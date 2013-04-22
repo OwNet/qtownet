@@ -49,12 +49,16 @@ define( function (require) {
 
 			onFilterClick: function(e) {
 				var typeName = $(e.target).closest('a').attr('data-filter')
-
-				if (typeName=='all')
-					this.activitiesView.deleteParam('type')
+				if (typeName=='all'){
+					this.activitiesView.deleteParam("user_id")
+					this.activitiesView.deleteParam("type")
+					}
+				else if (typeName == "my")
+					this.activitiesView.setParams({user_id: App.user.id, page: 1})
 				else {
-				  typeId = ['recommendations','ratings','messages'].indexOf(typeName)
-				  this.activitiesView.setParams({type: typeId, page: 1})
+					this.activitiesView.deleteParam("user_id")
+				 	typeId = ['recommendations','ratings','messages'].indexOf(typeName)
+				 	this.activitiesView.setParams({type: typeId, page: 1})
 				}
 
 				this.activitiesView.refresh()
