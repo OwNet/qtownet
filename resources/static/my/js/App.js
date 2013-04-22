@@ -24,7 +24,7 @@ define( function (require) {
 						error:   function(){ App._userLoadError() },
 					})
 				},
-				error: function() { 
+				error: function() {
 					App.trigger('ready')
 					App.router.navigate("#/login", {trigger: true}
 				)} // user is not logged in
