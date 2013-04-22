@@ -341,7 +341,6 @@ IResponse *GroupsService::show(IRequest *req, uint id)
     if( !query.exec())
         return req->response(IResponse::INTERNAL_SERVER_ERROR);
 
-    QVariantList groupDetail;
     QVariantMap group;
 
     if(query.first()){
@@ -374,27 +373,27 @@ IResponse *GroupsService::show(IRequest *req, uint id)
         q_type.first();
         group.insert("group_type_name", q_type.value(q_type.record().indexOf("name")));
 
-        QSqlQuery q_inner_groups;
+//        QSqlQuery q_inner_groups;
 
-        q_inner_groups.prepare("SELECT * FROM groups WHERE parent = :id");
-        q_inner_groups.bindValue(":id",id);
+//        q_inner_groups.prepare("SELECT * FROM groups WHERE parent = :id");
+//        q_inner_groups.bindValue(":id",id);
 
-        if(!q_inner_groups.exec()){
-           return req->response(IResponse::INTERNAL_SERVER_ERROR);
-        }
+//        if(!q_inner_groups.exec()){
+//           return req->response(IResponse::INTERNAL_SERVER_ERROR);
+//        }
 
-        groupDetail.append(group);
+//        groupDetail.append(group);
 
-        while(q_inner_groups.next()){
-            QVariantMap innerGroup;
+//        while(q_inner_groups.next()){
+//            QVariantMap innerGroup;
 
-            innerGroup.insert("name",q_inner_groups.value(q_inner_groups.record().indexOf("name")));
-            innerGroup.insert("id",q_inner_groups.value(q_inner_groups.record().indexOf("id")));
+//            innerGroup.insert("name",q_inner_groups.value(q_inner_groups.record().indexOf("name")));
+//            innerGroup.insert("id",q_inner_groups.value(q_inner_groups.record().indexOf("id")));
 
-            groupDetail.append(innerGroup);
-        }
+//            groupDetail.append(innerGroup);
+//        }
 
-        return req->response(QVariant(groupDetail), IResponse::OK);
+        return req->response(QVariant(group), IResponse::OK);
     }
     QVariantMap error;
     error.insert("group","does not exist");

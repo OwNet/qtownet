@@ -4,26 +4,27 @@
 		.title-name Groups
 	.links
 		.link
-			a( href="#/groups",data-filter="all",name="filter") 
-				img(src="img/all.png", class="icon") 
+			a( href="#/groups")
+				img(src="img/all.png", class="icon")
 				label All groups
 		.link
-			a( href="#/groups",data-filter="admin",name="filter") 
-				img(src="img/admin.png", class="icon") 
+			a( href="#/groups/filter/admin")
+				img(src="img/admin.png", class="icon")
 				label I am admin
 		.link
-			a( href="#/groups",data-filter="my",name="filter")
-				img(src="img/boy.png", class="icon") 
+			a( href="#/groups/filter/my")
+				img(src="img/boy.png", class="icon")
 				label I am member
 		.link
-			a( href="#/groups", data-filter="wait", name="filter") 
-				img(src="img/wait.png", class="icon") 
+			a( href="#/groups/filter/awaiting")
+				img(src="img/wait.png", class="icon")
 				label I am waiting
 	.links.links-second
 		.link
-			a( href="#/creategroups" ,name="create")
-				img(src="img/plus.png", class="icon") 
+			a( href="#/groups/create")
+				img(src="img/plus.png", class="icon")
 				label Create new
 .right.groups-right
-	.list-messages#groups_list
+	#groups_list.list-messages
+	#group_activities.list-messages
 .span#pager
