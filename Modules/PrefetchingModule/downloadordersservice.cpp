@@ -110,7 +110,10 @@ IResponse *DownloadOrdersService::index(IRequest *req)
     while (query->next()) {
         QVariantMap order;
         order.insert("id", query->value("page_hash_to"));
-        order.insert("absolute_uri", query->value("absolute_uri"));
+        QString link = query->value("absolute_uri").toString();
+        if (link.length() > 60)
+            link = link.left(60).append("...");
+        order.insert("absolute_uri", link);
         order.insert("completed", query->value("completed"));
         order.insert("date", query->value("date_updated"));
 
