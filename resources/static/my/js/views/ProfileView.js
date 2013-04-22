@@ -171,8 +171,7 @@ define( function (require) {
 
         				$('div#activities').html( profileFormTemplate({user :user.toJSON()}))
         				$('div#pager').hide();
-
-
+        				$('div#profile-info').hide();
 					}
         		})
 

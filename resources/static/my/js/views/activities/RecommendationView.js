@@ -36,14 +36,14 @@ define( function (require) {
 
 			onDeleteClick: function() {
 				if (confirm('Are you sure ?')){
-				var model = new PageRecommendModel()
-				model.set('id', this.model.get('object_id'))
+					var model = new PageRecommendModel()
+					model.set('id', this.model.get('object_id'))
 
-				var self = this
-				model.destroy({
-					success: function() { self.model.collection.remove(self.model.id) }
-				})
-			}
+					var self = this
+					model.destroy({
+						success: function() { self.model.collection.remove(self.model.id) }
+					})
+				}
 			},
 	})
 

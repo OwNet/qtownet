@@ -78,7 +78,10 @@ define( function (require) {
 
 				message.save({},{
 						wait: true,
-						success: function() { self.activitiesView.showPage(1, true) },
+						success: function() { 
+							self.activitiesView.showPage(1, true)
+							$('.controls > textarea').val("")
+						},
 						error: function() {	App.showMessage("Message send failed!")	},
 				})
 			},

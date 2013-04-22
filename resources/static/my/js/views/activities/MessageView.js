@@ -36,13 +36,15 @@ define( function (require) {
 			},
 
 			onDeleteClick: function() {
-				var model = new MessageModel()
-				model.set('id', this.model.get('object_id'))
+				if (confirm('Are you sure ?')){
+					var model = new MessageModel()
+					model.set('id', this.model.get('object_id'))
 
-				var self = this
-				model.destroy({
-					success: function() { self.model.collection.remove(self.model.id) }
-				})
+					var self = this
+					model.destroy({
+						success: function() { self.model.collection.remove(self.model.id) }
+					})
+				}
 			},
 	})
 
