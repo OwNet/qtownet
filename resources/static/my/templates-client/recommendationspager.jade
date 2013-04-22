@@ -1,8 +1,0 @@
-if(action.pages>1)
-	- for (var page=1; page<=action.pages; page++)
-		if (act_page == page)
-			div.page.act-page
-				a( href="#/recommendations",data-filter="#{filter}",data-id="#{page}",name="recommpager", class="act-page") #{page}
-		else
-			div.page
-				a(  href="#/recommendations",data-filter="#{filter}",data-id="#{page}",name="recommpager") #{page}

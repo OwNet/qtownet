@@ -46,6 +46,7 @@ define( function (require) {
 			'profile': "profile",
 			'profile/edit': "editprofile",
 			'profile/showdownloadorders' : "showdownloadorders",
+			'profile/:id/show': "profile",
 
 			'groups' : "groups",
 			'groups/create' : "creategroups",
@@ -115,18 +116,27 @@ define( function (require) {
 
 
 
-		profile: function() {
-			this.activate("#/profile", this.views.profile, function() {
-				this.views.profile.show(App.user ? App.user.id : "0")
+		profile: function(id) {
+			var tab
+
+			if (!id) {
+				id = App.user.id
+				tab = "#/profile"
+			}
+
+			this.activate(tab, this.views.profile, function() {
+				this.views.profile.show(id)
 			})
 		},
 
 		editprofile: function() {
-
+			this.activate("#/profile", this.views.profile, function() {
+				this.views.profile.edit()
+			})
 		},
 
 		showdownloadorders: function() {
-			this.activate("#/profile/showdownloadorders", this.views.profile, function() {
+			this.activate("#/profile", this.views.profile, function() {
 				this.views.profile.showDownloadOrders(1)
 			})
 		},

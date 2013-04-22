@@ -11,7 +11,7 @@
 				img.icon( src="img/no.png", name="delete-activity",data-group_id=message.group_id, title="Delete")
 	.name
 		label.orange
-			a( href="#/otherprofile",data-id="#{message.user_id}",name="showOtherUser" ) #{message.user_name}
+			a( href="#/profile/#{message.user_id}/show" ) #{message.user_name}
 
 	.text
 		label #{ar[0]}
