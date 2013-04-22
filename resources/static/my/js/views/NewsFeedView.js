@@ -53,8 +53,10 @@ define( function (require) {
 					this.activitiesView.deleteParam("user_id")
 					this.activitiesView.deleteParam("type")
 					}
-				else if (typeName == "my")
+				else if (typeName == "my"){
 					this.activitiesView.setParams({user_id: App.user.id, page: 1})
+					this.activitiesView.deleteParam("type")
+				}
 				else {
 					this.activitiesView.deleteParam("user_id")
 				 	typeId = ['recommendations','ratings','messages'].indexOf(typeName)
