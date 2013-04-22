@@ -13,7 +13,6 @@
 #include "irouter.h"
 
 #include <QDir>
-#include "QSgml.h"
 #include <QSqlQuery>
 #include <QSqlRecord>
 #include <QDateTime>

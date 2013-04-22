@@ -35,6 +35,7 @@ define( function (require) {
 			},
 
 			onDeleteClick: function() {
+				if (confirm('Are you sure ?')){
 				var model = new PageRecommendModel()
 				model.set('id', this.model.get('object_id'))
 
@@ -42,6 +43,7 @@ define( function (require) {
 				model.destroy({
 					success: function() { self.model.collection.remove(self.model.id) }
 				})
+			}
 			},
 	})
 

@@ -7,7 +7,7 @@ CONFIG         += plugin
 
 INCLUDEPATH    += ../../OwNetClient/modules/interfaces
 
-LibPath = ../../lib
+#LibPath = ../../lib
 
 SOURCES        += prefetchingmodule.cpp \
     prefetchingservice.cpp \
@@ -22,7 +22,7 @@ HEADERS        += prefetchingmodule.h \
     noalertwebpage.h \
     downloadordersservice.h
 
-include($${LibPath}/QSgml/QSgml.pri)
+#include($${LibPath}/QSgml/QSgml.pri)
 
 TARGET          = $$qtLibraryTarget(ownet_prefetchingmodule)
 macx:DESTDIR    = ../../OwNetClient/OwNetClient.app/Contents/MacOS/modules
