@@ -29,6 +29,9 @@ define( function (require) {
 			},
 
 			show: function() {
+				if (this.isShown)
+					return
+
 				if ( App.isUserLogged() ) {
 					App.router.navigate('#/')
 					return
@@ -37,6 +40,10 @@ define( function (require) {
 				this.render()
 			},
 
+			hide: function() {
+				this.$el.html('')
+				this.isShown = false
+			},
 
 			login: function() {
 				var form = Form( $('form[name="login-form"]', this.$el) )

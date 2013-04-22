@@ -17,8 +17,6 @@ define( function (require) {
 	  , ActivityModel = require ("share/models/ActivityModel")
 	  , DownloadOrdersModel = require ("share/models/DownloadOrdersModel")
 
-	  , userNavbarTemplate = require ("tpl/user-navbar")
-
 	  , Form = require("share/utils/form")
 
 
@@ -30,7 +28,7 @@ define( function (require) {
 				'click a[name="editprofile"]': "editProfile",
 				'click form[name="profile-form"] button[name="update"]': "saveProfile",
 				"click input[type=radio]": "onRadioClick",
-				/*'click form[name="profile-form"] button[name="update"]': "saveProfile", 
+				/*'click form[name="profile-form"] button[name="update"]': "saveProfile",
 				'click a[name="editprofile"]': "editProfile",
 				'click a[name="ProfilePager"]' : "showMyPage",
 				'click a[name="showDownloadOrders"]': "showDownloadOrders",
@@ -42,13 +40,9 @@ define( function (require) {
 				'click a[name="showOtherUser"]' : "otherShow",*/
 			},
 
-			initialize: function() {
-				this.updateNavbar()
-			},
-
 			render: function() {
 				return this
-			}, 
+			},
 
 			show: function(id){
 				var user = new UserModel()
@@ -67,12 +61,16 @@ define( function (require) {
         			}
         		})
 
-        		
+
 
 				this.$el.html( profileTemplate({user :user.toJSON(), current: current}) )
 
 				this.showActivities(id, 1)
 				return this
+			},
+
+			hide: function() {
+				this.$el.html('')
 			},
 
 			showProfile: function(e) {
@@ -83,7 +81,7 @@ define( function (require) {
       			this.show(id)
     		},
 
-		
+
 			showActivities: function(id, page) {
 				var Action;
 				var ActivitiesCollection;
@@ -104,7 +102,7 @@ define( function (require) {
 				activities.fetch({data: {user_id: id, page: page},
 					success: function() {
 						console.log(activities)
-						$('div#activities').html( showactivitiesTemplate({activities: activities.toJSON()}))		
+						$('div#activities').html( showactivitiesTemplate({activities: activities.toJSON()}))
 					},
 					error: function(){
 						App.showMessage("Error reading activities")
@@ -119,20 +117,20 @@ define( function (require) {
 						$('div#pager').html( profilePagerTemplate({action :action.toJSON()}))
 					},
 					error: function() {
-						
+
 					},
 				})
 
 
 				this.$el.html( showactivitiesTemplate({activities: activities.toJSON() }) )
 				return this
-								
+
 			},
-					
+
 			showMyPage: function(e){
 				e.preventDefault();
 				var page = $(e.currentTarget).data("id");
-				
+
 				this.showActivities(id, page)
 			},
 
@@ -146,14 +144,14 @@ define( function (require) {
         		user.fetch({
         			success: function() {
         				App.router.navigate("#/editprofile", {trigger: true})
-        	
+
         				$('div#activities').html( profileFormTemplate({user :user.toJSON()}))
         				$('div#pager').hide();
 
-        				
+
 					}
         		})
-        						
+
 			},
 
 			onRadioClick: function (e) {
@@ -165,12 +163,12 @@ define( function (require) {
 			saveProfile: function() {
 				var form = Form( $('form[name="profile-form"]', this.$el) )
 				var data = form.toJSON()
-				
+
 				App.user.save(data, {
 					wait: true,
 					success: function() {
 						App.router.navigate('profile', {trigger: true})
-					
+
 						App.showMessage("Profile updated", "alert-success")
 					},
 					error: function() {
@@ -200,12 +198,12 @@ define( function (require) {
 			saveProfile: function() {
 				var form = Form( $('form[name="profile-form"]', this.$el) )
 				var data = form.toJSON()
-				
+
 				App.user.save(data, {
 					wait: true,
 					success: function() {
 						App.router.navigate('profile', {trigger: true})
-					
+
 						App.showMessage("Profile updated", "alert-success")
 					},
 					error: function() {
@@ -224,15 +222,15 @@ define( function (require) {
         		user.fetch({
         			success: function() {
         				App.router.navigate("#/editprofile", {trigger: true})
-        	
+
         				$('div#activities').html( profileFormTemplate({user :user.toJSON()}))
         				$('a[name="showDownloadOrders"]').show()
         				$('div#pager').hide();
 
-        				
+
 					}
         		})
-        						
+
 			},
 
 			showDownloadOrders: function(page) {
@@ -269,7 +267,7 @@ define( function (require) {
 						$('div#pager').html( profilePagerTemplate({action :action.toJSON()}))
 					},
 					error: function() {
-						
+
 					},
 				})
 
@@ -281,7 +279,7 @@ define( function (require) {
 			deleteDO: function(e){
 				e.preventDefault();
         		var id = $(e.currentTarget).data("id");
-        		
+
         		var data = {id : id}
 
         		var DeleteDO = Backbone.Model.extend({
@@ -316,7 +314,7 @@ define( function (require) {
         	deleteActivityRecommendation: function(e){
 				e.preventDefault();
         		var id = $(e.currentTarget).data("id");
-        		
+
         		var data = {object_id : id}
 
         		var DeleteRecommendation = Backbone.Model.extend({
@@ -344,7 +342,7 @@ define( function (require) {
 			deleteActivityRating: function(e){
 				e.preventDefault();
         		var id = $(e.currentTarget).data("id");
-        		
+
         		var data = {object_id : id}
 
         		var DeleteRating = Backbone.Model.extend({
@@ -392,11 +390,6 @@ define( function (require) {
 
 			},*/
 
-			updateNavbar: function() {
-				$('#navbar').html( userNavbarTemplate({ user:  App.user ? App.user.toJSON() : false }))
-			},
-
-			
 	})
 
 	return ProfileView;

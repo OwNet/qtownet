@@ -334,7 +334,13 @@ define( function (require) {
 				})
 
 				this.$el.html( groupsTemplate({ }) )
+				this.isShown = true
+
 				return this
+			},
+
+			hide: function() {
+				this.$el.html('')
 			},
 
 			createGroups: function() {

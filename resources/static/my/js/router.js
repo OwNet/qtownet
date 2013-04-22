@@ -20,11 +20,11 @@ define( function (require) {
 
 			this.views = {
 				navbar: new NavbarView({ el:$('#appmenu') }),
-				login : new LoginView({ el:$("#content") }),
-				registration: new RegistrationView({ el:$("#content") }),
-				groups: new GroupsView({ el:$("#content") }),
-				newsfeed: new NewsFeedView({el: $("#content")}),
-				profile: new ProfileView({ el:$("#content") }),
+				login : new LoginView({ el:$("#login") }),
+				registration: new RegistrationView({ el:$("#registration") }),
+				groups: new GroupsView({ el:$("#groups") }),
+				newsfeed: new NewsFeedView({el: $("#newsfeed")}),
+				profile: new ProfileView({ el:$("#profile") }),
 			}
 
 		},
@@ -48,38 +48,42 @@ define( function (require) {
 			listmembers: "listmembers",
 			ratings: "ratings",
 			logout: "logout",
-
 		},
 
-		activate: function(href) {
+		activate: function(href, view) {
 			$("#appmenu .active").removeClass("active")
 			if (href)
 				$.query('.navbar a[href="?"]', href).parent().addClass('active')
+
+			if (this.activeView && this.activeView!=view)
+				this.activeView.hide()
+
+			this.activeView = view
 		},
 
 		newsfeed: function() {
-			this.activate(null),
+			this.activate(null, this.views.newsfeed),
 			this.views.newsfeed.show()
 		},
 
 		login: function() {
+			this.activate("#/login", this.views.login)
 			this.views.login.show()
-			this.activate("#/login")
 		},
 
 		registration: function() {
+			this.activate("#/registration", this.views.registration)
 			this.views.registration.show()
-			this.activate("#/registration")
 		},
 
 		groups: function() {
+			this.activate("#/groups", this.views.groups)
 			this.views.groups.show("all", 1)
-			this.activate("#/groups")
 		},
 
 		creategroups: function() {
+			this.activate("#/creategroups", this.views.groups)
 			this.views.groups.createGroups()
-			this.activate("#/creategroups")
 		},
 
 		showgroup: function() {
@@ -98,8 +102,9 @@ define( function (require) {
 		},
 
 		profile: function() {
+			this.activate("#/profile", this.views.profile)
 			this.views.profile.show(App.user ? App.user.id : "0")
-			this.activate("#/profile")
+
 		},
 
 		showdownloadorders: function() {

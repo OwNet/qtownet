@@ -32,10 +32,9 @@ define( function (require) {
 			},
 
 			hide: function() {
-				this.undelegateEvents()
 				this.activitiesView.remove()
 				delete this.activitiesView
-
+				this.$el.html('')
 				this.isShown = false
 			},
 
