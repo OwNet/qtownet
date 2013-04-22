@@ -77,7 +77,7 @@ define( function (require) {
 			App.user.clear()
 			App.user.set('id', App.session.get('user_id'))
 
-			$.when( App.user.fetch(), App.groups.fetch() )
+			$.when( App.user.fetch(), App.groups.fetch({ reset:true }) )
 				.done( function(){
 					App._isUserLogged = true
 					App.trigger('user:loaded')

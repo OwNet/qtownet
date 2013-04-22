@@ -249,9 +249,10 @@
 		                }
 		            }
 		        }
+		        this.switchable.switchOn();
+		        this.isSwitchedOn = 1;
 		    }
-		    this.switchable.switchOn();
-			this.isSwitchedOn = 1;
+		 
 		},
 		switchOff: function () {
 			var reg = new RegExp("(\\s|^)" + "OwNetHIGHLIGHT" + "(\\s|$)");
