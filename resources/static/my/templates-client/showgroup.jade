@@ -20,13 +20,13 @@
 					img(src="img/edit.png", class="icon")
 					label Edit group
 			.link
-				a(href="#", data-id="#{group.id}",name="delete-group")
+				a(href="#", name="delete-group")
 					img(src="img/delete.png", class="icon")
 					label Delete group
 
 		else if (group.member == "1")
 			.link
-				a(href="#", data-id="#{group.id}", name="leave-group")
+				a(href="#", name="leave-group")
 					img(src="img/no.png", class="icon")
 					label Leave group
 

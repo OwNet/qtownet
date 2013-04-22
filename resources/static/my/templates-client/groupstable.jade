@@ -13,7 +13,7 @@ each group in groups
 					img.icon( src="img/edit.png", data-id="#{group.id}",name="edit", title="Edit")
 
 		if (group.admin == "0" && group.member == "1" && group.id != "0")
-			.delete
+			//- .delete
 				img.icon( src="img/no.png" , href="#/groups",data-id="#{group.id}",name="leave", title="Leave")
 
 		else if (group.member == "awaiting")

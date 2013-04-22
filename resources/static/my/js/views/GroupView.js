@@ -24,166 +24,13 @@ define( function (require) {
 				'click button[name="submit-message"]' : 'sendMessage',
 				'click form[name="create-group-form"] button[name="submit"]': 'saveGroup',
 				'click a[name="delete-group"]': "deleteGroup",
-				/*
-				'click img[name="join"]': "joinGroup",
-				'click img[name="leave"]' : "leaveGroup",
-				'click a[name="leave"]' : "leaveGroup",
-				'click a[name="listMembers"]' : "listMembers",
-				'click a[name="groups-page"]' : "showPage",
-				'click img[name="add-admin"]' : "addAdmin",
-				'click img[name="delete-member"]' : "deleteUser",
+				'click a[name="leave-group"]' : "leaveGroup",
+
 				'click img[name="approve-member"]' : "approveUser",
-				'click img[name="reject-member"]' : "rejectUser",*/
-			},
-
-			joinGroup: function(e){
-				e.preventDefault();
-				var id = $(e.currentTarget).data("id");
-
-				var Action = Backbone.Model.extend({
-			  		urlRoot: '/api/groups/joinGroup',
-					defaults: {	}
-				})
-
-				var action = new Action()
-				var self = this
-
-				action.save({group_id: id },{
-					wait: true,
-					success: function() {
-						App.router.navigate('groups', {trigger: true})
-						App.showMessage("Joined", "alert-success")
-						self.show("all",1)
-					},
-					error: function() {
-						App.showMessage("Joining failed")
-					},
-				})
-			},
-
-			addAdmin: function(e){
-				e.preventDefault();
-				var id = $(e.currentTarget).data("id");
-				var group_id = $(e.currentTarget).data("group");
-
-				var Action = Backbone.Model.extend({
-			  		urlRoot: '/api/groups/addAdmin',
-					defaults: {	}
-				})
-
-				var action = new Action()
-				var self = this
-
-				action.save({group_id: group_id, user_id: id},{
-					wait: true,
-					success: function() {
-						App.showMessage("Added", "alert-success")
-						self.showMembers(group_id)
-					},
-					error: function() {
-						App.showMessage("Failed")
-					},
-				})
-			},
-
-			deleteUser: function(e){
-				e.preventDefault();
-				var id = $(e.currentTarget).data("id");
-				var group_id = $(e.currentTarget).data("group");
-
-				var Action = Backbone.Model.extend({
-			  		urlRoot: '/api/groups/deleteUser',
-					defaults: {	}
-				})
-
-				var action = new Action()
-				var self = this
-
-				action.save({group_id: group_id, user_id: id},{
-					wait: true,
-					success: function() {
-						App.showMessage("Deleted", "alert-success")
-						self.showMembers(group_id)
-					},
-					error: function() {
-						App.showMessage("Failed")
-					},
-				})
-			},
-
-			approveUser: function(e){
-				e.preventDefault();
-				var id = $(e.currentTarget).data("id");
-				var group_id = $(e.currentTarget).data("group");
-
-				var Action = Backbone.Model.extend({
-			  		urlRoot: '/api/groups/approveUser',
-					defaults: {	}
-				})
-
-				var action = new Action()
-				var self = this
-
-				action.save({group_id: group_id, user_id: id},{
-					wait: true,
-					success: function() {
-						App.showMessage("Approved", "alert-success")
-						self.showMembers(group_id)
-					},
-					error: function() {
-						App.showMessage("Failed")
-					},
-				})
-			},
-
-			rejectUser: function(e){
-				e.preventDefault();
-				var id = $(e.currentTarget).data("id");
-				var group_id = $(e.currentTarget).data("group");
-
-				var Action = Backbone.Model.extend({
-			  		urlRoot: '/api/groups/declineUser',
-					defaults: {	}
-				})
-
-				var action = new Action()
-				var self = this
-
-				action.save({group_id: group_id, user_id: id},{
-					wait: true,
-					success: function() {
-						App.showMessage("Rejected", "alert-success")
-						self.showMembers(group_id)
-					},
-					error: function() {
-						App.showMessage("Failed")
-					},
-				})
-			},
-
-			leaveGroup: function(e){
-				e.preventDefault();
-				var id = $(e.currentTarget).data("id");
-
-				var Action = Backbone.Model.extend({
-			  		urlRoot: '/api/groups/deleteUser',
-					defaults: {	}
-				})
-
-				var action = new Action()
-				var self = this
-
-				action.save({group_id: id, user_id: App.user ? App.user.id : "0"},{
-					wait: true,
-					success: function() {
-						App.router.navigate('groups', {trigger: true})
-						App.showMessage("Leaved", "alert-success")
-						self.show("all",1)
-					},
-					error: function() {
-						App.showMessage("Leaving failed")
-					},
-				})
+				'click img[name="reject-member"]' : "rejectUser",
+				'click img[name="delete-member"]' : "deleteUser",
+				'click img[name="add-admin"]' : "addAdmin",
+				'click img[name="leave"]' : "leaveGroup",
 			},
 
 			showPage: function(e){
@@ -195,6 +42,9 @@ define( function (require) {
 
 			deleteGroup: function(e){
 				e.preventDefault();
+
+				if (!this._confirm())
+					return
 
         		var self = this
         		this.group.destroy({
@@ -315,6 +165,88 @@ define( function (require) {
 					error: function() {	App.showMessage("Message send failed!")	},
 				})
 			},
+
+
+			addAdmin: function(e){
+				e.preventDefault();
+				var id = $(e.currentTarget).data("id")
+				  , self = this
+
+				if (!this._confirm())
+					return
+
+				this.group.addAdmin(id).done( function() {
+					App.showMessage("Added", "alert-success")
+					self.members(self.group.id)
+				}).fail( function() {
+					App.showMessage("Failed")
+				})
+			},
+
+			deleteUser: function(e){
+				e.preventDefault();
+
+				if (!this._confirm())
+					return
+
+				var id = $(e.currentTarget).data("id")
+				  , self = this
+
+				this.group.deleteUser(id).done( function() {
+					App.showMessage("Deleted", "alert-success")
+					self.members(self.group.id)
+				}).fail( function() {
+					App.showMessage("Failed")
+				})
+			},
+
+			approveUser: function(e){
+				e.preventDefault();
+				var id = $(e.currentTarget).data("id")
+				  , self = this
+
+				this.group.approveUser(id).done( function() {
+					App.showMessage("Approved", "alert-success")
+					self.members(self.group.id)
+				}).fail( function() {
+					App.showMessage("Failed")
+				})
+			},
+
+			rejectUser: function(e){
+				e.preventDefault();
+
+				if (!this._confirm())
+					return
+
+				var id = $(e.currentTarget).data("id")
+				  , self = this
+
+				this.group.declineUser(id).done( function() {
+					App.showMessage("Rejected", "alert-success")
+					self.members( self.group.id )
+				}).fail( function() {
+					App.showMessage("Failed")
+				})
+			},
+
+			leaveGroup: function(e){
+				e.preventDefault();
+
+				if (!this._confirm())
+					return
+
+				this.group.deleteUser(App.user.id).done( function() {
+					App.router.navigate('groups', {trigger: true})
+					App.showMessage("Leaved", "alert-success")
+				}).fail( function() {
+					App.showMessage("Failed")
+				})
+			},
+
+			_confirm: function(msg) {
+				return confirm(msg || 'Are you sure?')
+			}
 
 	})
 

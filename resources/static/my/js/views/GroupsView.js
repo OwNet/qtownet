@@ -21,6 +21,7 @@ define( function (require) {
 			events: {
 				'click form[name="create-group-form"] button[name="submit"]': 'saveGroup',
 				'click a[name="delete-group"]': "deleteGroup",
+				'click img[name="join"]': "joinGroup",
 			},
 
 			render: function() {
@@ -47,19 +48,11 @@ define( function (require) {
 					$('#pager').html( pagerTemplate({ pages: groups.pages, filter: filter, act_page: page}))
 				})
 
-				this.isShown = true
 				return this
 			},
 
 			hide: function() {
 				this.$el.html('')
-
-				if ( this.activitiesView ) {
-					this.activitiesView.remove()
-					delete this.activitiesView
-				}
-
-				this.isShown = false
 			},
 
 			createGroups: function() {
@@ -108,6 +101,21 @@ define( function (require) {
 					error: function() {
 						App.showMessage("Cannot delete")
 					},
+				})
+			},
+
+			//////////////////////////////////////////////////////////
+
+			joinGroup: function(e){
+				e.preventDefault();
+				var id = $(e.currentTarget).data("id")
+				  , self = this
+
+				Groups.Model.joinGroup(id).done( function() {
+					self.showGroups('all',1)
+					App.showMessage("Joined", "alert-success")
+				}).fail( function() {
+					App.showMessage("Joining failed")
 				})
 			},
 
