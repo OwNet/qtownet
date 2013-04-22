@@ -14,7 +14,7 @@
 #include "isettings.h"
 
 #include <QDir>
-#include "QSgml.h"
+//#include "QSgml.h"
 #include <QSqlQuery>
 #include <QSqlRecord>
 #include <QDateTime>
@@ -34,14 +34,14 @@ PrefetchingService::PrefetchingService(IProxyConnection *proxyConnection, QObjec
 void PrefetchingService::init(IRouter *router)
 {
     router->addRoute("/create/")
-            ->on(IRequest::GET, ROUTE(create) );
+            ->on(IRequest::POST, ROUTE(create) );
     router->addRoute("/close/")
             ->on(IRequest::GET, ROUTE(close));
     router->addRoute("/done/")
             ->on(IRequest::GET, ROUTE(done));
     router->addRoute("/load/")
             ->on(IRequest::GET, ROUTE(load));
-    router->addRoute("/list/")->on(IRequest::GET, ROUTE(list));
+    router->addRoute("/list/")->on(IRequest::POST, ROUTE(list));
 }
 
 
@@ -177,38 +177,44 @@ bool PrefetchingService::disablePredictionQuery(uint hash)
 
 IResponse *PrefetchingService::create(IRequest *req)
 {
-    if (req->hasParameter("page") && req->hasParameter("pid")) {
-        QString page = req->parameterValue("page");
-        QString padeIdString = req->parameterValue("pid");
-        bool ok = false;
-        uint pageId = padeIdString.toUInt(&ok);
+    bool ok = false;
 
-        if (ok) {
-            QStringList list = getPageLinks(page);
+    QVariantMap reqJson = req->postBodyFromJson(&ok).toMap();
+    if (ok && reqJson.contains("page") && reqJson.contains("links")) {
+        QString page = reqJson["page"].toString();
+        QString links = reqJson["links"].toString();
 
-            int count = list.length();
+        uint pageId = page.toUInt(&ok);
+        QStringList predictions = links.split(',');
+        if (predictions.length() > 0)
+            registerPredictionsQuery(pageId, predictions);
+//        if (ok) {
+//            QStringList list = getPageLinks(page);
 
-            if (count > 0) {
-                QStringList predictions;
-                int xF = qFloor(count * 0.35);
-                if (xF >= 0 && xF < count)
-                    predictions.push_back(list.at(xF));
+//            int count = list.length();
 
-                int yF = qFloor(count * 0.5);
-                if (yF > xF && yF < count)
-                    predictions.push_back(list.at(yF));
+//            if (count > 0) {
+//                QStringList predictions;
+//                int xF = qFloor(count * 0.35);
+//                if (xF >= 0 && xF < count)
+//                    predictions.push_back(list.at(xF));
+
+//                int yF = qFloor(count * 0.5);
+//                if (yF > xF && yF < count)
+//                    predictions.push_back(list.at(yF));
 
 
-                int zF = qFloor(count * 0.65);
-                if (zF > yF && zF < count)
-                    predictions.push_back(list.at(zF));
+//                int zF = qFloor(count * 0.65);
+//                if (zF > yF && zF < count)
+//                    predictions.push_back(list.at(zF));
 
-                registerPredictionsQuery(pageId, predictions);
-            }
-        }
+
+//            }
+//        }
     }
     IResponse *resp = req->response(IResponse::OK);
-    resp->setContentType("application/javascript");
+    resp->setHeader("Access-Control-Allow-Origin","*");
+    resp->setContentType("application/json");
     return resp;
 }
 
@@ -253,8 +259,14 @@ IResponse *PrefetchingService::done(IRequest *req)
 IResponse *PrefetchingService::list(IRequest *req) {
     QString cached = "";
 
-    if (req->hasParameter("page") && !req->parameterValue("page").isEmpty()) {
-        QStringList links = getPageLinks(req->parameterValue("page"));
+    bool ok = false;
+
+    QVariantMap reqJson = req->postBodyFromJson(&ok).toMap();
+    if (ok && reqJson.contains("links")) {
+
+        QString linksString = reqJson["links"].toString();
+
+        QStringList links = linksString.split(',');
         if (links.size() > 0) {
             QStringList filtered = getCachedLinks(links);
 
@@ -265,13 +277,25 @@ IResponse *PrefetchingService::list(IRequest *req) {
                 for (i = 1; i < filtered.size(); ++i) {
                     cached = cached + ",\"" + filtered.at(i) + "\"";
                 }
+                QVariantMap ret;
+                ret.insert("links",filtered);
+
+
+                IResponse *resp = req->response(QVariant(ret),IResponse::OK);
+                resp->setContentType("application/json");
+                resp->setHeader("Access-Control-Allow-Origin","*");
+                return resp;
             }
+
+
         }
 
     }
-    IResponse *resp = req->response(QString("owNetAVAILABLEURIS = [%1];").arg(cached).toLatin1());
-    resp->setContentType("application/javascript");
-    return resp;
+
+ //   IResponse *resp = req->response(QString("owNetAVAILABLEURIS = [%1];").arg(cached).toLatin1());
+   // resp->setContentType("application/javascript");
+
+    return req->response(IResponse::OK);
 }
 
 QStringList PrefetchingService::getCachedLinks(QStringList links) {
@@ -303,62 +327,62 @@ QStringList PrefetchingService::getCachedLinks(QStringList links) {
     return result;
 }
 
-QStringList PrefetchingService::getPageLinks(QString url)
-{
-    QObject parent;
-    QList<QSgmlTag *> elems;
-    QStringList links;
+//QStringList PrefetchingService::getPageLinks(QString url)
+//{
+//    QObject parent;
+//    QList<QSgmlTag *> elems;
+//    QStringList links;
 
-    QUrl baseUrl(url);
+//    QUrl baseUrl(url);
 
-    if (baseUrl.isValid()) {
-        IDatabaseSelectQuery *query = m_proxyConnection->databaseSelect("caches", &parent);
-        query->singleWhere("absolute_uri", url);
-        query->select("id");
-        query->limit(1);
+//    if (baseUrl.isValid()) {
+//        IDatabaseSelectQuery *query = m_proxyConnection->databaseSelect("caches", &parent);
+//        query->singleWhere("absolute_uri", url);
+//        query->select("id");
+//        query->limit(1);
 
-        int i;
-        if (query->next()) {
-            bool ok = false;
-            uint id = query->value("id").toUInt(&ok);
-            if (ok) {
-                QDir dir(m_proxyConnection->settings(&parent)->value("application/data_folder_path").toString());
-                dir.cd("cache");
+//        int i;
+//        if (query->next()) {
+//            bool ok = false;
+//            uint id = query->value("id").toUInt(&ok);
+//            if (ok) {
+//                QDir dir(m_proxyConnection->settings(&parent)->value("application/data_folder_path").toString());
+//                dir.cd("cache");
 
-                QString path = dir.absoluteFilePath(QString("%1-0.cache").arg(id));
-                QFile file(path);
-                if (file.exists()) {
-                    QSgml o(file);
+//                QString path = dir.absoluteFilePath(QString("%1-0.cache").arg(id));
+//                QFile file(path);
+//                if (file.exists()) {
+//                    QSgml o(file);
 
 
-                    o.getElementsByName("a", &elems);
+//                    o.getElementsByName("a", &elems);
 
-                    int count = elems.length();
+//                    int count = elems.length();
 
-                    for (i = 0; i < count; ++i ) {
-                        QSgmlTag* tag = elems.at(i);
+//                    for (i = 0; i < count; ++i ) {
+//                        QSgmlTag* tag = elems.at(i);
 
-                        QString linkHref = tag->getArgValue("href");
-                        try {
-                            QUrl link(linkHref);
-                            if (link.isValid()) {
-                                QString newLink = QUrl(baseUrl.resolved(link)).toString();
-                                if (!links.contains(newLink)) {
-                                    links.push_back(newLink);
-                                }
-                            }
-                        }
-                        catch (...) {
+//                        QString linkHref = tag->getArgValue("href");
+//                        try {
+//                            QUrl link(linkHref);
+//                            if (link.isValid()) {
+//                                QString newLink = QUrl(baseUrl.resolved(link)).toString();
+//                                if (!links.contains(newLink)) {
+//                                    links.push_back(newLink);
+//                                }
+//                            }
+//                        }
+//                        catch (...) {
 
-                        }
-                    }
+//                        }
+//                    }
 
-                    elems.clear();
+//                    elems.clear();
 
-                }
-            }
-        }
-    }
+//                }
+//            }
+//        }
+//    }
 
-    return links;
-}
+//    return links;
+//}

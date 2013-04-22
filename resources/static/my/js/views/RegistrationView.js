@@ -23,6 +23,7 @@ define( function (require) {
 
 			render: function() {
 				this.$el.html( registraitonTemplate() )
+				this.trigger('render')
 				return this
 			},
 
@@ -31,6 +32,9 @@ define( function (require) {
 				this.render()
 			},
 
+			hide: function() {
+				this.$el.html('')
+			},
 
 			registration: function() {
 				var form = Form( $('form[name="registration-form"]', this.$el) )

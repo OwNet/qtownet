@@ -22,7 +22,7 @@ body {
 	width:			@pageWidth;
 	margin-left:	auto;
 	margin-right:	auto;
-	background:		url("../img/background.png") 0px 0px #F5F5F5;
+	background-color: #FBFBFB;
 	border:			1px solid @grayLighter;
 	.box-sizing(border-box);
 	.box-shadow( 0 0px 8px rgba(0,0,0,.085));
@@ -46,33 +46,34 @@ body {
 	}
 }
 
+#content {
+	.form-horizontal {
+		text-align: left;
+	}
 
-.form-horizontal {
-	text-align: left;
+
+	.btn {
+		margin-right: 0px;
+	}
+
+
+	.left .icon {
+		height: 35px;
+		width: auto;
+		margin: 3px;
+		float: left;
+	}
+
+
+	.right {
+		margin-left: 220px;
+		margin-right: 50px;
+		margin-top: 20px;
+		margin-bottom: 20px;
+		padding-top: 30px;
+		min-height: 550px;
+		float: left;
+		width: 70%;
+		text-align: left;
 }
-
-
-.btn {
-	margin-right: 0px;
-}
-
-
-.icon {
-	height: 35px;
-	width: auto;
-	margin: 3px;
-	float: left;
-}
-
-
-.right {
-	margin-left: 220px;
-	margin-right: 50px;
-	margin-top: 20px;
-	margin-bottom: 20px;
-	padding-top: 30px;
-	min-height: 500px;
-	float: left;
-	width: 70%;
-	text-align: left;
 }

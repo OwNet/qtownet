@@ -125,7 +125,7 @@ IResponse *MessagesService::create(IRequest *req)
             //username is solved inside createActivity method
             ac.activity_type = Activity::MESSAGE;
             ac.content = message;
-            ac.group_id = "";
+            ac.group_id = group_id;
             ac.object_id = uid;
             ac.user_id = cur_user_id;
 

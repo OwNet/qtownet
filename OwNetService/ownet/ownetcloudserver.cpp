@@ -36,7 +36,7 @@ void OwNetCloudServer::sendCrashReport(QString report)
 
 void OwNetCloudServer::checkUpdateMetadata()
 {
-    QNetworkRequest *request = new QNetworkRequest(QUrl(updateServiceURL));
+    QNetworkRequest *request = new QNetworkRequest(QUrl(QString(updateServiceURL).append("metadata.json")));
 
     QNetworkAccessManager *nam = new QNetworkAccessManager(this);
     connect(nam, SIGNAL(finished(QNetworkReply*)), this, SLOT(updateMetadataReceived(QNetworkReply*)));

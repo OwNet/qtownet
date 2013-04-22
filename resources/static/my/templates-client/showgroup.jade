@@ -1,39 +1,42 @@
 .left.groups-left
 	.span6.title
 		img( src="img/all.png" )
-		.title-name #{group[0].name.substr(0,30)}
-		.title-desc #{group[0].description.substr(0,55)}...
+		.title-name #{group.name.substr(0,30)}
+		.title-desc #{group.description.substr(0,55)}...
 	.links
 		.link
-			a(href="#/showgroup", data-id="#{group[0].id}", name="showGroup")
-				img(src="img/message.png", class="icon") 
-				label Messages 
+			a(href="#/group/#{group.id}/show")
+				label: b Activities
+
 	.links.links-half
 		.link
-			a( href="#/listmembers",data-id="#{group[0].id}",name="listMembers") 
+			a(href="#/group/#{group.id}/members" )
 				img(src="img/all.png", class="icon")
 				label Show members
 	.links.links-second
-		if (group[0].admin == "1")
+		if (group.admin == "1")
 			.link
-				a( href="#/editGroup",data-id="#{group[0].id}",name="edit") 
-					img(src="img/edit.png", class="icon") 
+				a(href="#/group/#{group.id}/edit" )
+					img(src="img/edit.png", class="icon")
 					label Edit group
 			.link
-				a( href="#/groups",data-id="#{group[0].id}",name="delete")
-					img(src="img/delete.png", class="icon") 
+				a(href="#", name="delete-group")
+					img(src="img/delete.png", class="icon")
 					label Delete group
-		else if (group[0].member == "1")
+
+		else if (group.member == "1")
 			.link
-				a( href="#/groups",data-id="#{group[0].id}",name="leave")
-					img(src="img/no.png", class="icon") 
+				a(href="#", name="leave-group")
+					img(src="img/no.png", class="icon")
 					label Leave group
 
 .right.groups-right
 	.messages-right
 
 		.create-message#create_message
+		.list-message#activities
+		#view_content
 
-		.list-message#messages_list
+
 
 .span#pager

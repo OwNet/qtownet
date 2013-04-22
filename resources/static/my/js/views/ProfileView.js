@@ -7,6 +7,7 @@ define( function (require) {
 	  , profileTemplate = require ("tpl/profile")
 	  , profileTableTemplate = require ("tpl/profiletable")
 	  , profileFormTemplate = require ("tpl/profileform")
+	  , newsFeedTemplate = require ("tpl/newsfeed")
 	  , profileStatsTemplate = require ("tpl/profile_stats")
 	  , downloadOrdersTemplate = require("tpl/downloadorders")
 	  , profilePagerTemplate = require ("tpl/profilepager")
@@ -17,20 +18,21 @@ define( function (require) {
 	  , ActivityModel = require ("share/models/ActivityModel")
 	  , DownloadOrdersModel = require ("share/models/DownloadOrdersModel")
 
-	  , userNavbarTemplate = require ("tpl/user-navbar")
-
 	  , Form = require("share/utils/form")
 
 
 	var ProfileView = Backbone.View.extend({
 
 			events: {
-				'click a[name="showProfile"]' : "showProfile",
+				'click a[name="showOtherUser"]' : "showOtherProfile",
 				'click a[name="ProfilePager"]' : "showMyPage",
 				'click a[name="editprofile"]': "editProfile",
 				'click form[name="profile-form"] button[name="update"]': "saveProfile",
 				"click input[type=radio]": "onRadioClick",
-				/*'click form[name="profile-form"] button[name="update"]': "saveProfile", 
+				'click a[data-id]' : 'showOtherProfile',
+				'click a[name="showDownloadOrders"]': "showDownloadOrders",
+				'click img[name="deleteDO"]': "deleteDO",
+				/*'click form[name="profile-form"] button[name="update"]': "saveProfile",
 				'click a[name="editprofile"]': "editProfile",
 				'click a[name="ProfilePager"]' : "showMyPage",
 				'click a[name="showDownloadOrders"]': "showDownloadOrders",
@@ -42,18 +44,16 @@ define( function (require) {
 				'click a[name="showOtherUser"]' : "otherShow",*/
 			},
 
-			initialize: function() {
-				this.updateNavbar()
-			},
-
 			render: function() {
+				this.trigger('render')
 				return this
-			}, 
+			},
 
 			show: function(id){
 				var user = new UserModel()
         		user.id = id
 
+        		
         		var current = false
         		if (App.user.id == id ) {
         			current = true
@@ -64,77 +64,100 @@ define( function (require) {
         				self.$el.html( profileTemplate({user :user.toJSON(), current: current}) )
         				$('div#profile-info').html( profileTableTemplate({user :user.toJSON(), current: current}))
         				$('div#stats').html( profileStatsTemplate({user :user.toJSON(), current: current}))
+        				self.showActivities()
         			}
         		})
 
-        		
+
 
 				this.$el.html( profileTemplate({user :user.toJSON(), current: current}) )
 
-				this.showActivities(id, 1)
+				// this.showActivities(id, 1)
 				return this
 			},
 
-			showProfile: function(e) {
+			hide: function() {
+				this.$el.html('')
+			},
+
+			showOtherProfile: function(e) {
 				// App.router.navigate("#/profile", {trigger: true})
 				e.preventDefault()
 				var id = $(e.currentTarget).data("id")
 				console.log(id)
-      			this.show(id)
     		},
 
-		
-			showActivities: function(id, page) {
-				var Action;
-				var ActivitiesCollection;
+    		renderActivities: function() {
+				var data = {
+					group_id: 0,
+				}
 
-
-				ActivitiesCollection = Backbone.Collection.extend({
-					url: '/api/activities/my',
-					model: ActivityModel
-				})
-
-				Action = Backbone.Model.extend({
-				  		urlRoot: '/api/activities/usersPagesCount',
-						defaults: {	}
-				})
-
-				var activities = new ActivitiesCollection()
-
-				activities.fetch({data: {user_id: id, page: page},
-					success: function() {
-						console.log(activities)
-						$('div#activities').html( showactivitiesTemplate({activities: activities.toJSON()}))		
-					},
-					error: function(){
-						App.showMessage("Error reading activities")
-					},
-				})
-
-				var action = new Action()
-
-
-				action.fetch({data: {user_id: id},
-					success: function() {
-						$('div#pager').html( profilePagerTemplate({action :action.toJSON()}))
-					},
-					error: function() {
-						
-					},
-				})
-
-
-				this.$el.html( showactivitiesTemplate({activities: activities.toJSON() }) )
+				this.$el.html( profileTemplate(data) )
 				return this
-								
 			},
-					
-			showMyPage: function(e){
-				e.preventDefault();
-				var page = $(e.currentTarget).data("id");
-				
-				this.showActivities(id, page)
+
+			showActivities: function() {
+				if (this.isShown)
+					return
+
+				this.renderActivities()
+
+				this.activitiesView = new ActivitiesView({ el: $('#newsfeed_list') }).renderActivities()
+				this.isShown = true
 			},
+
+
+			// showActivities: function(id, page) {
+			// 	var Action;
+			// 	var ActivitiesCollection;
+
+
+			// 	ActivitiesCollection = Backbone.Collection.extend({
+			// 		url: '/api/activities/my',
+			// 		model: ActivityModel
+			// 	})
+
+			// 	Action = Backbone.Model.extend({
+			// 	  		urlRoot: '/api/activities/usersPagesCount',
+			// 			defaults: {	}
+			// 	})
+
+			// 	var activities = new ActivitiesCollection()
+
+			// 	activities.fetch({data: {user_id: id, page: page},
+			// 		success: function() {
+			// 			console.log(activities)
+			// 			$('div#activities').html( showactivitiesTemplate({activities: activities.toJSON()}))
+			// 		},
+			// 		error: function(){
+			// 			App.showMessage("Error reading activities")
+			// 		},
+			// 	})
+
+			// 	var action = new Action()
+
+
+			// 	action.fetch({data: {user_id: id},
+			// 		success: function() {
+			// 			$('div#pager').html( profilePagerTemplate({action :action.toJSON()}))
+			// 		},
+			// 		error: function() {
+
+			// 		},
+			// 	})
+
+
+			// 	this.$el.html( showactivitiesTemplate({activities: activities.toJSON() }) )
+			// 	return this
+
+			// },
+
+			// showMyPage: function(e){
+			// 	e.preventDefault();
+			// 	var page = $(e.currentTarget).data("id");
+
+			// 	this.showActivities(id, page)
+			// },
 
 			editProfile: function(e){
 				e.preventDefault();
@@ -146,14 +169,13 @@ define( function (require) {
         		user.fetch({
         			success: function() {
         				App.router.navigate("#/editprofile", {trigger: true})
-        	
+
         				$('div#activities').html( profileFormTemplate({user :user.toJSON()}))
         				$('div#pager').hide();
-
-        				
+        				$('div#profile-info').hide();
 					}
         		})
-        						
+
 			},
 
 			onRadioClick: function (e) {
@@ -165,12 +187,12 @@ define( function (require) {
 			saveProfile: function() {
 				var form = Form( $('form[name="profile-form"]', this.$el) )
 				var data = form.toJSON()
-				
+
 				App.user.save(data, {
 					wait: true,
 					success: function() {
 						App.router.navigate('profile', {trigger: true})
-					
+
 						App.showMessage("Profile updated", "alert-success")
 					},
 					error: function() {
@@ -178,6 +200,77 @@ define( function (require) {
 					},
 				})
 			},
+
+			showDownloadOrders: function(page) {
+				var Action;
+				var downloadOrdersCollection;
+				
+				downloadOrdersCollection = Backbone.Collection.extend({
+					url: '/api/orders',
+					model: DownloadOrdersModel
+				})
+
+				Action = Backbone.Model.extend({
+					urlRoot: '/api/orders/allPagesCount',
+					defaults: {	}
+				})
+
+				var downloadorders = new downloadOrdersCollection()
+
+				downloadorders.fetch({page:page,
+					success: function() {
+						$('div#activities').html( downloadOrdersTemplate({downloadorders: downloadorders.toJSON()}))
+					},
+					error: function(){
+						App.showMessage("Error reading downloadorders")
+					},
+				})
+
+				var action = new Action()
+
+
+				action.fetch({
+					success: function() {
+						$('div#pager').html( pagerDownloadTemplate({action :action.toJSON(), current :page}))
+					},
+					error: function() {
+
+					},
+				})
+
+				this.$el.html( profileTemplate({user: App.user.toJSON()}) )
+				return this
+
+			},
+
+			deleteDO: function(e){
+				e.preventDefault();
+        		var id = $(e.currentTarget).data("id");
+
+        		var data = {id : id}
+
+        		var DeleteDO = Backbone.Model.extend({
+			  		urlRoot: '/api/orders',
+					defaults: {	}
+				})
+
+        		var downloadorder = new DeleteDO(data)
+        		downloadorder.id = id
+        		var self = this
+
+        		downloadorder.destroy({
+        			wait: true,
+        			success: function() {
+        				App.router.navigate("#/showdownloadorders", {trigger: true})
+        				App.showMessage("Download Order deleted")
+						self.showDownloadOrders(1)
+					},
+					error: function() {
+						App.showMessage("Cannot delete")
+					},
+        		})
+
+			},	
 
 			/*
 			showOtherPage: function(e){
@@ -200,12 +293,12 @@ define( function (require) {
 			saveProfile: function() {
 				var form = Form( $('form[name="profile-form"]', this.$el) )
 				var data = form.toJSON()
-				
+
 				App.user.save(data, {
 					wait: true,
 					success: function() {
 						App.router.navigate('profile', {trigger: true})
-					
+
 						App.showMessage("Profile updated", "alert-success")
 					},
 					error: function() {
@@ -224,15 +317,15 @@ define( function (require) {
         		user.fetch({
         			success: function() {
         				App.router.navigate("#/editprofile", {trigger: true})
-        	
+
         				$('div#activities').html( profileFormTemplate({user :user.toJSON()}))
         				$('a[name="showDownloadOrders"]').show()
         				$('div#pager').hide();
 
-        				
+
 					}
         		})
-        						
+
 			},
 
 			showDownloadOrders: function(page) {
@@ -269,7 +362,7 @@ define( function (require) {
 						$('div#pager').html( profilePagerTemplate({action :action.toJSON()}))
 					},
 					error: function() {
-						
+
 					},
 				})
 
@@ -281,7 +374,7 @@ define( function (require) {
 			deleteDO: function(e){
 				e.preventDefault();
         		var id = $(e.currentTarget).data("id");
-        		
+
         		var data = {id : id}
 
         		var DeleteDO = Backbone.Model.extend({
@@ -316,7 +409,7 @@ define( function (require) {
         	deleteActivityRecommendation: function(e){
 				e.preventDefault();
         		var id = $(e.currentTarget).data("id");
-        		
+
         		var data = {object_id : id}
 
         		var DeleteRecommendation = Backbone.Model.extend({
@@ -344,7 +437,7 @@ define( function (require) {
 			deleteActivityRating: function(e){
 				e.preventDefault();
         		var id = $(e.currentTarget).data("id");
-        		
+
         		var data = {object_id : id}
 
         		var DeleteRating = Backbone.Model.extend({
@@ -392,11 +485,6 @@ define( function (require) {
 
 			},*/
 
-			updateNavbar: function() {
-				$('#navbar').html( userNavbarTemplate({ user:  App.user ? App.user.toJSON() : false }))
-			},
-
-			
 	})
 
 	return ProfileView;

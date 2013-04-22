@@ -18,5 +18,5 @@ void ProxyModule::init(IProxyConnection *proxyConnection)
     m_proxyConnection->registerService(new AppService(m_proxyConnection, this));
 
     m_proxyConnection->registerJob(new WebPingerJob);
-    m_proxyConnection->registerJob(new FirewallDiscoveryJob);
+    //m_proxyConnection->registerJob(new FirewallDiscoveryJob);
 }

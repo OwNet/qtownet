@@ -1,72 +1,75 @@
 /* left collumn*/
-.left {
-	border-right: 1px solid #D8D8D8;
-	.box-shadow( 0 1px 1px rgba(0,0,0,.0));
-	width: 200px;
-	position: absolute;
-	height: 95%;
-	margin-top: 20px;
-	margin-bottom: 20px;
-	padding-top: 30px;
-
-
-	.title {
-		height: 100px;
-	}
-
-	.links {
+#content {
+	.left {
+		border-right: 1px solid #D8D8D8;
+		.box-shadow( 0 1px 1px rgba(0,0,0,.0));
+		width: 200px;
 		position: absolute;
-		top: 250px;
-		width: 100%;
-	}
-
-	.links-half {
-		top: 350px;
-	}
-
-	.links-second {
-		top: 450px;
-	}
-
-	.links .link {
-		border-top: 1px solid #D8D8D8;
-		border-bottom: 1px solid #D8D8D8;
-		height: 40px;
-	}
-
-	.links .link label {
-		margin-top: 12px;
-	}
-
-	.links .active {
-		background-color: #fff;
-	}
-
-	.links .link:first-of-type {
-		border-top-right-radius:5px;
-	}
-
-	.links .link:last-of-type {
-		border-bottom-right-radius:5px;
-	}
-
-	.title {
-		height: 60px;
-		width: 160px;
-		text-align: center;
-		margin-left: 20px;
-	}
+		height: 95%;
+		margin-top: 20px;
+		margin-bottom: 20px;
+		padding-top: 30px;
 
 
-	.title-desc {
-		font-size: 14px;
-	} 
+		.title {
+			height: 100px;
+		}
 
-	.title-name {
-		color: @blue;
-		font-size: 20px;
-		font-weight: bold;
-		margin-top: 25px;
-	}
+		.links {
+			position: absolute;
+			top: 250px;
+			width: 100%;
+		}
 
+		.links-half {
+			top: 380px;
+		}
+
+		.links-second {
+			top: 450px;
+		}
+
+		.links .link {
+			border-top: 1px solid #D8D8D8;
+			border-bottom: 1px solid #D8D8D8;
+			height: 40px;
+			padding-left: 10px;
+		}
+
+		.links .link label {
+			font-size: 13px;
+			margin-top: 12px;
+			padding-left: 50px;
+		}
+
+		.links .active {
+			background-color: #f3f3f3;
+		}
+
+		.links .link:first-of-type {
+			border-top-right-radius:5px;
+		}
+
+		.links .link:last-of-type {
+			border-bottom-right-radius:5px;
+		}
+
+		.title {
+			height: 60px;
+			width: 160px;
+			text-align: center;
+			margin-left: 20px;
+		}
+		
+		.title-desc {
+			font-size: 14px;
+		} 
+		.title-name {
+			color: @blue;
+			font-size: 20px;
+			font-weight: bold;
+			margin-top: 25px;
+		}
+
+}
 }

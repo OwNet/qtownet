@@ -13,7 +13,6 @@
 #include "irouter.h"
 
 #include <QDir>
-#include "QSgml.h"
 #include <QSqlQuery>
 #include <QSqlRecord>
 #include <QDateTime>
@@ -48,7 +47,7 @@ IResponse *DownloadOrdersService::del(IRequest *req, uint id)
     query->limit(1);
     if (query->next()) {
         id = query->value("page_hash_to").toInt();
-        IDatabaseUpdateQuery *update = m_proxyConnection->databaseUpdateQuery("prefetch_orders", &parent);
+        IDatabaseUpdateQuery *update = m_proxyConnection->databaseUpdateQuery("prefetch_orders", &parent, false);
         update->singleWhere("page_hash_to", id);
         update->setType(IDatabaseUpdateQuery::Delete);
         update->executeQuery();
@@ -111,7 +110,10 @@ IResponse *DownloadOrdersService::index(IRequest *req)
     while (query->next()) {
         QVariantMap order;
         order.insert("id", query->value("page_hash_to"));
-        order.insert("absolute_uri", query->value("absolute_uri"));
+        QString link = query->value("absolute_uri").toString();
+        if (link.length() > 60)
+            link = link.left(60).append("...");
+        order.insert("absolute_uri", link);
         order.insert("completed", query->value("completed"));
         order.insert("date", query->value("date_updated"));
 
