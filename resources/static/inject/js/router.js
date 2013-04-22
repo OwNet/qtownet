@@ -1,4 +1,4 @@
-cache_settingsdefine(function (require) {
+define(function (require) {
 
 	"use_strict"
 	require('init')
