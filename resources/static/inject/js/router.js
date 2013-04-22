@@ -1,4 +1,4 @@
-define( function (require) {
+cache_settingsdefine(function (require) {
 
 	"use_strict"
 	require('init')
@@ -78,7 +78,7 @@ define( function (require) {
 		prefetch: function(data) {
 		    $.ajax({
 		        type: "POST",
-		        url: "http://aaa.ownet/api/prefetch/create/",
+		        url: "http://inject.ownet/api/prefetch/create/",
 		        data: JSON.stringify(data),
 		    });
 
@@ -87,7 +87,7 @@ define( function (require) {
 		cachedLinks: function(links) {
 		    $.ajax({
 		        type : "POST",
-		        url: "http://aaa.ownet/api/prefetch/list/",
+		        url: "http://inject.ownet/api/prefetch/list/",
 		        data: JSON.stringify(links),
 		        success: function (data) {
 		            if (data && data.links) {
