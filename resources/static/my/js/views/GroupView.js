@@ -14,12 +14,14 @@ define( function (require) {
 
 	  , UserModel = require ("share/models/UserModel")
 	  , GroupModel = require('share/models/GroupModel')
+	  , MessageModel = require('share/models/MessageModel')
 	  , Form = require("share/utils/form")
 
 
 	var GroupsView = Backbone.View.extend({
 
 			events: {
+				'click button[name="submit-message"]' : 'sendMessage',
 				'click form[name="create-group-form"] button[name="submit"]': 'saveGroup',
 				'click a[name="delete-group"]': "deleteGroup",
 				/*
@@ -220,6 +222,7 @@ define( function (require) {
 			},
 
 			show: function(group_id) {
+				var self = this
 				this._show(group_id).done( function() {
 
 					var opts = {
@@ -227,7 +230,7 @@ define( function (require) {
 						options: { params: { group_id: group_id }}
 					}
 
-					this.activitiesView = new ActivitiesView(opts).render()
+					self.activitiesView = new ActivitiesView(opts).render()
 					$('#create_message').html( crateMessageTemplate() )
 				})
 			},
@@ -288,60 +291,30 @@ define( function (require) {
 				})
 			},
 
-			/*showGroup: function(e){
-				e.preventDefault();
-        		var id = $(e.currentTarget).data("id");
+			sendMessage: function(e) {
+				var $text = $('textarea[name="message"]', this.$el)
+				var content = $text.val()
 
-        		var group = new GroupsModel()
-        		group.id = id
-        		var self = this
-        		group.fetch({
-        			success: function() {
-        				App.router.navigate("#/showgroup", {trigger: true})
-						self.$el.html( showGroupTemplate({group :group.toJSON()}) )
-						$('div#group_detail').html( groupDetailTemplate({group :group.toJSON()}))
+				if (content=="")
+					return
 
-						var messageView = new MessagesView({el:$("#group_messages")})
-						messageView.showHome(1, group.id)
-					}
-        		})
-			},
+				var data = {
+					message: content,
+					group_id: this.group.id,
+					parent_id: 0,
+				}
 
-			showMembers: function(group_id) {
-				var Action = Backbone.Model.extend({
-			  		urlRoot: '/api/groups/getGroupUsers',
-					defaults: {	}
+				var message = new MessageModel(data)
+				var self = this
+
+				message.save(null, {
+					success: function() {
+						self.activitiesView.showPage(1, true)
+						$text.val('')
+					},
+					error: function() {	App.showMessage("Message send failed!")	},
 				})
-
-				var action = new Action()
-
-        		var group = new GroupsModel()
-        		group.id = group_id
-        		var self = this
-        		group.fetch({
-        			success: function() {
-
-						action.fetch({data: {group_id: group.id},
-							wait: true,
-							success: function() {
-								App.router.navigate('listMembers', {trigger: true})
-								$('div.groups-right').html( listMembersGroupTemplate({group :group.toJSON(), action : action.toJSON(),  user:  App.user ? App.user.toJSON() : false}))
-							},
-							error: function() {
-								App.showMessage("Error")
-							},
-						})
-					}
-        		})
 			},
-
-			listMembers: function(e){
-				e.preventDefault();
-        		var id = $(e.currentTarget).data("id");
-        		this.showMembers(id)
-			},
-			*/
-
 
 	})
 
