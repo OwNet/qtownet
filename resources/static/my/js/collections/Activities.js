@@ -20,17 +20,14 @@ define( function (require) {
 			return Activities.__super__.fetch.call(this, opts)
 		},
 
-		fetchPageCount: function(opts) {
+		fetchPageCount: function() {
+			var self = this
+
 			return $.ajax({
 				type: 'GET',
 				url: this.url + '/pagesCount',
-				data: this._params,
-				success: function(count) {
-					this.pageCount = count
-					if (opts && opts.success)
-						opts.success(count)
-				},
-				error: opts ? opts.error : null,
+				data: _.omit( this._params || {}, 'page'),
+				success: function(data) { self.pages = data.pages },
 			})
 		}
 

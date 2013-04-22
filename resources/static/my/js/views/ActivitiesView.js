@@ -8,6 +8,7 @@ define( function (require) {
 	  , RecommendationView = require('views/activities/RecommendationView')
 	  , RatingView = require('views/activities/RatingView')
 	  , MessageView = require('views/activities/MessageView')
+	  , pagerTemplate = require('tpl/pager')
 
 
 	require('Backbone.CollectionBinder')
@@ -22,7 +23,7 @@ define( function (require) {
 	var ActivitiesView = Backbone.View.extend({
 
 			events: {
-
+				'click a[data-page]' : 'onPageClick',
 			},
 
 			defaultOptions: {
@@ -48,7 +49,12 @@ define( function (require) {
 			render: function() {
 				this.activities.reset([])
 				this.$el.html( '' )
-				this.collectionBinder.bind(this.activities, this.$el)
+
+				this.$list = $('<div>')
+				this.$pager = $('<div>')
+				this.$el.append(this.$list).append(this.$pager)
+
+				this.collectionBinder.bind(this.activities, this.$list)
 
 				this.options.refresh ? this._refreshSetTimeout(0) : this.refresh()
 
@@ -72,38 +78,43 @@ define( function (require) {
 			},
 
 			refresh: function() {
-				if (this.refreshXhr)
+				if (this.refreshXhr) {
 					this.refreshXhr.abort()
+					this.refreshPagesCountXhr.abort()
+				}
 
 				var self = this
-				this.refreshXhr = this.activities.fetch({
-					/*success: function() {
+				this.refreshXhr = this.activities.fetch()
+				this.refreshPagesCountXhr = this.activities.fetchPageCount()
 
-					},
-					error: function() {
-
-					},*/
-					complete: function() {
-						delete self.refreshXhr
-					}
+				return $.when( this.refreshXhr, this.refreshPagesCountXhr).then( function() {
+					delete self.refreshXhr
+					delete self.refreshPagesCountXhr
+					self.$pager.html( pagerTemplate({ pages: self.activities.pages, current: self.options.params.page  }) )
 				})
 			},
 
-			setPage: function(page) {
-				if (page != this.options.params.page) {
+			showPage: function(page, force) {
+				if (page != this.options.params.page || force) {
 					this.options.params.page = page
-					this.refresh()
+					this.refresh().then( function() {
+						window.scrollTo(0,0)
+					})
 				}
 			},
 
 			setParams: function(params) {
 				this.options.params = _.extend(this.options.params, params)
-				this.options.refresh ? this._refreshSetTimeout(0) : this.refresh()
 			},
 
 			deleteParam: function(key) {
 				delete this.options.params[key]
-				this.options.refresh ? this._refreshSetTimeout(0) : this.refresh()
+			},
+
+			onPageClick: function(e) {
+				var page = $(e.target).attr('data-page')
+				this.showPage(page)
+				return false
 			},
 
 			_refreshSetTimeout: function(timeout) {

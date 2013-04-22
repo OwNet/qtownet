@@ -54,9 +54,10 @@ define( function (require) {
 					this.activitiesView.deleteParam('type')
 				else {
 				  typeId = ['recommendations','ratings','messages'].indexOf(typeName)
-				  this.activitiesView.setParams({type: typeId})
+				  this.activitiesView.setParams({type: typeId, page: 1})
 				}
 
+				this.activitiesView.refresh()
 
 				return false
 			},
@@ -70,7 +71,7 @@ define( function (require) {
 
 				message.save({},{
 						wait: true,
-						success: function() { self.activitiesView.refresh() },
+						success: function() { self.activitiesView.showPage(1, true) },
 						error: function() {	App.showMessage("Message send failed!")	},
 				})
 			},
