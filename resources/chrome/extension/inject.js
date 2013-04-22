@@ -113,16 +113,16 @@
                 if (count > 0) {
                     predictions = [];
                     var xF = Math.floor(count * 0.35);
-                    if (xF >= 0 && xF < count)
-                        predictions[predictions.length] = document.links[xF];
+                    if (xF >= 0 && xF < count && document.links[xF].href && document.links[xF].href.match(/^http:.*/) !== null)
+                        predictions[predictions.length] = document.links[xF].href;
 
                     var yF = Math.floor(count * 0.5);
-                    if (yF > xF && yF < count)
-                        predictions[predictions.length] = document.links[yF];
+                    if (yF > xF && yF < count && document.links[yF].href && document.links[yF].href.match(/^http:.*/) !== null)
+                        predictions[predictions.length] = document.links[yF].href;
 
                     var zF = Math.floor(count * 0.65);
-                    if (zF > yF && zF < count)
-                        predictions[predictions.length] = document.links[zF];
+                    if (zF > yF && zF < count && document.links[zF].href && document.links[zF].href.match(/^http:.*/) !== null)
+                        predictions[predictions.length] = document.links[zF].href;
 
                     Ownet.sendMessage("prefetch", { page: $.getPageId(), links: predictions.toString() });
                 }
