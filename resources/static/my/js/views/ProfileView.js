@@ -31,6 +31,7 @@ define( function (require) {
 				"click input[type=radio]": "onRadioClick",
 				'click a[data-id]' : 'showOtherProfile',
 				'click a[name="showDownloadOrders"]': "showDownloadOrders",
+				'click a[name="deleteDO"]': "deleteDO",
 				/*'click form[name="profile-form"] button[name="update"]': "saveProfile",
 				'click a[name="editprofile"]': "editProfile",
 				'click a[name="ProfilePager"]' : "showMyPage",
@@ -216,7 +217,7 @@ define( function (require) {
 
 				var downloadorders = new downloadOrdersCollection()
 
-				downloadorders.fetch({
+				downloadorders.fetch({page:page,
 					success: function() {
 						$('div#activities').html( downloadOrdersTemplate({downloadorders: downloadorders.toJSON()}))
 					},
@@ -241,6 +242,35 @@ define( function (require) {
 				return this
 
 			},
+
+			deleteDO: function(e){
+				e.preventDefault();
+        		var id = $(e.currentTarget).data("id");
+
+        		var data = {id : id}
+
+        		var DeleteDO = Backbone.Model.extend({
+			  		urlRoot: '/api/orders',
+					defaults: {	}
+				})
+
+        		var downloadorder = new DeleteDO(data)
+        		downloadorder.id = id
+        		var self = this
+
+        		downloadorder.destroy({
+        			wait: true,
+        			success: function() {
+        				App.router.navigate("#/showdownloadorders", {trigger: true})
+        				App.showMessage("Download Order deleted")
+						self.showDownloadOrders(1)
+					},
+					error: function() {
+						App.showMessage("Cannot delete")
+					},
+        		})
+
+			},	
 
 			/*
 			showOtherPage: function(e){

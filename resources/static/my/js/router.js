@@ -53,7 +53,7 @@ define( function (require) {
 
 		activate: function(href, view) {
 
-			if ( !App.user && href!='#/login' ) {
+			if ( !App.user && href!='#/login' && href!='#/registration') {
 				this.navigate('#/login', {trigger: true})
 				return false
 			}
