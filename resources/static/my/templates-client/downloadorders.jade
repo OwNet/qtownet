@@ -1,10 +1,13 @@
 each downloadorder in downloadorders
-	.row
-		.span2
-			span #{downloadorder.absolute_uri}
-		.span2.offset1
-			span #{new Date(downloadorder.date).toLocaleDateString()}
-		.span1
-			span #{downloadorder.completed}
-		.span2
-			a( href="#/showdownloadorders",data-id="#{downloadorder.id}",name="deleteDO") Delete
+	.message
+		.image-do
+			if (downloadorder.completed == "FALSE")
+				img.icon( src="img/wait.png", title="Waiting")
+			else 
+				img.icon( src="img/yes.png", title="Waiting")
+		.delete
+			img.icon( src="img/no.png", data-id="#{downloadorder.id}",name="deleteDO", title="Delete")
+		.name
+			a(href="#{downloadorder.absolute_uri}", target="_blank") #{downloadorder.absolute_uri}
+		.created
+			label created #{new Date(downloadorder.date).toLocaleString()}

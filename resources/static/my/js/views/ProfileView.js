@@ -31,7 +31,7 @@ define( function (require) {
 				"click input[type=radio]": "onRadioClick",
 				'click a[data-id]' : 'showOtherProfile',
 				'click a[name="showDownloadOrders"]': "showDownloadOrders",
-				'click a[name="deleteDO"]': "deleteDO",
+				'click img[name="deleteDO"]': "deleteDO",
 				/*'click form[name="profile-form"] button[name="update"]': "saveProfile",
 				'click a[name="editprofile"]': "editProfile",
 				'click a[name="ProfilePager"]' : "showMyPage",
