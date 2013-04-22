@@ -3,7 +3,7 @@
 #include "iproxyconnection.h"
 #include "idatabaseupdatequery.h"
 #include "idatabaseselectquery.h"
-
+#include <QDebug>
 #include <QUrl>
 #include <QStringList>
 
@@ -15,6 +15,7 @@ CacheExceptionsManager::CacheExceptionsManager(IProxyConnection *proxyConnection
 
 void CacheExceptionsManager::addException(const QString &url)
 {
+    qDebug() << url;
     QString hostName = getHostName(url);
     if (hostName.isEmpty())
         return;
@@ -30,6 +31,7 @@ void CacheExceptionsManager::addException(const QString &url)
 
 void CacheExceptionsManager::removeException(const QString &url)
 {
+     qDebug() << url;
     QString hostName = getHostName(url);
     if (hostName.isEmpty())
         return;
@@ -43,6 +45,7 @@ void CacheExceptionsManager::removeException(const QString &url)
 
 bool CacheExceptionsManager::isException(const QString &url)
 {
+     qDebug() << url;
     QObject parent;
     IDatabaseSelectQuery *query = m_proxyConnection->databaseSelect("cache_exceptions", &parent);
     query->singleWhere("host", getHostName(url));
@@ -51,6 +54,7 @@ bool CacheExceptionsManager::isException(const QString &url)
 
 QString CacheExceptionsManager::getHostName(const QString &url)
 {
+     qDebug() << url;
     QUrl qurl(url);
     QStringList split = qurl.host().split(".");
 
