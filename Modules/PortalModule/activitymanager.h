@@ -4,6 +4,7 @@
 #include <QObject>
 #include "activity.h"
 #include <QVariant>
+#include <QSqlQuery>
 
 #include "iproxyconnection.h"
 
@@ -25,6 +26,7 @@ public:
     int usersPagesCount(IRequest *req);
 
 private:
+    QSqlQuery buildQuery(IRequest *req, bool count);
     IProxyConnection *m_proxyConnection;
 
 signals:

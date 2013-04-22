@@ -29,6 +29,9 @@ define( function (require) {
 			},
 
 			show: function() {
+				if (this.isShown)
+					return
+
 				if ( App.isUserLogged() ) {
 					App.router.navigate('#/')
 					return
@@ -37,6 +40,10 @@ define( function (require) {
 				this.render()
 			},
 
+			hide: function() {
+				this.$el.html('')
+				this.isShown = false
+			},
 
 			login: function() {
 				var form = Form( $('form[name="login-form"]', this.$el) )
@@ -46,8 +53,7 @@ define( function (require) {
 					login: fields.login,
 					password: fields.password,
 					success: function() {
-						App.showMessage("Login successful", "alert-success" )
-						App.router.navigate('#/profile')
+						App.router.navigate( '' , {trigger: true})
 					},
 					error: function(){ App.showMessage("Login failed") },
 				})
