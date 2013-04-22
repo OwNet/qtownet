@@ -53,8 +53,7 @@ define( function (require) {
 					login: fields.login,
 					password: fields.password,
 					success: function() {
-						App.showMessage("Login successful", "alert-success" )
-						App.router.navigate('#/profile')
+						App.router.navigate( '' , {trigger: true})
 					},
 					error: function(){ App.showMessage("Login failed") },
 				})
