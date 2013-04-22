@@ -118,12 +118,7 @@ define( function (require) {
 		profile: function() {
 			this.activate("#/profile", this.views.profile, function() {
 				this.views.profile.show(App.user ? App.user.id : "0")
-<<<<<<< HEAD
 			})
-=======
-
-
->>>>>>> 372ea7234b2053588407d447a64216c23cb56b54
 		},
 
 		editprofile: function() {
