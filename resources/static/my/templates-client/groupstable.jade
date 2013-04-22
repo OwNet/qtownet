@@ -10,7 +10,10 @@ each group in groups
 		if (group.admin == "0" && group.member == "1" && group.id != "0")
 			.delete
 				img.icon( src="img/no.png" , href="#/groups",data-id="#{group.id}",name="leave", title="Leave")
-		if (group.member != "1")
+		else if (group.member == "awaiting")
+			.delete
+				img.icon( src="img/wait.png" , href="#/groups", title="Waiting") 
+		else if (group.member != "1")
 			.delete
 				img.icon( src="img/plus.png" , href="#/groups",data-id="#{group.id}",name="join", title="Join")
 		.name
