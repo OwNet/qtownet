@@ -47,7 +47,7 @@ IResponse *DownloadOrdersService::del(IRequest *req, uint id)
     query->limit(1);
     if (query->next()) {
         id = query->value("page_hash_to").toInt();
-        IDatabaseUpdateQuery *update = m_proxyConnection->databaseUpdateQuery("prefetch_orders", &parent);
+        IDatabaseUpdateQuery *update = m_proxyConnection->databaseUpdateQuery("prefetch_orders", &parent, false);
         update->singleWhere("page_hash_to", id);
         update->setType(IDatabaseUpdateQuery::Delete);
         update->executeQuery();
