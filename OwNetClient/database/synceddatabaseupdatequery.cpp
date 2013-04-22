@@ -51,7 +51,7 @@ bool SyncedDatabaseUpdateQuery::executeUpdate()
         if (!executeUpdate(uid))
             success = false;
         else
-            saveSyncJournalItem(uid);
+            saveSyncJournalItem(uid, DatabaseSettings().nextClientSyncRecordNumber());
     }
     return success;
 }
@@ -81,7 +81,7 @@ bool SyncedDatabaseUpdateQuery::executeDelete()
         if (!executeDelete(uid))
             success = false;
         else
-            saveSyncJournalItem(uid);
+            saveSyncJournalItem(uid, DatabaseSettings().nextClientSyncRecordNumber());
     }
     return success;
 }
@@ -96,8 +96,6 @@ bool SyncedDatabaseUpdateQuery::executeDelete(const QString &uid) const
 void SyncedDatabaseUpdateQuery::saveSyncJournalItem(const QString &uid, int clientRecNum)
 {
     m_lastUid = uid;
-    if (clientRecNum < 0)
-        clientRecNum = uid.split('_').last().toInt();
 
     DatabaseSettings settings;
     DatabaseUpdateQuery updateQuery("sync_journal");

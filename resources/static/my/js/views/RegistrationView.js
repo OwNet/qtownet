@@ -23,6 +23,7 @@ define( function (require) {
 
 			render: function() {
 				this.$el.html( registraitonTemplate() )
+				this.trigger('render')
 				return this
 			},
 

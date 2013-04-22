@@ -1,5 +1,5 @@
-if(action.pages>1)
-	- for (var page=1; page<=action.pages; page++)
+if(pages>1)
+	- for (var page=1; page<=pages; page++)
 		if (act_page == page)
 			div.page.act-page
 				a( href="#/groups", data-filter="#{filter}", data-id="#{page}", name="groups-page", class="act-page") #{page}

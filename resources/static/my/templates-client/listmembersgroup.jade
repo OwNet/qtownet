@@ -1,4 +1,4 @@
-each user in action
+each user in members
 	.message.member
 		if (user.gender == "Female")
 			.image
@@ -6,18 +6,18 @@ each user in action
 		else
 			.image
 				img( src="img/boy.png" )
-		if (group[0].admin == "1" && user.isAdmin != "1" && user.status == "member")
+		if (group.admin == "1" && user.isAdmin != "1" && user.status == "member")
 			.delete
-				img.icon( src="img/delete.png" , href="#/listMembers",data-id="#{user.id}", data-group="#{group[0].id}", name="delete-member", title="Delete") 
+				img.icon( src="img/delete.png" , href="#/listMembers",data-id="#{user.id}", data-group="#{group.id}", name="delete-member", title="Delete")
 			.edit
-				img.icon( src="img/add.png" , href="#/listMembers",data-id="#{user.id}", data-group="#{group[0].id}", name="add-admin", title="Add admin")
-		if (group[0].admin == "1" && user.isAdmin != "1" && user.status == "awaiting")
+				img.icon( src="img/add.png" , href="#/listMembers",data-id="#{user.id}", data-group="#{group.id}", name="add-admin", title="Add admin")
+		if (group.admin == "1" && user.isAdmin != "1" && user.status == "awaiting")
 			.delete
-				img.icon( src="img/no.png" , href="#/listMembers",data-id="#{user.id}", data-group="#{group[0].id}", name="reject-member", title="Reject") 
+				img.icon( src="img/no.png" , href="#/listMembers",data-id="#{user.id}", data-group="#{group.id}", name="reject-member", title="Reject")
 			.edit
-				img.icon( src="img/yes.png" , href="#/listMembers",data-id="#{user.id}", data-group="#{group[0].id}", name="approve-member", title="Approve")
+				img.icon( src="img/yes.png" , href="#/listMembers",data-id="#{user.id}", data-group="#{group.id}", name="approve-member", title="Approve")
 		.name
-			label.orange 
+			label.orange
 				a( href="#/otherprofile",data-id="#{user.id}",name="showOtherUser" ) #{user.first_name} #{user.last_name}
 		if (user.status == "member")
 			.created
