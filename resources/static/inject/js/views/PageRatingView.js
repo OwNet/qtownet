@@ -50,7 +50,7 @@ define( function (require) {
 
 		onUserRate: function(val) {
 			var model = new PageRatingModel()
-			  , rate = { val: val }
+			  , rate = { val: val, title: App.page.title }
 
 			if (this.stats.id)
 				rate.id = this.stats.id
