@@ -13,7 +13,7 @@ define( function (require) {
 	var RegistrationView = Backbone.View.extend({
 
 			events: {
-				'click form[name="registration-form"] button[name="submit"]': 'registration'
+				'submit form[name="registration-form"]': 'registration'
 			},
 
 			initialize: function() {
@@ -36,7 +36,9 @@ define( function (require) {
 				this.$el.html('')
 			},
 
-			registration: function() {
+			registration: function(e) {
+				e.preventDefault()
+
 				var form = Form( $('form[name="registration-form"]', this.$el) )
 				var data = form.toJSON()
 				var user = new UserModel( data )
