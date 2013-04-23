@@ -23,7 +23,7 @@ define( function (require) {
 	var ProfileView = Backbone.View.extend({
 
 			events: {
-				'click form[name="profile-form"] button[name="update"]': "saveProfile",
+				'submit form[name="profile-form"]': "saveProfile",
 				"click input[type=radio]": "onRadioClick",
 				'click a[data-id]' : 'showOtherProfile',
 				'click a[name="showDownloadOrders"]': "showDownloadOrders",
@@ -82,9 +82,12 @@ define( function (require) {
 			},
 
 
-			saveProfile: function() {
+			saveProfile: function(e) {
+				e.preventDefault()
+
 				var form = Form( $('form[name="profile-form"]', this.$el) )
 				var data = form.toJSON()
+				var user = new UserModel( data )
 
 				App.user.save(data, {
 					wait: true,
@@ -128,7 +131,7 @@ define( function (require) {
 
 				action.fetch({
 					success: function() {
-						$('div#pager').html( pagerDownloadTemplate({action :action.toJSON(), current :page}))
+						$('div#pager').html( pagerDownloadTemplate({action :action.toJSON(), page :page}))
 					},
 					error: function() {
 
