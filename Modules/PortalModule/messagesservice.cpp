@@ -362,6 +362,7 @@ IResponse *MessagesService::show(IRequest *req, const QString &uid)
             message.insert("last_name", query.value(query.record().indexOf("last_name")).toString());
             message.insert("date_created", query.value(query.record().indexOf("date_created")).toString());
             message.insert("user_id", query.value(query.record().indexOf("user_id")).toString());
+            message.insert("group_id", query.value(query.record().indexOf("group_id")));
             message.insert("parent_id", query.value(query.record().indexOf("parent_id")).toString());
             message.insert("uid", query.value(query.record().indexOf("uid")).toString());
             message.insert("type", "message");
@@ -370,7 +371,7 @@ IResponse *MessagesService::show(IRequest *req, const QString &uid)
 
 
         query.prepare("SELECT * FROM messages JOIN users ON users.id = messages.user_id WHERE group_id = :group_id AND "
-                      "parent_id = :parent_id  ORDER BY date_created DESC");
+                      "parent_id = :parent_id  ORDER BY date_created ASC");
         query.bindValue(":group_id",group_id);
         query.bindValue(":parent_id", uid);
 
@@ -392,20 +393,18 @@ IResponse *MessagesService::show(IRequest *req, const QString &uid)
             comment.insert("first_name", query.value(query.record().indexOf("first_name")));
             comment.insert("last_name", query.value(query.record().indexOf("last_name")));
             comment.insert("user_id", query.value(query.record().indexOf("user_id")));
+            comment.insert("group_id", query.value(query.record().indexOf("group_id")));
             comment.insert("date_created", query.value(query.record().indexOf("date_created")));
             comment.insert("parent_id", query.value(query.record().indexOf("parent_id")));
             comment.insert("uid", query.value(query.record().indexOf("uid")));
             comment.insert("type", "comment");
 
             comments.append(comment);
-        }
-        QVariantList response;
+        }        
 
-        if(!comments.empty())
-            message.insert("comments",comments);
-        response.append(message);
+         message.insert("comments",comments);
 
-        return req->response(QVariant(response), IResponse::OK);
+        return req->response(QVariant(message), IResponse::OK);
     }
 
     else{
