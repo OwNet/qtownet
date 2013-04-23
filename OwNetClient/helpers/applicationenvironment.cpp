@@ -1,6 +1,7 @@
 #include "applicationenvironment.h"
 
 #include "settings.h"
+#include "cachehelper.h"
 
 #include <QDebug>
 
@@ -24,5 +25,11 @@ void ApplicationEnvironment::init()
     if (contains("LISTEN_PORT")) {
         qDebug() << value("LISTEN_PORT");
         Settings::setTemporaryListenPort(value("LISTEN_PORT", "8081").toInt());
+    }
+    if (contains("DONT_USE_DB_FOR_CACHE")) {
+        CacheHelper::setCanUseDatabase(false);
+    }
+    if (contains("DONT_WRITE_TO_CACHE")) {
+        CacheHelper::setCanWriteToCache(false);
     }
 }

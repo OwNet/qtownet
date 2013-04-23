@@ -15,6 +15,7 @@
 #include "session.h"
 #include "databaseupdatequery.h"
 #include "cacheexceptions.h"
+#include "cachehelper.h"
 
 ProxyDownloads *ProxyDownloads::m_instance = 0;
 
@@ -64,7 +65,9 @@ ProxyDownload *ProxyDownloads::proxyDownload(ProxyRequest *request, ProxyHandler
 
     if (inputObject) {
         /// Create a cache output writer if the input source is Web and there is no exception for the url
-        if (inputObject->inputType() == ProxyInputObject::Web && !m_cacheExceptions->containsExceptionFor(request->url()))
+        if (inputObject->inputType() == ProxyInputObject::Web
+                && CacheHelper::canWriteToCache()
+                && !m_cacheExceptions->containsExceptionFor(request->url()))
             connectDownloadAndOutputWriter(download,
                                            new ProxyCacheOutputWriter(download, download->registerReader(), handlerSession));
 

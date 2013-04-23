@@ -9,26 +9,29 @@
 #include "jsondocument.h"
 #include "gdsfclock.h"
 #include "proxydownloads.h"
+#include "cachehelper.h"
 
 ProxyCacheInputObject::ProxyCacheInputObject(ProxyRequest *request, QObject *parent)
     : ProxyInputObject(request, parent), m_exists(false), m_numParts(0)
 {
-    QSqlQuery query;
-    query.prepare("SELECT * FROM caches WHERE id = :id");
-    query.bindValue(":id", request->hashCode());
-    if (query.exec() && query.next()) {
-        m_exists = true;
-        m_numParts = query.value(query.record().indexOf("num_parts")).toInt();
-
-        int accessCount = query.value(query.record().indexOf("access_count")).toInt() + 1;
-        long size = query.value(query.record().indexOf("size")).toLongLong();
-
-        query.prepare("UPDATE caches SET access_count = :access_count, access_value = :access_value "
-                      "WHERE id = :id");
+    if (CacheHelper::canUseDatabase()) {
+        QSqlQuery query;
+        query.prepare("SELECT * FROM caches WHERE id = :id");
         query.bindValue(":id", request->hashCode());
-        query.bindValue(":access_count", accessCount);
-        query.bindValue(":access_value", ProxyDownloads::instance()->gdsfClock()->getGDSFPriority(accessCount, size));
-        query.exec();
+        if (query.exec() && query.next()) {
+            m_exists = true;
+            m_numParts = query.value(query.record().indexOf("num_parts")).toInt();
+
+            int accessCount = query.value(query.record().indexOf("access_count")).toInt() + 1;
+            long size = query.value(query.record().indexOf("size")).toLongLong();
+
+            query.prepare("UPDATE caches SET access_count = :access_count, access_value = :access_value "
+                          "WHERE id = :id");
+            query.bindValue(":id", request->hashCode());
+            query.bindValue(":access_count", accessCount);
+            query.bindValue(":access_value", ProxyDownloads::instance()->gdsfClock()->getGDSFPriority(accessCount, size));
+            query.exec();
+        }
     }
 
     QFile *file = CacheFolder().cacheFile(m_request, 0);

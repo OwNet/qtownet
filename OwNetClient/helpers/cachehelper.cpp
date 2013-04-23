@@ -2,6 +2,9 @@
 
 #include <QHash>
 
+bool CacheHelper::m_canUseDatabase = true;
+bool CacheHelper::m_canWriteToCache = true;
+
 CacheHelper::CacheHelper(QObject *parent) :
     QObject(parent)
 {
