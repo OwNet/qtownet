@@ -8,6 +8,8 @@ each downloadorder in downloadorders
 		.delete
 			img.icon( src="img/no.png", data-id="#{downloadorder.id}",name="deleteDO", title="Delete")
 		.name
-			a(href="#{downloadorder.absolute_uri}", target="_blank") #{downloadorder.absolute_uri}
+			- var uri = downloadorder.absolute_uri
+			- var cleanuri = uri.split("http://")
+			a(href="#{downloadorder.absolute_uri}", target="_blank") #{cleanuri[1]}
 		.created
 			label created #{new Date(downloadorder.date).toLocaleString()}

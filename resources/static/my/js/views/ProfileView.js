@@ -27,6 +27,7 @@ define( function (require) {
 				"click input[type=radio]": "onRadioClick",
 				'click a[data-id]' : 'showOtherProfile',
 				'click a[name="showDownloadOrders"]': "showDownloadOrders",
+				'click a[name="downpager"]': "showDO",
 				'click img[name="deleteDO"]': "deleteDO",
 			},
 
@@ -50,6 +51,11 @@ define( function (require) {
 				})
 
 				return this
+			},
+
+			showDO: function(e){
+				var page = $(e.currentTarget).data("id");
+				this.showDownloadOrders(page)
 			},
 
 			edit: function(){
@@ -117,9 +123,10 @@ define( function (require) {
 
 				var downloadorders = new downloadOrdersCollection()
 
-				downloadorders.fetch({page:page,
+				downloadorders.fetch({data:{page:page},
 					success: function() {
 						$('div#activities').html( downloadOrdersTemplate({downloadorders: downloadorders.toJSON()}))
+						$('div#stats').html( profileStatsTemplate({user :App.user.toJSON(), current: true}))
 					},
 					error: function(){
 						App.showMessage("Error reading downloadorders")
@@ -127,18 +134,18 @@ define( function (require) {
 				})
 
 				var action = new Action()
-
+				var actpage = page
 
 				action.fetch({
 					success: function() {
-						$('div#pager').html( pagerDownloadTemplate({action :action.toJSON(), page :page}))
+						$('div#pager').html( pagerDownloadTemplate({action :action.toJSON(), page :page, actpage: actpage}))
 					},
 					error: function() {
 
 					},
 				})
 
-				this.$el.html( profileTemplate({user: App.user.toJSON()}) )
+				this.$el.html( profileTemplate({user: App.user.toJSON(), current: true}) )
 				return this
 
 			},
