@@ -1,0 +1,22 @@
+.left.messages-left
+	.span6.title
+		img( src="img/ownet.png" )
+	.links
+		.link.active
+			a(data-filter="all")
+				img(src="img/icon48.png", class="icon")
+				label: b All files
+		.link
+			a(data-filter="my")
+				img(src="img/boy.png", class="icon")
+				label: b My files
+	.links.links-second
+		.link
+			a( href="#/files/upload")
+				img(src="img/plus.png", class="icon")
+				label Upload file
+.right.messages-right
+	#upload_file.create-message
+		include upload_file
+
+	#newsfeed_list.list-message

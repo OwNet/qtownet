@@ -12,6 +12,7 @@ define( function (require) {
 	  , GroupView = require('views/GroupView')
 	  , ProfileView = require( 'views/ProfileView' )
 	  , NewsFeedView = require( 'views/NewsFeedView' )
+	  , FilesView = require( 'views/FilesView')
 
 
 	var Router  = Backbone.Router.extend({
@@ -26,6 +27,7 @@ define( function (require) {
 				group: new GroupView({ el:$("#group") }),
 				newsfeed: new NewsFeedView({el: $("#newsfeed")}),
 				profile: new ProfileView({ el:$("#profile") }),
+				files: new FilesView({ el:$("#files") }),
 			}
 
 			this.$content = $('#content')
@@ -55,6 +57,9 @@ define( function (require) {
 			'group/:id/show': "showgroup",
 			'group/:id/edit' : "editgroup",
 			'group/:id/members' : "groupmembers",
+
+			'files' : "files",
+			'files/upload' : "upload"
 		},
 
 		activate: function(href, view, fn) {
@@ -182,7 +187,20 @@ define( function (require) {
 			this.activate("#/groups", this.views.group, function() {
 				this.views.group.members(id)
 			})
-		}
+		},
+
+		files: function() {
+			this.activate("#/files", this.views.files, function() {
+				this.views.files.show()
+			})
+		},
+
+		upload: function() {
+			this.activate("#/files", this.views.files, function() {
+				this.views.files.show()
+				this.views.files.upload()
+			})
+		},
 
 	});
 
