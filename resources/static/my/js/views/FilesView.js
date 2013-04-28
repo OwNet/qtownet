@@ -41,7 +41,7 @@ define( function (require) {
 				// return this
 			},
 
-			uploadMe: function() {
+			uploadMe: function(e) {
 				var $input = $('#upload-box');
 				console.log($input)
     			$.ajax('/api/files',{
