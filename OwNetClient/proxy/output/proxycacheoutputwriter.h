@@ -18,6 +18,8 @@ public:
         MaxFileSize = 524288 // 0.5 MB
     };
 
+    static void saveToCache(uint hashCode, const QString &url, int numParts, qint64 size, int numAccesses);
+
 protected:
     void virtualClose();
     void read(QIODevice *ioDevice);

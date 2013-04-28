@@ -1,0 +1,21 @@
+#ifndef SHAREDFILESSERVICE_H
+#define SHAREDFILESSERVICE_H
+
+#include "iuidrestservice.h"
+
+class IProxyConnection;
+
+class SharedFilesService : public IUidRestService
+{
+public:
+    void init(IRouter* router);
+
+    QString name() const { return "files"; }
+
+    IResponse *create(IRequest *req);
+    //IResponse *show(IRequest *req, const QString &uid);
+    //IResponse *index(IRequest *req);
+    //IResponse *del(IRequest *req, const QString &uid);
+};
+
+#endif // SHAREDFILESSERVICE_H

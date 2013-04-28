@@ -58,6 +58,9 @@ public:
     quint16 peerPort() const { return m_peerPort; }
 
     RequestReader *requestReader() { return m_requestReader; }
+    QString multipartContentTempFilePath() const { return m_multipartContentTempFilePath; }
+
+    IProxyConnection *proxyConnection();
 
 protected:
     void setUrl(const QUrl &url);
@@ -82,6 +85,7 @@ private:
     QString m_peerAddress;
     quint16 m_peerPort;
     RequestReader *m_requestReader;
+    QString m_multipartContentTempFilePath;
 
     friend class ProxyInitializer;
 };

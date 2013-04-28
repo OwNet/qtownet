@@ -2,6 +2,7 @@
 
 #include "applicationdatastorage.h"
 #include "proxyrequest.h"
+#include "cachehelper.h"
 
 CacheFolder::CacheFolder()
     : QDir()
@@ -29,12 +30,17 @@ long CacheFolder::cacheReserveSize()
     return maximumSize() / 10;
 }
 
-QFile *CacheFolder::cacheFile(ProxyRequest *request, int part, QObject *parent)
+QFile *CacheFolder::cacheFile(const QString &url, int part, QObject *parent) const
+{
+    return cacheFile(CacheHelper::cacheId(url), part, parent);
+}
+
+QFile *CacheFolder::cacheFile(ProxyRequest *request, int part, QObject *parent) const
 {
     return cacheFile(request->hashCode(), part, parent);
 }
 
-QFile *CacheFolder::cacheFile(uint id, int part, QObject *parent)
+QFile *CacheFolder::cacheFile(uint id, int part, QObject *parent) const
 {
     return new QFile(absoluteFilePath(QString("%1-%2.cache")
                             .arg(id)

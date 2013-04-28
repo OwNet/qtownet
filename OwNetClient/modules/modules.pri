@@ -23,7 +23,8 @@ HEADERS  += $${OwNetClientPath}/modules/interfaces/imodule.h \
     $${OwNetClientPath}/modules/response.h \
     $${OwNetClientPath}/modules/interfaces/isynceddatabaseupdatequery.h \
     $${OwNetClientPath}/modules/interfaces/idatabaseupdatelistener.h \
-    $${OwNetClientPath}/modules/interfaces/iuidrestservice.h
+    $${OwNetClientPath}/modules/interfaces/iuidrestservice.h \
+    modules/interfaces/icachefolder.h
 
 INCLUDEPATH += $${OwNetClientPath}/modules \
     $${OwNetClientPath}/modules/interfaces

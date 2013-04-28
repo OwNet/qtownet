@@ -9,6 +9,7 @@
 #include "historyservice.h"
 #include "recommendationsservice.h"
 #include "activitiesservice.h"
+#include "sharedfilesservice.h"
 
 void PortalModule::init(IProxyConnection *proxyConnection)
 {            
@@ -19,6 +20,7 @@ void PortalModule::init(IProxyConnection *proxyConnection)
     proxyConnection->registerRestService( new UsersService(proxyConnection,this) );
     proxyConnection->registerUidRestService( new SessionService(proxyConnection,this) );
     proxyConnection->registerUidRestService( new ActivitiesService(proxyConnection,this) );
+    proxyConnection->registerUidRestService( new SharedFilesService );
 
     proxyConnection->registerService( new HistoryService(proxyConnection,this) );
 

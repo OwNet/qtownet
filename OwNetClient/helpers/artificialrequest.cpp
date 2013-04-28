@@ -1,6 +1,8 @@
 #include "artificialrequest.h"
 #include "response.h"
 
+#include "proxyconnection.h"
+
 ArtificialRequest::ArtificialRequest(IRequest::RequestType requestType, const QString &service, const QString &url, QObject *parent) :
     QObject(parent),
     m_requestType(requestType),
@@ -46,4 +48,9 @@ IResponse *ArtificialRequest::response(const QVariant body, IResponse::Status st
 IResponse *ArtificialRequest::response(IResponse::Status status)
 {
     return (new Response())->setStatus(status);
+}
+
+IProxyConnection *ArtificialRequest::proxyConnection()
+{
+    return new ProxyConnection(this);
 }
