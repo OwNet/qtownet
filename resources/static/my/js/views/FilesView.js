@@ -4,6 +4,7 @@ define( function (require) {
 
 	var App = require("App")
 	  , Backbone = require("backbone")
+	  , JIframe = require("jiframe")
 	  , MessageModel = require('share/models/MessageModel')
 	  , ActivitiesView = require('views/ActivitiesView')
 
@@ -14,8 +15,8 @@ define( function (require) {
 
 			events: {
 				'click a[data-filter]' : 'onFilterClick',
-				'click form[name="file-upload-form"] button[name="upload-file"]': 'startUploading',
-				'change input[name="selectfile"]' : 'fileSelected',
+				// 'click form[name="file-upload-form"] button[name="upload-file"]': 'startUploading',
+				'change input[name="selectfile"]' : 'uploadMe',
 			},
 
 			initialize: function(opts) {
@@ -38,6 +39,20 @@ define( function (require) {
 				$("#upload_file").show()
 				$("#newsfeed_list").hide()
 				// return this
+			},
+
+			uploadMe: function(e) {
+				var $input = $('#upload-box');
+				console.log($input)
+    			$.ajax('/api/files',{
+    				files: $input,
+    				type:'POST',
+    				iframe: true,
+    				dataType:'json',
+    				
+    			}).error(function(data) {
+		            console.log(data);
+        		});
 			},
 
 			fileSelected: function() {
