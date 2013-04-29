@@ -19,6 +19,7 @@ public:
 
     void saveFileToCache();
     QVariantList listAvailableFiles();
+    void removeFile(const QString &uid);
 
 private:
     QByteArray getValueFor(QFile *tempFile, const QString &key, bool findFileName);

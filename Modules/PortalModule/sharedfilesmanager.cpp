@@ -71,6 +71,7 @@ QVariantList SharedFilesManager::listAvailableFiles()
             continue;
 
         QVariantMap info;
+        info.insert("uid", query->value("uid").toString());
         info.insert("title", query->value("title").toString());
         info.insert("description", query->value("description").toString());
         info.insert("url", query->value("url").toString());
@@ -80,6 +81,14 @@ QVariantList SharedFilesManager::listAvailableFiles()
     }
 
     return results;
+}
+
+void SharedFilesManager::removeFile(const QString &uid)
+{
+    IDatabaseUpdateQuery *query = m_proxyConnection->databaseUpdateQuery("shared_files", this);
+    query->setType(IDatabaseUpdateQuery::Delete);
+    query->singleWhere("uid", uid);
+    query->executeQuery();
 }
 
 QByteArray SharedFilesManager::getValueFor(QFile *tempFile, const QString &key, bool findFileName)

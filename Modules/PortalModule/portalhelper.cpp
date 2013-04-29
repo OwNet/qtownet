@@ -6,7 +6,8 @@
 #include <QByteArray>
 #include <QSqlQuery>
 
-
+#include "isession.h"
+#include "iproxyconnection.h"
 
 PortalHelper::PortalHelper(QObject *parent) :
     QObject(parent)
@@ -26,4 +27,8 @@ void PortalHelper::addSalt(QString *password, QString *salt)
 
 }
 
-
+bool PortalHelper::isLoggedIn(IProxyConnection *proxyConnection)
+{
+    QObject parent;
+    return !(proxyConnection->session(&parent)->value("logged").toString().isEmpty());
+}

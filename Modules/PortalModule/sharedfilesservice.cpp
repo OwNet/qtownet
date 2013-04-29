@@ -3,7 +3,9 @@
 #include "irequest.h"
 #include "sharedfilesmanager.h"
 #include "iproxyconnection.h"
+#include "isession.h"
 #include "sharedfilesmanager.h"
+#include "portalhelper.h"
 
 void SharedFilesService::init(IRouter *router)
 {
@@ -12,6 +14,9 @@ void SharedFilesService::init(IRouter *router)
 IResponse *SharedFilesService::create(IRequest *req)
 {
     IProxyConnection *proxyConnection = req->proxyConnection();
+    if (!PortalHelper::isLoggedIn(proxyConnection))
+        return req->response(IResponse::UNAUTHORIEZED);
+
     SharedFilesManager manager(req->multipartContentTempFilePath(), proxyConnection);
     manager.saveFileToCache();
 
@@ -20,6 +25,20 @@ IResponse *SharedFilesService::create(IRequest *req)
 
 IResponse *SharedFilesService::index(IRequest *req)
 {
-    SharedFilesManager manager(req->proxyConnection());
+    IProxyConnection *proxyConnection = req->proxyConnection();
+    if (!PortalHelper::isLoggedIn(proxyConnection))
+        return req->response(IResponse::UNAUTHORIEZED);
+
+    SharedFilesManager manager(proxyConnection);
     return req->response(manager.listAvailableFiles());
+}
+
+IResponse *SharedFilesService::del(IRequest *req, const QString &uid)
+{
+    IProxyConnection *proxyConnection = req->proxyConnection();
+    if (!PortalHelper::isLoggedIn(proxyConnection))
+        return req->response(IResponse::UNAUTHORIEZED);
+
+    SharedFilesManager manager(proxyConnection);
+    manager.removeFile(uid);
 }
