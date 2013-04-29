@@ -42,6 +42,7 @@ public:
 
     uint hashCode() const;
 
+    QString domain() const { return m_domain; }
     QString subDomain() const { return m_subDomain; }
     QString service() const { return isLocalRequest() ? m_service : QString(); }
     QString staticResourcePath() const;

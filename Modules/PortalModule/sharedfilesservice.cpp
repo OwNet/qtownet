@@ -13,7 +13,7 @@ IResponse *SharedFilesService::create(IRequest *req)
 {
     IProxyConnection *proxyConnection = req->proxyConnection();
     SharedFilesManager manager(req->multipartContentTempFilePath(), proxyConnection);
-    manager.saveFileToCache("selectfile");
+    manager.saveFileToCache();
 
-    return req->response();
+    return req->response(IResponse::OK);
 }

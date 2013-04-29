@@ -18,22 +18,45 @@ SharedFilesManager::SharedFilesManager(const QString &tempFileName, IProxyConnec
 {
 }
 
-QString SharedFilesManager::saveFileToCache(const QString &inputName)
+void SharedFilesManager::saveFileToCache()
 {
     m_proxyConnection->message(m_tempFileName);
     if (m_tempFileName.isEmpty())
-        return QString();
+        return;
     QFile tempFile(m_tempFileName);
     tempFile.open(QFile::ReadOnly);
 
-    QByteArray firstLine = tempFile.readLine();
+    QByteArray fileContent = getValueFor(&tempFile, "selectfile", true);
+    m_title = QString(getValueFor(&tempFile, "title", false).trimmed());
+    m_description = QString(getValueFor(&tempFile, "description", false).trimmed());
 
+    if (!fileContent.isEmpty()) {
+        ICacheFolder *folder = m_proxyConnection->cacheFolder();
+        QString url = createUrl(m_fileName);
+        QFile *cacheFile = folder->cacheFile(url, 0, this);
+        int size = fileContent.size();
+
+        cacheFile->open(QFile::WriteOnly);
+
+        cacheFile->write("HTTP/1.1 200 OK\r\n");
+        cacheFile->write(QString("Content-Type: %1\r\n").arg(m_contentType).toUtf8());
+        cacheFile->write(QString("Content-Length: %1\r\n").arg(size).toUtf8());
+        cacheFile->write("\r\n");
+
+        cacheFile->write(fileContent);
+        cacheFile->flush();
+        cacheFile->close();
+
+        saveToDatabase(url, size);
+    }
+}
+
+QByteArray SharedFilesManager::getValueFor(QFile *tempFile, const QString &key, bool findFileName)
+{
+    tempFile->seek(0);
+    QByteArray firstLine = tempFile->readLine();
     QByteArray fileContent;
-    QString fileName;
-    QString contentType;
-    QString url;
 
-    /// Find the part with the file
     enum ReadState {
         LookingForBoundary,
         ReadingFile,
@@ -41,8 +64,8 @@ QString SharedFilesManager::saveFileToCache(const QString &inputName)
     };
     ReadState readState = LookingForBoundary;
 
-    while (!tempFile.atEnd()) {
-        QByteArray line = tempFile.readLine();
+    while (!tempFile->atEnd()) {
+        QByteArray line = tempFile->readLine();
         bool breakWhile = false;
 
         switch (readState) {
@@ -53,11 +76,13 @@ QString SharedFilesManager::saveFileToCache(const QString &inputName)
             if (line.startsWith("Content-")) {
                 QString lineStr = QString(line).toLower();
                 if (lineStr.startsWith("content-disposition") && lineStr.contains(QString("name=\"%1\"")
-                                                                                  .arg(inputName.toLower()))) {
-                    lineStr = QString(line);
-                    fileName = lineStr.split("filename=\"").last().split("\"").first();
-                    if (fileName.isEmpty())
-                        break;
+                                                                                  .arg(key.toLower()))) {
+                    if (findFileName) {
+                        lineStr = QString(line);
+                        m_fileName = lineStr.split("filename=\"").last().split("\"").first();
+                        if (m_fileName.isEmpty())
+                            break;
+                    }
 
                     readState = ReadingHeaders;
                 }
@@ -65,12 +90,12 @@ QString SharedFilesManager::saveFileToCache(const QString &inputName)
             break;
 
         case ReadingHeaders:
-            if (line.startsWith("Content-")) {
+            if (findFileName && line.startsWith("Content-")) {
                 QString lineStr = QString(line).toLower();
                 if (lineStr.startsWith("content-type")) {
                     QStringList split = QString(line).split(":");
                     split.takeFirst();
-                    contentType = split.join(":").trimmed();
+                    m_contentType = split.join(":").trimmed();
                 }
             } else if (line.trimmed().isEmpty()) {
                 readState = ReadingFile;
@@ -91,27 +116,9 @@ QString SharedFilesManager::saveFileToCache(const QString &inputName)
             break;
     }
 
-    if (readState == ReadingFile) {
-        ICacheFolder *folder = m_proxyConnection->cacheFolder();
-        url = createUrl(fileName);
-        QFile *cacheFile = folder->cacheFile(url, 0, this);
-        int size = fileContent.size();
-
-        cacheFile->open(QFile::WriteOnly);
-
-        cacheFile->write("HTTP/1.1 200 OK\r\n");
-        cacheFile->write(QString("Content-Type: %1\r\n").arg(contentType).toUtf8());
-        cacheFile->write(QString("Content-Length: %1\r\n").arg(size).toUtf8());
-        cacheFile->write("\r\n");
-
-        cacheFile->write(fileContent);
-        cacheFile->flush();
-        cacheFile->close();
-
-        saveToDatabase(url, contentType, size);
-    }
-
-    return url;
+    if (readState == ReadingFile)
+        return fileContent;
+    return QByteArray();
 }
 
 QString SharedFilesManager::createUrl(const QString &fileName)
@@ -122,16 +129,16 @@ QString SharedFilesManager::createUrl(const QString &fileName)
             .arg(QString(QUrl::toPercentEncoding(fileName)));
 }
 
-void SharedFilesManager::saveToDatabase(const QString &url, const QString &contentType, qint64 size)
+void SharedFilesManager::saveToDatabase(const QString &url, qint64 size)
 {
+    m_proxyConnection->saveToCache(url, 1, size, 10);
+
     IDatabaseUpdateQuery *updateQuery = m_proxyConnection->databaseUpdateQuery("shared_files");
     updateQuery->setColumnValue("url", url);
     updateQuery->setColumnValue("title", m_title);
     updateQuery->setColumnValue("description", m_description);
     updateQuery->setColumnValue("cache_id", m_proxyConnection->cacheId(url));
-    updateQuery->setColumnValue("content_type", contentType);
+    updateQuery->setColumnValue("content_type", m_contentType);
     updateQuery->setUpdateDates(true);
     updateQuery->executeQuery();
-
-    m_proxyConnection->saveToCache(url, 1, size, 10);
 }

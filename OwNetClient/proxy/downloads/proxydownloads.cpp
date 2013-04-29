@@ -173,9 +173,8 @@ ProxyInputObject *ProxyDownloads::newInputObject(ProxyRequest *request, ProxyHan
         inputObject = new ProxyRequestBus(request, handlerSession);
     } else {
         QVariantMap availableClients = Session().availableClients();
-        Session session;
 
-        if (!session.isRefreshSession() && !request->isRefreshRequest() && !m_cacheExceptions->containsExceptionFor(request->url())) {
+        if (!shouldRefresh(request) && !m_cacheExceptions->containsExceptionFor(request->url())) {
             bool isOnline = Session().isOnline();
 
             if (m_cacheLocations.contains(request->hashCode())) {
@@ -242,4 +241,12 @@ void ProxyDownloads::addCacheLocation(uint cacheId, const QString &clientId, con
         locations->addLocation(clientId, dateCreated);
         m_cacheLocations.insert(cacheId, locations);
     }
+}
+
+bool ProxyDownloads::shouldRefresh(ProxyRequest *request)
+{
+    if (request->domain() == "local")
+        return false;
+
+    return Session().isRefreshSession() || request->isRefreshRequest();
 }
