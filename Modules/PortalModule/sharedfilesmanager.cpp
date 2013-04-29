@@ -62,7 +62,7 @@ QVariantList SharedFilesManager::listAvailableFiles()
 {
     QObject parent;
     IDatabaseSelectQuery *query = m_proxyConnection->databaseSelect("shared_files", &parent);
-    query->orderBy("date_created", IDatabaseSelectQuery::Descending);
+    query->orderBy("title");
 
     QVariantList results;
 
