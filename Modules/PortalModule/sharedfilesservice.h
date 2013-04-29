@@ -13,9 +13,7 @@ public:
     QString name() const { return "files"; }
 
     IResponse *create(IRequest *req);
-    //IResponse *show(IRequest *req, const QString &uid);
-    //IResponse *index(IRequest *req);
-    //IResponse *del(IRequest *req, const QString &uid);
+    IResponse *index(IRequest *req);
 };
 
 #endif // SHAREDFILESSERVICE_H

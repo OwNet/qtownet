@@ -1,7 +1,7 @@
 #include "sharedfilesservice.h"
 
 #include "irequest.h"
-#include "multipartformreader.h"
+#include "sharedfilesmanager.h"
 #include "iproxyconnection.h"
 #include "sharedfilesmanager.h"
 
@@ -16,4 +16,10 @@ IResponse *SharedFilesService::create(IRequest *req)
     manager.saveFileToCache();
 
     return req->response(IResponse::OK);
+}
+
+IResponse *SharedFilesService::index(IRequest *req)
+{
+    SharedFilesManager manager(req->proxyConnection());
+    return req->response(manager.listAvailableFiles());
 }

@@ -1,4 +1,4 @@
-#include "multipartformreader.h"
+#include "sharedfilesmanager.h"
 
 #include "iproxyconnection.h"
 #include "icachefolder.h"
@@ -10,6 +10,12 @@
 #include <QStringList>
 #include <QBuffer>
 #include <QUrl>
+
+SharedFilesManager::SharedFilesManager(IProxyConnection *proxyConnection, QObject *parent) :
+    QObject(parent),
+    m_proxyConnection(proxyConnection)
+{
+}
 
 SharedFilesManager::SharedFilesManager(const QString &tempFileName, IProxyConnection *proxyConnection, QObject *parent) :
     QObject(parent),
@@ -23,6 +29,7 @@ void SharedFilesManager::saveFileToCache()
     m_proxyConnection->message(m_tempFileName);
     if (m_tempFileName.isEmpty())
         return;
+
     QFile tempFile(m_tempFileName);
     tempFile.open(QFile::ReadOnly);
 
@@ -49,6 +56,30 @@ void SharedFilesManager::saveFileToCache()
 
         saveToDatabase(url, size);
     }
+}
+
+QVariantList SharedFilesManager::listAvailableFiles()
+{
+    QObject parent;
+    IDatabaseSelectQuery *query = m_proxyConnection->databaseSelect("shared_files", &parent);
+    query->orderBy("date_created", IDatabaseSelectQuery::Descending);
+
+    QVariantList results;
+
+    while (query->next()) {
+        if (!m_proxyConnection->isCacheAvailable(query->value("cache_id").toUInt()))
+            continue;
+
+        QVariantMap info;
+        info.insert("title", query->value("title").toString());
+        info.insert("description", query->value("description").toString());
+        info.insert("url", query->value("url").toString());
+        info.insert("date_created", query->value("date_created").toString());
+        info.insert("content_type", query->value("content_type").toString());
+        results.append(info);
+    }
+
+    return results;
 }
 
 QByteArray SharedFilesManager::getValueFor(QFile *tempFile, const QString &key, bool findFileName)

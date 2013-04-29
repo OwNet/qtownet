@@ -167,3 +167,8 @@ void ProxyConnection::saveToCache(const QString &url, int numParts, qint64 size,
 {
     ProxyCacheOutputWriter::saveToCache(CacheHelper::cacheId(url), url, numParts, size, numAccesses);
 }
+
+bool ProxyConnection::isCacheAvailable(uint cacheId) const
+{
+    return ProxyDownloads::instance()->isCacheAvailable(cacheId);
+}

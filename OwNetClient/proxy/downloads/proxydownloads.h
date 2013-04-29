@@ -52,6 +52,7 @@ public:
     void tableUpdated(IDatabaseUpdateQuery *query);
 
     bool containsCacheLocation(uint cacheId, const QString &clientId) const;
+    bool isCacheAvailable(uint cacheId) const;
 
 private:
     ProxyDownloads();

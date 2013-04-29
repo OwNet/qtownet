@@ -40,7 +40,6 @@ HEADERS        += portalmodule.h \
     ratingmanager.h \
     recommendationmanager.h \
     sharedfilesservice.h \
-    multipartformreader.h \
     sharedfilesmanager.h \
     sharedfilesupdatelistener.h
 

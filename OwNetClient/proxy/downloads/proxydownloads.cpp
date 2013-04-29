@@ -145,6 +145,26 @@ bool ProxyDownloads::containsCacheLocation(uint cacheId, const QString &clientId
     return m_cacheLocations.value(cacheId)->containsLocation(clientId);
 }
 
+bool ProxyDownloads::isCacheAvailable(uint cacheId) const
+{
+    if (m_cacheLocations.contains(cacheId)) {
+        QVariantMap availableClients = Session().availableClients();
+        QList<ProxyCacheLocation*> locations = m_cacheLocations.value(cacheId)->sortedLocations();
+
+        foreach (ProxyCacheLocation *location, locations) {
+            if (location->isLocalCache())
+                return true;
+
+            if (location->isWeb())
+                continue;
+
+            if (availableClients.contains(location->clientId()))
+                return true;
+        }
+    }
+    return false;
+}
+
 ProxyDownloads::ProxyDownloads()
     : m_proxyPort(-1)
 {

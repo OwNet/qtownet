@@ -1,21 +1,36 @@
-#ifndef SHAREDFILESHELPER_H
-#define SHAREDFILESHELPER_H
+#ifndef SHAREDFILESMANAGER_H
+#define SHAREDFILESMANAGER_H
 
 #include <QObject>
 
 class IProxyConnection;
+class QFile;
 
-class SharedFilesHelper : public QObject
+class SharedFilesManager : public QObject
 {
     Q_OBJECT
 public:
-    explicit SharedFilesHelper(IProxyConnection *proxyConnection, QObject *parent = 0);
+    enum {
+        ItemsPerPage = 20
+    };
 
-    QString url(const QString &fileName) const;
-    void saveToDatabase(const QString &url, const QString &title, const QString &description);
+    explicit SharedFilesManager(IProxyConnection *proxyConnection, QObject *parent = 0);
+    explicit SharedFilesManager(const QString &tempFileName, IProxyConnection *proxyConnection, QObject *parent = 0);
+
+    void saveFileToCache();
+    QVariantList listAvailableFiles();
 
 private:
+    QByteArray getValueFor(QFile *tempFile, const QString &key, bool findFileName);
+    QString createUrl(const QString &fileName);
+    void saveToDatabase(const QString &url, qint64 size);
+
+    QString m_tempFileName;
+    QString m_fileName;
+    QString m_title;
+    QString m_description;
+    QString m_contentType;
     IProxyConnection *m_proxyConnection;
 };
 
-#endif // SHAREDFILESHELPER_H
+#endif // SHAREDFILESMANAGER_H
