@@ -59,6 +59,7 @@ define( function (require) {
 			'group/:id/members' : "groupmembers",
 
 			'files' : "files",
+			'files/filter/:filter' : 'filterfiles',
 			'files/upload' : "upload"
 		},
 
@@ -192,12 +193,21 @@ define( function (require) {
 		files: function() {
 			this.activate("#/files", this.views.files, function() {
 				this.views.files.show()
+				this.views.files.showFiles('all',1)
+			})
+		},
+
+		filterfiles: function(filter) {
+			this.activate("#/files", this.views.groups, function() {
+				this.views.files.show()
+				this.views.files.showFiles(filter,1)
 			})
 		},
 
 		upload: function() {
 			this.activate("#/files", this.views.files, function() {
 				this.views.files.show()
+				this.views.files.showFiles('all',1)
 				this.views.files.upload()
 			})
 		},

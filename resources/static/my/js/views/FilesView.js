@@ -4,136 +4,197 @@ define( function (require) {
 
 	var App = require("App")
 	  , Backbone = require("backbone")
+	  , Files = require('collections/Files')
 	  , JIframe = require("jiframe")
-	  , MessageModel = require('share/models/MessageModel')
-	  , ActivitiesView = require('views/ActivitiesView')
+	  // , JForm = require("jform")
 
-	  , template = require('tpl/files')
- 	  ,	Form = require("share/utils/form")
+	  , filesTemplate = require ("tpl/files")
+	  , fileTableTemplate = require ("tpl/filestable")
+	  , groupFormTemplate = require ("tpl/groupform")
+	  , pagerTemplate = require ("tpl/filespager")
 
-	var FilesView = Backbone.View.extend({
+	  , FileModel = require ("share/models/FileModel")
+	  , Form = require("share/utils/form")
+
+
+	var FileView = Backbone.View.extend({
 
 			events: {
-				'click a[data-filter]' : 'onFilterClick',
-				// 'click form[name="file-upload-form"] button[name="upload-file"]': 'startUploading',
-				'change input[name="selectfile"]' : 'uploadMe',
-			},
-
-			initialize: function(opts) {
-
-			},
-
-			show: function() {
-				if (this.isShown)
-					return
-
-				this.render()
-				$("#upload_file").hide()
-				var opts = { params: { /*group_id: 0*/ }}
-
-				this.activitiesView = new ActivitiesView({ el: $('#newsfeed_list'), options: opts }).render()
-				this.isShown = true
-			},
-
-			upload: function() {
-				$("#upload_file").show()
-				$("#newsfeed_list").hide()
-				// return this
-			},
-
-			uploadMe: function(e) {
-				var $input = $('#upload-box');
-				console.log($input)
-    			$.ajax('/api/files',{
-    				files: $input,
-    				type:'POST',
-    				iframe: true,
-    				dataType:'json',
-    				
-    			}).error(function(data) {
-		            console.log(data);
-        		});
-			},
-
-			fileSelected: function() {
-				var oFile = document.getElementById('upload-box').files[0];
-				var oReader = new FileReader();
-				oReader.readAsDataURL(oFile);
-			},
-
-			startUploading: function() {
-				var vFD = new FormData(document.getElementById('file-upload-form'));
-				var oXHR = new XMLHttpRequest();
-				oXHR.open('POST', 'http://my.ownet/api/files');
-    			oXHR.send(vFD);
-
-
-			},
-
-			hide: function() {
-				this.activitiesView.remove()
-				delete this.activitiesView
-				this.$el.html('')
-				this.isShown = false
+				// 'click a[data-filter]' : 'onFilterClick',
+				'submit form[name="file-upload-form"]': 'uploadMe',
+				'change input[name="selectfile"]': 'showFile',
+				'click a[data-id]' : 'onPageClick',
+				'click a[name="delete-file"]': "deleteFile",
 			},
 
 			render: function() {
-				var data = {
-					group_id: 0,
-				}
-
-				this.$el.html( template(data) )
+				this.hide()
+				this.$el.html( filesTemplate() )
+				this.trigger('render')
 				return this
 			},
 
-			onFilterClick: function(e) {
-				var typeName = $(e.target).closest('a').attr('data-filter')
-				if (typeName=='all'){
-					this.activitiesView.deleteParam("user_id")
-					this.activitiesView.deleteParam("type")
-					}
-				else if (typeName == "my"){
-					this.activitiesView.setParams({user_id: App.user.id, page: 1})
-					this.activitiesView.deleteParam("type")
-				}
-				else {
-					this.activitiesView.deleteParam("user_id")
-				 	typeId = ['recommendations','ratings','messages'].indexOf(typeName)
-				 	this.activitiesView.setParams({type: typeId, page: 1})
-				}
-				$('.messages-left > .links > .link').removeClass('active')
-				$(e.target).closest('a').parent().addClass('active')
-				this.activitiesView.refresh()
+			show: function() {
+				this.hide()
+				this.render()
+				$("#upload_file").hide()
+				this.isShown = true
+			},
 
+			onPageClick: function(e) {
+				var page = $(e.target).attr('data-id')
+				var filter = $(e.target).attr('data-filter')
+				this.showFiles(filter, page)
 				return false
 			},
 
-			sendMessage: function() {
-				var $text = $('textarea[name="message"]', this.$el)
-				var content = $text.val()
+			// showPage: function(page, force) {
+			// 	if (page != this.options.params.page || force) {
+			// 		this.options.params.page = page
+			// 		this.refresh().then( function() {
+			// 			window.scrollTo(0,0)
+			// 		})
+			// 	}
+			// },
 
-				if (content==="")
-					return
+			showFiles: function(filter, page) {
+				var files = new Files([],{ filter: filter})
 
-				var data = {
-					message: content,
-					group_id: 0,
-					parent_id: 0,
-				}
-
-				var message = new MessageModel(data)
-				var self = this
-
-				message.save(null, {
-					success: function() {
-						self.activitiesView.showPage(1, true)
-						$text.val('')
-					},
-					error: function() {	App.showMessage("Message send failed!")	},
+				$.when(
+					files.fetch({ page: page }),
+					files.fetchPageCount()
+				).done( function() {
+					$('#newsfeed_list').html( fileTableTemplate({files :files.toJSON(), filter: filter, curusr: App.user}))
+					$('#pager').html( pagerTemplate({ pages: files.pages, filter: filter, current: page}))
 				})
+
+				return this
 			},
+
+			upload: function() {
+				$("#upload_file").slideDown('slow')
+				// $(":file").filestyle()
+				// $("#newsfeed_list").show()
+				// $("#submitbutton").hide()
+				// return this
+			},
+
+			showFile: function(){
+				$("#subfile").val($("#upload-box").val())
+				$(":text").prop("disabled", false)
+				$("#inputDescription1").prop("disabled", false)
+				$("#submitbutton").show()
+				$("#uploadButton").hide()
+
+			},
+
+			uploadMe: function(e) {
+				e.preventDefault()
+				var $input = $('#upload-box');
+				var $form = $('#file-upload-form');
+				var data = $form.serializeArray();
+				console.log(data)
+				console.log($input)
+    			$.ajax('/api/files',{
+    				files: $input,
+    				data: data,
+    				type:'POST',
+    				iframe: true,
+    				dataType:'json',
+    				processData: false,
+    				success: function(e){
+    				// $input.clearInputs();
+    					$(":text").val('');
+    					$(":input").val('');
+    					$("#upload_file").slideUp('slow')
+    					App.router.navigate("#/files")
+    				// $('input[type=password]').val('');
+    					// $(":text").prop("disabled", true)
+    					// $("#uploadButton").show()
+    					// $("#submitbutton").hide();
+    				// $("#upload_file").slideUp('slow')
+    			}
+    				
+    			})
+
+
+    				
+			},
+
+			hide: function() {
+				this.$el.html('')
+			},
+
+			// deleteGroup: function(e){
+			// 	e.preventDefault();
+
+			// 	var id = $(e.currentTarget).data("id");
+
+			// 	var file = new Files.Model()
+			// 	file.set('uid', id)
+
+			// 	var self = this
+			// 	file.destroy({
+			// 		success: function() {
+			// 			// App.router.navigate("#/files", {trigger: true})
+			// 			App.showMessage("File deleted")
+			// 			self.showFiles("all", 1)
+			// 		},
+			// 		error: function() {
+			// 			App.showMessage("Cannot delete")
+			// 		},
+			// 	})
+			// },
+
+			// deleteDO: function(e){
+			// 	e.preventDefault();
+			// 	var id = $(e.currentTarget).data("id");
+
+			// 	var data = {uid : id}
+
+			// 	var DeleteDO = Backbone.Model.extend({
+			// 		urlRoot: '/api/files',
+			// 		defaults: {	}
+			// 	})
+
+			// 	var downloadorder = new DeleteDO(data)
+			// 	downloadorder.uid = id
+			// 	var self = this
+
+			// 	downloadorder.destroy({
+			// 		wait: true,
+			// 		success: function() {
+			// 			App.router.navigate("#/showdownloadorders", {trigger: true})
+			// 			App.showMessage("Download Order deleted")
+			// 			self.showDownloadOrders(1)
+			// 		},
+			// 		error: function() {
+			// 			App.showMessage("Cannot delete")
+			// 		},
+			// 	})
+
+			// },
+
+			deleteFile: function(e){
+				var id = $(e.currentTarget).data("id");
+				console.log(id)
+				$.ajax({
+					url: '/api/files/'+id,
+    				type:'DELETE',
+    				success: function(){
+    				// $input.clearInputs();
+    					App.showMessage("File deleted")
+    				// $('input[type=password]').val('');
+    					// $(":text").prop("disabled", true)
+    					// $("#uploadButton").show()
+    					// $("#submitbutton").hide();
+    				// $("#upload_file").slideUp('slow')
+    				}
+				})
+			},	
+			
 	})
 
-	return FilesView;
+	return FileView;
 
 });

@@ -11,7 +11,7 @@ require.config({
 			backbone    :  'share/lib/backbone',
 			jade        :  'share/lib/jade.runtime.min',
 			jiframe		:  'share/lib/jquery.iframe-transport',
-
+			
 
 			'jquery.escape' : 'share/utils/jquery.escape',
 
@@ -38,7 +38,7 @@ require.config({
 			jiframe : {
 				deps: ['jquery'],
 			},
-
+						
 			jade: {
 				exports: 'jade',
 			},
