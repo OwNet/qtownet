@@ -199,6 +199,8 @@ define( function (require) {
 
 		filterfiles: function(filter) {
 			this.activate("#/files", this.views.groups, function() {
+				$("#all").parent().removeClass("active")
+				$("#my").parent().addClass("active")	
 				this.views.files.show()
 				this.views.files.showFiles(filter,1)
 			})

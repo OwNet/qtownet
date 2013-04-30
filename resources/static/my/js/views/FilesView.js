@@ -6,8 +6,7 @@ define( function (require) {
 	  , Backbone = require("backbone")
 	  , Files = require('collections/Files')
 	  , JIframe = require("jiframe")
-	  // , JForm = require("jform")
-
+	  
 	  , filesTemplate = require ("tpl/files")
 	  , fileTableTemplate = require ("tpl/filestable")
 	  , groupFormTemplate = require ("tpl/groupform")
@@ -20,7 +19,7 @@ define( function (require) {
 	var FileView = Backbone.View.extend({
 
 			events: {
-				// 'click a[data-filter]' : 'onFilterClick',
+
 				'submit form[name="file-upload-form"]': 'uploadMe',
 				'change input[name="selectfile"]': 'showFile',
 				'click a[id="pagerBtn"]' : 'onPageClick',
@@ -51,17 +50,13 @@ define( function (require) {
 				this.showFiles(filter, page)
 				return false
 			},
-
-			// showPage: function(page, force) {
-			// 	if (page != this.options.params.page || force) {
-			// 		this.options.params.page = page
-			// 		this.refresh().then( function() {
-			// 			window.scrollTo(0,0)
-			// 		})
-			// 	}
-			// },
-
+			
 			showFiles: function(filter, page) {
+				if (filter == "my"){
+					$("#all").parent().removeClass("active")
+					$("#my").parent().addClass("active")	
+				}
+				
 				var files = new Files([],{ filter: filter})
 
 				$.when(
@@ -77,10 +72,6 @@ define( function (require) {
 
 			upload: function() {
 				$("#upload_file").slideDown('slow')
-				// $(":file").filestyle()
-				// $("#newsfeed_list").show()
-				// $("#submitbutton").hide()
-				// return this
 			},
 
 			showFile: function(){
@@ -89,7 +80,6 @@ define( function (require) {
 				$("#inputDescription1").prop("disabled", false)
 				$("#submitbutton").show()
 				$("#uploadButton").hide()
-
 			},
 
 			uploadMe: function(e) {
@@ -107,20 +97,12 @@ define( function (require) {
     				dataType:'json',
     				processData: false,
     				success: function(e){
-    				// $input.clearInputs();
     					$(":text").val('');
     					$(":input").val('');
     					$("#upload_file").slideUp('slow', function(){
     						App.router.navigate("#/files")
     					})
-    					// setTimeout(function(){App.router.navigate("#/files")}(),20000)
-    					
-    				// $('input[type=password]').val('');
-    					// $(":text").prop("disabled", true)
-    					// $("#uploadButton").show()
-    					// $("#submitbutton").hide();
-    				// $("#upload_file").slideUp('slow')
-    			}
+    				}
     				
     			})
 		
@@ -148,65 +130,12 @@ define( function (require) {
 				file.destroy({
 					success: function() {
 						console.log("Deleted")
-						// App.router.navigate("#/files", {trigger: true})
-						// App.showMessage("Group deleted")
-						// self.show("all", 1)
 					},
 					error: function() {
 						console.log("Cannot delete")
-						// App.showMessage("Cannot delete")
 					},
 				})
-			},
-
-			// deleteDO: function(e){
-			// 	e.preventDefault();
-			// 	var id = $(e.currentTarget).data("id");
-
-			// 	var data = {uid : id}
-
-			// 	var DeleteDO = Backbone.Model.extend({
-			// 		urlRoot: '/api/files',
-			// 		defaults: {	}
-			// 	})
-
-			// 	var downloadorder = new DeleteDO(data)
-			// 	downloadorder.uid = id
-			// 	var self = this
-
-			// 	downloadorder.destroy({
-			// 		wait: true,
-			// 		success: function() {
-			// 			App.router.navigate("#/showdownloadorders", {trigger: true})
-			// 			App.showMessage("Download Order deleted")
-			// 			self.showDownloadOrders(1)
-			// 		},
-			// 		error: function() {
-			// 			App.showMessage("Cannot delete")
-			// 		},
-			// 	})
-
-			// },
-
-			deleteFile: function(e){
-				e.preventDefault()
-				var id = $(e.currentTarget).data("id");
-				console.log(id)
-				$.ajax({
-					url: '/api/files/'+id,
-    				type:'DELETE',
-    				success: function(){
-    				// $input.clearInputs();
-    					App.showMessage("File deleted")
-    				// $('input[type=password]').val('');
-    					// $(":text").prop("disabled", true)
-    					// $("#uploadButton").show()
-    					// $("#submitbutton").hide();
-    				// $("#upload_file").slideUp('slow')
-    				}
-				})
-			},	
-			
+			},			
 	})
 
 	return FileView;
