@@ -58,18 +58,16 @@ void SharedFilesManager::saveFileToCache()
     }
 }
 
-QVariantList SharedFilesManager::listAvailableFiles()
+QVariantList SharedFilesManager::listAvailableFiles(int page)
 {
     QObject parent;
     IDatabaseSelectQuery *query = m_proxyConnection->databaseSelect("shared_files", &parent);
+    query->page(page, ItemsPerPage);
     query->orderBy("title");
 
     QVariantList results;
 
     while (query->next()) {
-        if (!m_proxyConnection->isCacheAvailable(query->value("cache_id").toUInt()))
-            continue;
-
         QVariantMap info;
         info.insert("uid", query->value("uid").toString());
         info.insert("title", query->value("title").toString());
@@ -77,6 +75,7 @@ QVariantList SharedFilesManager::listAvailableFiles()
         info.insert("url", query->value("url").toString());
         info.insert("date_created", query->value("date_created").toString());
         info.insert("content_type", query->value("content_type").toString());
+        info.insert("available", m_proxyConnection->isCacheAvailable(query->value("cache_id").toUInt()));
         results.append(info);
     }
 
@@ -89,6 +88,12 @@ void SharedFilesManager::removeFile(const QString &uid)
     query->setType(IDatabaseUpdateQuery::Delete);
     query->singleWhere("uid", uid);
     query->executeQuery();
+}
+
+int SharedFilesManager::numberOfPages()
+{
+    IDatabaseSelectQuery *query = m_proxyConnection->databaseSelect("shared_files", this);
+    return query->numberOfPages(ItemsPerPage);
 }
 
 QByteArray SharedFilesManager::getValueFor(QFile *tempFile, const QString &key, bool findFileName)

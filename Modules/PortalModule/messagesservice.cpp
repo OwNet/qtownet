@@ -37,7 +37,7 @@ IResponse *MessagesService::create(IRequest *req)
 
     QString cur_user_id = m_proxyConnection->session()->value("logged").toString();
     if(cur_user_id == "")
-        return req->response(IResponse::UNAUTHORIEZED);
+        return req->response(IResponse::UNAUTHORIZED);
 
     QVariantMap reqJson = req->postBodyFromJson(&ok).toMap();
     if (!ok){
@@ -138,7 +138,7 @@ IResponse *MessagesService::create(IRequest *req)
     }
     else{
        error.insert("membership in group","required");
-       return req->response(QVariant(error),IResponse::UNAUTHORIEZED);
+       return req->response(QVariant(error),IResponse::UNAUTHORIZED);
     }
 
 
@@ -151,7 +151,7 @@ IResponse *MessagesService::allPagesCount(IRequest *req)
 
     QString curUser_id = m_proxyConnection->session()->value("logged").toString();
     if(curUser_id == "")
-        return req->response(IResponse::UNAUTHORIEZED);
+        return req->response(IResponse::UNAUTHORIZED);
 
     QString group_id = req->parameterValue("group_id");
     if(group_id == ""){
@@ -198,7 +198,7 @@ IResponse *MessagesService::index(IRequest *req)
 
     QString curUser_id = m_proxyConnection->session()->value("logged").toString();
     if(curUser_id == "")
-        return req->response(IResponse::UNAUTHORIEZED);
+        return req->response(IResponse::UNAUTHORIZED);
 
     QString group_id = req->parameterValue("group_id");
     if(group_id == ""){
@@ -306,7 +306,7 @@ IResponse *MessagesService::index(IRequest *req)
 
     else{
        error.insert("membership in group","required");
-       return req->response(QVariant(error),IResponse::UNAUTHORIEZED);
+       return req->response(QVariant(error),IResponse::UNAUTHORIZED);
     }
 
 }
@@ -319,7 +319,7 @@ IResponse *MessagesService::show(IRequest *req, const QString &uid)
 
     QString curUser_id = m_proxyConnection->session()->value("logged").toString();
     if(curUser_id == "")
-        return req->response(IResponse::UNAUTHORIEZED);
+        return req->response(IResponse::UNAUTHORIZED);
 
     QSqlQuery queryGId;
     queryGId.prepare("SELECT * FROM messages WHERE uid = :uid");
@@ -409,7 +409,7 @@ IResponse *MessagesService::show(IRequest *req, const QString &uid)
 
     else{
        error.insert("membership in group","required");
-       return req->response(QVariant(error),IResponse::UNAUTHORIEZED);
+       return req->response(QVariant(error),IResponse::UNAUTHORIZED);
     }
 
 }
@@ -420,7 +420,7 @@ IResponse *MessagesService::del(IRequest *req, const QString &uid)
 
     QString cur_user_id = m_proxyConnection->session()->value("logged").toString();
     if(cur_user_id == "")
-        return req->response(IResponse::UNAUTHORIEZED);
+        return req->response(IResponse::UNAUTHORIZED);
 
     bool owner = false;
     bool admin = false;
@@ -478,7 +478,7 @@ IResponse *MessagesService::del(IRequest *req, const QString &uid)
     }
     else{
        error.insert("membership in group","required");
-       return req->response(QVariant(error),IResponse::UNAUTHORIEZED);
+       return req->response(QVariant(error),IResponse::UNAUTHORIZED);
     }
 
 }

@@ -15,6 +15,7 @@ public:
     IResponse *create(IRequest *req);
     IResponse *index(IRequest *req);
     IResponse *del(IRequest *req, const QString &uid);
+    IResponse *allPagesCount(IRequest *req);
 };
 
 #endif // SHAREDFILESSERVICE_H

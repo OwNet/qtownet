@@ -54,6 +54,9 @@ public:
     QSqlQuery *query() { return m_query; }
     void resetQuery();
 
+    int numberOfPages(int numItemsPerPage);
+    void page(int page, int numItemsPerPage);
+
 private:
     bool execute();
 

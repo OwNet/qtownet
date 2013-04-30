@@ -11,15 +11,16 @@ class SharedFilesManager : public QObject
     Q_OBJECT
 public:
     enum {
-        ItemsPerPage = 20
+        ItemsPerPage = 10
     };
 
     explicit SharedFilesManager(IProxyConnection *proxyConnection, QObject *parent = 0);
     explicit SharedFilesManager(const QString &tempFileName, IProxyConnection *proxyConnection, QObject *parent = 0);
 
     void saveFileToCache();
-    QVariantList listAvailableFiles();
+    QVariantList listAvailableFiles(int page = 1);
     void removeFile(const QString &uid);
+    int numberOfPages();
 
 private:
     QByteArray getValueFor(QFile *tempFile, const QString &key, bool findFileName);

@@ -114,7 +114,7 @@ IResponse::Status RecommendationManager::createRecomm(IRequest *req, QString cur
     else{
 
         error.insert("membership in the group","required");
-        return IResponse::UNAUTHORIEZED;
+        return IResponse::UNAUTHORIZED;
     }
 }
 
@@ -172,7 +172,7 @@ IResponse::Status RecommendationManager::showRecomm(IRequest *req, const QString
      else
      {
         error.insert("group_membership","required");
-        return IResponse::UNAUTHORIEZED;
+        return IResponse::UNAUTHORIZED;
     }
 
 
@@ -249,7 +249,7 @@ IResponse::Status RecommendationManager::editRecomm(IRequest *req, const QString
     }
     else{
        error.insert("admin or owner","required");
-       return IResponse::UNAUTHORIEZED;
+       return IResponse::UNAUTHORIZED;
     }
 }
 
@@ -305,7 +305,7 @@ IResponse::Status RecommendationManager::deleteRecomm(IRequest *req, const QStri
     }
     else{
         error.insert("admin or owner","required");
-        req->response(IResponse::UNAUTHORIEZED);
+        req->response(IResponse::UNAUTHORIZED);
     }
 
 }

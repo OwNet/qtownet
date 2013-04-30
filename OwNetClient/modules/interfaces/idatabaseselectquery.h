@@ -55,6 +55,9 @@ public:
 
     virtual void limit(int l) = 0;
     virtual void offset(int o) = 0;
+
+    virtual int numberOfPages(int numItemsPerPage) = 0;
+    virtual void page(int page, int numItemsPerPage) = 0;
 };
 
 #endif // IDATABASESELECTQUERY_H

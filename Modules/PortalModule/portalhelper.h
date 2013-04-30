@@ -4,6 +4,7 @@
 #include <QObject>
 
 class IProxyConnection;
+class IDatabaseSelectQuery;
 
 class PortalHelper : public QObject
 {
