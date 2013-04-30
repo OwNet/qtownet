@@ -14,6 +14,7 @@ public:
 
     static void addSalt( QString *password, QString *salt);
     static bool isLoggedIn(IProxyConnection *proxyConnection);
+    static uint currentUserId(IProxyConnection *proxyConnection);
 };
 
 #endif // PORTALHELPER_H

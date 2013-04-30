@@ -32,3 +32,9 @@ bool PortalHelper::isLoggedIn(IProxyConnection *proxyConnection)
     QObject parent;
     return !(proxyConnection->session(&parent)->value("logged").toString().isEmpty());
 }
+
+uint PortalHelper::currentUserId(IProxyConnection *proxyConnection)
+{
+    QObject parent;
+    return proxyConnection->session(&parent)->value("logged").toUInt();
+}

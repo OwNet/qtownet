@@ -13,14 +13,18 @@ public:
     enum {
         ItemsPerPage = 10
     };
+    enum Filter {
+        MyFiles,
+        AllFiles
+    };
 
     explicit SharedFilesManager(IProxyConnection *proxyConnection, QObject *parent = 0);
     explicit SharedFilesManager(const QString &tempFileName, IProxyConnection *proxyConnection, QObject *parent = 0);
 
     void saveFileToCache();
-    QVariantList listAvailableFiles(int page = 1);
+    QVariantList listAvailableFiles(int page = 1, Filter filter = AllFiles);
     void removeFile(const QString &uid);
-    int numberOfPages();
+    int numberOfPages(Filter filter = AllFiles);
 
 private:
     QByteArray getValueFor(QFile *tempFile, const QString &key, bool findFileName);

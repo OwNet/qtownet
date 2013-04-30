@@ -5,6 +5,8 @@
 #include "sharedfilesmanager.h"
 #include "idatabaseupdatequery.h"
 #include "idatabasesettings.h"
+#include "portalhelper.h"
+#include "idatabaseselectqueryjoin.h"
 
 #include <QFile>
 #include <QStringList>
@@ -58,10 +60,13 @@ void SharedFilesManager::saveFileToCache()
     }
 }
 
-QVariantList SharedFilesManager::listAvailableFiles(int page)
+QVariantList SharedFilesManager::listAvailableFiles(int page, Filter filter)
 {
     QObject parent;
     IDatabaseSelectQuery *query = m_proxyConnection->databaseSelect("shared_files", &parent);
+    if (filter == MyFiles)
+        query->singleWhere("user_id", PortalHelper::currentUserId(m_proxyConnection));
+    query->join("users")->singleWhere("users.id", "shared_files.user_id", IDatabaseSelectQuery::Equal, false);
     query->page(page, ItemsPerPage);
     query->orderBy("title");
 
@@ -75,6 +80,10 @@ QVariantList SharedFilesManager::listAvailableFiles(int page)
         info.insert("url", query->value("url").toString());
         info.insert("date_created", query->value("date_created").toString());
         info.insert("content_type", query->value("content_type").toString());
+        info.insert("user_id", query->value("id").toUInt());
+        info.insert("user_first_name", query->value("first_name").toString());
+        info.insert("user_last_name", query->value("last_name").toString());
+        info.insert("user_login", query->value("login").toString());
         info.insert("available", m_proxyConnection->isCacheAvailable(query->value("cache_id").toUInt()));
         results.append(info);
     }
@@ -90,9 +99,12 @@ void SharedFilesManager::removeFile(const QString &uid)
     query->executeQuery();
 }
 
-int SharedFilesManager::numberOfPages()
+int SharedFilesManager::numberOfPages(Filter filter)
 {
     IDatabaseSelectQuery *query = m_proxyConnection->databaseSelect("shared_files", this);
+    if (filter == MyFiles)
+        query->singleWhere("user_id", PortalHelper::currentUserId(m_proxyConnection));
+
     return query->numberOfPages(ItemsPerPage);
 }
 
@@ -184,6 +196,7 @@ void SharedFilesManager::saveToDatabase(const QString &url, qint64 size)
     updateQuery->setColumnValue("description", m_description);
     updateQuery->setColumnValue("cache_id", m_proxyConnection->cacheId(url));
     updateQuery->setColumnValue("content_type", m_contentType);
+    updateQuery->setColumnValue("user_id", PortalHelper::currentUserId(m_proxyConnection));
     updateQuery->setUpdateDates(true);
     updateQuery->executeQuery();
 }

@@ -35,8 +35,12 @@ IResponse *SharedFilesService::index(IRequest *req)
     if (req->hasParameter("page"))
         page = req->parameterValue("page").toInt();
 
+    SharedFilesManager::Filter filter = SharedFilesManager::AllFiles;
+    if (req->hasParameter("filter") && req->parameterValue("filter") == "my")
+        filter = SharedFilesManager::MyFiles;
+
     SharedFilesManager manager(proxyConnection);
-    return req->response(manager.listAvailableFiles(page));
+    return req->response(manager.listAvailableFiles(page, filter));
 }
 
 IResponse *SharedFilesService::del(IRequest *req, const QString &uid)
@@ -55,9 +59,13 @@ IResponse *SharedFilesService::allPagesCount(IRequest *req)
     if (!PortalHelper::isLoggedIn(proxyConnection))
         return req->response(IResponse::UNAUTHORIZED);
 
+    SharedFilesManager::Filter filter = SharedFilesManager::AllFiles;
+    if (req->hasParameter("filter") && req->parameterValue("filter") == "my")
+        filter = SharedFilesManager::MyFiles;
+
     SharedFilesManager manager(proxyConnection);
 
     QVariantMap response;
-    response.insert("pages",manager.numberOfPages());
+    response.insert("pages",manager.numberOfPages(filter));
     return req->response(response);
 }
