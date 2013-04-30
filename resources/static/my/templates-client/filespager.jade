@@ -3,7 +3,7 @@
 		- for (var page=1; page<=pages; page++)
 			if (current == page)
 				div.page.act-page
-					a.act-page(href="#/files", data-filter="#{filter}",data-id="#{page}") #{page}
+					a.act-page(id="pagerBtn",href="#/files", data-filter="#{filter}",data-id="#{page}") #{page}
 			else
 				div.page
-					a( href="#/files", data-filter="#{filter}", data-id="#{page}") #{page}
+					a(id="pagerBtn",href="#/files", data-filter="#{filter}", data-id="#{page}") #{page}

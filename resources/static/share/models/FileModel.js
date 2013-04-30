@@ -9,6 +9,7 @@ define( function (require) {
 	var FileModel = Backbone.Model.extend({
 
 			urlRoot: '/api/files',
+			idAttribute: 'uid',
 
 			defaults: {	},
 

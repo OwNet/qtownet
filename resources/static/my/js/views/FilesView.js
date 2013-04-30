@@ -23,8 +23,12 @@ define( function (require) {
 				// 'click a[data-filter]' : 'onFilterClick',
 				'submit form[name="file-upload-form"]': 'uploadMe',
 				'change input[name="selectfile"]': 'showFile',
-				'click a[data-id]' : 'onPageClick',
-				'click a[name="delete-file"]': "deleteFile",
+				'click a[id="pagerBtn"]' : 'onPageClick',
+				'click a[name="delete-file"]': "deleteF",
+			},
+
+			initialize: function(opts) {
+				this.model = opts.model
 			},
 
 			render: function() {
@@ -106,8 +110,11 @@ define( function (require) {
     				// $input.clearInputs();
     					$(":text").val('');
     					$(":input").val('');
-    					$("#upload_file").slideUp('slow')
-    					App.router.navigate("#/files")
+    					$("#upload_file").slideUp('slow', function(){
+    						App.router.navigate("#/files")
+    					})
+    					// setTimeout(function(){App.router.navigate("#/files")}(),20000)
+    					
     				// $('input[type=password]').val('');
     					// $(":text").prop("disabled", true)
     					// $("#uploadButton").show()
@@ -116,35 +123,41 @@ define( function (require) {
     			}
     				
     			})
-
-
-    				
+		
 			},
+
+			navi: function() {
+    			App.router.navigate("#/files")
+    		},
 
 			hide: function() {
 				this.$el.html('')
 			},
 
-			// deleteGroup: function(e){
-			// 	e.preventDefault();
+			deleteF: function(e){
+				e.preventDefault();
 
-			// 	var id = $(e.currentTarget).data("id");
+				var id = $(e.currentTarget).data("id");
 
-			// 	var file = new Files.Model()
-			// 	file.set('uid', id)
+				var file = new FileModel()
+				console.log(id)
+				file.set('uid', id)
+				console.log(file.get('id'))
 
-			// 	var self = this
-			// 	file.destroy({
-			// 		success: function() {
-			// 			// App.router.navigate("#/files", {trigger: true})
-			// 			App.showMessage("File deleted")
-			// 			self.showFiles("all", 1)
-			// 		},
-			// 		error: function() {
-			// 			App.showMessage("Cannot delete")
-			// 		},
-			// 	})
-			// },
+				var self = this
+				file.destroy({
+					success: function() {
+						console.log("Deleted")
+						// App.router.navigate("#/files", {trigger: true})
+						// App.showMessage("Group deleted")
+						// self.show("all", 1)
+					},
+					error: function() {
+						console.log("Cannot delete")
+						// App.showMessage("Cannot delete")
+					},
+				})
+			},
 
 			// deleteDO: function(e){
 			// 	e.preventDefault();
@@ -176,6 +189,7 @@ define( function (require) {
 			// },
 
 			deleteFile: function(e){
+				e.preventDefault()
 				var id = $(e.currentTarget).data("id");
 				console.log(id)
 				$.ajax({
