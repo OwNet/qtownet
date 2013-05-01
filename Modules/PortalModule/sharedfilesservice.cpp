@@ -49,6 +49,8 @@ IResponse *SharedFilesService::del(IRequest *req, const QString &uid)
 
     SharedFilesManager manager(proxyConnection);
     manager.removeFile(uid);
+
+    return req->response(IResponse::OK);
 }
 
 IResponse *SharedFilesService::my(IRequest *req)
