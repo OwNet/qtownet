@@ -20,10 +20,9 @@ define( function (require) {
 
 			events: {
 
-				'submit form[name="file-upload-form"]': 'uploadMe',
-				'change input[name="selectfile"]': 'showFile',
+				'submit form[name="file-upload-form"]': 'uploadFile',
 				'click a[id="pagerBtn"]' : 'onPageClick',
-				'click a[name="delete-file"]': "deleteF",
+				'click a[name="delete-file"]': "deleteFile",
 			},
 
 			initialize: function(opts) {
@@ -74,15 +73,7 @@ define( function (require) {
 				$("#upload_file").slideDown('slow')
 			},
 
-			showFile: function(){
-				$("#subfile").val($("#upload-box").val())
-				$(":text").prop("disabled", false)
-				$("#inputDescription1").prop("disabled", false)
-				$("#submitbutton").show()
-				$("#uploadButton").hide()
-			},
-
-			uploadMe: function(e) {
+			uploadFile: function(e) {
 				e.preventDefault()
 				var $input = $('#upload-box');
 				var $form = $('#file-upload-form');
@@ -97,8 +88,6 @@ define( function (require) {
     				dataType:'json',
     				processData: false,
     				success: function(e){
-    					$(":text").val('');
-    					$(":input").val('');
     					$("#upload_file").slideUp('slow', function(){
     						App.router.navigate("#/files")
     					})
@@ -108,28 +97,25 @@ define( function (require) {
 		
 			},
 
-			navi: function() {
-    			App.router.navigate("#/files")
-    		},
-
 			hide: function() {
 				this.$el.html('')
 			},
 
-			deleteF: function(e){
+			deleteFile: function(e){
 				e.preventDefault();
 
 				var id = $(e.currentTarget).data("id");
 
 				var file = new FileModel()
-				console.log(id)
 				file.set('uid', id)
 				console.log(file.get('id'))
 
 				var self = this
 				file.destroy({
 					success: function() {
+						App.router.navigate("#/files")
 						console.log("Deleted")
+						// this.FileView.render()
 					},
 					error: function() {
 						console.log("Cannot delete")
