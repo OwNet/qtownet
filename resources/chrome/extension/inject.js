@@ -1,4 +1,4 @@
-(function() {
+(function () {
 
 	"use_strict"
 
@@ -99,7 +99,6 @@
 		TIMEOUT_DELAY_SECS   : 10,
 		startRequestTimeout: function () {
 		    this.requestTimeout = setTimeout(function () { PrefetchContact.requestPrefetch(); }, this.TIMEOUT_DELAY_SECS * 1000);
-		    //this.requestPrefetch();
 		},
 		stopRequestTimeout: function() {
 			if (this.requestTimeout) clearTimeout(this.requestTimeout);
@@ -126,10 +125,6 @@
 
                     Ownet.sendMessage("prefetch", { page: $.getPageId(), links: predictions.toString() });
                 }
-
-				//$.loadScript(this.apiUri + "create/?page=" + $.getEncodedPageUri() + "&pid=" + $.getPageId() + "&gid=" + $.getRandomId(), function () {
-				//	PrefetchContact.hasRequestedPrefetch = 1;
-				//});
 			}
 			else {
 				this.startRequestTimeout();
@@ -140,9 +135,6 @@
 			try {
 				if (this.hasReportedClose == 0 && $.getPageId() != 0) {
 					this.stopRequestTimeout();
-					/*         owNetGLOBAL.loadScript(owNetGLOBAL.localUri + "cancel/?page=" + this.pageId, function () {
-					return true;
-					});*/
 					$.ajaxGet(this.apiUri + "close/?pid=" + $.getPageId() + "&gid=" + $.getRandomId(), function (xmlHttp) {
 						if (xmlHttp.readyState == 4 && xmlHttp.status == 200) {
 							return true;
@@ -159,8 +151,6 @@
 		reportPrefetch: function () {
 			try {
 				if (this.hasReportedPrefetch == 0 && document.referrer.match(/[a-zA-Z]+.ownet\/api\/prefetch/) !== null) {
-					// var target = owNetGLOBAL.encodedReferrerUri;
-					// if (target === null || target.match(/\S/g) === null)
 					owNetGLOBAL.loadScript(this.apiUri + "done/?page=" + $.getEncodedPageUri() + "&gid=" + $.getRandomId(), function () {
 						return true;
 					});
@@ -251,8 +241,13 @@
 			if (this.isSwitchedOn == 0) {  /* switch on */
 				this.highlightedLinks = [];
                     
-				var x = []; for (var i in document.links) { if (document.links[i].href && document.links[i].href.match(/^http:.*/) !== null  && x.indexOf(document.links[i].href) < 0) { x[x.length] = document.links[i].href; /* console.log(document.links[i].href); */ } } // JSON.stringify({ links: x.toString() });
-				Ownet.sendMessage("cached", { links : x.toString() });
+				var x = [];
+				for (var i in document.links) {
+				    if (document.links[i].href && document.links[i].href.match(/^http:.*/) !== null && x.indexOf(document.links[i].href) < 0) {
+				        x[x.length] = document.links[i].href; 
+				    }
+				} // JSON.stringify({ links: x.toString() });
+				Ownet.sendMessage("cached", { links : x });
 			}
 			else {  /* switch off*/
 				this.switchOff();
@@ -444,8 +439,8 @@
 			this._initIFrame()
 		},
 
-		sendMessage: function(name,data) {
-			this.iframe.contentWindow.postMessage( {name:name, data:data, OwNet:true}, this.iframeHost)
+		sendMessage: function (name, data) {
+		    this.iframe.contentWindow.postMessage({ name: name, data: data, OwNet: true }, this.iframeHost)
 		},
 
 		receiveMessage: function(event) {

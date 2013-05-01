@@ -264,9 +264,14 @@ IResponse *PrefetchingService::list(IRequest *req) {
     QVariantMap reqJson = req->postBodyFromJson(&ok).toMap();
     if (ok && reqJson.contains("links")) {
 
-        QString linksString = reqJson["links"].toString();
-
-        QStringList links = linksString.split(',');
+        QVariantList linksString = reqJson["links"].toList();//toString();
+        //qDebug() << linksString;
+        QStringList links;
+    int oo = 0;
+    for (oo = 0; oo < linksString.length(); ++oo){
+        links.append(linksString.at(oo).toString());
+    }
+        //QStringList links = linksString.split(',');
         if (links.size() > 0) {
             QStringList filtered = getCachedLinks(links);
 
