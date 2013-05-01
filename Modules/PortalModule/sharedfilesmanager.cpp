@@ -68,7 +68,7 @@ QVariantList SharedFilesManager::listAvailableFiles(int page, Filter filter)
         query->singleWhere("user_id", PortalHelper::currentUserId(m_proxyConnection));
     query->join("users")->singleWhere("users.id", "shared_files.user_id", IDatabaseSelectQuery::Equal, false);
     query->page(page, ItemsPerPage);
-    query->orderBy("title");
+    query->orderBy("date_created DESC");
 
     QVariantList results;
 
