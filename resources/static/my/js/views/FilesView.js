@@ -46,7 +46,10 @@ define( function (require) {
 			onPageClick: function(e) {
 				var page = $(e.target).attr('data-id')
 				var filter = $(e.target).attr('data-filter')
+				console.log(filter)
+				console.log(filter)
 				this.showFiles(filter, page)
+				return false
 			},
 			
 			showFiles: function(filter, page) {
@@ -107,7 +110,7 @@ define( function (require) {
 
 				var file = new FileModel()
 				file.set('uid', id)
-				console.log(file.get('uid'))
+				console.log(file.get('uPid'))
 
 				var self = this
 				file.destroy({
