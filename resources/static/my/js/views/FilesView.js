@@ -33,6 +33,7 @@ define( function (require) {
 				this.hide()
 				this.$el.html( filesTemplate() )
 				this.trigger('render')
+
 				return this
 			},
 
@@ -46,9 +47,9 @@ define( function (require) {
 			onPageClick: function(e) {
 				var page = $(e.target).attr('data-id')
 				var filter = $(e.target).attr('data-filter')
-				console.log(filter)
-				console.log(filter)
+
 				this.showFiles(filter, page)
+
 				return false
 			},
 			
@@ -77,11 +78,11 @@ define( function (require) {
 
 			uploadFile: function(e) {
 				e.preventDefault()
+				
 				var $input = $('#upload-box');
 				var $form = $('#file-upload-form');
 				var data = $form.serializeArray();
-				console.log(data)
-				console.log($input)
+				    			
     			$.ajax('/api/files',{
     				files: $input,
     				data: data,
@@ -107,12 +108,12 @@ define( function (require) {
 				e.preventDefault();
 
 				var id = $(e.currentTarget).data("id");
-
 				var file = new FileModel()
+
 				file.set('uid', id)
-				console.log(file.get('uPid'))
 
 				var self = this
+
 				file.destroy({
 					success: function() {
 						App.router.navigate("#/files")
