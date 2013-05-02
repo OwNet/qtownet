@@ -47,7 +47,6 @@ define( function (require) {
 				var page = $(e.target).attr('data-id')
 				var filter = $(e.target).attr('data-filter')
 				this.showFiles(filter, page)
-				return false
 			},
 			
 			showFiles: function(filter, page) {
@@ -108,17 +107,17 @@ define( function (require) {
 
 				var file = new FileModel()
 				file.set('uid', id)
-				console.log(file.get('id'))
+				console.log(file.get('uid'))
 
 				var self = this
 				file.destroy({
 					success: function() {
 						App.router.navigate("#/files")
-						console.log("Deleted")
-						// this.FileView.render()
+						App.showMessage("File deleted")
+						self.showFiles("all", 1)
 					},
 					error: function() {
-						console.log("Cannot delete")
+						App.showMessage("Cannot delete file")
 					},
 				})
 			},			

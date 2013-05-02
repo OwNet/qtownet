@@ -8,7 +8,7 @@ each file in files
 		//- else
 		//- 	.image
 		//- 		img( src="img/boy.png" )
-		if (filter == "my")
+		if (curusr.id == file.user_id)
 			.delete
 				a( href="#/files", data-id="#{file.uid}", name="delete-file", title="Delete")
 					img.icon( src="img/no.png")
