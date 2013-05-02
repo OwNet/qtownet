@@ -20,6 +20,7 @@ define( function (require) {
 
 			initialize: function(opts) {
 				this.model = opts.model
+				this.parent = opts.parent
 			},
 
 			render: function() {
@@ -54,10 +55,10 @@ define( function (require) {
 				if (e)
 					e.preventDefault()
 
+				this.parent.stopRefreshing()
+
 				if (!this.message)
 					this.message = new MessageModel({uid: this.model.get('object_id')})
-
-				console.log( this.message.id )
 
 				var self = this
 				this.message.fetch().done( function() {

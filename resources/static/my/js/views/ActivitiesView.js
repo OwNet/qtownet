@@ -40,7 +40,7 @@ define( function (require) {
 				this.activities = new Activities()
 				this.activities.setParams(this.options.params)
 
-				var viewManagerFactory = new Backbone.CollectionBinder.ViewManagerFactory(this._viewFactory)
+				var viewManagerFactory = new Backbone.CollectionBinder.ViewManagerFactory( this._viewFactory.bind(this) )
 				this.collectionBinder = new Backbone.CollectionBinder(viewManagerFactory)
 
 				this.page = 1
@@ -94,6 +94,13 @@ define( function (require) {
 				})
 			},
 
+			stopRefreshing: function() {
+				if (this._refreshTimer) {
+					clearTimeout(this._refreshTimer)
+					this._refreshTimer = null
+				}
+			},
+
 			showPage: function(page, force) {
 				if (page != this.options.params.page || force) {
 					this.options.params.page = page
@@ -132,9 +139,8 @@ define( function (require) {
 
 			_viewFactory: function(model) {
 				var View = activitiesTypesView[model.get('type')] || Backbone.View
-				return new View({model: model})
+				return new View({model: model, parent: this})
 			}
-
 
 	})
 
