@@ -25,10 +25,6 @@ define( function (require) {
 				'click a[name="delete-file"]': "deleteFile",
 			},
 
-			initialize: function(opts) {
-				this.model = opts.model
-			},
-
 			render: function() {
 				this.hide()
 				this.$el.html( filesTemplate() )
@@ -90,7 +86,12 @@ define( function (require) {
     				iframe: true,
     				dataType:'json',
     				processData: false,
+    				beforeSend: function(e){
+    					$('#myModal').modal('show')
+    				},
+
     				success: function(e){
+    					$('#myModal').modal('hide')
     					$("#upload_file").slideUp('slow', function(){
     						App.router.navigate("#/files")
     					})
@@ -102,6 +103,7 @@ define( function (require) {
 
 			hide: function() {
 				this.$el.html('')
+				this.isShown = false
 			},
 
 			deleteFile: function(e){
