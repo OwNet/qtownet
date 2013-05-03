@@ -61,7 +61,7 @@ define( function (require) {
 					files.fetch({ page: page }),
 					files.fetchPageCount()
 				).done( function() {
-					$('#newsfeed_list').html( fileTableTemplate({files :files.toJSON(), filter: filter, curusr: App.user}))
+					$('#newsfeed_list').html( fileTableTemplate({files :files.toJSON(), filter: filter, curusr: App.user.toJSON()}))
 					$('#pager').html( pagerTemplate({ pages: files.pages, filter: filter, current: page}))
 				})
 
@@ -113,18 +113,21 @@ define( function (require) {
 				var file = new FileModel()
 				var self = this
 
-				file.set('uid', id)
+				if (confirm('Are you sure ?')){
 
-				file.destroy({
-					success: function() {
-						App.router.navigate("#/files")
-						App.showMessage("File deleted")
-						self.showFiles("all", 1)
-					},
-					error: function() {
-						App.showMessage("Cannot delete file")
-					},
-				})
+					file.set('uid', id)
+
+					file.destroy({
+						success: function() {
+							App.router.navigate("#/files")
+							App.showMessage("File deleted")
+							self.showFiles("all", 1)
+						},
+						error: function() {
+							App.showMessage("Cannot delete file")
+						},
+					})
+				}
 			},			
 	})
 
