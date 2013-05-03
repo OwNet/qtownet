@@ -111,10 +111,9 @@ define( function (require) {
 
 				var id = $(e.currentTarget).data("id");
 				var file = new FileModel()
+				var self = this
 
 				file.set('uid', id)
-
-				var self = this
 
 				file.destroy({
 					success: function() {
