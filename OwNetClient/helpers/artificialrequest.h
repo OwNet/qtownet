@@ -33,6 +33,8 @@ public:
     IResponse* response(const QVariant body, IResponse::Status status = IResponse::OK);
     IResponse* response(IResponse::Status status);
 
+    IProxyConnection *proxyConnection();
+
 private:
     QString m_url;
     QString m_service;

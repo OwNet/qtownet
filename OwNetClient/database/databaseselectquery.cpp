@@ -9,6 +9,7 @@
 #include <QSqlRecord>
 #include <QSqlError>
 #include <QDebug>
+#include <qmath.h>
 
 /**
  * @brief The only possible constructor
@@ -177,4 +178,21 @@ void DatabaseSelectQuery::resetQuery()
         delete m_query;
     m_query = new QSqlQuery;
     m_executed = false;
+}
+
+int DatabaseSelectQuery::numberOfPages(int numItemsPerPage)
+{
+    int result = 0;
+    select("COUNT(*) AS count");
+    if (first()) {
+        result = qCeil(value("count").toInt() / (double)numItemsPerPage);
+        resetQuery();
+    }
+    return result;
+}
+
+void DatabaseSelectQuery::page(int page, int numItemsPerPage)
+{
+    limit(numItemsPerPage);
+    offset((page - 1) * numItemsPerPage);
 }

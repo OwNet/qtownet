@@ -37,6 +37,8 @@ public:
     QByteArray wholeRequestBody() const { return m_wholeRequestBody; }
     QByteArray getHeader(const QByteArray& name) const;
 
+    QTemporaryFile &temporaryFile() { return m_tempFile; }
+
 private:
     void readRequest(QIODevice &stream);
     void readHeader(QIODevice &stream);

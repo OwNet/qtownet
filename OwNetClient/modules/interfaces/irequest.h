@@ -6,6 +6,8 @@
 
 #undef DELETE
 
+class IProxyConnection;
+
 class IRequest
 {
 public:
@@ -33,6 +35,7 @@ public:
     virtual QMap<QString, QString> paramaters() const { return QMap<QString, QString>(); }
 
     virtual void setPostBody(const QVariant &) {}
+    virtual QString multipartContentTempFilePath() const { return QString(); }
 
     virtual IResponse* response() = 0;
     virtual IResponse* response(const QVariant body, IResponse::Status status = IResponse::OK) = 0;
@@ -40,6 +43,8 @@ public:
 
     virtual QString peerAddress() const { return ""; }
     virtual quint16 peerPort() const { return 0; }
+
+    virtual IProxyConnection *proxyConnection() = 0;
 };
 
 #endif // IREQUEST_H

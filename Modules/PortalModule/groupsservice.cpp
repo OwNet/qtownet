@@ -151,7 +151,7 @@ IResponse *GroupsService::create( IRequest *req)
 
     QString user_id = m_proxyConnection->session()->value("logged").toString();
     if(user_id==""){
-        return req->response(IResponse::UNAUTHORIEZED);
+        return req->response(IResponse::UNAUTHORIZED);
 
     }
 
@@ -333,7 +333,7 @@ IResponse *GroupsService::show(IRequest *req, uint id)
 
     QString user_id = m_proxyConnection->session()->value("logged").toString();
     if(!m_proxyConnection->session()->isLoggedIn() || !isMember(user_id.toUInt(),id) )
-        req->response(IResponse::UNAUTHORIEZED);
+        req->response(IResponse::UNAUTHORIZED);
 
     query.prepare("SELECT * FROM groups WHERE id = :id");
     query.bindValue(":id",id);
@@ -405,7 +405,7 @@ IResponse *GroupsService::show(IRequest *req, uint id)
 IResponse *GroupsService::allPagesCount(IRequest *req)
 {
     if(!m_proxyConnection->session()->isLoggedIn())
-        req->response(IResponse::UNAUTHORIEZED);
+        req->response(IResponse::UNAUTHORIZED);
 
     QSqlQuery query;
     query.prepare("SELECT COUNT(*) AS n FROM groups");
@@ -430,7 +430,7 @@ IResponse *GroupsService::index(IRequest *req)
 
 
     if(!m_proxyConnection->session()->isLoggedIn())
-        req->response(IResponse::UNAUTHORIEZED);
+        req->response(IResponse::UNAUTHORIZED);
 
     QString user_id = m_proxyConnection->session()->value("logged").toString();
 
@@ -493,7 +493,7 @@ IResponse *GroupsService::index(IRequest *req)
 IResponse *GroupsService::myPagesCount(IRequest *req)
 {
     if(!m_proxyConnection->session()->isLoggedIn())
-        req->response(IResponse::UNAUTHORIEZED);
+        req->response(IResponse::UNAUTHORIZED);
 
     QSqlQuery query;
     query.prepare("SELECT COUNT(*) AS n FROM groups "
@@ -559,14 +559,14 @@ IResponse *GroupsService::getUsersGroups( IRequest *req)
 
         return req->response(QVariant(groups),IResponse::OK);
     }
-    return req->response(IResponse::UNAUTHORIEZED);
+    return req->response(IResponse::UNAUTHORIZED);
 
 }
 
 IResponse *GroupsService::myAdminPagesCount(IRequest *req)
 {
     if(!m_proxyConnection->session()->isLoggedIn())
-        req->response(IResponse::UNAUTHORIEZED);
+        req->response(IResponse::UNAUTHORIZED);
 
     QSqlQuery query;
     query.prepare("SELECT COUNT(*) AS n FROM groups "
@@ -626,7 +626,7 @@ IResponse *GroupsService::getMyAdminGroups( IRequest *req)
 
         return req->response(groups,IResponse::OK);
     }
-    return req->response(IResponse::UNAUTHORIEZED);
+    return req->response(IResponse::UNAUTHORIZED);
 
 }
 
@@ -634,7 +634,7 @@ IResponse *GroupsService::getMyAdminGroups( IRequest *req)
 IResponse *GroupsService::awaitingPagesCount(IRequest *req)
 {
     if(!m_proxyConnection->session()->isLoggedIn())
-        req->response(IResponse::UNAUTHORIEZED);
+        req->response(IResponse::UNAUTHORIZED);
 
     QSqlQuery query;
     query.prepare("SELECT COUNT(*) AS n FROM groups "
@@ -692,7 +692,7 @@ IResponse *GroupsService::getAwaitingGroups( IRequest *req)
 
         return req->response(groups,IResponse::OK);
     }
-    return req->response(IResponse::UNAUTHORIEZED);
+    return req->response(IResponse::UNAUTHORIZED);
 
 }
 
@@ -700,7 +700,7 @@ IResponse *GroupsService::getAwaitingGroups( IRequest *req)
 IResponse *GroupsService::notMyPagesCount(IRequest *req)
 {
     if(!m_proxyConnection->session()->isLoggedIn())
-        req->response(IResponse::UNAUTHORIEZED);
+        req->response(IResponse::UNAUTHORIZED);
 
     QSqlQuery query;
     query.prepare("SELECT COUNT(*) AS n FROM groups WHERE id NOT IN "
@@ -761,7 +761,7 @@ IResponse *GroupsService::getNotMyGroups( IRequest *req)
 
         return req->response(groups,IResponse::OK);
     }
-    return req->response(IResponse::UNAUTHORIEZED);
+    return req->response(IResponse::UNAUTHORIZED);
 
 }
 
@@ -891,7 +891,7 @@ IResponse *GroupsService::joinGroup(IRequest *req)
     QString group_id = reqJson["group_id"].toString();
 
     if(!m_proxyConnection->session()->isLoggedIn())
-        return req->response(IResponse::UNAUTHORIEZED);
+        return req->response(IResponse::UNAUTHORIZED);
     QString user_id = m_proxyConnection->session()->value("logged").toString();
 
 
@@ -1005,7 +1005,7 @@ IResponse * GroupsService::approveUser( IRequest *req)
 
 
     if(!m_proxyConnection->session()->isLoggedIn())
-        req->response(IResponse::UNAUTHORIEZED);
+        req->response(IResponse::UNAUTHORIZED);
     QString curUserId = m_proxyConnection->session()->value("logged").toString();
 
     QVariantMap reqJson = req->postBodyFromJson(&ok).toMap();
@@ -1062,7 +1062,7 @@ IResponse * GroupsService::approveUser( IRequest *req)
     }
     else{
 
-        req->response(IResponse::UNAUTHORIEZED);
+        req->response(IResponse::UNAUTHORIZED);
     }
 
     return req->response(IResponse::OK);
@@ -1076,7 +1076,7 @@ IResponse * GroupsService::declineUser( IRequest *req)
 
 
     if(!m_proxyConnection->session()->isLoggedIn())
-        req->response(IResponse::UNAUTHORIEZED);
+        req->response(IResponse::UNAUTHORIZED);
     QString curUserId = m_proxyConnection->session()->value("logged").toString();
 
     QVariantMap reqJson = req->postBodyFromJson(&ok).toMap();
@@ -1133,7 +1133,7 @@ IResponse * GroupsService::declineUser( IRequest *req)
     }
     else{
 
-        return req->response(IResponse::UNAUTHORIEZED);
+        return req->response(IResponse::UNAUTHORIZED);
     }
 
     return req->response(IResponse::OK);
@@ -1146,7 +1146,7 @@ IResponse * GroupsService::addAdmin(IRequest *req)
     QVariantMap error;
 
     if(!m_proxyConnection->session()->isLoggedIn())
-        req->response(IResponse::UNAUTHORIEZED);
+        req->response(IResponse::UNAUTHORIZED);
     QString curUserId = m_proxyConnection->session()->value("logged").toString();
 
     QVariantMap reqJson = req->postBodyFromJson(&ok).toMap();
@@ -1192,7 +1192,7 @@ IResponse * GroupsService::addAdmin(IRequest *req)
         }
     }
     else{
-        return req->response(IResponse::UNAUTHORIEZED);
+        return req->response(IResponse::UNAUTHORIZED);
     }
 
     return req->response(IResponse::OK);
@@ -1231,7 +1231,7 @@ IResponse *GroupsService::getGroupUsers( IRequest *req)
     QVariantMap error;
 
     if(!m_proxyConnection->session()->isLoggedIn())
-        req->response(IResponse::UNAUTHORIEZED);
+        req->response(IResponse::UNAUTHORIZED);
     QString curUserId = m_proxyConnection->session()->value("logged").toString();
 
     bool missingValue = false;
