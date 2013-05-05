@@ -7,15 +7,18 @@
 #include "idatabasesettings.h"
 #include "portalhelper.h"
 #include "idatabaseselectqueryjoin.h"
+#include "idatabaseselectquerywheregroup.h"
 
 #include <QFile>
 #include <QStringList>
 #include <QBuffer>
 #include <QUrl>
+#include <QDebug>
 
 SharedFilesManager::SharedFilesManager(IProxyConnection *proxyConnection, QObject *parent) :
     QObject(parent),
-    m_proxyConnection(proxyConnection)
+    m_proxyConnection(proxyConnection),
+    m_groupId(0)
 {
 }
 
@@ -38,6 +41,7 @@ void SharedFilesManager::saveFileToCache()
     QByteArray fileContent = getValueFor(&tempFile, "selectfile", true);
     m_title = QString(getValueFor(&tempFile, "title", false).trimmed());
     m_description = QString(getValueFor(&tempFile, "description", false).trimmed());
+    m_groupId = QString(getValueFor(&tempFile, "file_group_id", false)).trimmed().toUInt();
 
     if (!fileContent.isEmpty()) {
         ICacheFolder *folder = m_proxyConnection->cacheFolder();
@@ -60,12 +64,15 @@ void SharedFilesManager::saveFileToCache()
     }
 }
 
-QVariantList SharedFilesManager::listAvailableFiles(int page, Filter filter)
+QVariantList SharedFilesManager::listAvailableFiles(int page, Filter filter, uint groupId)
 {
     QObject parent;
     IDatabaseSelectQuery *query = m_proxyConnection->databaseSelect("shared_files", &parent);
+    IDatabaseSelectQueryWhereGroup *where = query->whereGroup();
+    where->where("group_id", groupId);
+
     if (filter == MyFiles)
-        query->singleWhere("user_id", PortalHelper::currentUserId(m_proxyConnection));
+        where->where("user_id", PortalHelper::currentUserId(m_proxyConnection));
     query->join("users")->singleWhere("users.id", "shared_files.user_id", IDatabaseSelectQuery::Equal, false);
     query->page(page, ItemsPerPage);
     query->orderBy("date_created DESC");
@@ -99,9 +106,11 @@ void SharedFilesManager::removeFile(const QString &uid)
     query->executeQuery();
 }
 
-int SharedFilesManager::numberOfPages(Filter filter)
+int SharedFilesManager::numberOfPages(Filter filter, uint groupId)
 {
     IDatabaseSelectQuery *query = m_proxyConnection->databaseSelect("shared_files", this);
+    IDatabaseSelectQueryWhereGroup *where = query->whereGroup();
+    where->where("group_id", groupId);
     if (filter == MyFiles)
         query->singleWhere("user_id", PortalHelper::currentUserId(m_proxyConnection));
 
@@ -197,6 +206,7 @@ void SharedFilesManager::saveToDatabase(const QString &url, qint64 size)
     updateQuery->setColumnValue("cache_id", m_proxyConnection->cacheId(url));
     updateQuery->setColumnValue("content_type", m_contentType);
     updateQuery->setColumnValue("user_id", PortalHelper::currentUserId(m_proxyConnection));
+    updateQuery->setColumnValue("group_id", m_groupId);
     updateQuery->setUpdateDates(true);
     updateQuery->executeQuery();
 }

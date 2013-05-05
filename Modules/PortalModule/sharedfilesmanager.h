@@ -22,9 +22,9 @@ public:
     explicit SharedFilesManager(const QString &tempFileName, IProxyConnection *proxyConnection, QObject *parent = 0);
 
     void saveFileToCache();
-    QVariantList listAvailableFiles(int page = 1, Filter filter = AllFiles);
+    QVariantList listAvailableFiles(int page = 1, Filter filter = AllFiles, uint groupId = 0);
     void removeFile(const QString &uid);
-    int numberOfPages(Filter filter = AllFiles);
+    int numberOfPages(Filter filter = AllFiles, uint groupId = 0);
 
 private:
     QByteArray getValueFor(QFile *tempFile, const QString &key, bool findFileName);
@@ -36,6 +36,7 @@ private:
     QString m_title;
     QString m_description;
     QString m_contentType;
+    uint m_groupId;
     IProxyConnection *m_proxyConnection;
 };
 

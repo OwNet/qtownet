@@ -9,5 +9,6 @@ CREATE TABLE "shared_files" (
 "title" TEXT,
 "description" TEXT,
 "cache_id" INTEGER NOT NULL,
-"user_id" INTEGER REFERENCES "users"("id") NOT NULL
+"user_id" INTEGER REFERENCES "users"("id") NOT NULL,
+"group_id" INTEGER NOT NULL REFERENCES "groups"("id")
 );

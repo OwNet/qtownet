@@ -100,8 +100,6 @@ void SocketHandler::finishedReadingRequest()
     if (m_timeoutTimer->isActive())
         m_timeoutTimer->stop();
 
-    qDebug() << m_requestReader->wholeRequestBody();
-
     m_numProxyHandlers++;
     ProxyHandler *handler = new ProxyHandler;
     handler->service(this);

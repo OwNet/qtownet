@@ -44,7 +44,7 @@ public:
     virtual void select(const QStringList &columns) = 0;
 
     virtual void singleWhere(const QString &column, const QVariant &value, WhereOperator op = Equal, bool bind = true) = 0;
-    virtual IDatabaseSelectQueryWhereGroup *whereGroup(IDatabaseSelectQuery::JoinOperator op) = 0;
+    virtual IDatabaseSelectQueryWhereGroup *whereGroup(IDatabaseSelectQuery::JoinOperator op = IDatabaseSelectQuery::And) = 0;
 
     virtual IDatabaseSelectQueryJoin *join(const QString &table, IDatabaseSelectQuery::JoinType joinType = Join) = 0;
 

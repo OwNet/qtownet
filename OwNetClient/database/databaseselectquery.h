@@ -37,7 +37,7 @@ public:
     void clearSelect() { m_selectColumns.clear(); }
 
     void singleWhere(const QString &column, const QVariant &value, WhereOperator op = Equal, bool bind = true);
-    IDatabaseSelectQueryWhereGroup *whereGroup(IDatabaseSelectQuery::JoinOperator op);
+    IDatabaseSelectQueryWhereGroup *whereGroup(IDatabaseSelectQuery::JoinOperator op = IDatabaseSelectQuery::And);
 
     IDatabaseSelectQueryJoin *join(const QString &table, IDatabaseSelectQuery::JoinType joinType = Join);
 
