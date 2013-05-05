@@ -11,13 +11,13 @@ define( function (require) {
 	  , fileTableTemplate = require ("tpl/filestable")
 	  , groupFormTemplate = require ("tpl/groupform")
 	  , pagerTemplate = require ("tpl/filespager")
-
+	  
 	  , FileModel = require ("share/models/FileModel")
 	  , Form = require("share/utils/form")
 
 
 	var FileView = Backbone.View.extend({
-
+			
 			events: {
 
 				'submit form[name="file-upload-form"]': 'uploadFile',
@@ -31,6 +31,28 @@ define( function (require) {
 				this.trigger('render')
 
 				return this
+			},
+
+			uploadFileGroup: function() {
+				
+				var $groups = $('select[name="file_group_id"]', this.$el)
+				
+				var FileDGroups = Backbone.Collection.extend({
+
+					url: '/api/groups'
+
+				})
+
+				var filesgroup = new FileDGroups()
+				filesgroup.fetch({
+					success: function(){
+						filesgroup.where({ member: "1" }).forEach( function(grp){
+							$groups.append( $('<option>', { value:grp.get('id'), text: grp.get('name')  } ) )
+					})
+					
+				}	
+				})
+				
 			},
 
 			show: function() {
@@ -70,6 +92,8 @@ define( function (require) {
 
 			upload: function() {
 				$("#upload_file").slideDown('slow')
+				this.uploadFileGroup()
+	
 			},
 
 			uploadFile: function(e) {
@@ -88,6 +112,7 @@ define( function (require) {
     				processData: false,
     				beforeSend: function(e){
     					$('#myModal').modal('show')
+    					console.log(data)
     				},
 
     				success: function(e){

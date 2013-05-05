@@ -9,6 +9,10 @@ form(name="file-upload-form",id="file-upload-form",method='post',enctype='multip
 		.controls
 			input(id="inputDescription1",type="text", name="description",id="description", placeholder="Enter file description...", required)
 	.control-group.offset2
+		label.control-label Group:
+		.controls
+			select(name="file_group_id", required)
+	.control-group.offset2
 		.controls
 			input(type="file",name="selectfile",id="upload-box")			
 		.controls
