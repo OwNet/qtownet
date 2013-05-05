@@ -48,9 +48,9 @@ define( function (require) {
 					success: function(){
 						filesgroup.where({ member: "1" }).forEach( function(grp){
 							$groups.append( $('<option>', { value:grp.get('id'), text: grp.get('name')  } ) )
-					})
+						})
 					
-				}	
+					}	
 				})
 				
 			},
