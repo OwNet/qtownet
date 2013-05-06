@@ -89,7 +89,7 @@ void ProxyResponseOutputWriter::error()
 {
     if (!m_hasWrittenResponseHeaders) {
         if (!Session().isOnline()) {
-            m_socketHandler->writeStatusCodeAndDescription(301, "Moved Permanently");
+            m_socketHandler->writeStatusCodeAndDescription(307, "Temporary Redirect");
             VariantMap responseHeaders;
             responseHeaders.insert("Location", QString("http://my.ownet/?url=%1")
                                    .arg(QString(QUrl::toPercentEncoding(m_socketHandler->requestReader()->url()))));
