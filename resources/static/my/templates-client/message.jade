@@ -19,56 +19,56 @@
 
 	.comments-count
 		a(href="#", name="loadComments")
-			| #{ar[1] == "0" ? 'Add' : 'Show' }&nbsp;
+			| #{ar[1] == "0" ? 'Add' : 'Show '+ ar[1] }&nbsp;
 			img(src="img/comment.png")
 
 	.created
 		label created #{new Date(message.date_created).toLocaleString()}
 
 
-	.comments
-	if (message.comments)
-		each comment in message.comments
-			.comment
-				if (comment.gender == "Female")
-					.image
-						img( src="img/girl.png" )
-				else
-					.image
-						img( src="img/boy.png" )
+.comments
+if (message.comments)
+	each comment in message.comments
+		.comment
+			if (comment.gender == "Female")
+				.image
+					img( src="img/girl.png" )
+			else
+				.image
+					img( src="img/boy.png" )
 
-				if (user.id == comment.user_id)
-					.delete
-						a(href="#",data-id="#{comment.uid}", name="delete-comment", title="Delete")
-							img.icon( src="img/no.png")
+			if (user.id == comment.user_id)
+				.delete
+					a(href="#",data-id="#{comment.uid}", name="delete-comment", title="Delete")
+						img.icon( src="img/no.png")
 
-				.name
-					label.orange
-						a( data-id="#{comment.user_id}",name="showOtherUser" ) #{comment.first_name} #{comment.last_name}
-					label commented:
+			.name
+				label.orange
+					a( data-id="#{comment.user_id}",name="showOtherUser" ) #{comment.first_name} #{comment.last_name}
+				label commented:
 
-				.created
-					label created #{new Date(comment.date_created).toLocaleDateString()}
+			.created
+				label created #{new Date(comment.date_created).toLocaleDateString()}
 
-				.text
-					label #{comment.message}
+			.text
+				label #{comment.message}
 
 
-		form(name="comment-message-form", id="comment").form-horizontal
-			.new-comment
-				if (user.gender == "Female")
-					.image
-						img( src="img/girl.png" )
-				else
-					.image
-						img( src="img/boy.png" )
-				.name
-					label.orange
-						a( data-id="#{user.id}",name="showOtherUser" ) #{user.first_name} #{user.last_name}
-					//- label :
-				.text
-					input(type="text", name="comment").comment-message
-					//- input(type="hidden", name="group_id", value="#{message.group_id}").group_id
-					//- input(type="hidden", name="parent_id", value="#{message.uid}").parent_id
-					//- input(type="hidden", name="page", value="#{page}").page
-					button.btn.btn-info(type="button", name="submit-comment") Comment
+	form(name="comment-message-form", id="comment").form-horizontal
+		.new-comment
+			if (user.gender == "Female")
+				.image
+					img( src="img/girl.png" )
+			else
+				.image
+					img( src="img/boy.png" )
+			.name
+				label.orange
+					a( data-id="#{user.id}",name="showOtherUser" ) #{user.first_name} #{user.last_name}
+				//- label :
+			.text
+				input(type="text", name="comment").comment-message
+				//- input(type="hidden", name="group_id", value="#{message.group_id}").group_id
+				//- input(type="hidden", name="parent_id", value="#{message.uid}").parent_id
+				//- input(type="hidden", name="page", value="#{page}").page
+				button.btn.btn-info(type="button", name="submit-comment") Comment
