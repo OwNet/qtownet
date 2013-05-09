@@ -28,7 +28,7 @@ define( function (require) {
 
 			defaultOptions: {
 				refresh: true,
-				// refresh: false,
+				//refresh: false,
 				interval: 10000,
 				params: { page:1 },
 			},
@@ -88,6 +88,7 @@ define( function (require) {
 				this.refreshPagesCountXhr = this.activities.fetchPageCount()
 
 				return $.when( this.refreshXhr, this.refreshPagesCountXhr).then( function() {
+					console.log(self.activities)
 					delete self.refreshXhr
 					delete self.refreshPagesCountXhr
 					self.$pager.html( pagerTemplate({ pages: self.activities.pages, current: self.options.params.page  }) )
@@ -95,17 +96,17 @@ define( function (require) {
 			},
 
 			stopRefreshing: function() {
-				if (this._refreshTimer) {
+				/*if (this._refreshTimer) {
 					clearTimeout(this._refreshTimer)
 					this._refreshTimer = null
-				}
+				}*/
 			},
 
 			showPage: function(page, force) {
 				if (page != this.options.params.page || force) {
 					this.options.params.page = page
 					this.refresh().then( function() {
-						window.scrollTo(0,0)
+						//window.scrollTo(0,0)
 					})
 				}
 			},

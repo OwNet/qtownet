@@ -66,7 +66,7 @@ define( function (require) {
 				}
 				$('.messages-left > .links > .link').removeClass('active')
 				$(e.target).closest('a').parent().addClass('active')
-				this.activitiesView.refresh()
+				this.activitiesView.render()
 
 				return false
 			},
