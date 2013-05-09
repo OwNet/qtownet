@@ -8,7 +8,6 @@ define( function (require) {
 	  , RecommendationView = require('views/activities/RecommendationView')
 	  , RatingView = require('views/activities/RatingView')
 	  , MessageView = require('views/activities/MessageView')
-	  , pagerTemplate = require('tpl/pager')
 
 
 	require('Backbone.CollectionBinder')
@@ -21,10 +20,6 @@ define( function (require) {
 
 
 	var ActivitiesView = Backbone.View.extend({
-
-			events: {
-				'click a[data-page]' : 'onPageClick',
-			},
 
 			defaultOptions: {
 				refresh: true,
@@ -44,6 +39,9 @@ define( function (require) {
 				this.collectionBinder = new Backbone.CollectionBinder(viewManagerFactory)
 
 				this.page = 1
+
+				_.bindAll(this, 'checkScroll');
+  				$(window).scroll(this.checkScroll);
 			},
 
 			render: function() {
@@ -51,8 +49,7 @@ define( function (require) {
 				this.$el.html( '' )
 
 				this.$list = $('<div>')
-				this.$pager = $('<div>')
-				this.$el.append(this.$list).append(this.$pager)
+				this.$el.append(this.$list)
 
 				this.collectionBinder.bind(this.activities, this.$list)
 
@@ -80,34 +77,21 @@ define( function (require) {
 			refresh: function() {
 				if (this.refreshXhr) {
 					this.refreshXhr.abort()
-					this.refreshPagesCountXhr.abort()
 				}
 
 				var self = this
 				this.refreshXhr = this.activities.fetch()
-				this.refreshPagesCountXhr = this.activities.fetchPageCount()
 
-				return $.when( this.refreshXhr, this.refreshPagesCountXhr).then( function() {
+				return $.when( this.refreshXhr).then( function() {
 					console.log(self.activities)
 					delete self.refreshXhr
-					delete self.refreshPagesCountXhr
-					self.$pager.html( pagerTemplate({ pages: self.activities.pages, current: self.options.params.page  }) )
 				})
 			},
 
-			stopRefreshing: function() {
-				/*if (this._refreshTimer) {
+			stopRefreshing: function() {		//TODO fix this
+				if (this._refreshTimer) {
 					clearTimeout(this._refreshTimer)
 					this._refreshTimer = null
-				}*/
-			},
-
-			showPage: function(page, force) {
-				if (page != this.options.params.page || force) {
-					this.options.params.page = page
-					this.refresh().then( function() {
-						//window.scrollTo(0,0)
-					})
 				}
 			},
 
@@ -117,12 +101,6 @@ define( function (require) {
 
 			deleteParam: function(key) {
 				delete this.options.params[key]
-			},
-
-			onPageClick: function(e) {
-				var page = $(e.target).attr('data-page')
-				this.showPage(page)
-				return false
 			},
 
 			_refreshSetTimeout: function(timeout) {
@@ -141,7 +119,15 @@ define( function (require) {
 			_viewFactory: function(model) {
 				var View = activitiesTypesView[model.get('type')] || Backbone.View
 				return new View({model: model, parent: this})
-			}
+			}, 
+
+			checkScroll: function () {
+				var triggerPoint = 30
+				if( $(document).scrollTop() >= $(document).height() - $(window).height() - triggerPoint ) {
+					this.options.params.page += 1
+					this.refresh()
+				}
+		    }
 
 	})
 

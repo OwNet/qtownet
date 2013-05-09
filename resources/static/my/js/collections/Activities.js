@@ -8,13 +8,13 @@ define( function (require) {
 		model: ActivityModel, 
 
 		comparator: function(item) {
-	       var str = item.get("date_created");
-  str = str.toLowerCase();
-  str = str.split("");
-  str = _.map(str, function(letter) { 
-    return String.fromCharCode(-(letter.charCodeAt(0)));
-  });
-  return str;
+			var str = item.get("date_created")
+			str = str.toLowerCase()
+			str = str.split("")
+			str = _.map(str, function(letter) { 
+				return String.fromCharCode(-(letter.charCodeAt(0)))
+			})
+  			return str;
 	    },
 
 		url: '/api/activities',
@@ -28,22 +28,18 @@ define( function (require) {
 		fetch: function(options) {
 			options = options || {};
 			options.data = options.data ?  _.extend(options.data, this._params) : this._params
-			//opts.reset = false
-			//opts.update = true
 			var collection = this,
             success = options.success;
-        options.success = function(resp, status, xhr) {
-            _(collection.parse(resp, xhr)).each(function(item) {
-                if (!collection.get(item.id)) {
-                    collection.add(item, {silent:true});
-                }
-            });
-            if (!options.silent) collection.trigger('reset', collection, options);
-            if (success) success(collection, resp);
-        };
-        return (this.sync || Backbone.sync).call(this, 'read', this, options);
-
-		//	return Activities.__super__.fetch.call(this, opts)
+        	options.success = function(resp, status, xhr) {
+	            _(collection.parse(resp, xhr)).each(function(item) {
+	                if (!collection.get(item.id)) {
+	                    collection.add(item, {silent:true});
+	                }
+	            })
+	            if (!options.silent) collection.trigger('reset', collection, options);
+	            if (success) success(collection, resp);
+	        }
+	        return (this.sync || Backbone.sync).call(this, 'read', this, options);
 		},
 
 		fetchPageCount: function() {
