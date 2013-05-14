@@ -5,12 +5,12 @@
 #include "isession.h"
 #include "idatabaseselectquery.h"
 #include "idatabasesettings.h"
+#include "isettings.h"
 
 #include <QNetworkAccessManager>
 #include <QNetworkRequest>
 #include <QNetworkReply>
 #include <QNetworkProxy>
-#include <QSettings>
 
 SharedFilesUpdateListener::SharedFilesUpdateListener() :
     m_networkAccessManager(NULL),
