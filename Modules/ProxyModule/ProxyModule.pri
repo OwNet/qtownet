@@ -12,7 +12,7 @@ SOURCES        += $${ModulePath}/refreshservice.cpp \
     $${ModulePath}/firewalldiscoveryjob.cpp \
     $${ModulePath}/firewalldiscoveryservice.cpp \
     $${ModulePath}/firewalldiscoverymanager.cpp \
-    appservice.cpp
+    $${ModulePath}/appservice.cpp
 
 HEADERS        += $${ModulePath}/refreshservice.h \
     $${ModulePath}/webpinger.h \
@@ -23,4 +23,4 @@ HEADERS        += $${ModulePath}/refreshservice.h \
     $${ModulePath}/firewalldiscoveryjob.h \
     $${ModulePath}/firewalldiscoveryservice.h \
     $${ModulePath}/firewalldiscoverymanager.h \
-    appservice.h
+    $${ModulePath}/appservice.h

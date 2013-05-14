@@ -14,6 +14,7 @@ private slots:
     void cleanupTestCase();
 
     void testInputAndOutput();
+    void testSimultaneousReadAndWrite();
 };
 
 #endif // PROXYDOWNLOADTESTS_H

@@ -10,6 +10,7 @@
 #include "proxywebinputobject.h"
 
 #include <QtTest>
+#include <QFile>
 
 ProxyDownloadTests::ProxyDownloadTests(QObject *parent) :
     QObject(parent)
@@ -50,4 +51,18 @@ void ProxyDownloadTests::testInputAndOutput()
     int readerId = download.registerReader();
     QCOMPARE(download.downloadPart(readerId)->stream()->stream()->readAll(), ba);
     QCOMPARE(download.downloadPart(readerId)->stream()->stream()->readAll(), ba2);
+}
+
+void ProxyDownloadTests::testSimultaneousReadAndWrite()
+{
+    QFile file("test.txt");
+    file.open(QFile::WriteOnly);
+    file.write("HAHA! This is funny!");
+    file.flush();
+    QFile fileRead("test.txt");
+    fileRead.open(QFile::ReadOnly);
+    QCOMPARE(fileRead.readAll(), QByteArray("HAHA! This is funny!"));
+    file.write("Soooo funny!");
+    file.flush();
+    QCOMPARE(fileRead.readAll(), QByteArray("Soooo funny!"));
 }

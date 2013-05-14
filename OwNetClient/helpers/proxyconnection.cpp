@@ -180,5 +180,7 @@ bool ProxyConnection::isCacheAvailable(uint cacheId) const
 
 void ProxyConnection::quit() const
 {
+#ifndef TEST
     qApp->quit();
+#endif
 }
