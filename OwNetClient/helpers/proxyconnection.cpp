@@ -15,12 +15,15 @@
 #include "messagehelper.h"
 #include "uniqueidhelper.h"
 #include "cachehelper.h"
-#include "jobinitializer.h"
-
+#include "cachefolder.h"
+#include "proxycacheoutputwriter.h"
 #include "proxydownloads.h"
 #include "proxytrafficcounter.h"
 
+#ifndef TEST
 #include <QApplication>
+#include "jobinitializer.h"
+#endif
 
 ProxyConnection::ProxyConnection(QObject *parent) :
     QObject(parent)
@@ -96,9 +99,11 @@ void ProxyConnection::registerUidRestService(IUidRestService *service)
 
 void ProxyConnection::registerJob(IJobAction* job)
 {
+#ifndef TEST
     QThread *thread = JobInitializer::startJob(new ModuleJob(job));
     if (thread)
         job->moveToThread(thread);
+#endif
 }
 
 /**
@@ -156,6 +161,21 @@ QString ProxyConnection::generateUniqueId() const
 uint ProxyConnection::cacheId(const QString &url) const
 {
     return CacheHelper::cacheId(url);
+}
+
+ICacheFolder *ProxyConnection::cacheFolder() const
+{
+    return new CacheFolder();
+}
+
+void ProxyConnection::saveToCache(const QString &url, int numParts, qint64 size, int numAccesses) const
+{
+    ProxyCacheOutputWriter::saveToCache(CacheHelper::cacheId(url), url, numParts, size, numAccesses);
+}
+
+bool ProxyConnection::isCacheAvailable(uint cacheId) const
+{
+    return ProxyDownloads::instance()->isCacheAvailable(cacheId);
 }
 
 void ProxyConnection::quit() const

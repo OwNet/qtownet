@@ -1,0 +1,25 @@
+form(name="file-upload-form",id="file-upload-form",method='post',enctype='multipart/form-data').form-horizontal.message
+	h2.center Upload file
+	.control-group.offset2
+		label(for="inputTitle").control-label
+		.controls
+			input(id="inputTitle1",type="text", name="title",id="title", placeholder="Enter file title...", required)
+	.control-group.offset2
+		label(for="inputDescription").control-label
+		.controls
+			input(id="inputDescription1",type="text", name="description",id="description", placeholder="Enter file description...", required)
+	.control-group.offset2
+		label.control-label Group:
+		.controls
+			select(name="file_group_id", required)
+	.control-group.offset2
+		.controls
+			input(type="file",name="selectfile",id="upload-box")			
+		.controls
+			//- input(type="text",id="subfile", disabled)
+		.controls
+			//- button(id="uploadButton",onclick="$('#upload-box').click();").btn.btn-primary Add file...
+			button.btn.btn-success(type="submit",name="upload-file",id="submitbutton") Upload
+#myModal.modal.hide.fade
+	.modal-body
+		h1.center Uploading...

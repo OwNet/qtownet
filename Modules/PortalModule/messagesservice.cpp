@@ -37,7 +37,7 @@ IResponse *MessagesService::create(IRequest *req)
 
     QString cur_user_id = m_proxyConnection->session()->value("logged").toString();
     if(cur_user_id == "")
-        return req->response(IResponse::UNAUTHORIEZED);
+        return req->response(IResponse::UNAUTHORIZED);
 
     QVariantMap reqJson = req->postBodyFromJson(&ok).toMap();
     if (!ok){
@@ -138,7 +138,7 @@ IResponse *MessagesService::create(IRequest *req)
     }
     else{
        error.insert("membership in group","required");
-       return req->response(QVariant(error),IResponse::UNAUTHORIEZED);
+       return req->response(QVariant(error),IResponse::UNAUTHORIZED);
     }
 
 
@@ -151,7 +151,7 @@ IResponse *MessagesService::allPagesCount(IRequest *req)
 
     QString curUser_id = m_proxyConnection->session()->value("logged").toString();
     if(curUser_id == "")
-        return req->response(IResponse::UNAUTHORIEZED);
+        return req->response(IResponse::UNAUTHORIZED);
 
     QString group_id = req->parameterValue("group_id");
     if(group_id == ""){
@@ -198,7 +198,7 @@ IResponse *MessagesService::index(IRequest *req)
 
     QString curUser_id = m_proxyConnection->session()->value("logged").toString();
     if(curUser_id == "")
-        return req->response(IResponse::UNAUTHORIEZED);
+        return req->response(IResponse::UNAUTHORIZED);
 
     QString group_id = req->parameterValue("group_id");
     if(group_id == ""){
@@ -306,7 +306,7 @@ IResponse *MessagesService::index(IRequest *req)
 
     else{
        error.insert("membership in group","required");
-       return req->response(QVariant(error),IResponse::UNAUTHORIEZED);
+       return req->response(QVariant(error),IResponse::UNAUTHORIZED);
     }
 
 }
@@ -319,7 +319,7 @@ IResponse *MessagesService::show(IRequest *req, const QString &uid)
 
     QString curUser_id = m_proxyConnection->session()->value("logged").toString();
     if(curUser_id == "")
-        return req->response(IResponse::UNAUTHORIEZED);
+        return req->response(IResponse::UNAUTHORIZED);
 
     QSqlQuery queryGId;
     queryGId.prepare("SELECT * FROM messages WHERE uid = :uid");
@@ -362,6 +362,7 @@ IResponse *MessagesService::show(IRequest *req, const QString &uid)
             message.insert("last_name", query.value(query.record().indexOf("last_name")).toString());
             message.insert("date_created", query.value(query.record().indexOf("date_created")).toString());
             message.insert("user_id", query.value(query.record().indexOf("user_id")).toString());
+            message.insert("group_id", query.value(query.record().indexOf("group_id")));
             message.insert("parent_id", query.value(query.record().indexOf("parent_id")).toString());
             message.insert("uid", query.value(query.record().indexOf("uid")).toString());
             message.insert("type", "message");
@@ -370,7 +371,7 @@ IResponse *MessagesService::show(IRequest *req, const QString &uid)
 
 
         query.prepare("SELECT * FROM messages JOIN users ON users.id = messages.user_id WHERE group_id = :group_id AND "
-                      "parent_id = :parent_id  ORDER BY date_created DESC");
+                      "parent_id = :parent_id  ORDER BY date_created ASC");
         query.bindValue(":group_id",group_id);
         query.bindValue(":parent_id", uid);
 
@@ -392,25 +393,23 @@ IResponse *MessagesService::show(IRequest *req, const QString &uid)
             comment.insert("first_name", query.value(query.record().indexOf("first_name")));
             comment.insert("last_name", query.value(query.record().indexOf("last_name")));
             comment.insert("user_id", query.value(query.record().indexOf("user_id")));
+            comment.insert("group_id", query.value(query.record().indexOf("group_id")));
             comment.insert("date_created", query.value(query.record().indexOf("date_created")));
             comment.insert("parent_id", query.value(query.record().indexOf("parent_id")));
             comment.insert("uid", query.value(query.record().indexOf("uid")));
             comment.insert("type", "comment");
 
             comments.append(comment);
-        }
-        QVariantList response;
+        }        
 
-        if(!comments.empty())
-            message.insert("comments",comments);
-        response.append(message);
+         message.insert("comments",comments);
 
-        return req->response(QVariant(response), IResponse::OK);
+        return req->response(QVariant(message), IResponse::OK);
     }
 
     else{
        error.insert("membership in group","required");
-       return req->response(QVariant(error),IResponse::UNAUTHORIEZED);
+       return req->response(QVariant(error),IResponse::UNAUTHORIZED);
     }
 
 }
@@ -421,7 +420,7 @@ IResponse *MessagesService::del(IRequest *req, const QString &uid)
 
     QString cur_user_id = m_proxyConnection->session()->value("logged").toString();
     if(cur_user_id == "")
-        return req->response(IResponse::UNAUTHORIEZED);
+        return req->response(IResponse::UNAUTHORIZED);
 
     bool owner = false;
     bool admin = false;
@@ -479,7 +478,7 @@ IResponse *MessagesService::del(IRequest *req, const QString &uid)
     }
     else{
        error.insert("membership in group","required");
-       return req->response(QVariant(error),IResponse::UNAUTHORIEZED);
+       return req->response(QVariant(error),IResponse::UNAUTHORIZED);
     }
 
 }

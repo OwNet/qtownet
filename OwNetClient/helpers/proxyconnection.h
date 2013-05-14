@@ -37,6 +37,10 @@ public:
     int lastConnectionTraffic() const;
     QString generateUniqueId() const;
     uint cacheId(const QString &url) const;
+    ICacheFolder *cacheFolder() const;
+    void saveToCache(const QString &url, int numParts, qint64 size, int numAccesses) const;
+    bool isCacheAvailable(uint cacheId) const;
+
     void quit() const;
 };
 

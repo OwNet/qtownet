@@ -1,0 +1,30 @@
+each file in files
+	.message
+		.image
+			img( src="img/down.png")
+		//- if (activity.gender == "Female")
+		//- 	.image
+		//- 		img( src="img/girl.png" )
+		//- else
+		//- 	.image
+		//- 		img( src="img/boy.png" )
+		if (curusr.id == file.user_id)
+			.delete
+				a( href="#/files", data-id="#{file.uid}", name="delete-file", title="Delete")
+					img.icon( src="img/no.png")
+		.name
+			label.orange
+				a( href="#/profile/#{file.user_id}/show" ) #{file.user_first_name} #{file.user_last_name}
+			label
+				| Uploaded:&nbsp;
+				if (file.available == true)
+					a( href="#{file.url}",name="file", target="_blank" ) #{file.title}
+				else
+					span #{file.title}
+		.text #{file.description}
+	
+		.created
+			label created #{new Date(file.date_created).toLocaleString()}
+
+
+

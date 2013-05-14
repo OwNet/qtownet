@@ -36,6 +36,37 @@ ProxyCacheOutputWriter::ProxyCacheOutputWriter(ProxyDownload *download, int down
     m_hashCode = m_request->hashCode();
 }
 
+void ProxyCacheOutputWriter::saveToCache(uint hashCode, const QString &url, int numParts, qint64 size, int numAccesses)
+{
+	if (!CacheHelper::canUseDatabase())
+		return;
+    {
+        DatabaseUpdateQuery query("caches", DatabaseUpdateQuery::InsertOrUpdate);
+        query.setUpdateDates(true);
+        query.singleWhere("id", hashCode);
+        query.setColumnValue("id", hashCode);
+        query.setColumnValue("absolute_uri", url);
+        query.setColumnValue("num_parts", numParts);
+        query.setColumnValue("size", size);
+        query.setColumnValue("access_value", ProxyDownloads::instance()->gdsfClock()->getGDSFPriority(numAccesses, size));
+        query.executeQuery();
+    }
+    {
+        QString clientId = DatabaseSettings().clientId();
+        SyncedDatabaseUpdateQuery query("client_caches");
+        query.setUpdateDates(IDatabaseUpdateQuery::DateCreated);
+        query.setColumnValue("client_id", clientId);
+        query.setColumnValue("cache_id", hashCode);
+        IDatabaseSelectQueryWhereGroup *where = query.whereGroup(IDatabaseSelectQuery::And);
+        where->where("client_id", clientId);
+        where->where("cache_id", hashCode);
+        query.setGroupId(ISyncedDatabaseUpdateQuery::GroupCaches);
+        query.setForceOperation(ProxyDownloads::instance()->containsCacheLocation(hashCode, clientId) ?
+                                    DatabaseUpdateQuery::ForceUpdate : DatabaseUpdateQuery::ForceInsert);
+        query.executeQuery();
+    }
+}
+
 /**
  * @brief Close the remaining output file in cache and save to database if successful.
  */
@@ -97,33 +128,7 @@ void ProxyCacheOutputWriter::save()
         accessCount = sqlQuery.value(sqlQuery.record().indexOf("access_count")).toInt();
     accessCount++;
 
-    if (CacheHelper::canUseDatabase()) {
-        {
-            DatabaseUpdateQuery query("caches", DatabaseUpdateQuery::InsertOrUpdate);
-            query.setUpdateDates(true);
-            query.singleWhere("id", m_hashCode);
-            query.setColumnValue("id", m_hashCode);
-            query.setColumnValue("absolute_uri", m_url);
-            query.setColumnValue("num_parts", m_numFileParts);
-            query.setColumnValue("size", m_sizeWritten);
-            query.setColumnValue("access_value", ProxyDownloads::instance()->gdsfClock()->getGDSFPriority(accessCount, m_sizeWritten));
-            query.executeQuery();
-        }
-        {
-            QString clientId = DatabaseSettings().clientId();
-            SyncedDatabaseUpdateQuery query("client_caches");
-            query.setUpdateDates(IDatabaseUpdateQuery::DateCreated);
-            query.setColumnValue("client_id", clientId);
-            query.setColumnValue("cache_id", m_hashCode);
-            IDatabaseSelectQueryWhereGroup *where = query.whereGroup(IDatabaseSelectQuery::And);
-            where->where("client_id", clientId);
-            where->where("cache_id", m_hashCode);
-            query.setGroupId(ISyncedDatabaseUpdateQuery::GroupCaches);
-            query.setForceOperation(ProxyDownloads::instance()->containsCacheLocation(m_hashCode, clientId) ?
-                                        DatabaseUpdateQuery::ForceUpdate : DatabaseUpdateQuery::ForceInsert);
-            query.executeQuery();
-        }
-    }
+    saveToCache(m_hashCode, m_url, m_numFileParts, m_sizeWritten, accessCount);
 }
 
 /**

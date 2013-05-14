@@ -12,7 +12,7 @@
 			img.icon( src="img/no.png", ,name="delete-activity", title="Delete")
 	.name
 		label.orange
-			a( href="#/profile",data-id="#{activity.user_id}",name="showOthearProfile" ) #{activity.user_name}
+			a( href="#/profile/#{activity.user_id}/show" ) #{activity.user_name}
 		label
 			| Recommended:&nbsp;
 			a( href="http://#{content[0]}",name="recommendation", target="_blank" ) #{content[1]}

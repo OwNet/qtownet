@@ -8,7 +8,7 @@ define( function (require) {
 
 	var DownloadOrdersModel = Backbone.Model.extend({
 
-			urlRoot: '/api/prefetch/show',
+			urlRoot: '/api/orders',
 
 	})
 

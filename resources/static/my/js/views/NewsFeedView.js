@@ -27,7 +27,7 @@ define( function (require) {
 
 				this.render()
 
-				var opts = { params: { group_id: 0 }}
+				var opts = { params: { /*group_id: 0*/ }}
 
 				this.activitiesView = new ActivitiesView({ el: $('#newsfeed_list'), options: opts }).render()
 				this.isShown = true
@@ -66,7 +66,7 @@ define( function (require) {
 				}
 				$('.messages-left > .links > .link').removeClass('active')
 				$(e.target).closest('a').parent().addClass('active')
-				this.activitiesView.refresh()
+				this.activitiesView.render()
 
 				return false
 			},

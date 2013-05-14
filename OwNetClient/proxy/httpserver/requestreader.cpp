@@ -79,10 +79,6 @@ void RequestReader::readHeader(QIODevice &stream)
             qWarning("HttpRequest: expected body is too large");
             setStatus(Abort);
         }
-        else if (!m_boundary.isEmpty() && m_expectedBodySize>m_maxMultiPartSize) {
-            qWarning("HttpRequest: expected multipart body is too large");
-            setStatus(Abort);
-        }
         else {
             setStatus(WaitForBody);
         }
@@ -114,11 +110,7 @@ void RequestReader::readBody(QIODevice &stream)
             toRead = 65536;
         }
         fileSize += m_tempFile.write(stream.read(toRead));
-        if (fileSize >= m_maxMultiPartSize) {
-            qWarning("HttpRequest: received too many multipart bytes");
-            setStatus(Abort);
-        }
-        else if (fileSize>=m_expectedBodySize) {
+        if (fileSize>=m_expectedBodySize) {
             m_tempFile.flush();
             if (m_tempFile.error()) {
                 qCritical("HttpRequest: Error writing temp file for multipart body");

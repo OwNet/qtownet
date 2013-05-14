@@ -28,7 +28,7 @@ IResponse *RecommendationsService::create(IRequest *req)
 
     if(curUser_id == "")
     {
-        return req->response(IResponse::UNAUTHORIEZED);
+        return req->response(IResponse::UNAUTHORIZED);
     }
 
     QVariantMap error;
@@ -93,7 +93,7 @@ IResponse *RecommendationsService::show(IRequest *req, const QString &uid)
 
     if(curUser_id == "")
     {
-        return req->response(IResponse::UNAUTHORIEZED);
+        return req->response(IResponse::UNAUTHORIZED);
     }
 
     QVariantMap error;
@@ -116,7 +116,7 @@ IResponse *RecommendationsService::edit(IRequest *req, const QString &uid)
 
     if(curUser_id == "")
     {
-        return req->response(IResponse::UNAUTHORIEZED);
+        return req->response(IResponse::UNAUTHORIZED);
     }
 
     QVariantMap error;
@@ -137,7 +137,7 @@ IResponse *RecommendationsService::del(IRequest *req, const QString &uid)
 
     if(curUser_id == "")
     {
-        return req->response(IResponse::UNAUTHORIEZED);
+        return req->response(IResponse::UNAUTHORIZED);
     }
 
     QVariantMap error;

@@ -10,11 +10,13 @@ require.config({
 			bootstrap   :  'share/lib/bootstrap',
 			backbone    :  'share/lib/backbone',
 			jade        :  'share/lib/jade.runtime.min',
+			jiframe		:  'share/lib/jquery.iframe-transport',
+			
 
 			'jquery.escape' : 'share/utils/jquery.escape',
 
 			'Backbone.CollectionBinder' : 'share/lib/Backbone.CollectionBinder',
-			'Backbone.ModelBinder'      : 'share/lib/Backbone.ModelBinder'
+			'Backbone.ModelBinder'      : 'share/lib/Backbone.ModelBinder',
 	},
 
 	shim: {
@@ -33,6 +35,10 @@ require.config({
 				deps: ['backbone', 'Backbone.ModelBinder']
 			},
 
+			jiframe : {
+				deps: ['jquery'],
+			},
+						
 			jade: {
 				exports: 'jade',
 			},

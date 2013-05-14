@@ -29,7 +29,7 @@ void RatingsService::init(IRouter *router)
 IResponse *RatingsService::create(IRequest *req)
 {
     if ( !m_proxyConnection->session()->isLoggedIn() )
-           return req->response(IResponse::UNAUTHORIEZED);
+           return req->response(IResponse::UNAUTHORIZED);
 
     bool ok = false;
     QVariantMap error;
@@ -92,7 +92,7 @@ IResponse *RatingsService::show(IRequest *req, const QString &uid)
 {
 
     if ( !m_proxyConnection->session()->isLoggedIn() )
-           return req->response(IResponse::UNAUTHORIEZED);
+           return req->response(IResponse::UNAUTHORIZED);
 
     QVariantMap error;
     QVariantMap rating;
@@ -108,7 +108,7 @@ IResponse *RatingsService::show(IRequest *req, const QString &uid)
 IResponse *RatingsService::edit(IRequest *req, const QString &uid)
 {
     if ( !m_proxyConnection->session()->isLoggedIn() )
-           return req->response(IResponse::UNAUTHORIEZED);
+           return req->response(IResponse::UNAUTHORIZED);
 
     bool ok;
     QVariantMap error;
@@ -141,7 +141,7 @@ IResponse *RatingsService::del(IRequest *req, const QString &uid)
 {
 
     if ( !m_proxyConnection->session()->isLoggedIn() )
-           return req->response(IResponse::UNAUTHORIEZED);
+           return req->response(IResponse::UNAUTHORIZED);
 
     uint userId = m_proxyConnection->session()->userId();
 
@@ -179,7 +179,7 @@ IResponse *RatingsService::showPageStats(IRequest *req)
 IResponse *RatingsService::showAllPageRatings(IRequest *req)
 {
     if ( !m_proxyConnection->session()->isLoggedIn() )
-           return req->response(IResponse::UNAUTHORIEZED);
+           return req->response(IResponse::UNAUTHORIZED);
 
     QVariantMap error;
     QVariantList ratings;

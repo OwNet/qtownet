@@ -30,13 +30,12 @@ protected:
     void virtualClose();
     void read(QIODevice *ioDevice);
     void readReply(QIODevice *ioDevice, ProxyInputObject *inputObject);
-    void error() {}
+    void error();
 
 private:
     SocketHandler *m_socketHandler;
     uint m_requestHashCode;
     bool m_hasWrittenResponseHeaders;
-    bool m_foundBody;
 
     static QMap<int, QString> *m_openRequests;
 };

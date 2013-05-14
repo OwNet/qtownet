@@ -12,6 +12,7 @@ define( function (require) {
 	  , GroupView = require('views/GroupView')
 	  , ProfileView = require( 'views/ProfileView' )
 	  , NewsFeedView = require( 'views/NewsFeedView' )
+	  , FilesView = require( 'views/FilesView')
 
 
 	var Router  = Backbone.Router.extend({
@@ -26,6 +27,7 @@ define( function (require) {
 				group: new GroupView({ el:$("#group") }),
 				newsfeed: new NewsFeedView({el: $("#newsfeed")}),
 				profile: new ProfileView({ el:$("#profile") }),
+				files: new FilesView({ el:$("#files") }),
 			}
 
 			this.$content = $('#content')
@@ -46,6 +48,7 @@ define( function (require) {
 			'profile': "profile",
 			'profile/edit': "editprofile",
 			'profile/showdownloadorders' : "showdownloadorders",
+			'profile/:id/show': "profile",
 
 			'groups' : "groups",
 			'groups/create' : "creategroups",
@@ -54,6 +57,10 @@ define( function (require) {
 			'group/:id/show': "showgroup",
 			'group/:id/edit' : "editgroup",
 			'group/:id/members' : "groupmembers",
+
+			'files' : "files",
+			'files/filter/:filter' : 'filterfiles',
+			'files/upload' : "upload"
 		},
 
 		activate: function(href, view, fn) {
@@ -115,18 +122,27 @@ define( function (require) {
 
 
 
-		profile: function() {
-			this.activate("#/profile", this.views.profile, function() {
-				this.views.profile.show(App.user ? App.user.id : "0")
+		profile: function(id) {
+			var tab
+
+			if (!id) {
+				id = App.user.id
+				tab = "#/profile"
+			}
+
+			this.activate(tab, this.views.profile, function() {
+				this.views.profile.show(id)
 			})
 		},
 
 		editprofile: function() {
-
+			this.activate("#/profile", this.views.profile, function() {
+				this.views.profile.edit()
+			})
 		},
 
 		showdownloadorders: function() {
-			this.activate("#/profile/showdownloadorders", this.views.profile, function() {
+			this.activate("#/profile", this.views.profile, function() {
 				this.views.profile.showDownloadOrders(1)
 			})
 		},
@@ -172,7 +188,31 @@ define( function (require) {
 			this.activate("#/groups", this.views.group, function() {
 				this.views.group.members(id)
 			})
-		}
+		},
+
+		files: function() {
+			this.activate("#/files", this.views.files, function() {
+				this.views.files.show()
+				this.views.files.showFiles('all',1)
+			})
+		},
+
+		filterfiles: function(filter) {
+			this.activate("#/files", this.views.groups, function() {
+				$("#all").parent().removeClass("active")
+				$("#my").parent().addClass("active")	
+				this.views.files.show()
+				this.views.files.showFiles(filter,1)
+			})
+		},
+
+		upload: function() {
+			this.activate("#/files", this.views.files, function() {
+				this.views.files.show()
+				this.views.files.showFiles('all',1)
+				this.views.files.upload()
+			})
+		},
 
 	});
 

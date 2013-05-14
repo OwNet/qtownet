@@ -44,7 +44,7 @@ public:
     virtual void select(const QStringList &columns) = 0;
 
     virtual void singleWhere(const QString &column, const QVariant &value, WhereOperator op = Equal, bool bind = true) = 0;
-    virtual IDatabaseSelectQueryWhereGroup *whereGroup(IDatabaseSelectQuery::JoinOperator op) = 0;
+    virtual IDatabaseSelectQueryWhereGroup *whereGroup(IDatabaseSelectQuery::JoinOperator op = IDatabaseSelectQuery::And) = 0;
 
     virtual IDatabaseSelectQueryJoin *join(const QString &table, IDatabaseSelectQuery::JoinType joinType = Join) = 0;
 
@@ -55,6 +55,9 @@ public:
 
     virtual void limit(int l) = 0;
     virtual void offset(int o) = 0;
+
+    virtual int numberOfPages(int numItemsPerPage) = 0;
+    virtual void page(int page, int numItemsPerPage) = 0;
 };
 
 #endif // IDATABASESELECTQUERY_H

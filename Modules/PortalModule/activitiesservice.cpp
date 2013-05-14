@@ -26,7 +26,7 @@ void ActivitiesService::init(IRouter *router)
 IResponse *ActivitiesService::pagesCount(IRequest *req)
 {
     if(!m_proxyConnection->session()->isLoggedIn())
-        return req->response(IResponse::UNAUTHORIEZED);
+        return req->response(IResponse::UNAUTHORIZED);
 
     QVariantMap response;
     response.insert("pages", m_activityManager->pagesCount(req));
@@ -41,7 +41,7 @@ IResponse *ActivitiesService::index(IRequest *req)
     QVariantMap error;
 
     if(!m_proxyConnection->session()->isLoggedIn())
-        return req->response(IResponse::UNAUTHORIEZED);
+        return req->response(IResponse::UNAUTHORIZED);
 
 
     bool ok;

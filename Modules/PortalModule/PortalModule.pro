@@ -1,5 +1,5 @@
 QT             -= gui
-QT             += sql
+QT             += sql network
 
 TARGET          = $$qtLibraryTarget(ownet_portalmodule)
 TEMPLATE        = lib
@@ -20,7 +20,10 @@ SOURCES        += portalmodule.cpp \
     activity.cpp \
     activitymanager.cpp \
     ratingmanager.cpp \
-    recommendationmanager.cpp
+    recommendationmanager.cpp \
+    sharedfilesservice.cpp \
+    sharedfilesmanager.cpp \
+    sharedfilesupdatelistener.cpp
 
 HEADERS        += portalmodule.h \
     usersservice.h \
@@ -35,7 +38,10 @@ HEADERS        += portalmodule.h \
     activity.h \
     activitymanager.h \
     ratingmanager.h \
-    recommendationmanager.h
+    recommendationmanager.h \
+    sharedfilesservice.h \
+    sharedfilesmanager.h \
+    sharedfilesupdatelistener.h
 
 macx:DESTDIR    = ../../OwNetClient/OwNetClient.app/Contents/MacOS/modules
 !macx:DESTDIR   = ../../OwNetClient/modules

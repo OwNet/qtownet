@@ -1,24 +1,30 @@
 form(name="profile-form").form-horizontal
+
 	.control-group
 		label.control-label Name:
 		.controls
-		input(type="text",name="first_name",value="#{user.first_name}", required)
+			input(type="text",name="first_name",value="#{user.first_name}", required)
+
 	.control-group
 		label.control-label Last Name:
 		.controls
-		input(type="text",name="last_name",value="#{user.last_name}", required)
+			input(type="text",name="last_name",value="#{user.last_name}", required)
+
 	.control-group
 		label.control-label Password:
 		.controls
-		input(type="password",name="password",value="")
+			input(type="password",name="password",value="")
+
 	.control-group
 		label.control-label Email:
 		.controls
-		input(type="email",name="email",value="#{user.email}", required)
+			input(type="email",name="email",value="#{user.email}", required)
+
 	.control-group
 		label.control-label Birthday:
 		.controls
-		input(type="date",name="date_of_birth",value="#{user.date_of_birth}", required)
+			input(type="date",name="date_of_birth",value="#{user.date_of_birth}", required)
+
 	.control-group
 		if (user.gender == "Male")
 			label.control-label Gender:
@@ -36,11 +42,12 @@ form(name="profile-form").form-horizontal
 			label.radio.offset2
 				input(type="radio",name="gender",value="Female",checked)
 				|Female
+
 	.control-group
 		label.control-label School:
 		.controls
-		input(type="text",name="school",value="#{user.school}", required)
-		br
+			input(type="text",name="school",value="#{user.school}", required)
+
 	.control-group
 		.controls
-			button.btn.btn-info(type="button",name="update") Update
+			input.btn.btn-info(type="submit",name="submitProfile") Update

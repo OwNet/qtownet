@@ -6,19 +6,22 @@
 #include "proxyinputobject.h"
 #include "proxyhandlersession.h"
 #include "sockethandler.h"
+#include "session.h"
+#include "requestreader.h"
 
 #include <QTcpSocket>
 #include <QFile>
 #include <QSemaphore>
 #include <QRegularExpression>
+#include <QBuffer>
+#include <QUrl>
 
 QMap<int, QString> *ProxyResponseOutputWriter::m_openRequests = new QMap<int, QString>();
 
 ProxyResponseOutputWriter::ProxyResponseOutputWriter(SocketHandler *socketHandler, ProxyHandlerSession *proxyHandlerSession)
     : ProxyOutputWriter(proxyHandlerSession),
       m_socketHandler(socketHandler),
-      m_hasWrittenResponseHeaders(false),
-      m_foundBody(false)
+      m_hasWrittenResponseHeaders(false)
 {
 }
 
@@ -77,5 +80,22 @@ void ProxyResponseOutputWriter::read(QIODevice *ioDevice)
 
         m_socketHandler->writeHeaders(responseHeaders);
     }
+    m_hasWrittenResponseHeaders = true;
     m_socketHandler->write(ioDevice->readAll());
+}
+
+
+void ProxyResponseOutputWriter::error()
+{
+    if (!m_hasWrittenResponseHeaders) {
+        if (!Session().isOnline()) {
+            m_socketHandler->writeStatusCodeAndDescription(307, "Temporary Redirect");
+            VariantMap responseHeaders;
+            responseHeaders.insert("Location", QString("http://my.ownet/?url=%1")
+                                   .arg(QString(QUrl::toPercentEncoding(m_socketHandler->requestReader()->url()))));
+            responseHeaders.insert("Content-Type", "text/html");
+            responseHeaders.insert("Content-Length", "0");
+            m_socketHandler->writeHeaders(responseHeaders);
+        }
+    }
 }

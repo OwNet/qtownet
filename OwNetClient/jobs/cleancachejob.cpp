@@ -3,6 +3,9 @@
 #include "cachefolder.h"
 #include "proxydownloads.h"
 #include "gdsfclock.h"
+#include "databaseupdatequery.h"
+#include "databaseselectquerywheregroup.h"
+#include "databasesettings.h"
 
 #include <QSqlQuery>
 #include <QDateTime>
@@ -31,6 +34,7 @@ void CleanCacheJob::clean()
     long maximumSize = cacheFolder.maximumSize();
     QStringList idsToDelete;
     double lastEvictedClock = -1;
+    QString myClientId = DatabaseSettings().clientId();
 
     if (size > maximumSize + cacheFolder.cacheReserveSize()) {
         QSqlQuery query;
@@ -40,6 +44,13 @@ void CleanCacheJob::clean()
         if (query.exec()) {
             while (size > maximumSize && query.next()) {
                 int id = query.value(query.record().indexOf("id")).toInt();
+
+                DatabaseUpdateQuery deleteClientCaches("client_caches", DatabaseUpdateQuery::Delete);
+                IDatabaseSelectQueryWhereGroup *where = deleteClientCaches.whereGroup(IDatabaseSelectQuery::And);
+                where->where("cache_id", id);
+                where->where("client_id", myClientId);
+                deleteClientCaches.executeQuery();
+
                 for (int i = 0; i < query.value(query.record().indexOf("num_parts")).toInt(); ++i) {
                     QFile *file = cacheFolder.cacheFile(id, i);
 

@@ -52,6 +52,7 @@ public:
     void tableUpdated(IDatabaseUpdateQuery *query);
 
     bool containsCacheLocation(uint cacheId, const QString &clientId) const;
+    bool isCacheAvailable(uint cacheId) const;
 
 private:
     ProxyDownloads();
@@ -59,6 +60,7 @@ private:
     void connectDownloadAndOutputWriter(ProxyDownload *download, ProxyOutputWriter *outputWriter) const;
     void initCacheLocations();
     void addCacheLocation(uint cacheId, const QString &clientId, const QString &dateCreated);
+    bool shouldRefresh(ProxyRequest *request);
 
     QMap<uint, ProxyDownload*> m_openDownloads;
     QMutex m_openDownloadsMutex;

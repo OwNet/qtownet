@@ -100,6 +100,8 @@ QVariantList SyncServer::updates(const QVariantMap &clientRecordNumbers, bool sy
     if (!requestingClientId.isEmpty())
         journalAnd->where("client_id", requestingClientId, IDatabaseSelectQuery::NotEqual);
 
+    journalQuery->orderBy("date_created");
+
     while (journalQuery->next()) {
         QVariantMap update;
         update.insert("client_id", journalQuery->value("client_id"));

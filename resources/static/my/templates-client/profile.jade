@@ -6,22 +6,23 @@
 			img( src="img/boy.png" )
 		if (current == true)
 			.title-desc You have
-		else 
+		else
 			if (user.gender == "Female")
 				.title-desc She has
-			else 
+			else
 				.title-desc He has
 	#stats
-	if (current == true) 
+	if (current)
 		.links.links-second
 			.link
-				a( href="#/editprofile",data-id="#{user.id}",name="editprofile")
-					img(src="img/edit.png", class="icon") 
+				a( href="#/profile/edit")
+					img(src="img/edit.png", class="icon")
 					label Edit profile
 			.link
-				a( href="#/showdownloadorders",name="showDownloadOrders") 
-					img(src="img/download.png", class="icon") 
+				a( href="#/profile/showdownloadorders")
+					img(src="img/download.png", class="icon")
 					label Download orders
+
 .right.profile-right
 	#profile-info
 	#profile
