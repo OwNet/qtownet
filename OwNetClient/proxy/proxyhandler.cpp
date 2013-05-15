@@ -8,6 +8,7 @@
 #include "proxystaticreader.h"
 #include "proxyservicereader.h"
 #include "proxyrequest.h"
+#include "proxywebreader.h"
 
 #include <QDateTime>
 #include <QTimer>
@@ -37,8 +38,8 @@ void ProxyHandler::service(SocketHandler *socketHandler) {
         m_timeoutTimer = new QTimer(m_proxyHandlerSession);
         connect(m_timeoutTimer, SIGNAL(timeout()), this, SLOT(requestTimeout()));
 
-        ProxyResponseOutputWriter *responseOutputWriter = new ProxyResponseOutputWriter(socketHandler, m_proxyHandlerSession);
-        connect(responseOutputWriter, SIGNAL(iAmActive()), this, SLOT(restartTimeout()));
+        ProxyWebReader *webReader = new ProxyWebReader(socketHandler, m_proxyHandlerSession);
+        connect(webReader, SIGNAL(iAmActive()), this, SLOT(restartTimeout()));
 
         responseOutputWriter->startDownload(request);
         m_timeoutTimer->start(Timeout);
