@@ -6,10 +6,8 @@
 #include "proxyhandlersession.h"
 #include "proxytrafficcounter.h"
 #include "proxywebinputobject.h"
-#include "proxystaticinputobject.h"
 #include "proxycacheinputobject.h"
 #include "proxycacheoutputwriter.h"
-#include "proxyrequestbus.h"
 #include "databaseselectquery.h"
 #include "proxycachelocations.h"
 #include "session.h"
@@ -190,45 +188,39 @@ ProxyInputObject *ProxyDownloads::newInputObject(ProxyRequest *request, ProxyHan
 {
     ProxyInputObject *inputObject = NULL;
 
-    if (request->isStaticResourceRequest()) {
-        inputObject = new ProxyStaticInputObject(request, handlerSession);
-    } else if (request->isLocalRequest()) {
-        inputObject = new ProxyRequestBus(request, handlerSession);
-    } else {
-        QVariantMap availableClients = Session().availableClients();
+    QVariantMap availableClients = Session().availableClients();
 
-        if (!shouldRefresh(request) && !m_cacheExceptions->containsExceptionFor(request->url())) {
-            bool isOnline = Session().isOnline();
+    if (!shouldRefresh(request) && !m_cacheExceptions->containsExceptionFor(request->url())) {
+        bool isOnline = Session().isOnline();
 
-            if (m_cacheLocations.contains(request->hashCode())) {
-                QList<ProxyCacheLocation*> locations = m_cacheLocations.value(request->hashCode())->sortedLocations();
-                foreach (ProxyCacheLocation *location, locations) {
-                    if (location->isLocalCache()) {
-                        ProxyCacheInputObject *cacheInput = new ProxyCacheInputObject(request, handlerSession);
-                        if (cacheInput->exists()) {
-                            inputObject = cacheInput;
-                            break;
-                        } else {
-                            continue;
-                        }
-                    } else {
-                        if (!location->isWeb() && !availableClients.contains(location->clientId()))
-                            continue;
-                        if (location->isWeb() && !isOnline)
-                            continue;
-
-                        ProxyWebInputObject *webObject = new ProxyWebInputObject(request, handlerSession);
-                        if (!location->isWeb())
-                            webObject->setProxy(availableClients.value(location->clientId()).toString());
-                        inputObject = webObject;
+        if (m_cacheLocations.contains(request->hashCode())) {
+            QList<ProxyCacheLocation*> locations = m_cacheLocations.value(request->hashCode())->sortedLocations();
+            foreach (ProxyCacheLocation *location, locations) {
+                if (location->isLocalCache()) {
+                    ProxyCacheInputObject *cacheInput = new ProxyCacheInputObject(request, handlerSession);
+                    if (cacheInput->exists()) {
+                        inputObject = cacheInput;
                         break;
+                    } else {
+                        continue;
                     }
+                } else {
+                    if (!location->isWeb() && !availableClients.contains(location->clientId()))
+                        continue;
+                    if (location->isWeb() && !isOnline)
+                        continue;
+
+                    ProxyWebInputObject *webObject = new ProxyWebInputObject(request, handlerSession);
+                    if (!location->isWeb())
+                        webObject->setProxy(availableClients.value(location->clientId()).toString());
+                    inputObject = webObject;
+                    break;
                 }
             }
         }
-        if (!inputObject) {
-            inputObject = new ProxyWebInputObject(request, handlerSession);
-        }
+    }
+    if (!inputObject) {
+        inputObject = new ProxyWebInputObject(request, handlerSession);
     }
 
     return inputObject;

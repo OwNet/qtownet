@@ -23,7 +23,7 @@ public:
         BufferSize = 8192
     };
 
-    void startDownload();
+    void startDownload(ProxyRequest *request);
     static QList<QString> dumpOpenRequests();
 
 protected:

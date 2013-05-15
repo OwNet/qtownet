@@ -65,4 +65,5 @@ void ProxyDownloadTests::testSimultaneousReadAndWrite()
     file.write("Soooo funny!");
     file.flush();
     QCOMPARE(fileRead.readAll(), QByteArray("Soooo funny!"));
+    file.remove();
 }

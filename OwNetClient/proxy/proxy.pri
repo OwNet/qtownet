@@ -5,8 +5,6 @@ SOURCES += $${OwNetClientPath}/proxy/proxyrequest.cpp \
     $${OwNetClientPath}/proxy/proxyhandler.cpp \
     $${OwNetClientPath}/proxy/input/proxyinputobject.cpp \
     $${OwNetClientPath}/proxy/input/proxywebinputobject.cpp \
-    $${OwNetClientPath}/proxy/input/proxystaticinputobject.cpp \
-    $${OwNetClientPath}/proxy/input/proxyrequestbus.cpp \
     $${OwNetClientPath}/proxy/downloads/proxydownloads.cpp \
     $${OwNetClientPath}/proxy/downloads/proxydownload.cpp \
     $${OwNetClientPath}/proxy/output/proxyoutputwriter.cpp \
@@ -24,14 +22,14 @@ SOURCES += $${OwNetClientPath}/proxy/proxyrequest.cpp \
     $${OwNetClientPath}/proxy/downloads/proxycachelocations.cpp \
     $${OwNetClientPath}/proxy/httpserver/httpserver.cpp \
     $${OwNetClientPath}/proxy/httpserver/sockethandler.cpp \
-    $${OwNetClientPath}/proxy/httpserver/requestreader.cpp
+    $${OwNetClientPath}/proxy/httpserver/requestreader.cpp \
+    $${OwNetClientPath}/proxy/proxystaticreader.cpp \
+    $${OwNetClientPath}/proxy/proxyservicereader.cpp
 
 HEADERS  += $${OwNetClientPath}/proxy/proxyrequest.h \
     $${OwNetClientPath}/proxy/proxyhandler.h \
     $${OwNetClientPath}/proxy/input/proxyinputobject.h \
     $${OwNetClientPath}/proxy/input/proxywebinputobject.h \
-    $${OwNetClientPath}/proxy/input/proxystaticinputobject.h \
-    $${OwNetClientPath}/proxy/input/proxyrequestbus.h \
     $${OwNetClientPath}/proxy/downloads/proxydownloads.h \
     $${OwNetClientPath}/proxy/downloads/proxydownload.h \
     $${OwNetClientPath}/proxy/output/proxyoutputwriter.h \
@@ -49,7 +47,9 @@ HEADERS  += $${OwNetClientPath}/proxy/proxyrequest.h \
     $${OwNetClientPath}/proxy/downloads/proxycachelocations.h \
     $${OwNetClientPath}/proxy/httpserver/httpserver.h \
     $${OwNetClientPath}/proxy/httpserver/sockethandler.h \
-    $${OwNetClientPath}/proxy/httpserver/requestreader.h
+    $${OwNetClientPath}/proxy/httpserver/requestreader.h \
+    $${OwNetClientPath}/proxy/proxystaticreader.h \
+    $${OwNetClientPath}/proxy/proxyservicereader.h
 
 INCLUDEPATH += $${OwNetClientPath}/proxy \
     $${OwNetClientPath}/proxy/downloads \

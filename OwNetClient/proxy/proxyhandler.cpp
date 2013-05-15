@@ -5,6 +5,9 @@
 #include "proxyhandlersession.h"
 #include "sockethandler.h"
 #include "requestreader.h"
+#include "proxystaticreader.h"
+#include "proxyservicereader.h"
+#include "proxyrequest.h"
 
 #include <QDateTime>
 #include <QTimer>
@@ -20,17 +23,26 @@ ProxyHandler::ProxyHandler(QObject *parent)
 void ProxyHandler::service(SocketHandler *socketHandler) {
     m_socketHandler = socketHandler;
 
-    m_proxyHandlerSession = new ProxyHandlerSession(this);
-    connect(m_proxyHandlerSession, SIGNAL(allFinished()), this, SLOT(proxyHandlerSessionFinished()));
+    ProxyRequest *request = new ProxyRequest(m_socketHandler->requestReader(), m_proxyHandlerSession);
+    if (request->isStaticResourceRequest()) {
+        ProxyStaticReader(m_socketHandler, request).read();
+        m_socketHandler->proxyHandlerFinished(this);
+    } else if (request->isLocalRequest()) {
+        ProxyServiceReader(m_socketHandler, request).read();
+        m_socketHandler->proxyHandlerFinished(this);
+    } else {
+        m_proxyHandlerSession = new ProxyHandlerSession(this);
+        connect(m_proxyHandlerSession, SIGNAL(allFinished()), this, SLOT(proxyHandlerSessionFinished()));
 
-    m_timeoutTimer = new QTimer(m_proxyHandlerSession);
-    connect(m_timeoutTimer, SIGNAL(timeout()), this, SLOT(requestTimeout()));
+        m_timeoutTimer = new QTimer(m_proxyHandlerSession);
+        connect(m_timeoutTimer, SIGNAL(timeout()), this, SLOT(requestTimeout()));
 
-    ProxyResponseOutputWriter *responseOutputWriter = new ProxyResponseOutputWriter(socketHandler, m_proxyHandlerSession);
-    connect(responseOutputWriter, SIGNAL(iAmActive()), this, SLOT(restartTimeout()));
+        ProxyResponseOutputWriter *responseOutputWriter = new ProxyResponseOutputWriter(socketHandler, m_proxyHandlerSession);
+        connect(responseOutputWriter, SIGNAL(iAmActive()), this, SLOT(restartTimeout()));
 
-    responseOutputWriter->startDownload();
-    m_timeoutTimer->start(Timeout);
+        responseOutputWriter->startDownload(request);
+        m_timeoutTimer->start(Timeout);
+    }
 }
 
 /**

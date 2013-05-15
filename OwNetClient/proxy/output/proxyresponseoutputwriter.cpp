@@ -28,9 +28,8 @@ ProxyResponseOutputWriter::ProxyResponseOutputWriter(SocketHandler *socketHandle
 /**
  * @brief Opens the socket and starts the download, triggered from outside.
  */
-void ProxyResponseOutputWriter::startDownload()
+void ProxyResponseOutputWriter::startDownload(ProxyRequest *request)
 {
-    ProxyRequest *request = new ProxyRequest(m_socketHandler->requestReader(), m_proxyHandlerSession);
     m_requestHashCode = request->hashCode();
 
     MessageHelper::debug(request->url());
