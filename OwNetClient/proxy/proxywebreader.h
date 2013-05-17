@@ -19,6 +19,7 @@ public:
 public slots:
     void readyRead();
     void finished();
+    void failed();
 
 signals:
     void iAmActive();

@@ -29,11 +29,11 @@ public:
 signals:
     void readyRead();
     void finished();
+    void failed();
 
 private slots:
-    void downloadReadyRead();
-    void downloadFinished();
     void downloadFailed();
+    void deregisterDependentObject();
 
 private:
     void startDownload();
@@ -48,9 +48,6 @@ private:
     QMutex m_startedMutex;
     bool m_started;
     bool m_failed;
-
-    QFile *m_writeFile;
-    WebSocket *m_socket;
 };
 
 #endif // PROXYWEBDOWNLOAD_H

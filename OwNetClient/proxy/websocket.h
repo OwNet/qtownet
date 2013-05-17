@@ -7,6 +7,7 @@
 
 class ProxyRequest;
 class QTimer;
+class QFile;
 
 class WebSocket : public QObject
 {
@@ -21,7 +22,7 @@ public:
         Unknown
     };
 
-    explicit WebSocket(ProxyRequest *request, QIODevice *output, QObject *parent = 0);
+    explicit WebSocket(ProxyRequest *request, QFile *output, QObject *parent = 0);
 
     void readRequest();
     void setProxy(const QString &proxy) { m_proxy = proxy; }
@@ -37,6 +38,8 @@ private slots:
     void socketDisconnected();
     void socketError(QAbstractSocket::SocketError error);
     void responseTimeout();
+    void closeFile();
+    void removeFile();
 
 private:
     bool isClientOnline(const QString &clientId) const;
@@ -53,7 +56,7 @@ private:
     ResponseLength m_responseLength;
     QTimer *m_timeoutTimer;
     ProxyRequest *m_request;
-    QIODevice *m_output;
+    QFile *m_outputFile;
 };
 
 #endif // WEBSOCKET_H

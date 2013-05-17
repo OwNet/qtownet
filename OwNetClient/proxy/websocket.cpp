@@ -9,15 +9,17 @@
 #include <QBuffer>
 #include <QTimer>
 
-WebSocket::WebSocket(ProxyRequest *request, QIODevice *output, QObject *parent)
+WebSocket::WebSocket(ProxyRequest *request, QFile *output, QObject *parent)
     : QObject(parent),
       m_readHeaders(false),
       m_contentLength(0),
       m_responseLength(Unknown),
       m_timeoutTimer(NULL),
       m_request(request),
-      m_output(output)
+      m_outputFile(output)
 {
+    connect(this, SIGNAL(finished()), this, SLOT(closeFile()));
+    connect(this, SIGNAL(failed()), this, SLOT(removeFile()));
 }
 
 void WebSocket::readRequest()
@@ -121,7 +123,8 @@ void WebSocket::socketReadyRead()
         }
     }
 
-    m_output->write(bytes);
+    m_outputFile->write(bytes);
+    m_outputFile->flush();
     emit readyRead();
 
     if (end)
@@ -189,4 +192,22 @@ int WebSocket::port(const QString &serverAndPort) const
         return atoi(ba.data());
     }
     return 80;
+}
+
+void WebSocket::closeFile()
+{
+    if (m_outputFile) {
+        m_outputFile->close();
+        m_outputFile->deleteLater();
+        m_outputFile = NULL;
+    }
+}
+
+void WebSocket::removeFile()
+{
+    if (m_outputFile) {
+        m_outputFile->remove();
+        m_outputFile->deleteLater();
+        m_outputFile = NULL;
+    }
 }

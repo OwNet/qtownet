@@ -15,18 +15,23 @@ ProxyWebDownload::ProxyWebDownload(ProxyRequest *request, QObject *parent) :
     m_failed(false),
     m_type(WebStream),
     m_sessionDependentObjectId(-1),
-    m_writeFile(NULL),
-    m_socket(NULL)
+    m_session(NULL)
 {
+    connect(this, SIGNAL(finished()), this, SLOT(deregisterDependentObject()));
 }
 
 QIODevice *ProxyWebDownload::getStream(ProxyWebReader *reader, ProxyHandlerSession *session)
 {
+    connect(this, SIGNAL(readyRead()), reader, SLOT(readyRead()));
+    connect(this, SIGNAL(finished()), reader, SLOT(finished()));
+    connect(this, SIGNAL(failed()), reader, SLOT(failed()));
+
     m_startedMutex.lock();
     if (m_failed)
         return NULL;
 
     if (!m_started) {
+        m_session = session;
         m_sessionDependentObjectId = session->registerDependentObject();
         startDownload();
         m_started = true;
@@ -34,61 +39,40 @@ QIODevice *ProxyWebDownload::getStream(ProxyWebReader *reader, ProxyHandlerSessi
     m_startedMutex.unlock();
 
     CacheFolder cacheFolder;
-    m_writeFile = cacheFolder.cacheFile(m_request, 0);
-    m_writeFile->open(QIODevice::ReadOnly);
+    QFile *file = cacheFolder.cacheFile(m_request, 0);
+    file->open(QIODevice::ReadOnly);
 
-    connect(this, SIGNAL(readyRead()), reader, SLOT(readyRead()));
-    connect(this, SIGNAL(finished()), reader, SLOT(finished()));
-
-    return m_writeFile;
+    return file;
 }
 
 void ProxyWebDownload::startDownload()
 {
     if (m_type == WebStream) {
         CacheFolder cacheFolder;
-        m_writeFile = cacheFolder.cacheFile(m_request, 0, this);
-        m_writeFile->open(QIODevice::WriteOnly);
+        QFile *writeFile = cacheFolder.cacheFile(m_request, 0, this);
+        writeFile->open(QIODevice::WriteOnly);
 
-        m_socket = new WebSocket(m_request, m_writeFile, this);
-        connect(m_socket, SIGNAL(readyRead()), this, SLOT(downloadReadyRead()));
-        connect(m_socket, SIGNAL(finished()), this, SLOT(downloadFinished()));
-        connect(m_socket, SIGNAL(failed()), this, SLOT(downloadFailed()));
-        m_socket->readRequest();
+        WebSocket *socket = new WebSocket(m_request, writeFile, this);
+        connect(socket, SIGNAL(readyRead()), this, SIGNAL(readyRead()));
+        connect(socket, SIGNAL(finished()), this, SIGNAL(finished()));
+        connect(socket, SIGNAL(failed()), this, SLOT(downloadFailed()));
+        connect(socket, SIGNAL(finished()), socket, SLOT(deleteLater()));
+        connect(socket, SIGNAL(failed()), socket, SLOT(deleteLater()));
+        socket->readRequest();
     }
-}
-
-void ProxyWebDownload::downloadReadyRead()
-{
-    m_writeFile->flush();
-    emit readyRead();
-}
-
-void ProxyWebDownload::downloadFinished()
-{
-    if (m_writeFile) {
-        m_writeFile->close();
-        m_writeFile->deleteLater();
-        m_writeFile = NULL;
-    }
-    if (m_socket) {
-        m_socket->deleteLater();
-        m_socket = NULL;
-    }
-    emit finished();
 }
 
 void ProxyWebDownload::downloadFailed()
 {
     m_failed = true;
-    if (m_writeFile) {
-        m_writeFile->remove();
-        m_writeFile->deleteLater();
-        m_writeFile = NULL;
+    emit failed();
+}
+
+void ProxyWebDownload::deregisterDependentObject()
+{
+    if (m_sessionDependentObjectId >= 0 && m_session) {
+        m_session->deregisterDependentObject(m_sessionDependentObjectId);
+        m_session = NULL;
+        m_sessionDependentObjectId = -1;
     }
-    if (m_socket) {
-        m_socket->deleteLater();
-        m_socket = NULL;
-    }
-    emit finished();
 }
