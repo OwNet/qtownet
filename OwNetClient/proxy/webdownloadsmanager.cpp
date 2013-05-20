@@ -1,6 +1,6 @@
 #include "webdownloadsmanager.h"
 
-#include "proxywebdownload.h"
+#include "webdownload.h"
 #include "proxyrequest.h"
 #include "gdsfclock.h"
 #include "proxyhandlersession.h"
@@ -33,17 +33,17 @@ WebDownloadsManager::~WebDownloadsManager()
  * @param downloadReaderId Reference to reader ID varibale to set
  * @return ProxyWebDownload object
  */
-QIODevice *WebDownloadsManager::getStream(ProxyRequest *request, ProxyWebReader *reader, ProxyHandlerSession *handlerSession, bool *finished)
+QIODevice *WebDownloadsManager::getStream(ProxyRequest *request, WebReader *reader, ProxyHandlerSession *handlerSession, bool *finished)
 {
     m_openDownloadsMutex.lock();
     // ADD check before: !m_cacheExceptions->containsExceptionFor(request->url())
     uint cacheId = request->hashCode();
 
-    ProxyWebDownload *download = NULL;
+    WebDownload *download = NULL;
     if (m_downloads.contains(cacheId)) {
         download = m_downloads.value(cacheId);
     } else {
-        download = new ProxyWebDownload(cacheId);
+        download = new WebDownload(cacheId);
         m_downloads.insert(cacheId, download);
     }
     m_openDownloadsMutex.unlock();
@@ -111,6 +111,11 @@ bool WebDownloadsManager::isCacheAvailable(uint cacheId) const
     return false;
 }
 
+bool WebDownloadsManager::containsCacheExceptionFor(const QString &url)
+{
+    return m_cacheExceptions->containsExceptionFor(url);
+}
+
 WebDownloadsManager::WebDownloadsManager()
     : m_proxyPort(-1)
 {
@@ -135,17 +140,17 @@ void WebDownloadsManager::initCacheLocations()
 
 void WebDownloadsManager::addCacheLocation(uint cacheId, const QString &clientId, const QString &dateCreated)
 {
-    ProxyWebDownload *download = new ProxyWebDownload(cacheId);
+    WebDownload *download = new WebDownload(cacheId);
     download->addLocation(clientId, dateCreated);
     addCacheLocation(cacheId, clientId, dateCreated, download);
 }
 
-void WebDownloadsManager::addCacheLocation(uint cacheId, const QString &clientId, const QString &dateCreated, ProxyWebDownload *download)
+void WebDownloadsManager::addCacheLocation(uint cacheId, const QString &clientId, const QString &dateCreated, WebDownload *download)
 {
     if (m_downloads.contains(cacheId)) {
         m_downloads.value(cacheId)->addLocation(clientId, dateCreated);
     } else {
-        ProxyWebDownload *download = new ProxyWebDownload(cacheId);
+        WebDownload *download = new WebDownload(cacheId);
         download->addLocation(clientId, dateCreated);
         m_downloads.insert(cacheId, download);
     }

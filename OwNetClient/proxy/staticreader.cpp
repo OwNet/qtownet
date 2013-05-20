@@ -1,4 +1,4 @@
-#include "proxystaticreader.h"
+#include "staticreader.h"
 
 #include "proxyrequest.h"
 #include "messagehelper.h"
@@ -8,14 +8,14 @@
 #include <QFile>
 #include <QDir>
 
-ProxyStaticReader::ProxyStaticReader(SocketHandler *socketHandler, ProxyRequest *request, QObject *parent) :
+StaticReader::StaticReader(SocketHandler *socketHandler, ProxyRequest *request, QObject *parent) :
     QObject(parent),
     m_socketHandler(socketHandler),
     m_request(request)
 {
 }
 
-void ProxyStaticReader::read()
+void StaticReader::read()
 {
     ApplicationDataStorage appDataStorage;
     QDir dir = appDataStorage.appResourcesDirectory();
@@ -49,7 +49,7 @@ void ProxyStaticReader::read()
     }
 }
 
-void ProxyStaticReader::error()
+void StaticReader::error()
 {
     m_socketHandler->writeStatusCodeAndDescription(404, "NOT FOUND");
     QVariantMap responseHeaders;

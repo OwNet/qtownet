@@ -1,4 +1,4 @@
-#include "proxyservicereader.h"
+#include "servicereader.h"
 
 #include "iresponse.h"
 #include "requestrouter.h"
@@ -6,14 +6,14 @@
 #include "proxyrequest.h"
 #include "jsondocument.h"
 
-ProxyServiceReader::ProxyServiceReader(SocketHandler *socketHandler, ProxyRequest *request, QObject *parent) :
+ServiceReader::ServiceReader(SocketHandler *socketHandler, ProxyRequest *request, QObject *parent) :
     QObject(parent),
     m_socketHandler(socketHandler),
     m_request(request)
 {
 }
 
-void ProxyServiceReader::read()
+void ServiceReader::read()
 {
     IResponse* response = RequestRouter::processRequest(m_request);
 

@@ -6,10 +6,10 @@
 #include <QPair>
 #include <QStringList>
 
-class ProxyWebDownload;
+class WebDownload;
 class QIODevice;
 class ProxyRequest;
-class ProxyWebReader;
+class WebReader;
 class ProxyHandlerSession;
 
 class CacheLocations : public QObject

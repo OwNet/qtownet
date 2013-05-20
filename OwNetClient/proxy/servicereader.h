@@ -6,11 +6,11 @@
 class SocketHandler;
 class ProxyRequest;
 
-class ProxyServiceReader : public QObject
+class ServiceReader : public QObject
 {
     Q_OBJECT
 public:
-    explicit ProxyServiceReader(SocketHandler *socketHandler, ProxyRequest *request, QObject *parent = 0);
+    explicit ServiceReader(SocketHandler *socketHandler, ProxyRequest *request, QObject *parent = 0);
 
     void read();
 

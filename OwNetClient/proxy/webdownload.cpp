@@ -1,10 +1,10 @@
-#include "proxywebdownload.h"
+#include "webdownload.h"
 
 #include "proxyhandlersession.h"
 #include "websocket.h"
 #include "cachefolder.h"
 #include "proxyrequest.h"
-#include "proxywebreader.h"
+#include "webreader.h"
 #include "databasesettings.h"
 #include "session.h"
 #include "databaseupdatequery.h"
@@ -13,12 +13,13 @@
 #include "idatabaseselectquerywheregroup.h"
 #include "webdownloadsmanager.h"
 #include "gdsfclock.h"
+#include "websocketoutput.h"
 
 #include <QSqlQuery>
 #include <QSqlRecord>
 #include <QBuffer>
 
-ProxyWebDownload::ProxyWebDownload(uint cacheId, QObject *parent) :
+WebDownload::WebDownload(uint cacheId, QObject *parent) :
     QObject(parent),
     m_request(NULL),
     m_inProgress(false),
@@ -29,7 +30,7 @@ ProxyWebDownload::ProxyWebDownload(uint cacheId, QObject *parent) :
     m_cacheLocations.setCacheId(m_cacheId);
 }
 
-QIODevice *ProxyWebDownload::getStream(ProxyRequest *request, ProxyWebReader *reader, ProxyHandlerSession *session, bool refresh, bool *finished)
+QIODevice *WebDownload::getStream(ProxyRequest *request, WebReader *reader, ProxyHandlerSession *session, bool refresh, bool *finished)
 {
     m_request = request;
     *finished = false;
@@ -66,7 +67,7 @@ QIODevice *ProxyWebDownload::getStream(ProxyRequest *request, ProxyWebReader *re
     return file;
 }
 
-void ProxyWebDownload::startDownload(CacheLocations::LocationType locationType, QString clientId)
+void WebDownload::startDownload(CacheLocations::LocationType locationType, QString clientId)
 {
     CacheFolder cacheFolder;
     QFile *writeFile = cacheFolder.cacheFile(m_cacheId, 0);
@@ -74,7 +75,7 @@ void ProxyWebDownload::startDownload(CacheLocations::LocationType locationType, 
         writeFile->remove();
     writeFile->open(QIODevice::WriteOnly);
 
-    WebSocket *socket = new WebSocket(m_request, this, writeFile);
+    WebSocket *socket = new WebSocket(m_request, this, new WebSocketOutput(writeFile));
     if (locationType == CacheLocations::NetworkCache) {
         QVariantMap clients = Session().availableClients();
         if (clients.contains(clientId))
@@ -85,7 +86,7 @@ void ProxyWebDownload::startDownload(CacheLocations::LocationType locationType, 
     socket->readRequest();
 }
 
-void ProxyWebDownload::downloadFailed()
+void WebDownload::downloadFailed()
 {
     m_startedMutex.lock();
     m_inProgress = false;
@@ -96,7 +97,7 @@ void ProxyWebDownload::downloadFailed()
     deregisterDependentObject();
 }
 
-void ProxyWebDownload::downloadFinished(qint64 size)
+void WebDownload::downloadFinished(qint64 size)
 {
     QString url = m_request->url();
 
@@ -120,7 +121,7 @@ void ProxyWebDownload::downloadFinished(qint64 size)
     deregisterDependentObject();
 }
 
-void ProxyWebDownload::deregisterDependentObject()
+void WebDownload::deregisterDependentObject()
 {
     if (m_sessionDependentObjectId >= 0 && m_session) {
         m_session->deregisterDependentObject(m_sessionDependentObjectId);
@@ -129,7 +130,7 @@ void ProxyWebDownload::deregisterDependentObject()
     }
 }
 
-void ProxyWebDownload::saveToCache(uint hashCode, const QString &url, qint64 size, int numAccesses)
+void WebDownload::saveToCache(uint hashCode, const QString &url, qint64 size, int numAccesses)
 {
     if (!CacheHelper::canUseDatabase())
         return;

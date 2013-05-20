@@ -5,10 +5,12 @@
 #include "proxyhandlersession.h"
 #include "sockethandler.h"
 #include "requestreader.h"
-#include "proxystaticreader.h"
-#include "proxyservicereader.h"
+#include "staticreader.h"
+#include "servicereader.h"
 #include "proxyrequest.h"
-#include "proxywebreader.h"
+#include "webreader.h"
+#include "directwebreader.h"
+#include "webdownloadsmanager.h"
 
 #include <QDateTime>
 
@@ -24,16 +26,19 @@ void ProxyHandler::service(SocketHandler *socketHandler) {
 
     ProxyRequest *request = new ProxyRequest(m_socketHandler->requestReader(), m_proxyHandlerSession);
     if (request->isStaticResourceRequest()) {
-        ProxyStaticReader(m_socketHandler, request).read();
+        StaticReader(m_socketHandler, request).read();
         m_socketHandler->proxyHandlerFinished(this);
     } else if (request->isLocalRequest()) {
-        ProxyServiceReader(m_socketHandler, request).read();
+        ServiceReader(m_socketHandler, request).read();
         m_socketHandler->proxyHandlerFinished(this);
     } else {
         m_proxyHandlerSession = new ProxyHandlerSession(this);
         connect(m_proxyHandlerSession, SIGNAL(allFinished()), this, SLOT(proxyHandlerSessionFinished()), Qt::QueuedConnection);
 
-        (new ProxyWebReader(socketHandler, request, m_proxyHandlerSession))->read();
+        if (WebDownloadsManager::instance()->containsCacheExceptionFor(request->url()))
+            (new DirectWebReader(socketHandler, request, m_proxyHandlerSession))->read();
+        else
+            (new WebReader(socketHandler, request, m_proxyHandlerSession))->read();
     }
 }
 

@@ -7,8 +7,8 @@
 
 class ProxyRequest;
 class QTimer;
-class QFile;
-class ProxyWebDownload;
+class WebSocketOutput;
+class IWebDownload;
 
 class WebSocket : public QObject
 {
@@ -23,7 +23,7 @@ public:
         Unknown
     };
 
-    explicit WebSocket(ProxyRequest *request, ProxyWebDownload *webDownload, QFile *output, QObject *parent = 0);
+    explicit WebSocket(ProxyRequest *request, IWebDownload *webDownload, WebSocketOutput *output, QObject *parent = 0);
 
     void readRequest();
     void setProxy(const QString &proxy) { m_proxy = proxy; }
@@ -55,9 +55,9 @@ private:
     ResponseLength m_responseLength;
     QTimer *m_timeoutTimer;
     ProxyRequest *m_request;
-    QFile *m_outputFile;
+    WebSocketOutput *m_outputFile;
     qint64 m_sizeWritten;
-    ProxyWebDownload *m_webDownload;
+    IWebDownload *m_webDownload;
 };
 
 #endif // WEBSOCKET_H

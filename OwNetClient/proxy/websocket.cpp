@@ -5,12 +5,13 @@
 #include "proxytrafficcounter.h"
 #include "requestreader.h"
 #include "session.h"
-#include "proxywebdownload.h"
+#include "iwebdownload.h"
+#include "websocketoutput.h"
 
 #include <QBuffer>
 #include <QTimer>
 
-WebSocket::WebSocket(ProxyRequest *request, ProxyWebDownload *webDownload, QFile *output, QObject *parent)
+WebSocket::WebSocket(ProxyRequest *request, IWebDownload *webDownload, WebSocketOutput *output, QObject *parent)
     : QObject(parent),
       m_readHeaders(false),
       m_contentLength(0),

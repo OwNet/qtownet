@@ -9,11 +9,11 @@ class ProxyRequest;
 class QIODevice;
 class ProxyHandlerSession;
 
-class ProxyWebReader : public QObject
+class WebReader : public QObject
 {
     Q_OBJECT
 public:
-    explicit ProxyWebReader(SocketHandler *socketHandler, ProxyRequest *request, ProxyHandlerSession *session, QObject *parent = 0);
+    explicit WebReader(SocketHandler *socketHandler, ProxyRequest *request, ProxyHandlerSession *session, QObject *parent = 0);
 
     void read();
 

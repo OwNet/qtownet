@@ -6,11 +6,11 @@
 class SocketHandler;
 class ProxyRequest;
 
-class ProxyStaticReader : public QObject
+class StaticReader : public QObject
 {
     Q_OBJECT
 public:
-    explicit ProxyStaticReader(SocketHandler *socketHandler, ProxyRequest *request, QObject *parent = 0);
+    explicit StaticReader(SocketHandler *socketHandler, ProxyRequest *request, QObject *parent = 0);
 
     void read();
 

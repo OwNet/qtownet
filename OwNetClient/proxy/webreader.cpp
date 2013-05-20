@@ -1,6 +1,6 @@
-#include "proxywebreader.h"
+#include "webreader.h"
 
-#include "proxywebdownload.h"
+#include "webdownload.h"
 #include "sockethandler.h"
 #include "proxyhandlersession.h"
 #include "session.h"
@@ -9,7 +9,7 @@
 
 #include <QUrl>
 
-ProxyWebReader::ProxyWebReader(SocketHandler *socketHandler, ProxyRequest *request, ProxyHandlerSession *session, QObject *parent) :
+WebReader::WebReader(SocketHandler *socketHandler, ProxyRequest *request, ProxyHandlerSession *session, QObject *parent) :
     QObject(parent),
     m_socketHandler(socketHandler),
     m_request(request),
@@ -20,7 +20,7 @@ ProxyWebReader::ProxyWebReader(SocketHandler *socketHandler, ProxyRequest *reque
     m_dependentObjectId = m_session->registerDependentObject();
 }
 
-void ProxyWebReader::read()
+void WebReader::read()
 {
     bool done = false;
 
@@ -34,7 +34,7 @@ void ProxyWebReader::read()
         finished();
 }
 
-void ProxyWebReader::readyRead()
+void WebReader::readyRead()
 {
     m_readMutex.lock();
     if (m_stream) {
@@ -48,7 +48,7 @@ void ProxyWebReader::readyRead()
     emit iAmActive();
 }
 
-void ProxyWebReader::finished()
+void WebReader::finished()
 {
     readyRead();
     if (m_dependentObjectId >= 0)
@@ -56,7 +56,7 @@ void ProxyWebReader::finished()
     m_dependentObjectId = -1;
 }
 
-void ProxyWebReader::failed()
+void WebReader::failed()
 {
     if (!m_writtenToSocket) {
         QVariantMap responseHeaders;

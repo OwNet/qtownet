@@ -2,8 +2,8 @@
 #define PROXYWEBDOWNLOAD_H
 
 #include "cachelocations.h"
+#include "iwebdownload.h"
 
-#include <QObject>
 #include <QMutex>
 #include <QAbstractSocket>
 #include <QMap>
@@ -11,11 +11,11 @@
 class QIODevice;
 class ProxyRequest;
 class ProxyHandlerSession;
-class ProxyWebReader;
+class WebReader;
 class QFile;
 class WebSocket;
 
-class ProxyWebDownload : public QObject
+class WebDownload : public QObject, public IWebDownload
 {
     Q_OBJECT
 public:
@@ -26,9 +26,9 @@ public:
         Unknown
     };
 
-    ProxyWebDownload(uint cacheId, QObject *parent = 0);
+    WebDownload(uint cacheId, QObject *parent = 0);
     
-    QIODevice *getStream(ProxyRequest *request, ProxyWebReader *reader, ProxyHandlerSession *session, bool refresh, bool *finished);
+    QIODevice *getStream(ProxyRequest *request, WebReader *reader, ProxyHandlerSession *session, bool refresh, bool *finished);
 
     bool exists();
 

@@ -10,10 +10,10 @@
 class GDSFClock;
 class ProxyTrafficCounter;
 class CacheExceptions;
-class ProxyWebDownload;
+class WebDownload;
 class CacheLocations;
 class ProxyRequest;
-class ProxyWebReader;
+class WebReader;
 class ProxyHandlerSession;
 
 class WebDownloadsManager : public IDatabaseUpdateListener
@@ -32,8 +32,8 @@ public:
     }
     ~WebDownloadsManager();
 
-    QIODevice *getStream(ProxyRequest *request, ProxyWebReader *reader, ProxyHandlerSession *handlerSession, bool *finished);
-    void deregisterDownloadReader(ProxyWebDownload *proxyDownload, int readerId);
+    QIODevice *getStream(ProxyRequest *request, WebReader *reader, ProxyHandlerSession *handlerSession, bool *finished);
+    void deregisterDownloadReader(WebDownload *proxyDownload, int readerId);
 
     GDSFClock *gdsfClock() const { return m_gdsfClock; }
     ProxyTrafficCounter *trafficCounter() const { return m_trafficCounter; }
@@ -49,15 +49,17 @@ public:
     bool containsCacheLocation(uint cacheId, const QString &clientId) const;
     bool isCacheAvailable(uint cacheId) const;
 
+    bool containsCacheExceptionFor(const QString &url);
+
 private:
     WebDownloadsManager();
     void initCacheLocations();
     void addCacheLocation(uint cacheId, const QString &clientId, const QString &dateCreated);
-    void addCacheLocation(uint cacheId, const QString &clientId, const QString &dateCreated, ProxyWebDownload *download);
+    void addCacheLocation(uint cacheId, const QString &clientId, const QString &dateCreated, WebDownload *download);
     bool shouldRefresh(ProxyRequest *request);
 
     QMutex m_openDownloadsMutex;
-    QMap<uint, ProxyWebDownload*> m_downloads;
+    QMap<uint, WebDownload*> m_downloads;
 
     GDSFClock *m_gdsfClock;
     ProxyTrafficCounter *m_trafficCounter;
