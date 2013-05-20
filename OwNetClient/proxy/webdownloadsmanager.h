@@ -57,7 +57,7 @@ private:
     bool shouldRefresh(ProxyRequest *request);
 
     QMutex m_openDownloadsMutex;
-    QMap<uint, CacheLocations*> m_cacheLocations;
+    QMap<uint, ProxyWebDownload*> m_downloads;
 
     GDSFClock *m_gdsfClock;
     ProxyTrafficCounter *m_trafficCounter;

@@ -31,7 +31,7 @@ void ProxyHandler::service(SocketHandler *socketHandler) {
         m_socketHandler->proxyHandlerFinished(this);
     } else {
         m_proxyHandlerSession = new ProxyHandlerSession(this);
-        connect(m_proxyHandlerSession, SIGNAL(allFinished()), this, SLOT(proxyHandlerSessionFinished()));
+        connect(m_proxyHandlerSession, SIGNAL(allFinished()), this, SLOT(proxyHandlerSessionFinished()), Qt::QueuedConnection);
 
         (new ProxyWebReader(socketHandler, request, m_proxyHandlerSession))->read();
     }

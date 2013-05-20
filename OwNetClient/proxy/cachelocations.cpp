@@ -1,25 +1,23 @@
 #include "cachelocations.h"
 
-#include "proxywebdownload.h"
 #include "session.h"
 #include "databasesettings.h"
+#include "cachefolder.h"
 
 #include <QDateTime>
 #include <QStringList>
 
 CacheLocations::CacheLocations(QObject *parent) :
-    QObject(parent),
-    m_local(NULL),
-    m_currentDownload(NULL)
+    QObject(parent)
 {
 }
 
-void CacheLocations::addLocation(const QString &clientId, const QString &dateTime, ProxyWebDownload *location)
+void CacheLocations::addLocation(const QString &clientId, const QString &dateTime)
 {
-    addLocation(clientId, QDateTime::fromString(dateTime, Qt::ISODate), location);
+    addLocation(clientId, QDateTime::fromString(dateTime, Qt::ISODate));
 }
 
-void CacheLocations::addLocation(const QString &clientId, const QDateTime &dateTime, ProxyWebDownload *location)
+void CacheLocations::addLocation(const QString &clientId, const QDateTime &dateTime)
 {
     QDateTime roundedDateTime;
     roundedDateTime.setDate(dateTime.date());
@@ -29,119 +27,120 @@ void CacheLocations::addLocation(const QString &clientId, const QDateTime &dateT
     QString key = roundedDateTime.toString(Qt::ISODate);
 
     if (m_locations.contains(key)) {
-        QList<ProxyWebDownload*> *list = m_locations.value(key);
-        if (location->isLocalCache()) {
-            list->prepend(location);
-        } else if (location->isWeb()) {
-            list->append(location);
-        } else {
-            bool inserted = false;
-            for (int i = 0; i < list->count(); ++i) {
-                if (list->at(i)->isLocalCache())
+        QStringList list = m_locations.value(key);
+        bool inserted = false;
+
+        switch (getLocationType(clientId, false)) {
+        case LocalCache:
+            list.prepend(clientId);
+            break;
+
+        case NetworkCache:
+            for (int i = 0; i < list.count(); ++i) {
+                if (getLocationType(list.at(i), false) == LocalCache)
                     continue;
-                list->insert(i, location);
+                list.insert(i, clientId);
                 inserted = true;
                 break;
             }
             if (!inserted)
-                list->append(location);
-        }
-        m_locations.value(key)->append(location);
-    } else {
-        QList<ProxyWebDownload*> *list = new QList<ProxyWebDownload*>();
-        list->append(location);
-        m_locations.insert(key, list);
-    }
+                list.append(clientId);
+            break;
 
-    if (location->isLocalCache())
-        m_local = location;
+        default:
+            list.append(clientId);
+            break;
+        }
+
+        m_locations.insert(key, list);
+    } else {
+        m_locations.insert(key, QStringList(clientId));
+    }
+}
+
+void CacheLocations::addLocalLocation()
+{
+    addLocation(DatabaseSettings().clientId(), QDateTime::currentDateTime());
 }
 
 void CacheLocations::removeLocation(const QString &clientId)
 {
     foreach (QString key, m_locations.keys()) {
-        QList<ProxyWebDownload *> *list = m_locations.value(key);
-        for (int i = list->count() - 1; i >= 0; --i) {
-            if (list->at(i)->clientId() == clientId)
-                list->removeAt(i);
+        QStringList list = m_locations.value(key);
+        for (int i = list.count() - 1; i >= 0; --i) {
+            if (list.at(i) == clientId)
+                list.removeAt(i);
         }
+        m_locations.insert(key, list);
     }
+}
+
+void CacheLocations::removeLocalLocation()
+{
+    removeLocation(DatabaseSettings().clientId());
 }
 
 bool CacheLocations::containsLocation(const QString &clientId) const
 {
-    return m_locations.contains(clientId);
+    return sortedLocations().contains(clientId);
 }
 
-QIODevice *CacheLocations::getStream(ProxyRequest *request, ProxyWebReader *reader, ProxyHandlerSession *handlerSession, bool *finished, bool refresh)
+bool CacheLocations::isCacheAvailable() const
 {
-    if (m_currentDownload)
-        return m_currentDownload->getStream(reader, handlerSession, finished);
+    switch (getLocationType(false)) {
+    case LocalCache:
+    case NetworkCache:
+        return true;
+    }
+    return false;
+}
 
-    ProxyWebDownload *download = NULL;
-    QString downloadClientId;
-    QVariantMap availableClients = Session().availableClients();
+QPair<CacheLocations::LocationType, QString> CacheLocations::getLocationType(bool refresh)
+{
     if (!refresh) {
-        bool isOnline = Session().isOnline();
-        QList<ProxyWebDownload*> locations = sortedLocations();
-        foreach (ProxyWebDownload *location, locations) {
-            if (location->isLocalCache()) {
-                if (location->exists()) {
-                    download = location;
-                    break;
-                }
-            } else if (location->isNetworkCache()) {
-                if (!availableClients.contains(location->clientId()))
-                    continue;
+        LocationType locationType = Unknown;
+        foreach (QString clientId, sortedLocations()) {
+            if ((locationType = getLocationType(clientId)) == Unknown)
+                continue;
 
-                downloadClientId = download->clientId();
-                break;
-            } else {
-                if (location->isWeb() && !isOnline)
-                    continue;
-                break;
-            }
+            return QPair<LocationType, QString>(locationType, clientId);
         }
     }
 
-    if (!download) {
-        if (m_local) {
-            m_local->downloadFromTheWebOrNetwork(request, downloadClientId);
-            download = m_local;
-        } else {
-            download = new ProxyWebDownload(request);
-            download->downloadFromTheWebOrNetwork(request, downloadClientId);
-        }
-        addLocation(DatabaseSettings().clientId(), QDateTime::currentDateTime(), download);
-        m_currentDownload = download;
-        connect(download, SIGNAL(finished()), this, SLOT(currentDownloadFinished()));
-        connect(download, SIGNAL(failed()), this, SLOT(currentDownloadFailed()));
-    }
-
-    return download->getStream(reader, handlerSession, finished);
+    return QPair<LocationType, QString>(Web, "WEB");
 }
 
-QList<ProxyWebDownload *> CacheLocations::sortedLocations() const
+QStringList CacheLocations::sortedLocations() const
 {
-    QList<ProxyWebDownload *> results;
+    QStringList results;
     QStringList keys(m_locations.keys());
     keys.sort();
 
-    for (int i = keys.count() - 1; i >= 0; --i) {
-        results.append(*(m_locations.value(keys.at(i))));
-    }
+    for (int i = keys.count() - 1; i >= 0; --i)
+        results.append(m_locations.value(keys.at(i)));
 
     return results;
 }
 
-void CacheLocations::currentDownloadFinished()
+CacheLocations::LocationType CacheLocations::getLocationType(const QString &clientId, bool checkIfExists) const
 {
-    //m_currentDownload->disconnect(this);
-    m_currentDownload = NULL;
-}
+    if (DatabaseSettings().clientId() == clientId) {
+        if (!checkIfExists)
+            return LocalCache;
 
-void CacheLocations::currentDownloadFailed()
-{
-    //m_currentDownload->disconnect(this);
-    m_currentDownload = NULL;
+        QObject parent;
+        QFile *file = CacheFolder().cacheFile(m_cacheId, 0, &parent);
+        if (file->exists())
+            return LocalCache;
+
+        return Unknown;
+    } else if (clientId != "WEB") {
+        if (!checkIfExists || Session().availableClients().contains(clientId))
+            return NetworkCache;
+
+        return Unknown;
+    }
+    if (!checkIfExists || Session().isOnline())
+        return Web;
+    return Unknown;
 }

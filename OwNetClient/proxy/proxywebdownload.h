@@ -1,9 +1,12 @@
 #ifndef PROXYWEBDOWNLOAD_H
 #define PROXYWEBDOWNLOAD_H
 
+#include "cachelocations.h"
+
 #include <QObject>
 #include <QMutex>
 #include <QAbstractSocket>
+#include <QMap>
 
 class QIODevice;
 class ProxyRequest;
@@ -23,46 +26,42 @@ public:
         Unknown
     };
 
-    ProxyWebDownload(ProxyRequest *request, QObject *parent = 0);
-    ProxyWebDownload(uint cacheId, const QString &clientId, QObject *parent = 0);
+    ProxyWebDownload(uint cacheId, QObject *parent = 0);
     
-    QIODevice *getStream(ProxyWebReader *reader, ProxyHandlerSession *session, bool *finished);
+    QIODevice *getStream(ProxyRequest *request, ProxyWebReader *reader, ProxyHandlerSession *session, bool refresh, bool *finished);
 
-    bool isLocalCache() const { return m_type == CacheFile; }
-    bool isWeb() const { return m_type == WebStream; }
-    bool isNetworkCache() const { return m_type == NetworkStream; }
-
-    QString clientId() const { return m_clientId; }
     bool exists();
 
-    void downloadFromTheWebOrNetwork(ProxyRequest *request, const QString clientId = QString());
     static void saveToCache(uint hashCode, const QString &url, qint64 size, int numAccesses);
+
+    void addLocation(const QString &clientId, const QString &dateTime) { m_cacheLocations.addLocation(clientId, dateTime); }
+    void addLocation(const QString &clientId, const QDateTime &dateTime) { m_cacheLocations.addLocation(clientId, dateTime); }
+    void removeLocation(const QString &clientId) { m_cacheLocations.removeLocation(clientId); }
+    bool containsLocation(const QString &clientId) const { return m_cacheLocations.containsLocation(clientId); }
+    bool isCacheAvailable() const { return m_cacheLocations.isCacheAvailable(); }
+
+    void downloadFailed();
+    void downloadFinished(qint64 size);
 
 signals:
     void readyRead();
     void finished();
     void failed();
 
-private slots:
-    void downloadFailed();
-    void downloadFinished(qint64 size);
+private:
+    void startDownload(CacheLocations::LocationType locationType, QString clientId);
     void deregisterDependentObject();
 
-private:
-    void startDownload();
-
-    QString m_clientId;
     ProxyRequest *m_request;
     ProxyHandlerSession *m_session;
 
-    Type m_type;
     int m_sessionDependentObjectId;
     uint m_cacheId;
 
     QMutex m_startedMutex;
-    bool m_started;
-    bool m_failed;
-    bool m_finished;
+    bool m_inProgress;
+
+    CacheLocations m_cacheLocations;
 };
 
 #endif // PROXYWEBDOWNLOAD_H

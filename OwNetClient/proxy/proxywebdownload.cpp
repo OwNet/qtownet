@@ -18,140 +18,82 @@
 #include <QSqlRecord>
 #include <QBuffer>
 
-ProxyWebDownload::ProxyWebDownload(ProxyRequest *request, QObject *parent) :
-    QObject(parent),
-    m_request(request),
-    m_started(false),
-    m_failed(false),
-    m_finished(false),
-    m_type(WebStream),
-    m_sessionDependentObjectId(-1),
-    m_session(NULL)
-{
-    connect(this, SIGNAL(finished()), this, SLOT(deregisterDependentObject()));
-    connect(this, SIGNAL(failed()), this, SLOT(deregisterDependentObject()));
-    m_cacheId = request->hashCode();
-}
-
-ProxyWebDownload::ProxyWebDownload(uint cacheId, const QString &clientId, QObject *parent) :
+ProxyWebDownload::ProxyWebDownload(uint cacheId, QObject *parent) :
     QObject(parent),
     m_request(NULL),
-    m_started(false),
-    m_failed(false),
-    m_finished(false),
-    m_type(NetworkStream),
+    m_inProgress(false),
     m_sessionDependentObjectId(-1),
     m_session(NULL),
-    m_clientId(clientId),
     m_cacheId(cacheId)
 {
-    connect(this, SIGNAL(finished()), this, SLOT(deregisterDependentObject()));
-    connect(this, SIGNAL(failed()), this, SLOT(deregisterDependentObject()));
-    if (DatabaseSettings().clientId() == clientId) {
-        m_type = CacheFile;
-        m_started = true;
-        m_finished = true;
-    }
+    m_cacheLocations.setCacheId(m_cacheId);
 }
 
-QIODevice *ProxyWebDownload::getStream(ProxyWebReader *reader, ProxyHandlerSession *session, bool *finished)
+QIODevice *ProxyWebDownload::getStream(ProxyRequest *request, ProxyWebReader *reader, ProxyHandlerSession *session, bool refresh, bool *finished)
 {
+    m_request = request;
     *finished = false;
+
     m_startedMutex.lock();
 
-    if (!m_failed && !m_finished) {
+    if (m_inProgress) {
         connect(this, SIGNAL(readyRead()), reader, SLOT(readyRead()), Qt::QueuedConnection);
         connect(this, SIGNAL(finished()), reader, SLOT(finished()), Qt::QueuedConnection);
         connect(this, SIGNAL(failed()), reader, SLOT(failed()), Qt::QueuedConnection);
-
-        if (!m_started) {
-            m_session = session;
-            startDownload();
-            m_started = true;
-        }
     } else {
-        *finished = true;
+        QPair<CacheLocations::LocationType, QString> locationType = m_cacheLocations.getLocationType(refresh);
+        if (locationType.first == CacheLocations::LocalCache) {
+            *finished = true;
+        } else {
+            connect(this, SIGNAL(readyRead()), reader, SLOT(readyRead()), Qt::QueuedConnection);
+            connect(this, SIGNAL(finished()), reader, SLOT(finished()), Qt::QueuedConnection);
+            connect(this, SIGNAL(failed()), reader, SLOT(failed()), Qt::QueuedConnection);
+
+            m_session = session;
+            m_sessionDependentObjectId = m_session->registerDependentObject();
+            startDownload(locationType.first, locationType.second);
+            m_inProgress = true;
+        }
     }
 
     m_startedMutex.unlock();
 
-    QFile *file = NULL;
-    if (!m_failed) {
-        file = CacheFolder().cacheFile(m_cacheId, 0);
-        file->open(QIODevice::ReadOnly);
-        if (!file->exists()) {
-            if (m_type == CacheFile) {
-                downloadFromTheWebOrNetwork(m_request);
-                return getStream(reader, session, finished);
-            } else {
-                return NULL;
-            }
-        }
-    }
+    QFile *file = CacheFolder().cacheFile(m_cacheId, 0);
+    if (!file->exists())
+        return NULL;
+    file->open(QIODevice::ReadOnly);
 
     return file;
 }
 
-bool ProxyWebDownload::exists()
+void ProxyWebDownload::startDownload(CacheLocations::LocationType locationType, QString clientId)
 {
-    if (m_type == CacheFile) {
-        QFile *file = CacheFolder().cacheFile(m_cacheId, 0);
-        return file->exists();
+    CacheFolder cacheFolder;
+    QFile *writeFile = cacheFolder.cacheFile(m_cacheId, 0);
+    if (writeFile->exists())
+        writeFile->remove();
+    writeFile->open(QIODevice::WriteOnly);
+
+    WebSocket *socket = new WebSocket(m_request, this, writeFile);
+    if (locationType == CacheLocations::NetworkCache) {
+        QVariantMap clients = Session().availableClients();
+        if (clients.contains(clientId))
+            socket->setProxy(clients.value(clientId).toString());
     }
-    return false;
-}
 
-void ProxyWebDownload::downloadFromTheWebOrNetwork(ProxyRequest *request, const QString clientId)
-{
-    m_startedMutex.lock();
-    m_started = false;
-    m_finished = false;
-    m_failed = false;
-    m_request = request;
-    m_cacheId = request->hashCode();
-    if (!clientId.isEmpty()) {
-        m_type = NetworkStream;
-        m_clientId = clientId;
-    } else {
-        m_type = WebStream;
-    }
-    m_startedMutex.unlock();
-}
-
-void ProxyWebDownload::startDownload()
-{
-    if (isWeb() || isNetworkCache()) {
-        if (m_session)
-            m_sessionDependentObjectId = m_session->registerDependentObject();
-
-        CacheFolder cacheFolder;
-        QFile *writeFile = cacheFolder.cacheFile(m_request, 0);
-        if (writeFile->exists())
-            writeFile->remove();
-        writeFile->open(QIODevice::WriteOnly);
-
-        WebSocket *socket = new WebSocket(m_request, writeFile);
-        if (isNetworkCache() && !m_clientId.isEmpty()) {
-            QVariantMap clients = Session().availableClients();
-            if (clients.contains(m_clientId))
-                socket->setProxy(clients.value(m_clientId).toString());
-        }
-
-        connect(socket, SIGNAL(readyRead()), this, SIGNAL(readyRead()));
-        connect(socket, SIGNAL(finished(qint64)), this, SLOT(downloadFinished(qint64)));
-        connect(socket, SIGNAL(failed()), this, SLOT(downloadFailed()));
-        socket->readRequest();
-
-        m_type = CacheFile;
-    }
+    connect(socket, SIGNAL(readyRead()), this, SIGNAL(readyRead()));
+    socket->readRequest();
 }
 
 void ProxyWebDownload::downloadFailed()
 {
     m_startedMutex.lock();
-    m_failed = true;
+    m_inProgress = false;
+    m_cacheLocations.removeLocalLocation();
     emit failed();
     m_startedMutex.unlock();
+
+    deregisterDependentObject();
 }
 
 void ProxyWebDownload::downloadFinished(qint64 size)
@@ -170,10 +112,12 @@ void ProxyWebDownload::downloadFinished(qint64 size)
     saveToCache(m_cacheId, url, size, accessCount);
 
     m_startedMutex.lock();
-    m_finished = true;
-    m_clientId = QString();
+    m_inProgress = false;
+    m_cacheLocations.addLocalLocation();
     emit finished();
     m_startedMutex.unlock();
+
+    deregisterDependentObject();
 }
 
 void ProxyWebDownload::deregisterDependentObject()

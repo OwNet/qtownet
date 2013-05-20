@@ -37,8 +37,11 @@ void ProxyWebReader::read()
 void ProxyWebReader::readyRead()
 {
     m_readMutex.lock();
-    if (m_stream)
-        m_socketHandler->write(m_stream->readAll());
+    if (m_stream) {
+        QByteArray bytes = m_stream->readAll();
+        if (!bytes.isEmpty())
+            m_socketHandler->write(bytes);
+    }
     m_readMutex.unlock();
     m_writtenToSocket = true;
 

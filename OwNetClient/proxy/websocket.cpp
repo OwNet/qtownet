@@ -5,11 +5,12 @@
 #include "proxytrafficcounter.h"
 #include "requestreader.h"
 #include "session.h"
+#include "proxywebdownload.h"
 
 #include <QBuffer>
 #include <QTimer>
 
-WebSocket::WebSocket(ProxyRequest *request, QFile *output, QObject *parent)
+WebSocket::WebSocket(ProxyRequest *request, ProxyWebDownload *webDownload, QFile *output, QObject *parent)
     : QObject(parent),
       m_readHeaders(false),
       m_contentLength(0),
@@ -17,10 +18,11 @@ WebSocket::WebSocket(ProxyRequest *request, QFile *output, QObject *parent)
       m_timeoutTimer(NULL),
       m_request(request),
       m_outputFile(output),
-      m_sizeWritten(0)
+      m_sizeWritten(0),
+      m_webDownload(webDownload)
 {
-    connect(this, SIGNAL(finished(qint64)), this, SLOT(closeFile()));
-    connect(this, SIGNAL(failed()), this, SLOT(removeFile()));
+    connect(this, SIGNAL(finished(qint64)), this, SLOT(finished(qint64)));
+    connect(this, SIGNAL(failed()), this, SLOT(failed()));
     connect(this, SIGNAL(finished(qint64)), this, SLOT(deleteLater()));
     connect(this, SIGNAL(failed()), this, SLOT(deleteLater()));
 }
@@ -132,7 +134,7 @@ void WebSocket::socketReadyRead()
     emit readyRead();
 
     if (end)
-        emit finished(m_sizeWritten);
+        finished(m_sizeWritten);
 }
 
 void WebSocket::socketDisconnected()
@@ -140,7 +142,7 @@ void WebSocket::socketDisconnected()
     if (m_timeoutTimer && m_timeoutTimer->isActive())
         m_timeoutTimer->stop();
 
-    emit finished(m_sizeWritten);
+    finished(m_sizeWritten);
 }
 
 void WebSocket::socketError(QAbstractSocket::SocketError error)
@@ -148,7 +150,7 @@ void WebSocket::socketError(QAbstractSocket::SocketError error)
     if (m_timeoutTimer && m_timeoutTimer->isActive())
         m_timeoutTimer->stop();
 
-    emit failed();
+    failed();
 }
 
 void WebSocket::responseTimeout()
@@ -157,7 +159,7 @@ void WebSocket::responseTimeout()
         m_timeoutTimer->stop();
 
     m_socket->close();
-    emit failed();
+    failed();
 }
 
 bool WebSocket::isClientOnline(const QString &clientId) const
@@ -201,20 +203,22 @@ int WebSocket::port(const QString &serverAndPort) const
     return 80;
 }
 
-void WebSocket::closeFile()
+void WebSocket::finished(qint64 size)
 {
     if (m_outputFile) {
         m_outputFile->close();
         m_outputFile->deleteLater();
         m_outputFile = NULL;
     }
+    m_webDownload->downloadFinished(size);
 }
 
-void WebSocket::removeFile()
+void WebSocket::failed()
 {
     if (m_outputFile) {
         m_outputFile->remove();
         m_outputFile->deleteLater();
         m_outputFile = NULL;
     }
+    m_webDownload->downloadFailed();
 }

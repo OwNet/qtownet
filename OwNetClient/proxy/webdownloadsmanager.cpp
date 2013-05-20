@@ -16,6 +16,8 @@
 #include "cachehelper.h"
 #include "databasesettings.h"
 
+#include <QDateTime>
+
 WebDownloadsManager *WebDownloadsManager::m_instance = 0;
 
 WebDownloadsManager::~WebDownloadsManager()
@@ -37,16 +39,15 @@ QIODevice *WebDownloadsManager::getStream(ProxyRequest *request, ProxyWebReader 
     // ADD check before: !m_cacheExceptions->containsExceptionFor(request->url())
     uint cacheId = request->hashCode();
 
-    CacheLocations *locations = NULL;
-    if (m_cacheLocations.contains(cacheId)) {
-        locations = m_cacheLocations.value(cacheId);
+    ProxyWebDownload *download = NULL;
+    if (m_downloads.contains(cacheId)) {
+        download = m_downloads.value(cacheId);
     } else {
-        locations = new CacheLocations;
-        m_cacheLocations.insert(cacheId, locations);
+        download = new ProxyWebDownload(cacheId);
+        m_downloads.insert(cacheId, download);
     }
-    QIODevice *stream = locations->getStream(request, reader, handlerSession, finished, shouldRefresh(request));
     m_openDownloadsMutex.unlock();
-    return stream;
+    return download->getStream(request, reader, handlerSession, shouldRefresh(request), finished);
 }
 
 QNetworkProxy WebDownloadsManager::applicationProxy() const
@@ -86,8 +87,8 @@ void WebDownloadsManager::tableUpdated(IDatabaseUpdateQuery *query)
                              columnsMap.value("client_id").toString(),
                              columnsMap.value("date_created").toString());
         } else if (query->type() == IDatabaseUpdateQuery::Delete) {
-            if (m_cacheLocations.contains(columnsMap.value("cache_id").toUInt())) {
-                m_cacheLocations.value(columnsMap.value("cache_id").toUInt())
+            if (m_downloads.contains(columnsMap.value("cache_id").toUInt())) {
+                m_downloads.value(columnsMap.value("cache_id").toUInt())
                         ->removeLocation(columnsMap.value("client_id").toString());
             }
         }
@@ -96,29 +97,17 @@ void WebDownloadsManager::tableUpdated(IDatabaseUpdateQuery *query)
 
 bool WebDownloadsManager::containsCacheLocation(uint cacheId, const QString &clientId) const
 {
-    if (!m_cacheLocations.contains(cacheId))
+    if (!m_downloads.contains(cacheId))
         return false;
 
-    return m_cacheLocations.value(cacheId)->containsLocation(clientId);
+    return m_downloads.value(cacheId)->containsLocation(clientId);
 }
 
 bool WebDownloadsManager::isCacheAvailable(uint cacheId) const
 {
-    if (m_cacheLocations.contains(cacheId)) {
-        QVariantMap availableClients = Session().availableClients();
-        QList<ProxyWebDownload*> locations = m_cacheLocations.value(cacheId)->sortedLocations();
+    if (m_downloads.contains(cacheId))
+        return m_downloads.value(cacheId)->isCacheAvailable();
 
-        foreach (ProxyWebDownload *location, locations) {
-            if (location->isLocalCache())
-                return true;
-
-            if (location->isWeb())
-                continue;
-
-            if (availableClients.contains(location->clientId()))
-                return true;
-        }
-    }
     return false;
 }
 
@@ -146,17 +135,19 @@ void WebDownloadsManager::initCacheLocations()
 
 void WebDownloadsManager::addCacheLocation(uint cacheId, const QString &clientId, const QString &dateCreated)
 {
-    addCacheLocation(cacheId, clientId, dateCreated, new ProxyWebDownload(cacheId, clientId));
+    ProxyWebDownload *download = new ProxyWebDownload(cacheId);
+    download->addLocation(clientId, dateCreated);
+    addCacheLocation(cacheId, clientId, dateCreated, download);
 }
 
 void WebDownloadsManager::addCacheLocation(uint cacheId, const QString &clientId, const QString &dateCreated, ProxyWebDownload *download)
 {
-    if (m_cacheLocations.contains(cacheId)) {
-        m_cacheLocations.value(cacheId)->addLocation(clientId, dateCreated, download);
+    if (m_downloads.contains(cacheId)) {
+        m_downloads.value(cacheId)->addLocation(clientId, dateCreated);
     } else {
-        CacheLocations *locations = new CacheLocations;
-        locations->addLocation(clientId, dateCreated, download);
-        m_cacheLocations.insert(cacheId, locations);
+        ProxyWebDownload *download = new ProxyWebDownload(cacheId);
+        download->addLocation(clientId, dateCreated);
+        m_downloads.insert(cacheId, download);
     }
 }
 

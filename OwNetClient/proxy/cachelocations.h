@@ -3,6 +3,8 @@
 
 #include <QObject>
 #include <QMap>
+#include <QPair>
+#include <QStringList>
 
 class ProxyWebDownload;
 class QIODevice;
@@ -14,26 +16,34 @@ class CacheLocations : public QObject
 {
     Q_OBJECT
 public:
+    enum LocationType {
+        LocalCache,
+        Web,
+        NetworkCache,
+        Unknown
+    };
+
     explicit CacheLocations(QObject *parent = 0);
 
-    void addLocation(const QString &clientId, const QString &dateTime, ProxyWebDownload *location);
-    void addLocation(const QString &clientId, const QDateTime &dateTime, ProxyWebDownload *location);
+    void addLocation(const QString &clientId, const QString &dateTime);
+    void addLocation(const QString &clientId, const QDateTime &dateTime);
+    void addLocalLocation();
     void removeLocation(const QString &clientId);
+    void removeLocalLocation();
     bool containsLocation(const QString &clientId) const;
+    bool isCacheAvailable() const;
 
-    QIODevice *getStream(ProxyRequest *request, ProxyWebReader *reader, ProxyHandlerSession *handlerSession, bool *finished, bool refresh);
+    QPair<LocationType, QString> getLocationType(bool refresh);
 
-    QList<ProxyWebDownload*> sortedLocations() const;
+    QStringList sortedLocations() const;
 
-private slots:
-    void currentDownloadFinished();
-    void currentDownloadFailed();
+    void setCacheId(uint cacheId) { m_cacheId = cacheId; }
 
 private:
-    ProxyWebDownload *m_local;
-    ProxyWebDownload *m_currentDownload;
-    QMap<QString, QList<ProxyWebDownload*>* > m_locations;
-    QList<ProxyWebDownload *> m_sortedLocations;
+    LocationType getLocationType(const QString &clientId, bool checkIfExists = true) const;
+
+    uint m_cacheId;
+    QMap<QString, QStringList > m_locations;
 };
 
 #endif // CACHELOCATIONS_H

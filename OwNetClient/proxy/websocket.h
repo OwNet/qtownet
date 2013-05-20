@@ -8,6 +8,7 @@
 class ProxyRequest;
 class QTimer;
 class QFile;
+class ProxyWebDownload;
 
 class WebSocket : public QObject
 {
@@ -22,15 +23,13 @@ public:
         Unknown
     };
 
-    explicit WebSocket(ProxyRequest *request, QFile *output, QObject *parent = 0);
+    explicit WebSocket(ProxyRequest *request, ProxyWebDownload *webDownload, QFile *output, QObject *parent = 0);
 
     void readRequest();
     void setProxy(const QString &proxy) { m_proxy = proxy; }
 
 signals:
     void readyRead();
-    void finished(qint64 size);
-    void failed();
 
 private slots:
     void socketConnectedToServer();
@@ -38,8 +37,8 @@ private slots:
     void socketDisconnected();
     void socketError(QAbstractSocket::SocketError error);
     void responseTimeout();
-    void closeFile();
-    void removeFile();
+    void finished(qint64 size);
+    void failed();
 
 private:
     bool isClientOnline(const QString &clientId) const;
@@ -58,6 +57,7 @@ private:
     ProxyRequest *m_request;
     QFile *m_outputFile;
     qint64 m_sizeWritten;
+    ProxyWebDownload *m_webDownload;
 };
 
 #endif // WEBSOCKET_H
