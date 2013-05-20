@@ -37,10 +37,10 @@ void PrefetchingService::init(IRouter *router)
             ->on(IRequest::POST, ROUTE(create) );
     router->addRoute("/close/")
             ->on(IRequest::GET, ROUTE(close));
-    router->addRoute("/done/")
-            ->on(IRequest::GET, ROUTE(done));
-    router->addRoute("/load/")
-            ->on(IRequest::GET, ROUTE(load));
+   // router->addRoute("/done/")
+     //       ->on(IRequest::GET, ROUTE(done));
+ //   router->addRoute("/load/")
+   //         ->on(IRequest::GET, ROUTE(load));
     router->addRoute("/list/")->on(IRequest::POST, ROUTE(list));
 }
 
@@ -59,7 +59,7 @@ void PrefetchingService::registerPredictionsQuery(uint from, QStringList &urls)
     // check if the prediction already exists and whether it was completed
     IDatabaseSelectQuery *select = m_proxyConnection->databaseSelect("prefetch_orders", &parent);
     IDatabaseSelectQueryWhereGroup *group = select->whereGroup(IDatabaseSelectQuery::And);
-    group->where("completed", true);
+    group->where("completed", "TRUE");
     IDatabaseSelectQueryWhereGroup *inner = group->whereGroup(IDatabaseSelectQuery::Or);
     for (i = 0; i < urls.count(); ++i) {
         hash = m_proxyConnection->cacheId(urls.at(i));
@@ -67,7 +67,6 @@ void PrefetchingService::registerPredictionsQuery(uint from, QStringList &urls)
         inner->where("page_hash_to", hash);
     }
 
-    select->select("completed");
     select->select("page_hash_to");
 
     while (select->next()) {    // remove completed predictions from the map
@@ -153,17 +152,17 @@ void PrefetchingService::registerPredictionsQuery(uint from, QStringList &urls)
 //    }
 }
 
-bool PrefetchingService::completedPrefetchingQuery(QString url)
-{
-    uint hash = m_proxyConnection->cacheId(url);
-    QObject parent;
-    IDatabaseUpdateQuery *query = NULL;
-    query = m_proxyConnection->databaseUpdateQuery("prefetch_orders",  &parent,  false);
-    query->singleWhere("page_hash_to", hash);
-    query->setColumnValue("completed", true);
-    query->setUpdateDates(true);
-    return query->executeQuery();
-}
+//bool PrefetchingService::completedPrefetchingQuery(QString url)
+//{
+//    uint hash = m_proxyConnection->cacheId(url);
+//    QObject parent;
+//    IDatabaseUpdateQuery *query = NULL;
+//    query = m_proxyConnection->databaseUpdateQuery("prefetch_orders",  &parent,  false);
+//    query->singleWhere("page_hash_to", hash);
+//    query->setColumnValue("completed", "TRUE");
+//    query->setUpdateDates(true);
+//    return query->executeQuery();
+//}
 
 bool PrefetchingService::disablePredictionQuery(uint hash)
 {
@@ -232,29 +231,29 @@ IResponse *PrefetchingService::close(IRequest *req)
     return req->response(IResponse::OK);
 }
 
-IResponse *PrefetchingService::load(IRequest *req)
-{
-    IResponse *response = NULL;
-    if (req->hasParameter("page") && !req->parameterValue("page").isEmpty()) {
-        //req->setContentType("text/html");
-        response = req->response(QString("<html><body onload=\"document.links[0].click();\"><a id=\"clickme\" href=\"%1\">prefetch this</a></body></html>").arg(req->parameterValue("page")).toLatin1());
-    } else {
-        response = req->response(IResponse::OK);
-    }
-    response->setContentType("text/html");
-    return response;
-}
+//IResponse *PrefetchingService::load(IRequest *req)
+//{
+//    IResponse *response = NULL;
+//    if (req->hasParameter("page") && !req->parameterValue("page").isEmpty()) {
+//        //req->setContentType("text/html");
+//        response = req->response(QString("<html><body onload=\"document.links[0].click();\"><a id=\"clickme\" href=\"%1\">prefetch this</a></body></html>").arg(req->parameterValue("page")).toLatin1());
+//    } else {
+//        response = req->response(IResponse::OK);
+//    }
+//    response->setContentType("text/html");
+//    return response;
+//}
 
-IResponse *PrefetchingService::done(IRequest *req)
-{
-    if (req->hasParameter("page") && !req->parameterValue("page").isEmpty()) {
-        completedPrefetchingQuery(req->parameterValue("page"));
-    }
+//IResponse *PrefetchingService::done(IRequest *req)
+//{
+//    if (req->hasParameter("page") && !req->parameterValue("page").isEmpty()) {
+//        completedPrefetchingQuery(req->parameterValue("page"));
+//    }
 
-    IResponse *resp = req->response(IResponse::OK);
-    resp->setContentType("application/javascript");
-    return  resp;
-}
+//    IResponse *resp = req->response(IResponse::OK);
+//    resp->setContentType("application/javascript");
+//    return  resp;
+//}
 
 IResponse *PrefetchingService::list(IRequest *req) {
     QString cached = "";

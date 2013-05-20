@@ -29,8 +29,7 @@ BrowserWorker::BrowserWorker(QString &link, QObject *parent) :
 }
 
 void BrowserWorker::doWork() {
-    QUrl link = QUrl(QString("http://prefetch.ownet/api/prefetch/load/?page=%1").arg(m_link.toString()));
-    m_webView.load(link);
+    m_webView.load(m_link);
     m_timer->start();
 }
 

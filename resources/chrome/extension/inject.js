@@ -78,13 +78,13 @@
 		return this.pageId;
 	}
 
-	$.isNotOwnet = function () {
-		return document.location.href.match(/[a-zA-Z]+.ownet\/api\/[a-zA-Z]+/) === null;
-	}
+	//$.isNotOwnet = function () {
+	//	return document.location.href.match(/[a-zA-Z]+.ownet\/api\/[a-zA-Z]+/) === null;
+	//}
 
-	$.isFromOwnet = function () {
-		return document.referrer.match(/[a-zA-Z]+.ownet\/api\/[a-zA-Z]+/) !== null;
-	}
+	//$.isFromOwnet = function () {
+	//	return document.referrer.match(/[a-zA-Z]+.ownet\/api\/[a-zA-Z]+/) !== null;
+	//}
 
 	$.urlEquals = function (a, b) {
 		return (a.replace(/\//g, "") === b.replace(/\//g, ""));
@@ -96,7 +96,7 @@
 		requestTimeout       : 0,
 		hasReportedClose     : 0,
 		hasReportedPrefetch  : 0,
-		TIMEOUT_DELAY_SECS   : 10,
+		TIMEOUT_DELAY_SECS   : 60,
 		startRequestTimeout: function () {
 		    this.requestTimeout = setTimeout(function () { PrefetchContact.requestPrefetch(); }, this.TIMEOUT_DELAY_SECS * 1000);
 		},
@@ -146,20 +146,20 @@
 			}
 			catch (e) {
 			}
-		},
-
-		reportPrefetch: function () {
-			try {
-				if (this.hasReportedPrefetch == 0 && document.referrer.match(/[a-zA-Z]+.ownet\/api\/prefetch/) !== null) {
-					owNetGLOBAL.loadScript(this.apiUri + "done/?page=" + $.getEncodedPageUri() + "&gid=" + $.getRandomId(), function () {
-						return true;
-					});
-					this.hasReportedPrefetch = 1;
-				}
-			}
-			catch (e) {
-			}
 		}
+
+		//reportPrefetch: function () {
+		//	try {
+		//		if (this.hasReportedPrefetch == 0 && document.referrer.match(/[a-zA-Z]+.ownet\/api\/prefetch/) !== null) {
+		//			owNetGLOBAL.loadScript(this.apiUri + "done/?page=" + $.getEncodedPageUri() + "&gid=" + $.getRandomId(), function () {
+		//				return true;
+		//			});
+		//			this.hasReportedPrefetch = 1;
+		//		}
+		//	}
+		//	catch (e) {
+		//	}
+		//}
 	}
 
 	var HistoryContact = {
@@ -598,15 +598,15 @@
 
 
 
-	if ($.isFromOwnet()) {
-		$.onDocumentReady(function () {
-			PrefetchContact.reportPrefetch();
-		});
-	}
-	else if ($.isNotOwnet()) {
+	//if ($.isFromOwnet()) {
+	//	$.onDocumentReady(function () {
+	//		PrefetchContact.reportPrefetch();
+	//	});
+	//}
+	//else if ($.isNotOwnet()) {
 		HistoryContact.reportVisit();
 		Ownet.initialize();
 
 		PrefetchContact.startRequestTimeout();
-	}
+	//}
 }());
