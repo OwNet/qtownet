@@ -2,6 +2,9 @@
 
 #include <QHash>
 
+bool CacheHelper::m_canUseDatabase = true;
+bool CacheHelper::m_canWriteToCache = true;
+
 CacheHelper::CacheHelper(QObject *parent) :
     QObject(parent)
 {
@@ -9,5 +12,5 @@ CacheHelper::CacheHelper(QObject *parent) :
 
 uint CacheHelper::cacheId(const QString &url)
 {
-    return qHash(url);
+    return qHash(url.toLower());
 }

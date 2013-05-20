@@ -22,7 +22,7 @@ public:
     ISession *session(QObject *parent = 0);
     IDatabaseUpdateQuery *databaseUpdateQuery(const QString &table, QObject *parent = 0, bool sync = true);
     IDatabaseSelectQuery *databaseSelect(const QString &table, QObject *parent = 0);
-    QSettings *settings(QObject *parent = 0);
+    ISettings *settings(QObject *parent = 0);
     IDatabaseSettings *databaseSettings(QObject *parent = 0);
 
     /// Proxy requests
@@ -37,6 +37,11 @@ public:
     int lastConnectionTraffic() const;
     QString generateUniqueId() const;
     uint cacheId(const QString &url) const;
+    ICacheFolder *cacheFolder() const;
+    void saveToCache(const QString &url, int numParts, qint64 size, int numAccesses) const;
+    bool isCacheAvailable(uint cacheId) const;
+
+    void quit() const;
 };
 
 #endif // PROXYCONNECTION_H

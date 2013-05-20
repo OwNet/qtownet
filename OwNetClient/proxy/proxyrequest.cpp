@@ -5,6 +5,7 @@
 #include "jsondocument.h"
 #include "requestreader.h"
 #include "cachehelper.h"
+#include "proxyconnection.h"
 
 #include <QNetworkRequest>
 #include <QStringList>
@@ -22,6 +23,11 @@ ProxyRequest::ProxyRequest(RequestReader *requestReader, QObject *parent)
     m_requestBody = requestReader->requestBody();
     m_peerAddress = requestReader->peerAddress();
     m_peerPort = requestReader->peerPort();
+
+    if (!requestReader->temporaryFile().fileName().isEmpty()) {
+        m_multipartContentTempFilePath = requestReader->temporaryFile().fileName();
+        MessageHelper::debug(m_multipartContentTempFilePath);
+    }
 
     analyzeUrl();
     analyzeRequestHeaders(requestReader);
@@ -212,6 +218,11 @@ IResponse *ProxyRequest::response(const QVariant body, IResponse::Status status)
 IResponse *ProxyRequest::response(IResponse::Status status)
 {
     return (new Response())->setStatus(status);
+}
+
+IProxyConnection *ProxyRequest::proxyConnection()
+{
+    return new ProxyConnection(this);
 }
 
 /**

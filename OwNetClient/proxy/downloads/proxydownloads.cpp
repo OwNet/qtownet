@@ -15,6 +15,7 @@
 #include "session.h"
 #include "databaseupdatequery.h"
 #include "cacheexceptions.h"
+#include "cachehelper.h"
 
 ProxyDownloads *ProxyDownloads::m_instance = 0;
 
@@ -64,7 +65,9 @@ ProxyDownload *ProxyDownloads::proxyDownload(ProxyRequest *request, ProxyHandler
 
     if (inputObject) {
         /// Create a cache output writer if the input source is Web and there is no exception for the url
-        if (inputObject->inputType() == ProxyInputObject::Web && !m_cacheExceptions->containsExceptionFor(request->url()))
+        if (inputObject->inputType() == ProxyInputObject::Web
+                && CacheHelper::canWriteToCache()
+                && !m_cacheExceptions->containsExceptionFor(request->url()))
             connectDownloadAndOutputWriter(download,
                                            new ProxyCacheOutputWriter(download, download->registerReader(), handlerSession));
 
@@ -145,6 +148,26 @@ bool ProxyDownloads::containsCacheLocation(uint cacheId, const QString &clientId
     return m_cacheLocations.value(cacheId)->containsLocation(clientId);
 }
 
+bool ProxyDownloads::isCacheAvailable(uint cacheId) const
+{
+    if (m_cacheLocations.contains(cacheId)) {
+        QVariantMap availableClients = Session().availableClients();
+        QList<ProxyCacheLocation*> locations = m_cacheLocations.value(cacheId)->sortedLocations();
+
+        foreach (ProxyCacheLocation *location, locations) {
+            if (location->isLocalCache())
+                return true;
+
+            if (location->isWeb())
+                continue;
+
+            if (availableClients.contains(location->clientId()))
+                return true;
+        }
+    }
+    return false;
+}
+
 ProxyDownloads::ProxyDownloads()
     : m_proxyPort(-1)
 {
@@ -173,9 +196,8 @@ ProxyInputObject *ProxyDownloads::newInputObject(ProxyRequest *request, ProxyHan
         inputObject = new ProxyRequestBus(request, handlerSession);
     } else {
         QVariantMap availableClients = Session().availableClients();
-        Session session;
 
-        if (!session.isRefreshSession() && !request->isRefreshRequest() && !m_cacheExceptions->containsExceptionFor(request->url())) {
+        if (!shouldRefresh(request) && !m_cacheExceptions->containsExceptionFor(request->url())) {
             bool isOnline = Session().isOnline();
 
             if (m_cacheLocations.contains(request->hashCode())) {
@@ -242,4 +264,12 @@ void ProxyDownloads::addCacheLocation(uint cacheId, const QString &clientId, con
         locations->addLocation(clientId, dateCreated);
         m_cacheLocations.insert(cacheId, locations);
     }
+}
+
+bool ProxyDownloads::shouldRefresh(ProxyRequest *request)
+{
+    if (request->domain() == "local")
+        return false;
+
+    return Session().isRefreshSession() || request->isRefreshRequest();
 }

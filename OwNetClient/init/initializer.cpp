@@ -9,6 +9,7 @@
 #include "jobinitializer.h"
 #include "settingsinitializer.h"
 #include "workspaceinitializer.h"
+#include "applicationenvironment.h"
 #include "settings.h"
 
 #include <QCoreApplication>
@@ -24,6 +25,8 @@ void Initializer::init()
     QCoreApplication::setOrganizationName("The Reconnected");
     QCoreApplication::setApplicationName("OwNet Client");
 
+    ApplicationEnvironment().init();
+
     (new SettingsInitializer(this))->init();
     (new WorkspaceInitializer(this))->init();
     (new DatabaseInitializer(this))->init();
@@ -33,7 +36,7 @@ void Initializer::init()
 
     createPidFile();
 
-    MessageHelper::debug("Proxy initialized and waiting for requests.");
+    MessageHelper::debug("READY");
 }
 
 /*

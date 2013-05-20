@@ -8,9 +8,9 @@
 #include "idatabasesettings.h"
 #include "idatabaseselectqueryjoin.h"
 #include "idatabaseselectquerywheregroup.h"
+#include "isettings.h"
 
 #include <QDateTime>
-#include <QSettings>
 #include <QDebug>
 
 CentralServiceReporter::CentralServiceReporter(IProxyConnection *proxyConnection, QObject *parent) :
@@ -41,7 +41,7 @@ bool CentralServiceReporter::reportSyncJournal()
     if (!updates.count())
         return true;
 
-    QSettings *settings = m_proxyConnection->settings(&parent);
+    ISettings *settings = m_proxyConnection->settings(&parent);
     settings->beginGroup("current_workspace");
 
     QVariantMap message;
@@ -150,7 +150,7 @@ bool CentralServiceReporter::sendHistory(const QVariantList &history)
 QString CentralServiceReporter::workspaceId() const
 {
     QObject parent;
-    QSettings *settings = m_proxyConnection->settings(&parent);
+    ISettings *settings = m_proxyConnection->settings(&parent);
     settings->beginGroup("current_workspace");
     return settings->value("id").toString();
 }

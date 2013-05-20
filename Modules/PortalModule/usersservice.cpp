@@ -177,7 +177,7 @@ IResponse *UsersService::edit(IRequest *req, uint id)
 {
     ISession* sess = m_proxyConnection->session();
     if ( !sess->isLoggedIn()  ||  (sess->value("logged").toUInt() != id) )
-        return req->response(IResponse::UNAUTHORIEZED);
+        return req->response(IResponse::UNAUTHORIZED);
 
 
     QObject parent;
@@ -239,7 +239,7 @@ IResponse *UsersService::del(IRequest *req, uint id)
 {
     ISession* sess = m_proxyConnection->session();
     if ( !sess->isLoggedIn()  ||  (sess->value("logged").toUInt() != id) )
-        return req->response(IResponse::UNAUTHORIEZED);
+        return req->response(IResponse::UNAUTHORIZED);
 
     QObject parent;
     IDatabaseUpdateQuery *query = m_proxyConnection->databaseUpdateQuery("users", &parent);

@@ -12,7 +12,7 @@ HttpServer::HttpServer(QObject *parent) :
 {
     Settings settings;
 
-    int port = settings.value("application/listen_port", 8081).toInt();
+    int port = settings.listenPort();
 
     m_server = new QTcpServer(this);
     connect(m_server, SIGNAL(newConnection()), SLOT(newConnection()));

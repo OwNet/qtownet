@@ -13,7 +13,10 @@
 #include <QDir>
 #include <QPluginLoader>
 #include <QList>
+
+#ifndef TEST
 #include <QApplication>
+#endif
 
 ModuleInitializer::ModuleInitializer(QObject *parent) :
     QObject(parent)
@@ -33,8 +36,9 @@ void ModuleInitializer::initModule(IModule *module)
 void ModuleInitializer::loadPlugins()
 {
     QDir modulesDir;
-
+#ifndef TEST
     modulesDir.cd(QApplication::applicationDirPath());
+#endif
 
 #if defined(Q_OS_WIN)
     if (modulesDir.dirName().toLower() == "debug" || modulesDir.dirName().toLower() == "release")
@@ -55,10 +59,7 @@ void ModuleInitializer::loadPlugins()
             if (module)
                 initModule(module);
         } else {
-             QString kokot = loader.errorString();
             MessageHelper::debug( loader.errorString() );
-
-
         }
     }
 }

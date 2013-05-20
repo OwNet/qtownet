@@ -3,9 +3,9 @@
 #include "iproxyconnection.h"
 #include "idatabasesettings.h"
 #include "isession.h"
+#include "isettings.h"
 
 #include <QDebug>
-#include <QSettings>
 #include <QDateTime>
 #include <QMutex>
 #include <QMutexLocker>
@@ -21,10 +21,10 @@ MulticastProtocol::MulticastProtocol(IProxyConnection *connection, QObject *pare
       m_proxyConnection(connection)
 {
     QObject parentObject;
-    QSettings *settings = m_proxyConnection->settings(&parentObject);
+    ISettings *settings = m_proxyConnection->settings(&parentObject);
 
     QString myId = connection->databaseSettings(this)->clientId();
-    int port = settings->value("application/listen_port", 8081).toInt();
+    int port = settings->listenPort();
 
     // add self as first instance
     m_currentNode = new MulticastProtocolNode(myId, m_proxyConnection);

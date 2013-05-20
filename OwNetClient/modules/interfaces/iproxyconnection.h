@@ -7,7 +7,7 @@
 
 class ISession;
 class IDatabaseUpdateQuery;
-class QSettings;
+class ISettings;
 class IDatabaseSettings;
 class IDatabaseSelectQuery;
 class IService;
@@ -15,6 +15,7 @@ class IRestService;
 class IJobAction;
 class IDatabaseUpdateListener;
 class IUidRestService;
+class ICacheFolder;
 
 class IProxyConnection
 {
@@ -38,7 +39,7 @@ public:
     virtual ISession *session(QObject *parent = 0) = 0;
     virtual IDatabaseUpdateQuery *databaseUpdateQuery(const QString &table, QObject *parent = 0, bool sync = true) = 0;
     virtual IDatabaseSelectQuery *databaseSelect(const QString &table, QObject *parent = 0) = 0;
-    virtual QSettings *settings(QObject *parent = 0) = 0;
+    virtual ISettings *settings(QObject *parent = 0) = 0;
     virtual IDatabaseSettings *databaseSettings(QObject *parent = 0) = 0;
 
     /// Proxy requests
@@ -59,6 +60,10 @@ public:
     virtual QString generateUniqueId() const = 0;
     virtual int lastConnectionTraffic() const = 0;
     virtual uint cacheId(const QString &url) const = 0;
+    virtual ICacheFolder *cacheFolder() const = 0;
+    virtual void saveToCache(const QString &url, int numParts, qint64 size, int numAccesses) const = 0;
+    virtual bool isCacheAvailable(uint cacheId) const = 0;
+    virtual void quit() const = 0;
 };
 
 #endif // IPROXYCONNECTION_H

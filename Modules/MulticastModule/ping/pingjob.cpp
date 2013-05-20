@@ -5,6 +5,7 @@
 #include "pingserver.h"
 #include "multicastprotocol.h"
 #include "multicastprotocolnode.h"
+#include "isettings.h"
 
 #include <QSettings>
 

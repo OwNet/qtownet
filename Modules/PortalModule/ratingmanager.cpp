@@ -137,7 +137,7 @@ IResponse::Status RatingManager::deleteRating(QString uid, uint userId, QVariant
         return status;
 
     if (rating["user_id"].toInt() != userId)
-        return IResponse::UNAUTHORIEZED;
+        return IResponse::UNAUTHORIZED;
 
     QObject parentObject;
     IDatabaseUpdateQuery *query = m_proxyConnection->databaseUpdateQuery("ratings", &parentObject);
