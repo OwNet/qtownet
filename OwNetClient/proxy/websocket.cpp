@@ -21,12 +21,7 @@ WebSocket::WebSocket(ProxyRequest *request, IWebDownload *webDownload, WebSocket
       m_outputFile(output),
       m_sizeWritten(0),
       m_webDownload(webDownload)
-{
-    connect(this, SIGNAL(finished(qint64)), this, SLOT(finished(qint64)));
-    connect(this, SIGNAL(failed()), this, SLOT(failed()));
-    connect(this, SIGNAL(finished(qint64)), this, SLOT(deleteLater()));
-    connect(this, SIGNAL(failed()), this, SLOT(deleteLater()));
-}
+{}
 
 void WebSocket::readRequest()
 {
@@ -212,6 +207,7 @@ void WebSocket::finished(qint64 size)
         m_outputFile = NULL;
     }
     m_webDownload->downloadFinished(size);
+    deleteLater();
 }
 
 void WebSocket::failed()
@@ -222,4 +218,5 @@ void WebSocket::failed()
         m_outputFile = NULL;
     }
     m_webDownload->downloadFailed();
+    deleteLater();
 }
