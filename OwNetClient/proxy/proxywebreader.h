@@ -2,6 +2,7 @@
 #define PROXYWEBREADER_H
 
 #include <QObject>
+#include <QMutex>
 
 class SocketHandler;
 class ProxyRequest;
@@ -29,7 +30,9 @@ private:
     ProxyRequest *m_request;
     SocketHandler *m_socketHandler;
     ProxyHandlerSession *m_session;
-    int m_dependantObjectId;
+    int m_dependentObjectId;
+    bool m_writtenToSocket;
+    QMutex m_readMutex;
 };
 
 #endif // PROXYWEBREADER_H

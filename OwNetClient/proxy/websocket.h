@@ -14,7 +14,7 @@ class WebSocket : public QObject
     Q_OBJECT
 public:
     enum {
-        Timeout = 10000
+        Timeout = 5000
     };
     enum ResponseLength {
         Chunked,
@@ -29,7 +29,7 @@ public:
 
 signals:
     void readyRead();
-    void finished();
+    void finished(qint64 size);
     void failed();
 
 private slots:
@@ -57,6 +57,7 @@ private:
     QTimer *m_timeoutTimer;
     ProxyRequest *m_request;
     QFile *m_outputFile;
+    qint64 m_sizeWritten;
 };
 
 #endif // WEBSOCKET_H

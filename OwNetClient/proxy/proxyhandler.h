@@ -3,7 +3,6 @@
 
 #include <QObject>
 
-class QTimer;
 class ProxyHandlerSession;
 class IProxyMockable;
 class SocketHandler;
@@ -25,15 +24,12 @@ public slots:
     void proxyHandlerSessionFinished();
 
 private slots:
-    void requestTimeout();
-    void restartTimeout();
     void finishHandling();
 
 private:
     SocketHandler *m_socketHandler;
 
     ProxyHandlerSession *m_proxyHandlerSession;
-    QTimer *m_timeoutTimer;
 };
 
 #endif // PROXYTHREAD_H

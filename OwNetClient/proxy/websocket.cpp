@@ -16,10 +16,13 @@ WebSocket::WebSocket(ProxyRequest *request, QFile *output, QObject *parent)
       m_responseLength(Unknown),
       m_timeoutTimer(NULL),
       m_request(request),
-      m_outputFile(output)
+      m_outputFile(output),
+      m_sizeWritten(0)
 {
-    connect(this, SIGNAL(finished()), this, SLOT(closeFile()));
+    connect(this, SIGNAL(finished(qint64)), this, SLOT(closeFile()));
     connect(this, SIGNAL(failed()), this, SLOT(removeFile()));
+    connect(this, SIGNAL(finished(qint64)), this, SLOT(deleteLater()));
+    connect(this, SIGNAL(failed()), this, SLOT(deleteLater()));
 }
 
 void WebSocket::readRequest()
@@ -38,11 +41,11 @@ void WebSocket::readRequest()
         m_socket->setProxy(QNetworkProxy(QNetworkProxy::DefaultProxy, ipAndPort.first(), ipAndPort.last().toInt()));
     }
 
-    m_socket->connectToHost(serverName(server), port(server));
-
     m_timeoutTimer = new QTimer(this);
     connect(m_timeoutTimer, SIGNAL(timeout()), this, SLOT(responseTimeout()));
     m_timeoutTimer->start(Timeout);
+
+    m_socket->connectToHost(serverName(server), port(server));
 
     ProxyDownloads::instance()->trafficCounter()->increaseCurrentTraffic();
 }
@@ -123,12 +126,13 @@ void WebSocket::socketReadyRead()
         }
     }
 
+    m_sizeWritten += bytes.size();
     m_outputFile->write(bytes);
     m_outputFile->flush();
     emit readyRead();
 
     if (end)
-        emit finished();
+        emit finished(m_sizeWritten);
 }
 
 void WebSocket::socketDisconnected()
@@ -136,7 +140,7 @@ void WebSocket::socketDisconnected()
     if (m_timeoutTimer && m_timeoutTimer->isActive())
         m_timeoutTimer->stop();
 
-    emit finished();
+    emit finished(m_sizeWritten);
 }
 
 void WebSocket::socketError(QAbstractSocket::SocketError error)
@@ -149,6 +153,9 @@ void WebSocket::socketError(QAbstractSocket::SocketError error)
 
 void WebSocket::responseTimeout()
 {
+    if (m_timeoutTimer && m_timeoutTimer->isActive())
+        m_timeoutTimer->stop();
+
     m_socket->close();
     emit failed();
 }

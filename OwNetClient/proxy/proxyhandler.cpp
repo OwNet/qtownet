@@ -11,12 +11,10 @@
 #include "proxywebreader.h"
 
 #include <QDateTime>
-#include <QTimer>
 
 ProxyHandler::ProxyHandler(QObject *parent)
     : QObject(parent),
       m_proxyHandlerSession(NULL),
-      m_timeoutTimer(NULL),
       m_socketHandler(NULL)
 {
 }
@@ -35,40 +33,7 @@ void ProxyHandler::service(SocketHandler *socketHandler) {
         m_proxyHandlerSession = new ProxyHandlerSession(this);
         connect(m_proxyHandlerSession, SIGNAL(allFinished()), this, SLOT(proxyHandlerSessionFinished()));
 
-        m_timeoutTimer = new QTimer(m_proxyHandlerSession);
-        connect(m_timeoutTimer, SIGNAL(timeout()), this, SLOT(requestTimeout()));
-
-        ProxyWebReader *webReader = new ProxyWebReader(socketHandler, request, m_proxyHandlerSession);
-        connect(webReader, SIGNAL(iAmActive()), this, SLOT(restartTimeout()));
-
-        webReader->read();
-        m_timeoutTimer->start(Timeout);
-    }
-}
-
-/**
- * @brief Request timed out.
- */
-void ProxyHandler::requestTimeout()
-{
-    MessageHelper::debug(QString("ProxyHandler timeout - %1").arg(m_socketHandler->requestReader()->url()));
-    if (m_timeoutTimer) {
-        m_timeoutTimer->stop();
-        m_timeoutTimer = NULL;
-    }
-
-    if (m_proxyHandlerSession)
-        m_proxyHandlerSession->forceQuitAll();
-}
-
-/**
- * @brief Restart timeot timer after SocketOutputWriter triggers iAmReady signal.
- */
-void ProxyHandler::restartTimeout()
-{
-    if (m_timeoutTimer) {
-        m_timeoutTimer->stop();
-        m_timeoutTimer->start();
+        (new ProxyWebReader(socketHandler, request, m_proxyHandlerSession))->read();
     }
 }
 
@@ -87,11 +52,6 @@ void ProxyHandler::finishHandling()
  */
 void ProxyHandler::proxyHandlerSessionFinished()
 {
-    if (m_timeoutTimer) {
-        m_timeoutTimer->stop();
-        m_timeoutTimer = NULL;
-    }
-
     if (m_proxyHandlerSession) {
         m_proxyHandlerSession->deleteLater();
         m_proxyHandlerSession = NULL;
