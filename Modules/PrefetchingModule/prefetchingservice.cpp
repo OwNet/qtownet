@@ -37,10 +37,7 @@ void PrefetchingService::init(IRouter *router)
             ->on(IRequest::POST, ROUTE(create) );
     router->addRoute("/close/")
             ->on(IRequest::GET, ROUTE(close));
-   // router->addRoute("/done/")
-     //       ->on(IRequest::GET, ROUTE(done));
- //   router->addRoute("/load/")
-   //         ->on(IRequest::GET, ROUTE(load));
+
     router->addRoute("/list/")->on(IRequest::POST, ROUTE(list));
 }
 
@@ -152,6 +149,9 @@ void PrefetchingService::registerPredictionsQuery(uint from, QStringList &urls)
 //    }
 }
 
+
+
+
 //bool PrefetchingService::completedPrefetchingQuery(QString url)
 //{
 //    uint hash = m_proxyConnection->cacheId(url);
@@ -216,6 +216,10 @@ IResponse *PrefetchingService::create(IRequest *req)
     resp->setContentType("application/json");
     return resp;
 }
+
+
+
+
 
 IResponse *PrefetchingService::close(IRequest *req)
 {

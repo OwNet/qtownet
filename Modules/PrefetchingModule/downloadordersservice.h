@@ -64,10 +64,14 @@ public:
      * @return count of pages for all groups
      */
     IResponse *allPagesCount(IRequest *req);
+
 private:
 
     static const int PER_PAGE = 10;
+    static const int ORDER_PRIORITY = 10000;
     IProxyConnection *m_proxyConnection;
+    bool registerOrderQuery(QString title, QString url);
+
 };
 
 #endif // DOWNLOADORDERSSERVICE_H
