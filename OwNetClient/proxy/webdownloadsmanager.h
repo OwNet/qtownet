@@ -15,6 +15,7 @@ class CacheLocations;
 class ProxyRequest;
 class WebReader;
 class ProxyHandlerSession;
+class CacheAccessManager;
 
 class WebDownloadsManager : public IDatabaseUpdateListener
 {
@@ -35,6 +36,8 @@ public:
     QIODevice *getStream(ProxyRequest *request, WebReader *reader, ProxyHandlerSession *handlerSession, bool *finished);
     void deregisterDownloadReader(WebDownload *proxyDownload, int readerId);
 
+    void logCacheAccess(uint cacheId, qint64 size = -1, int numAccesses = 1);
+    void saveCacheAccesses();
     GDSFClock *gdsfClock() const { return m_gdsfClock; }
     ProxyTrafficCounter *trafficCounter() const { return m_trafficCounter; }
 
@@ -64,6 +67,7 @@ private:
     GDSFClock *m_gdsfClock;
     ProxyTrafficCounter *m_trafficCounter;
     CacheExceptions *m_cacheExceptions;
+    CacheAccessManager *m_cacheAccessManager;
 
     int m_proxyPort;
     QString m_proxyIp;

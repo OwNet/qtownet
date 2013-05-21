@@ -1,14 +1,15 @@
 #include "websocket.h"
 
 #include "proxyrequest.h"
-#include "proxydownloads.h"
 #include "proxytrafficcounter.h"
 #include "requestreader.h"
 #include "session.h"
 #include "iwebdownload.h"
 #include "websocketoutput.h"
+#include "webdownloadsmanager.h"
 
 #include <QBuffer>
+#include <QNetworkProxy>
 #include <QTimer>
 
 WebSocket::WebSocket(ProxyRequest *request, IWebDownload *webDownload, WebSocketOutput *output, QObject *parent)
@@ -45,7 +46,7 @@ void WebSocket::readRequest()
 
     m_socket->connectToHost(serverName(server), port(server));
 
-    ProxyDownloads::instance()->trafficCounter()->increaseCurrentTraffic();
+    WebDownloadsManager::instance()->trafficCounter()->increaseCurrentTraffic();
 }
 
 void WebSocket::socketConnectedToServer()

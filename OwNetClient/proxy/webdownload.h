@@ -32,7 +32,7 @@ public:
 
     bool exists();
 
-    static void saveToCache(uint hashCode, const QString &url, qint64 size, int numAccesses);
+    static void saveToCache(uint hashCode, qint64 size, int numAccesses = 1);
 
     void addLocation(const QString &clientId, const QString &dateTime) { m_cacheLocations.addLocation(clientId, dateTime); }
     void addLocation(const QString &clientId, const QDateTime &dateTime) { m_cacheLocations.addLocation(clientId, dateTime); }

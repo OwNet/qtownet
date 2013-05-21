@@ -16,9 +16,9 @@
 #include "uniqueidhelper.h"
 #include "cachehelper.h"
 #include "cachefolder.h"
-#include "proxycacheoutputwriter.h"
-#include "proxydownloads.h"
+#include "webdownloadsmanager.h"
 #include "proxytrafficcounter.h"
+#include "webdownload.h"
 
 #ifndef TEST
 #include <QApplication>
@@ -150,7 +150,7 @@ void ProxyConnection::message(const QVariant &message, const QString &title, Mes
 
 int ProxyConnection::lastConnectionTraffic() const
 {
-    return ProxyDownloads::instance()->trafficCounter()->lastTraffic();
+    return WebDownloadsManager::instance()->trafficCounter()->lastTraffic();
 }
 
 QString ProxyConnection::generateUniqueId() const
@@ -168,14 +168,14 @@ ICacheFolder *ProxyConnection::cacheFolder() const
     return new CacheFolder();
 }
 
-void ProxyConnection::saveToCache(const QString &url, int numParts, qint64 size, int numAccesses) const
+void ProxyConnection::saveToCache(const QString &url, qint64 size, int numAccesses) const
 {
-    ProxyCacheOutputWriter::saveToCache(CacheHelper::cacheId(url), url, numParts, size, numAccesses);
+    WebDownload::saveToCache(CacheHelper::cacheId(url), size, numAccesses);
 }
 
 bool ProxyConnection::isCacheAvailable(uint cacheId) const
 {
-    return ProxyDownloads::instance()->isCacheAvailable(cacheId);
+    return WebDownloadsManager::instance()->isCacheAvailable(cacheId);
 }
 
 void ProxyConnection::quit() const

@@ -34,6 +34,7 @@ QIODevice *WebDownload::getStream(ProxyRequest *request, WebReader *reader, Prox
 {
     m_request = request;
     *finished = false;
+    bool logCacheAccess = true;
 
     m_startedMutex.lock();
 
@@ -54,10 +55,14 @@ QIODevice *WebDownload::getStream(ProxyRequest *request, WebReader *reader, Prox
             m_sessionDependentObjectId = m_session->registerDependentObject();
             startDownload(locationType.first, locationType.second);
             m_inProgress = true;
+            logCacheAccess = false;
         }
     }
 
     m_startedMutex.unlock();
+
+    if (logCacheAccess)
+        WebDownloadsManager::instance()->logCacheAccess(m_cacheId);
 
     QFile *file = CacheFolder().cacheFile(m_cacheId, 0);
     if (!file->exists())
@@ -99,18 +104,7 @@ void WebDownload::downloadFailed()
 
 void WebDownload::downloadFinished(qint64 size)
 {
-    QString url = m_request->url();
-
-    QSqlQuery sqlQuery;
-    sqlQuery.prepare("SELECT access_count FROM caches WHERE id = :id LIMIT 1");
-    sqlQuery.bindValue(":id", m_cacheId);
-    int accessCount = 0;
-
-    if (sqlQuery.exec() && sqlQuery.next())
-        accessCount = sqlQuery.value(sqlQuery.record().indexOf("access_count")).toInt();
-    accessCount++;
-
-    saveToCache(m_cacheId, url, size, accessCount);
+    saveToCache(m_cacheId, size);
 
     m_startedMutex.lock();
     m_inProgress = false;
@@ -130,32 +124,23 @@ void WebDownload::deregisterDependentObject()
     }
 }
 
-void WebDownload::saveToCache(uint hashCode, const QString &url, qint64 size, int numAccesses)
+void WebDownload::saveToCache(uint hashCode, qint64 size, int numAccesses)
 {
     if (!CacheHelper::canUseDatabase())
         return;
-    {
-        DatabaseUpdateQuery query("caches", DatabaseUpdateQuery::InsertOrUpdate);
-        query.setUpdateDates(true);
-        query.singleWhere("id", hashCode);
-        query.setColumnValue("id", hashCode);
-        query.setColumnValue("absolute_uri", url);
-        query.setColumnValue("size", size);
-        query.setColumnValue("access_value", WebDownloadsManager::instance()->gdsfClock()->getGDSFPriority(numAccesses, size));
-        query.executeQuery();
-    }
-    {
-        QString clientId = DatabaseSettings().clientId();
-        SyncedDatabaseUpdateQuery query("client_caches");
-        query.setUpdateDates(IDatabaseUpdateQuery::DateCreated);
-        query.setColumnValue("client_id", clientId);
-        query.setColumnValue("cache_id", hashCode);
-        IDatabaseSelectQueryWhereGroup *where = query.whereGroup(IDatabaseSelectQuery::And);
-        where->where("client_id", clientId);
-        where->where("cache_id", hashCode);
-        query.setGroupId(ISyncedDatabaseUpdateQuery::GroupCaches);
-        query.setForceOperation(WebDownloadsManager::instance()->containsCacheLocation(hashCode, clientId) ?
-                                    DatabaseUpdateQuery::ForceUpdate : DatabaseUpdateQuery::ForceInsert);
-        query.executeQuery();
-    }
+
+    WebDownloadsManager::instance()->logCacheAccess(hashCode, size, numAccesses);
+
+    QString clientId = DatabaseSettings().clientId();
+    SyncedDatabaseUpdateQuery query("client_caches");
+    query.setUpdateDates(IDatabaseUpdateQuery::DateCreated);
+    query.setColumnValue("client_id", clientId);
+    query.setColumnValue("cache_id", hashCode);
+    IDatabaseSelectQueryWhereGroup *where = query.whereGroup(IDatabaseSelectQuery::And);
+    where->where("client_id", clientId);
+    where->where("cache_id", hashCode);
+    query.setGroupId(ISyncedDatabaseUpdateQuery::GroupCaches);
+    query.setForceOperation(WebDownloadsManager::instance()->containsCacheLocation(hashCode, clientId) ?
+                                DatabaseUpdateQuery::ForceUpdate : DatabaseUpdateQuery::ForceInsert);
+    query.executeQuery();
 }

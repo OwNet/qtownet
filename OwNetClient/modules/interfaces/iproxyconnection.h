@@ -61,7 +61,7 @@ public:
     virtual int lastConnectionTraffic() const = 0;
     virtual uint cacheId(const QString &url) const = 0;
     virtual ICacheFolder *cacheFolder() const = 0;
-    virtual void saveToCache(const QString &url, int numParts, qint64 size, int numAccesses) const = 0;
+    virtual void saveToCache(const QString &url, qint64 size, int numAccesses) const = 0;
     virtual bool isCacheAvailable(uint cacheId) const = 0;
     virtual void quit() const = 0;
 };

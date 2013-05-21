@@ -4,7 +4,6 @@
 #include "preferencesdialog.h"
 #include "proxyconnection.h"
 #include "session.h"
-#include "proxyresponseoutputwriter.h"
 #include "workspaceitem.h"
 #include "workspacehelper.h"
 #include "settings.h"
@@ -102,9 +101,6 @@ void MainWindow::openMyOwNet()
 void MainWindow::dumpOpenSockets()
 {
     qDebug() << tr("+++ Open Sockets +++");
-
-    foreach (QString url, ProxyResponseOutputWriter::dumpOpenRequests())
-        qDebug() << url;
 
     qDebug() << tr("--- Open Sockets ---");
 }

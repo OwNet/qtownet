@@ -1,7 +1,6 @@
 #include "proxyhandler.h"
 
 #include "messagehelper.h"
-#include "proxyresponseoutputwriter.h"
 #include "proxyhandlersession.h"
 #include "sockethandler.h"
 #include "requestreader.h"

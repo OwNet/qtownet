@@ -197,7 +197,7 @@ QString SharedFilesManager::createUrl(const QString &fileName)
 
 void SharedFilesManager::saveToDatabase(const QString &url, qint64 size)
 {
-    m_proxyConnection->saveToCache(url, 1, size, 10);
+    m_proxyConnection->saveToCache(url, size, 10);
 
     IDatabaseUpdateQuery *updateQuery = m_proxyConnection->databaseUpdateQuery("shared_files");
     updateQuery->setColumnValue("url", url);

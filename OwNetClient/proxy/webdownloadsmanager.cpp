@@ -5,9 +5,6 @@
 #include "gdsfclock.h"
 #include "proxyhandlersession.h"
 #include "proxytrafficcounter.h"
-#include "proxywebinputobject.h"
-#include "proxycacheinputobject.h"
-#include "proxycacheoutputwriter.h"
 #include "databaseselectquery.h"
 #include "cachelocations.h"
 #include "session.h"
@@ -15,6 +12,7 @@
 #include "cacheexceptions.h"
 #include "cachehelper.h"
 #include "databasesettings.h"
+#include "cacheaccessmanager.h"
 
 #include <QDateTime>
 
@@ -122,6 +120,7 @@ WebDownloadsManager::WebDownloadsManager()
     m_gdsfClock = new GDSFClock;
     m_trafficCounter = new ProxyTrafficCounter;
     m_cacheExceptions = new CacheExceptions;
+    m_cacheAccessManager = new CacheAccessManager;
 
     initCacheLocations();
 
@@ -162,4 +161,15 @@ bool WebDownloadsManager::shouldRefresh(ProxyRequest *request)
         return false;
 
     return Session().isRefreshSession() || request->isRefreshRequest();
+}
+
+
+void WebDownloadsManager::logCacheAccess(uint cacheId, qint64 size, int numAccesses)
+{
+    m_cacheAccessManager->logCacheAccess(cacheId, size, numAccesses);
+}
+
+void WebDownloadsManager::saveCacheAccesses()
+{
+    m_cacheAccessManager->saveToDatabase();
 }
