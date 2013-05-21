@@ -25,7 +25,6 @@ define(function (require) {
 			this.$tabs = $('#content > .tab-content > .tab-pane')
 			// this.$body = $(document.body)
 			this.$body = $('#body-wrap')
-
 			App.on('OwNet:show', this.show, this)
 			App.on('OwNet:close', this.close, this)
 			App.on('user:logout', function (){ this.navigate('login', trigger) }, this)
@@ -48,7 +47,7 @@ define(function (require) {
 			this.$tabs.filter('[data-tab="'+tab+'"]').addClass('active')
 			this.activeTab = tab
 		},
-
+		
 		show: function(tab) {
 			this.requestedTab = tab
 
@@ -85,20 +84,20 @@ define(function (require) {
 		    });
 
 		},
+        
 
 		cachedLinks: function (links) {
-		   
 		    $.ajax({
 		        type : "POST",
 		        url: "http://inject.ownet/api/prefetch/list/",
-		        data: JSON.stringify(links),
+		        contentType: "application/json; charset=utf-8",
+		        data: JSON.stringify({ links: links.links }),
 		        success: function (data) {
 		            if (data && data.links) {
 		                if (Array.isArray(data.links)) data.links = data.links.toString();
 		                App.sendMessage("highlight", data.links);
 		            }
 		        },
-		      
 		    });
 		},
 

@@ -30,7 +30,8 @@ void PrefetchingJob::execute()
         return;
     }
 
-    if (m_running == true || m_proxyConnection->lastConnectionTraffic() > 50) {
+    int traffic = m_proxyConnection->lastConnectionTraffic();
+    if (m_running == true || traffic  > 50) {
         m_activeMutex.unlock();
         return;
     }
@@ -48,9 +49,6 @@ void PrefetchingJob::execute()
         m_running = false;
         m_activeMutex.unlock();
     }
-}
-
-void PrefetchingJob::resetWorker() {
 }
 
 void PrefetchingJob::tryClean() {
@@ -82,24 +80,33 @@ bool PrefetchingJob::prefetch()
     QObject parent;
     // check running lock
     // check connection status and traffic
-    resetWorker();
+    //resetWorker();
 
-    qDebug("Attempting to start prefetching.");
+    qDebug() << "Attempting to start prefetching.";
     // IDatabaseUpdate *update = m_proxyConnection->databaseUpdate(&parent);
     IDatabaseSelectQuery *select = m_proxyConnection->databaseSelect("prefetch_orders", &parent);
-    select->singleWhere("completed", false);
+    select->singleWhere("completed", "FALSE");
     select->orderBy("priority desc");
     select->select("absolute_uri");
+    select->select("page_hash_to");
 
+    QString hash = "";
     QString link = "";
     if (select->next()) {
          link = select->value("absolute_uri").toString();
-    }
+         hash = select->value("page_hash_to").toString();
 
-    if (!link.isEmpty())
-    {
-        startWorker(link);
-        return true;
+        if (!link.isEmpty())
+        {
+            startWorker(link);
+
+            IDatabaseUpdateQuery *query = NULL;
+            query = m_proxyConnection->databaseUpdateQuery("prefetch_orders",  &parent,  false);
+            query->setType(IDatabaseUpdateQuery::Delete);
+            query->singleWhere("page_hash_to", hash);
+            query->executeQuery();
+            return true;
+        }
     }
     return false;
 }
@@ -115,7 +122,7 @@ void PrefetchingJob::workerCompleted() {
     m_running = false;
     m_activeMutex.unlock();
 
-    resetWorker();
+    //resetWorker();
 }
 
 //void MyObject::putWorkerInAThread()
