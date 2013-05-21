@@ -13,7 +13,7 @@ class PrefetchingJob : public IJobAction
 public:
     PrefetchingJob();
 
-    int interval() { return 1 * 60 * 1000; }
+    int interval() { return 3 * 60 * 1000; }
     void execute();
     void setProxyConnection(IProxyConnection *proxyConnection) { m_proxyConnection = proxyConnection; }
     bool createSeparateThread() const { return false; }

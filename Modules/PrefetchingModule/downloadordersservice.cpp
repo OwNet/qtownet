@@ -132,5 +132,56 @@ IResponse *DownloadOrdersService::show(IRequest *req, uint )
 
 IResponse *DownloadOrdersService::create(IRequest *req)
 {
-    return req->response(IResponse::NOT_IMPLEMENTED);
+    bool ok = false;
+
+    QVariantMap reqJson = req->postBodyFromJson(&ok).toMap();
+    if (ok && reqJson.contains("url") && reqJson.contains("title")) {
+        QString link = reqJson["url"].toString();
+        QString title = reqJson["title"].toString();
+        if (registerOrderQuery(title, link)) {
+            IResponse *resp = req->response(IResponse::OK);
+            resp->setHeader("Access-Control-Allow-Origin","*");
+            resp->setContentType("application/json");
+            return resp;
+        }
+    }
+    IResponse *resp = req->response(IResponse::BAD_REQUEST);
+    resp->setHeader("Access-Control-Allow-Origin","*");
+    resp->setContentType("application/json");
+    return resp;
+}
+
+bool DownloadOrdersService::registerOrderQuery(QString title, QString url) {
+    if (!url.startsWith("http://") || title.isEmpty()) {
+        return false;
+    }
+
+    QObject parent;
+    // check if the prediction already exists and whether it was completed
+    IDatabaseSelectQuery *select = m_proxyConnection->databaseSelect("prefetch_orders", &parent);
+    IDatabaseSelectQueryWhereGroup *group = select->whereGroup(IDatabaseSelectQuery::And);
+    group->where("completed", "TRUE");
+
+    uint hash = m_proxyConnection->cacheId(url);
+    group->where("page_hash_to", hash);
+    select->select("page_hash_to");
+
+    if (select->next()) {   // TODO old download
+        return true;
+    }
+
+
+    int priority = ORDER_PRIORITY;
+
+    IDatabaseUpdateQuery *query = m_proxyConnection->databaseUpdateQuery("prefetch_orders",  &parent, false);
+    query->setType(IDatabaseUpdateQuery::InsertOrUpdate);
+
+    query->singleWhere("page_hash_to", hash);
+    query->setColumnValue("page_hash_to", hash);
+    query->setColumnValue("absolute_uri", url);
+    query->setColumnValue("priority", priority);
+    query->setUpdateDates(true);
+    query->executeQuery();
+
+    return true;
 }
