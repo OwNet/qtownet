@@ -1,21 +1,21 @@
-#ifndef PROXYWEBINPUTOBJECT_H
-#define PROXYWEBINPUTOBJECT_H
+#ifndef WEBSOCKET_H
+#define WEBSOCKET_H
 
-#include <QAbstractSocket>
+#include <QObject>
+#include <QTcpSocket>
 #include <QStringList>
 
-#include "proxyinputobject.h"
-
-class QTcpSocket;
+class ProxyRequest;
 class QTimer;
+class WebSocketOutput;
+class IWebDownload;
 
-class ProxyWebInputObject : public ProxyInputObject
+class WebSocket : public QObject
 {
     Q_OBJECT
-
 public:
     enum {
-        Timeout = 10000
+        Timeout = 5000
     };
     enum ResponseLength {
         Chunked,
@@ -23,15 +23,13 @@ public:
         Unknown
     };
 
-    ProxyWebInputObject(ProxyRequest *request, QObject *parent = 0);
+    explicit WebSocket(ProxyRequest *request, IWebDownload *webDownload, WebSocketOutput *output, QObject *parent = 0);
 
-    InputType inputType() const { return Web; }
+    void readRequest();
     void setProxy(const QString &proxy) { m_proxy = proxy; }
 
-    bool headersInBody() const { return true; }
-
-protected:
-    void readRequest();
+signals:
+    void readyRead();
 
 private slots:
     void socketConnectedToServer();
@@ -39,9 +37,10 @@ private slots:
     void socketDisconnected();
     void socketError(QAbstractSocket::SocketError error);
     void responseTimeout();
+    void finished(qint64 size);
+    void failed();
 
 private:
-    void createReply();
     bool isClientOnline(const QString &clientId) const;
     QString clientIpAndPort(const QString &clientId) const;
     QString extractServer(const QString &fullUrl) const;
@@ -55,6 +54,10 @@ private:
     long m_contentLength;
     ResponseLength m_responseLength;
     QTimer *m_timeoutTimer;
+    ProxyRequest *m_request;
+    WebSocketOutput *m_outputFile;
+    qint64 m_sizeWritten;
+    IWebDownload *m_webDownload;
 };
 
-#endif // PROXYWEBINPUTOBJECT_H
+#endif // WEBSOCKET_H

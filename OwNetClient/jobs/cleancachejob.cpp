@@ -1,7 +1,7 @@
 #include "cleancachejob.h"
 
 #include "cachefolder.h"
-#include "proxydownloads.h"
+#include "webdownloadsmanager.h"
 #include "gdsfclock.h"
 #include "databaseupdatequery.h"
 #include "databaseselectquerywheregroup.h"
@@ -66,7 +66,7 @@ void CleanCacheJob::clean()
         }
 
         if (lastEvictedClock > 0) {
-            ProxyDownloads::instance()->gdsfClock()->setLastClock(lastEvictedClock);
+            WebDownloadsManager::instance()->gdsfClock()->setLastClock(lastEvictedClock);
         }
 
         if (idsToDelete.count()) {

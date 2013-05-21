@@ -51,5 +51,5 @@ QFile *CacheFolder::cacheFile(uint id, int part, QObject *parent) const
 {
     return new QFile(absoluteFilePath(QString("%1-%2.cache")
                             .arg(id)
-                            .arg(part)), parent);
+                            .arg(part)));
 }
