@@ -1,7 +1,7 @@
 #include "proxycachelocationstests.h"
 
 #include "stubdatabase.h"
-#include "proxycachelocations.h"
+#include "cachelocations.h"
 #include "databasesettings.h"
 
 #include <QtTest>
@@ -25,19 +25,19 @@ void ProxyCacheLocationsTests::cleanupTestCase()
 void ProxyCacheLocationsTests::testSortedLocations()
 {
     {
-        ProxyCacheLocations locations;
+        CacheLocations locations;
         DatabaseSettings settings;
         locations.addLocation("WEB", QDateTime::currentDateTime());
         locations.addLocation(settings.clientId(), QDateTime::currentDateTime());
         locations.addLocation("CA0879", QDateTime::currentDateTime());
 
-        QList<ProxyCacheLocation*> sorted = locations.sortedLocations();
-        QCOMPARE(sorted.at(0)->clientId(), settings.clientId());
-        QCOMPARE(sorted.at(1)->clientId(), QString("CA0879"));
-        QCOMPARE(sorted.at(2)->clientId(), QString("WEB"));
+        QStringList sorted = locations.sortedLocations();
+        QCOMPARE(sorted.at(0), settings.clientId());
+        QCOMPARE(sorted.at(1), QString("CA0879"));
+        QCOMPARE(sorted.at(2), QString("WEB"));
     }
     {
-        ProxyCacheLocations locations;
+        CacheLocations locations;
         DatabaseSettings settings;
         QDateTime earlier = QDateTime::currentDateTime().addSecs(-4000);
 
@@ -45,9 +45,9 @@ void ProxyCacheLocationsTests::testSortedLocations()
         locations.addLocation(settings.clientId(), earlier);
         locations.addLocation("CA0879", earlier);
 
-        QList<ProxyCacheLocation*> sorted = locations.sortedLocations();
-        QCOMPARE(sorted.at(0)->clientId(), QString("WEB"));
-        QCOMPARE(sorted.at(1)->clientId(), settings.clientId());
-        QCOMPARE(sorted.at(2)->clientId(), QString("CA0879"));
+        QStringList sorted = locations.sortedLocations();
+        QCOMPARE(sorted.at(0), QString("WEB"));
+        QCOMPARE(sorted.at(1), settings.clientId());
+        QCOMPARE(sorted.at(2), QString("CA0879"));
     }
 }
