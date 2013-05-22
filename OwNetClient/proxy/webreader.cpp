@@ -62,7 +62,7 @@ void WebReader::failed()
         QVariantMap responseHeaders;
         if (!Session().isOnline()) {
             m_socketHandler->writeStatusCodeAndDescription(307, "Temporary Redirect");
-            responseHeaders.insert("Location", QString("http://my.ownet/?url=%1")
+            responseHeaders.insert("Location", QString("http://my.ownet/#/offline/%1")
                                    .arg(QString(QUrl::toPercentEncoding(m_socketHandler->requestReader()->url()))));
             responseHeaders.insert("Content-Type", "text/html");
         } else {

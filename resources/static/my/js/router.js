@@ -13,6 +13,7 @@ define( function (require) {
 	  , ProfileView = require( 'views/ProfileView' )
 	  , NewsFeedView = require( 'views/NewsFeedView' )
 	  , FilesView = require( 'views/FilesView')
+	  , OfflineView = require( 'views/OfflineView')
 
 
 	var Router  = Backbone.Router.extend({
@@ -28,6 +29,7 @@ define( function (require) {
 				newsfeed: new NewsFeedView({el: $("#newsfeed")}),
 				profile: new ProfileView({ el:$("#profile") }),
 				files: new FilesView({ el:$("#files") }),
+				offline: new OfflineView({ el:$("#offline")}),
 			}
 
 			this.$content = $('#content')
@@ -60,7 +62,9 @@ define( function (require) {
 
 			'files' : "files",
 			'files/filter/:filter' : 'filterfiles',
-			'files/upload' : "upload"
+			'files/upload' : "upload",
+
+			'offline/:url'	: "offline" 
 		},
 
 		activate: function(href, view, fn) {
@@ -213,6 +217,12 @@ define( function (require) {
 				this.views.files.upload()
 			})
 		},
+
+		offline: function(url) {
+			this.activate("#/offline", this.views.offline, function() {
+				this.views.offline.show(url)
+			})
+		}
 
 	});
 

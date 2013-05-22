@@ -1,0 +1,28 @@
+.row
+	.span6.offset3
+
+		.row
+			.span6.center
+				img( src="img/ownet.png" )
+			.span6.center
+				label.offline You are currently offline, but you can add this page to your download orders
+
+		.row
+			.span6
+				form(name="offline-form").form-horizontal
+
+					.control-group
+						label.control-label Title:
+						.controls
+							input(type="text",name="title")
+							span.help-block
+
+					.control-group
+						label.control-label Url:
+						.controls
+							input(type="text",name="url", value="#{url}")
+							span.help-block
+
+					.control-group
+						.controls
+							button#offline.btn.btn-info(type="button",name="submit") Send
