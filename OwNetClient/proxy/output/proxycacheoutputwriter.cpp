@@ -18,6 +18,7 @@
 #include <QDateTime>
 #include <QSqlQuery>
 #include <QSqlRecord>
+#include <QDateTime>
 
 ProxyCacheOutputWriter::ProxyCacheOutputWriter(ProxyDownload *download, int downloadReaderId, ProxyHandlerSession *proxyHandlerSession)
     : ProxyOutputWriter(proxyHandlerSession),
@@ -89,15 +90,18 @@ void ProxyCacheOutputWriter::read(QIODevice *ioDevice)
 {
     m_currentMemoryPart++;
 
-    if (m_firstRead) {
-        m_firstRead = false;
-        m_url = m_request->url();
-    }
-
     if (m_partSizeWritten > MaxFileSize)
         finishedWritingToCacheFile();
 
     QByteArray ba = ioDevice->readAll();
+
+    if (m_firstRead) {
+        m_firstRead = false;
+        m_url = m_request->url();
+        int pos = ba.indexOf("\n");
+        ba.insert(pos+1, "X-OwNet-CachedOn: " + QDateTime::currentDateTime().toString(Qt::ISODate) + "\r\n");
+    }
+
     long size = ba.size();
     if (size == 0)
         return;

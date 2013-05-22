@@ -1,21 +1,31 @@
 {
-  "manifest_version": 2,
+	"manifest_version": 2,
 
-  "name": "OwNet",
-  "description": "This extension inject ownet iframe.",
-  "version": "1.0",
+	"name": "OwNet",
+	"description": "This extension inject ownet iframe.",
+	"version": "1.0",
 
-  "permissions": [
-     "tabs",
-     "http://*/*"
-  ],
+	"permissions": [
+		"webRequest",
+		"tabs",
+		"http://*/*"
+	],
 
-  "content_scripts" : [{
-    "matches" : ["http://*/*"],
-    "js" : ["inject-iframe.js"]
-  }],
+	"content_scripts" : [{
+		"matches" : ["http://*/*"],
+		"js" : ["inject-iframe.js"]
+	}],
 
-  "web_accessible_resources": [
-    "inject.js"
-  ]
+	"web_accessible_resources": [
+		"inject.js"
+	],
+
+	"background": {
+		"scripts": ["background.js"]
+	},
+
+	 "page_action": {
+		"default_icon": "img/ownet38.png",
+		"default_title": "OwNet Cache"
+	}
 }
