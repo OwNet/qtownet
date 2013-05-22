@@ -13,14 +13,15 @@ public:
     explicit WebSocketOutput(QFile *file, QObject *parent = 0);
     explicit WebSocketOutput(SocketHandler *socketHandler, QObject *parent = 0);
 
-    void write(const QByteArray &bytes);
+    void write(QByteArray &bytes);
     void flush();
     void close();
     void remove();
     
 private:
     QFile *m_file;
-    SocketHandler *m_socketHandler;
+    SocketHandler *m_socketHandler;    
+    bool m_firstWrite;
 };
 
 #endif // WEBSOCKETOUTPUT_H
