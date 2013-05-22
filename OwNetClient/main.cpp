@@ -1,7 +1,6 @@
 #include "ownetapplication.h"
 #include "mainwindow.h"
 #include "initializer.h"
-#include "proxyrequestbus.h"
 #include "applicationenvironment.h"
 #ifndef Q_OS_WIN
 #include <sys/signal.h>

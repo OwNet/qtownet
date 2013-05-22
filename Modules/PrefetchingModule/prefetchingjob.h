@@ -19,10 +19,9 @@ public:
     bool createSeparateThread() const { return false; }
 
 private:
-    static const int CLEAN_THRESHOLD = 50;
+    static const int CLEAN_THRESHOLD = 2;
     IProxyConnection *m_proxyConnection;
     bool prefetch();
-    void resetWorker();
     void startWorker(QString &link);
     void tryClean();
     bool m_running;

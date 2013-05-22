@@ -11,7 +11,7 @@ ProxyHandlerSession::ProxyHandlerSession(QObject *parent)
  */
 int ProxyHandlerSession::registerDependentObject()
 {
-    QMutexLocker mutexLocker(&m_dependentObjectsMutex);
+    QMutexLocker locker(&m_dependentObjectsMutex);
 
     int objectId = m_lastDependentObjectId++;
     m_dependentObjects.append(objectId);

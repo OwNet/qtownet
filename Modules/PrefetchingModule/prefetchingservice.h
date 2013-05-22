@@ -24,18 +24,19 @@ public:
 
     IResponse *create(IRequest *);
     IResponse *close(IRequest *);
-    IResponse *load(IRequest *);
-    IResponse *done(IRequest *);
     IResponse *list(IRequest *);
     IResponse *index(IRequest *);
     IResponse *deleteOrder(IRequest *);
     IResponse *allPagesCount(IRequest *);
+    IResponse *order(IRequest *req);
 
 private:
     static const int DEFAULT_PRIORITY = 10;
+
     IProxyConnection *m_proxyConnection;
     void registerPredictionsQuery(uint from, QStringList &url);
-    bool completedPrefetchingQuery(QString url);
+ //   bool completedPrefetchingQuery(QString url);
+
     bool disablePredictionQuery(uint hash);
 
     //QStringList getPageLinks(QString url);

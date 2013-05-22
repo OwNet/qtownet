@@ -13,7 +13,7 @@ RequestReader::RequestReader(SocketHandler *handler, QObject *parent) :
     m_status(WaitForRequest),
     m_currentSize(0),
     m_expectedBodySize(0),
-    m_maxSize(16000),
+    m_maxSize(160000),
     m_maxMultiPartSize(1000000)
 {
 }
