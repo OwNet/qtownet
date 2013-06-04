@@ -35,6 +35,7 @@ QIODevice *WebDownload::getStream(ProxyRequest *request, WebReader *reader, Prox
     m_request = request;
     *finished = false;
     bool logCacheAccess = true;
+    WebSocket *webSocketToStart = NULL;
 
     m_startedMutex.lock();
 
@@ -53,7 +54,7 @@ QIODevice *WebDownload::getStream(ProxyRequest *request, WebReader *reader, Prox
 
             m_session = session;
             m_sessionDependentObjectId = m_session->registerDependentObject();
-            startDownload(locationType.first, locationType.second);
+            webSocketToStart = createWebSocket(locationType.first, locationType.second);
             m_inProgress = true;
             logCacheAccess = false;
         }
@@ -69,10 +70,13 @@ QIODevice *WebDownload::getStream(ProxyRequest *request, WebReader *reader, Prox
         return NULL;
     file->open(QIODevice::ReadOnly);
 
+    if (webSocketToStart)
+        webSocketToStart->readRequest();
+
     return file;
 }
 
-void WebDownload::startDownload(CacheLocations::LocationType locationType, QString clientId)
+WebSocket *WebDownload::createWebSocket(CacheLocations::LocationType locationType, QString clientId)
 {
     CacheFolder cacheFolder;
     QFile *writeFile = cacheFolder.cacheFile(m_cacheId, 0);
@@ -88,7 +92,7 @@ void WebDownload::startDownload(CacheLocations::LocationType locationType, QStri
     }
 
     connect(socket, SIGNAL(readyRead()), this, SIGNAL(readyRead()));
-    socket->readRequest();
+    return socket;
 }
 
 void WebDownload::downloadFailed()

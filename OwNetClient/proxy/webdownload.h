@@ -49,7 +49,7 @@ signals:
     void failed();
 
 private:
-    void startDownload(CacheLocations::LocationType locationType, QString clientId);
+    WebSocket *createWebSocket(CacheLocations::LocationType locationType, QString clientId);
     void deregisterDependentObject();
 
     ProxyRequest *m_request;
