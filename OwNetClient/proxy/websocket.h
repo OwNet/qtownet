@@ -28,6 +28,8 @@ public:
     void readRequest();
     void setProxy(const QString &proxy) { m_proxy = proxy; }
 
+    static void setCanDownloadFromWeb(bool can) { m_canDownloadFromWeb = can; }
+
 signals:
     void readyRead();
 
@@ -47,6 +49,7 @@ private:
     QString serverName(const QString &serverAndPort) const;
     int port(const QString &serverAndPort) const;
 
+    static bool m_canDownloadFromWeb;
     bool m_readHeaders;
     QStringList m_clientsToTry;
     QString m_proxy;

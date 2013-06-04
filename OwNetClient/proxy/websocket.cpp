@@ -12,6 +12,8 @@
 #include <QNetworkProxy>
 #include <QTimer>
 
+bool WebSocket::m_canDownloadFromWeb = true;
+
 WebSocket::WebSocket(ProxyRequest *request, IWebDownload *webDownload, WebSocketOutput *output, QObject *parent)
     : QObject(parent),
       m_readHeaders(false),
@@ -26,6 +28,10 @@ WebSocket::WebSocket(ProxyRequest *request, IWebDownload *webDownload, WebSocket
 
 void WebSocket::readRequest()
 {
+    if (!m_canDownloadFromWeb) {
+        failed();
+        return;
+    }
     QString server = extractServer(m_request->url());
 
     m_socket = new QTcpSocket(this);

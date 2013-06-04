@@ -2,6 +2,8 @@
 #include "messagehelper.h"
 #include "proxyrequest.h"
 #include "settings.h"
+#include "websocket.h"
+#include "applicationenvironment.h"
 
 #include "httpserver.h"
 
@@ -20,6 +22,9 @@ void ProxyInitializer::init()
     settings.setValue("readTimeout", 30*1000);
     settings.setValue("maxRequestSize", 32000);
     settings.setValue("minThreads", 10);
+
+    if (ApplicationEnvironment().contains("CACHE_ONLY"))
+        WebSocket::setCanDownloadFromWeb(false);
 
     new HttpServer;
 }
