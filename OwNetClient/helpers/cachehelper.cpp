@@ -12,5 +12,8 @@ CacheHelper::CacheHelper(QObject *parent) :
 
 uint CacheHelper::cacheId(const QString &url)
 {
-    return qHash(url.toLower());
+    QString lower = url.toLower();
+    if (lower.endsWith('/'))
+        lower.chop(1);
+    return qHash(lower);
 }
