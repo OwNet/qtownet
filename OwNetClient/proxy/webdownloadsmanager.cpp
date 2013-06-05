@@ -72,15 +72,11 @@ void WebDownloadsManager::setApplicationProxy(const QString &ip, int port)
  */
 void WebDownloadsManager::tableUpdated(IDatabaseUpdateQuery *query)
 {
-    QString myClientId = DatabaseSettings().clientId();
     QVariantList columns = query->columnsForListeners();
     for (int i = 0; i < columns.count(); ++i) {
         QVariantMap columnsMap = columns.at(i).toMap();
 
         if (query->type() == IDatabaseUpdateQuery::InsertOrUpdate) {
-            if (myClientId == columnsMap.value("client_id").toString())
-                continue;
-
             addCacheLocation(columnsMap.value("cache_id").toUInt(),
                              columnsMap.value("client_id").toString(),
                              columnsMap.value("date_created").toString());
@@ -138,13 +134,6 @@ void WebDownloadsManager::initCacheLocations()
 }
 
 void WebDownloadsManager::addCacheLocation(uint cacheId, const QString &clientId, const QString &dateCreated)
-{
-    WebDownload *download = new WebDownload(cacheId);
-    download->addLocation(clientId, dateCreated);
-    addCacheLocation(cacheId, clientId, dateCreated, download);
-}
-
-void WebDownloadsManager::addCacheLocation(uint cacheId, const QString &clientId, const QString &dateCreated, WebDownload *download)
 {
     if (m_downloads.contains(cacheId)) {
         m_downloads.value(cacheId)->addLocation(clientId, dateCreated);

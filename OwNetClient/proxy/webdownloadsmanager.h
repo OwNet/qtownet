@@ -58,7 +58,6 @@ private:
     WebDownloadsManager();
     void initCacheLocations();
     void addCacheLocation(uint cacheId, const QString &clientId, const QString &dateCreated);
-    void addCacheLocation(uint cacheId, const QString &clientId, const QString &dateCreated, WebDownload *download);
     bool shouldRefresh(ProxyRequest *request);
 
     QMutex m_openDownloadsMutex;
