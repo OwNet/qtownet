@@ -147,7 +147,7 @@ define( function (require) {
 
 				if (content=="")
 					return
-
+				$('textarea[name="message"]', this.$el).val("")
 				var data = {
 					message: content,
 					group_id: this.group.id,

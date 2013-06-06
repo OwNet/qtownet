@@ -38,13 +38,13 @@ define( function (require) {
 
 			saveOrder: function() {
 				var form = Form( $('form[name="offline-form"]', this.$el) )
-				var data = form.toJSON()
-
-				return $.ajax({
-					type: 'POST',
-					url: 'http://my.ownet/api/orders/',
-					data: data,
-					success: function(data) { 
+				
+				return $.ajax('http://my.ownet/api/orders/',{
+				    data: JSON.stringify(form.toJSON()), 
+				    type: 'POST',
+				    processData: false,
+				    contentType: 'application/json',
+				    success: function(data) { 
 						App.router.navigate('profile/showdownloadorders', {trigger: true})
 					},
 				})

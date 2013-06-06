@@ -52,6 +52,7 @@ define( function (require) {
 			onFilterClick: function(e) {
 				var typeName = $(e.target).closest('a').attr('data-filter')
 				if (typeName=='all'){
+					this.activitiesView.setParams({page: 1})
 					this.activitiesView.deleteParam("user_id")
 					this.activitiesView.deleteParam("type")
 					}
@@ -77,7 +78,7 @@ define( function (require) {
 
 				if (content==="")
 					return
-
+				$('textarea[name="message"]', this.$el).val("")
 				var data = {
 					message: content,
 					group_id: 0,
@@ -89,7 +90,7 @@ define( function (require) {
 
 				message.save(null, {
 					success: function() {
-						self.activitiesView.showPage(1, true)
+						self.activitiesView.render()
 						$text.val('')
 					},
 					error: function() {	App.showMessage("Message send failed!")	},
