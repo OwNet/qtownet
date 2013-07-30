@@ -49,6 +49,10 @@ In the development of the project participated:
 - Andrea Šteňová
 - Matúš Tomlein (@matus_tomlein)
 
+## License
+
+OwNet is distributed under the [MIT License](http://opensource.org/licenses/MIT).
+
 ## More information
 
 For more information, visit the [project homepage](http://ownet.fiit.stuba.sk/).
